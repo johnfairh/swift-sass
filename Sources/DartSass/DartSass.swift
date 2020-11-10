@@ -1,3 +1,5 @@
 struct DartSass {
-    var text = "Hello, World!"
+    func doThings() {
+        print("Things")
+    }
 }

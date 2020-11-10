@@ -6,24 +6,16 @@ on:
 
 jobs:
   macos:
-    name: macOS SPM unit tests
+    name: macOS tests
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v1
       - name: SPM tests
-        run: swift test
-
-  xcode:
-    name: Xcode mode unit tests and coverage
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Xcodebuild tests
-        run: |
-          xcodebuild test -scheme swift-sass -target DartSass -enableCodeCoverage YES
-      - name: Coverage upload
-        run: |
-          bash <(curl -s https://codecov.io/bash) -J 'DartSass' -X gcov -X coveragepy -t 35729115-01be-4d17-8b1f-063fa0892b79 
+        run: swift test --enable-code-coverage
+      - name: Normalize coverage info
+        run: xcrun llvm-cov export -format lcov .build/debug/swift-sassPackageTests.xctest/Contents/MacOS/swift-sassPackageTests -instr-profile .build/debug/codecov/default.profdata -ignore-filename-regex Test > coverage.lcov
+      - name: Upload coverage
+        run: bash <(curl -s https://codecov.io/bash) -f coverage.lcov
 
   linux:
     name: Linux SPM unit tests
