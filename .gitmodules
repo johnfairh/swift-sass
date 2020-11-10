@@ -1,0 +1,3 @@
+[submodule "embedded-protocol"]
+	path = embedded-protocol
+	url = git@github.com:sass/embedded-protocol.git

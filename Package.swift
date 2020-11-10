@@ -10,11 +10,15 @@ let package = Package(
             targets: ["DartSass"]),
     ],
     dependencies: [
+      .package(
+        name: "SwiftProtobuf",
+        url: "https://github.com/apple/swift-protobuf.git",
+        from: "1.6.0"),
     ],
     targets: [
         .target(
             name: "DartSass",
-            dependencies: []),
+            dependencies: ["SwiftProtobuf"]),
         .testTarget(
             name: "DartSassTests",
             dependencies: ["DartSass"]),
