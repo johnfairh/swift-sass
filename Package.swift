@@ -16,11 +16,12 @@ let package = Package(
         from: "1.6.0"),
     ],
     targets: [
-        .target(
-            name: "DartSass",
-            dependencies: ["SwiftProtobuf"]),
-        .testTarget(
-            name: "DartSassTests",
-            dependencies: ["DartSass"]),
+      .target(
+        name: "DartSass",
+        dependencies: ["SwiftProtobuf"]),
+      .testTarget(
+        name: "DartSassTests",
+        dependencies: ["DartSass"],
+        exclude: ["dart-sass-embedded"]),
     ]
 )
