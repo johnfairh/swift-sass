@@ -1,0 +1,34 @@
+name: Tests
+  
+on:
+  push:
+  pull_request:
+
+jobs:
+  macos:
+    name: macOS SPM unit tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: SPM tests
+        run: swift test
+
+  xcode:
+    name: Xcode mode unit tests and coverage
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Xcodebuild tests
+        run: |
+          xcodebuild test -scheme swift-sass -target DartSass -enableCodeCoverage YES
+      - name: Coverage upload
+        run: |
+          bash <(curl -s https://codecov.io/bash) -J 'DartSass' -X gcov -X coveragepy -t 35729115-01be-4d17-8b1f-063fa0892b79 
+
+  linux:
+    name: Linux SPM unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Run tests
+        run: swift test --enable-test-discovery
