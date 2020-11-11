@@ -4,6 +4,9 @@ import PackageDescription
 
 let package = Package(
     name: "swift-sass",
+    platforms: [
+      .macOS("10.15")
+    ],
     products: [
         .library(
             name: "DartSass",
