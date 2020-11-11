@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: SPM tests
-        run: swift test --enable-code-coverage
+        run: make test platform=macos
       - name: Normalize coverage info
         run: xcrun llvm-cov export -format lcov .build/debug/swift-sassPackageTests.xctest/Contents/MacOS/swift-sassPackageTests -instr-profile .build/debug/codecov/default.profdata -ignore-filename-regex Test > coverage.lcov
       - name: Upload coverage
@@ -23,4 +23,4 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Run tests
-        run: swift test --enable-test-discovery
+        run: make test platform=linux

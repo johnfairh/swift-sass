@@ -6,13 +6,13 @@ build:
 	swift build
 
 ifeq ($(shell uname), Linux)
-	os=linux
+	platform ?= linux
 else
-	os=macos
+	platform ?= macos
 endif
 
-test: Tests/DartSassTests/dart-sass-embedded/${os}
-	swift test --parallel --enable-test-discovery
+test: Tests/DartSassTests/dart-sass-embedded/${platform}
+	swift test --parallel --enable-test-discovery --enable-code-coverage
 
 test_linux:
 	docker run -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:5.3 make test
