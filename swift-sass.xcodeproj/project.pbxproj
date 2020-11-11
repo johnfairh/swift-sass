@@ -1,0 +1,449 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		025C623D255C18D000AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
+		025C623E255C18D000AEA420 /* SwiftProtobuf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		025C6240255C18F700AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
+		025C6243255C19F400AEA420 /* SwiftProtobuf.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
+		OBJ_119 /* SassCompiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* SassCompiler.swift */; };
+		OBJ_120 /* embedded_sass.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* embedded_sass.pb.swift */; };
+		OBJ_130 /* TestBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_14 /* TestBootstrap.swift */; };
+		OBJ_131 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* TestUtils.swift */; };
+		OBJ_133 /* DartSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::DartSass::Product" /* DartSass.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		025C61F7255C154800AEA420 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = "swift-sass::DartSass";
+			remoteInfo = DartSass;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		025C623A255C17AA00AEA420 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				025C623E255C18D000AEA420 /* SwiftProtobuf.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		025C6242255C19E500AEA420 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				025C6243255C19F400AEA420 /* SwiftProtobuf.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		025C623C255C18D000AEA420 /* SwiftProtobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftProtobuf.framework; path = Carthage/Build/Mac/SwiftProtobuf.framework; sourceTree = "<group>"; };
+		OBJ_10 /* SassCompiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SassCompiler.swift; sourceTree = "<group>"; };
+		OBJ_11 /* embedded_sass.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = embedded_sass.pb.swift; sourceTree = "<group>"; };
+		OBJ_14 /* TestBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestBootstrap.swift; sourceTree = "<group>"; };
+		OBJ_15 /* TestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
+		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		OBJ_9 /* Exec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exec.swift; sourceTree = "<group>"; };
+		"swift-sass::DartSass::Product" /* DartSass.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DartSass.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"swift-sass::DartSassTests::Product" /* DartSassTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = DartSassTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		OBJ_121 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+				025C623D255C18D000AEA420 /* SwiftProtobuf.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_132 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_133 /* DartSass.framework in Frameworks */,
+				025C6240255C18F700AEA420 /* SwiftProtobuf.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		025C622E255C16FD00AEA420 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				025C623C255C18D000AEA420 /* SwiftProtobuf.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		OBJ_105 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				"swift-sass::DartSass::Product" /* DartSass.framework */,
+				"swift-sass::DartSassTests::Product" /* DartSassTests.xctest */,
+			);
+			name = Products;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		OBJ_12 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_13 /* DartSassTests */,
+			);
+			name = Tests;
+			sourceTree = SOURCE_ROOT;
+		};
+		OBJ_13 /* DartSassTests */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_14 /* TestBootstrap.swift */,
+				OBJ_15 /* TestUtils.swift */,
+			);
+			name = DartSassTests;
+			path = Tests/DartSassTests;
+			sourceTree = SOURCE_ROOT;
+		};
+		OBJ_5 /*  */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_6 /* Package.swift */,
+				OBJ_7 /* Sources */,
+				OBJ_12 /* Tests */,
+				OBJ_105 /* Products */,
+				025C622E255C16FD00AEA420 /* Frameworks */,
+			);
+			name = "";
+			sourceTree = "<group>";
+		};
+		OBJ_7 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_8 /* DartSass */,
+			);
+			name = Sources;
+			sourceTree = SOURCE_ROOT;
+		};
+		OBJ_8 /* DartSass */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_10 /* SassCompiler.swift */,
+				OBJ_9 /* Exec.swift */,
+				OBJ_11 /* embedded_sass.pb.swift */,
+			);
+			name = DartSass;
+			path = Sources/DartSass;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		"swift-sass::DartSass" /* DartSass */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = OBJ_114 /* Build configuration list for PBXNativeTarget "DartSass" */;
+			buildPhases = (
+				OBJ_117 /* Sources */,
+				OBJ_121 /* Frameworks */,
+				025C623A255C17AA00AEA420 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DartSass;
+			productName = DartSass;
+			productReference = "swift-sass::DartSass::Product" /* DartSass.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		"swift-sass::DartSassTests" /* DartSassTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = OBJ_126 /* Build configuration list for PBXNativeTarget "DartSassTests" */;
+			buildPhases = (
+				OBJ_129 /* Sources */,
+				OBJ_132 /* Frameworks */,
+				025C6242255C19E500AEA420 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				OBJ_135 /* PBXTargetDependency */,
+			);
+			name = DartSassTests;
+			productName = DartSassTests;
+			productReference = "swift-sass::DartSassTests::Product" /* DartSassTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		OBJ_1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftMigration = 9999;
+				LastUpgradeCheck = 9999;
+			};
+			buildConfigurationList = OBJ_2 /* Build configuration list for PBXProject "swift-sass" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = OBJ_5 /*  */;
+			productRefGroup = OBJ_105 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				"swift-sass::DartSass" /* DartSass */,
+				"swift-sass::DartSassTests" /* DartSassTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		OBJ_117 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_118 /* Exec.swift in Sources */,
+				OBJ_119 /* SassCompiler.swift in Sources */,
+				OBJ_120 /* embedded_sass.pb.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_129 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_130 /* TestBootstrap.swift in Sources */,
+				OBJ_131 /* TestUtils.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		OBJ_135 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = "swift-sass::DartSass" /* DartSass */;
+			targetProxy = 025C61F7255C154800AEA420 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		OBJ_115 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "swift-sass.xcodeproj/DartSass_Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = DartSass;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_VERSION = 5.0;
+				TARGET_NAME = DartSass;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Debug;
+		};
+		OBJ_116 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "swift-sass.xcodeproj/DartSass_Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = DartSass;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_VERSION = 5.0;
+				TARGET_NAME = DartSass;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Release;
+		};
+		OBJ_127 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "swift-sass.xcodeproj/DartSassTests_Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_VERSION = 5.0;
+				TARGET_NAME = DartSassTests;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Debug;
+		};
+		OBJ_128 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "swift-sass.xcodeproj/DartSassTests_Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_VERSION = 5.0;
+				TARGET_NAME = DartSassTests;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Release;
+		};
+		OBJ_3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"SWIFT_PACKAGE=1",
+					"DEBUG=1",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) SWIFT_PACKAGE DEBUG";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				USE_HEADERMAP = NO;
+			};
+			name = Debug;
+		};
+		OBJ_4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"SWIFT_PACKAGE=1",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) SWIFT_PACKAGE";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				USE_HEADERMAP = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		OBJ_114 /* Build configuration list for PBXNativeTarget "DartSass" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_115 /* Debug */,
+				OBJ_116 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		OBJ_126 /* Build configuration list for PBXNativeTarget "DartSassTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_127 /* Debug */,
+				OBJ_128 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		OBJ_2 /* Build configuration list for PBXProject "swift-sass" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_3 /* Debug */,
+				OBJ_4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = OBJ_1 /* Project object */;
+}
