@@ -14,8 +14,10 @@
 		025C624F255D2C9300AEA420 /* BinaryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C624E255D2C9300AEA420 /* BinaryProtocol.swift */; };
 		025C6252255D54C000AEA420 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6251255D54C000AEA420 /* Errors.swift */; };
 		025C6253255D54C000AEA420 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6251255D54C000AEA420 /* Errors.swift */; };
+		025C6255255E8A6900AEA420 /* SassTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6254255E8A6900AEA420 /* SassTypes.swift */; };
+		025C6256255E8A6900AEA420 /* SassTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6254255E8A6900AEA420 /* SassTypes.swift */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
-		OBJ_119 /* SassCompiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* SassCompiler.swift */; };
+		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
 		OBJ_120 /* embedded_sass.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* embedded_sass.pb.swift */; };
 		OBJ_130 /* TestBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_14 /* TestBootstrap.swift */; };
 		OBJ_131 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* TestUtils.swift */; };
@@ -60,7 +62,8 @@
 		025C623C255C18D000AEA420 /* SwiftProtobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftProtobuf.framework; path = Carthage/Build/Mac/SwiftProtobuf.framework; sourceTree = "<group>"; };
 		025C624E255D2C9300AEA420 /* BinaryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryProtocol.swift; sourceTree = "<group>"; };
 		025C6251255D54C000AEA420 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
-		OBJ_10 /* SassCompiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SassCompiler.swift; sourceTree = "<group>"; };
+		025C6254255E8A6900AEA420 /* SassTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SassTypes.swift; sourceTree = "<group>"; };
+		OBJ_10 /* Compiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compiler.swift; sourceTree = "<group>"; };
 		OBJ_11 /* embedded_sass.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = embedded_sass.pb.swift; sourceTree = "<group>"; };
 		OBJ_14 /* TestBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestBootstrap.swift; sourceTree = "<group>"; };
 		OBJ_15 /* TestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
@@ -149,10 +152,11 @@
 		OBJ_8 /* DartSass */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_10 /* SassCompiler.swift */,
+				OBJ_10 /* Compiler.swift */,
 				025C6251255D54C000AEA420 /* Errors.swift */,
 				025C624E255D2C9300AEA420 /* BinaryProtocol.swift */,
 				OBJ_9 /* Exec.swift */,
+				025C6254255E8A6900AEA420 /* SassTypes.swift */,
 				OBJ_11 /* embedded_sass.pb.swift */,
 			);
 			name = DartSass;
@@ -232,8 +236,9 @@
 				OBJ_118 /* Exec.swift in Sources */,
 				025C6252255D54C000AEA420 /* Errors.swift in Sources */,
 				025C624F255D2C9300AEA420 /* BinaryProtocol.swift in Sources */,
-				OBJ_119 /* SassCompiler.swift in Sources */,
+				OBJ_119 /* Compiler.swift in Sources */,
 				OBJ_120 /* embedded_sass.pb.swift in Sources */,
+				025C6255255E8A6900AEA420 /* SassTypes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,6 +247,7 @@
 			buildActionMask = 0;
 			files = (
 				OBJ_130 /* TestBootstrap.swift in Sources */,
+				025C6256255E8A6900AEA420 /* SassTypes.swift in Sources */,
 				025C6253255D54C000AEA420 /* Errors.swift in Sources */,
 				OBJ_131 /* TestUtils.swift in Sources */,
 			);

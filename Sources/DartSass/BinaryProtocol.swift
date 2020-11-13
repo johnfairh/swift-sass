@@ -52,9 +52,9 @@ extension Exec.Child {
         var networkMessageLen = Int32(data.count).littleEndian
         let rc = write(standardInput.fileDescriptor, &networkMessageLen, MemoryLayout<Int32>.size)
         if rc == -1 {
-            throw SassError.protocolError("Write of message length failed, errno=\(errno)")
+            throw ProtocolError("Write of message length failed, errno=\(errno)")
         } else if rc != MemoryLayout<Int32>.size {
-            throw SassError.protocolError("Write of message length underran, only \(rc) bytes")
+            throw ProtocolError("Write of message length underran, only \(rc) bytes")
         }
         /// XXX Move to `write(contentsOf:)` when macOS 10.16 is reasonable deploy target
         /// XXX This current version will crash the process on underrun or I/O error
@@ -70,9 +70,9 @@ extension Exec.Child {
         var networkMsgLen = Int32(0)
         let rc = read(standardOutput.fileDescriptor, &networkMsgLen, MemoryLayout<Int32>.size)
         if rc == -1 {
-            throw SassError.protocolError("Read of message length failed, errno=\(errno)")
+            throw ProtocolError("Read of message length failed, errno=\(errno)")
         } else if rc != MemoryLayout<Int32>.size {
-            throw SassError.protocolError("Read of message length underran, only \(rc) bytes")
+            throw ProtocolError("Read of message length underran, only \(rc) bytes")
         }
         let msgLen = Int(Int32(littleEndian: networkMsgLen))
 
@@ -80,7 +80,7 @@ extension Exec.Child {
         /// XXX This current version will crash the process on I/O errors.
         let data = standardOutput.readData(ofLength: msgLen)
         if data.count != msgLen {
-            throw SassError.protocolError("Read of message underran, only \(data.count) bytes of \(msgLen)")
+            throw ProtocolError("Read of message underran, only \(data.count) bytes of \(msgLen)")
         }
         var message = Sass_EmbeddedProtocol_OutboundMessage()
         try message.merge(serializedData: data)
