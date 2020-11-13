@@ -8,6 +8,31 @@
 
 import Foundation
 
+/// An instance of the Dart Sass compiler.
+///
+/// It runs the compiler as a child process and lets you provide importers and Sass Script routines
+/// in your Swift code.
+///
+/// Most simple usage looks like:
+/// ```swift
+/// do {
+///    let compiler = try Compiler()
+///    let results = try compiler.compile(sourceFileURL: sassFileURL)
+///    print(results.css)
+/// } catch {
+/// }
+/// ```
+///
+/// Separately to this package you need to supply the `dart-sass-embedded` program or some
+/// other thing supporting the Embedded Sass protocol that this class runs under the hood.
+///
+/// Use `Compiler.warningHandler` to get sight of warnings from the compiler.
+///
+/// Xxx importers
+/// Xxx SassScript
+///
+/// To debug problems, start with the output from `Compiler.debugHandler`, all the source files
+/// being given to the compiler, and the description of any errors thrown.
 public final class Compiler {
     private var child: Exec.Child
     private let childRestart: () throws -> Exec.Child
@@ -19,7 +44,7 @@ public final class Compiler {
         case active
         /// CompileRequest outstanding, InboundAckedRequest outstanding, user closure active, we have initiative
         case active_callback(String)
-        /// Killed them because of error, won't restart, sadface
+        /// Killed them because of error, won't restart
         case idle_broken
 
         var compileRequestLegal: Bool {
@@ -44,8 +69,12 @@ public final class Compiler {
     /// An optional callback to receive warning messages from the compiler.
     public var warningHandler: Sass.WarningHandler?
 
-    /// An optional callback to receive debug log messages during compilation.
+    /// An optional callback to receive debug log messages from us & the compiler.
     public var debugHandler: Sass.DebugHandler?
+
+    private func debug(_ msg: @autoclosure () -> String) {
+        debugHandler?(.init(message: "Host: \(msg())", span: nil, stackTrace: nil))
+    }
 
     /// Compile to CSS from a local file.
     ///
@@ -118,25 +147,35 @@ public final class Compiler {
             throw ProtocolError("Sass compiler failed to restart after previous errors.")
         }
 
+        let compilationId = message.compileRequest.id
+
         do {
             state = .active
+            debug("Start CompileRequest id=\(compilationId)")
             try child.send(message: message)
             let results = try receiveMessages()
             state = .idle
+            debug("End-Success CompileRequest id=\(compilationId)")
             return results
         }
+        catch let error as CompilerError {
+            state = .idle
+            debug("End-CompilerError CompileRequest id=\(compilationId)")
+            throw error
+        }
         catch {
-            if !(error is CompilerError) {
-                // error with some layer of the protocol.
-                // the only erp we have to is to try and restart it.
-                do {
-                    child.process.terminate()
-                    child = try childRestart()
-                    state = .idle
-                } catch {
-                    // the system looks to be broken, sadface
-                    state = .idle_broken
-                }
+            // error with some layer of the protocol.
+            // the only erp we have to is to try and restart it.
+            do {
+                debug("End-ProtocolError CompileRequest id=\(compilationId), restarting")
+                child.process.terminate()
+                child = try childRestart()
+                state = .idle
+                debug("End-ProtocolError CompileRequest id=\(compilationId), restart OK")
+            } catch {
+                // the system looks to be broken, sadface
+                state = .idle_broken
+                debug("End-ProtocolError CompileRequest id=\(compilationId), restart failed (\(error))")
             }
             // Propagate original error
             throw error
@@ -149,6 +188,7 @@ public final class Compiler {
             let response = try child.receive()
             switch response.message {
             case .compileResponse(let rsp):
+                debug("  Got CompileResponse")
                 return try handleInbound(compileResponse: rsp)
 
             default:
