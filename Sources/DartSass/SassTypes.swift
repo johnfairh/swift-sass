@@ -35,7 +35,7 @@ public enum Sass {
         case scss
 
         /// The indented `.sass` syntax.
-        case indented
+        case indented, sass
 
         /// Plain CSS syntax that doesn't support any special Sass features.
         case css

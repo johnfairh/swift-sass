@@ -69,7 +69,7 @@ public final class Compiler {
     /// An optional callback to receive warning messages from the compiler.
     public var warningHandler: Sass.WarningHandler?
 
-    /// An optional callback to receive debug log messages from us & the compiler.
+    /// An optional callback to receive debug log messages from us and the compiler.
     public var debugHandler: Sass.DebugHandler?
 
     private func debug(_ msg: @autoclosure () -> String) {
@@ -120,7 +120,7 @@ public final class Compiler {
                         createSourceMap: Bool = false) throws -> Sass.Results {
         try compile(input: .string(.with { m in
                         m.source = sourceText
-                        // m.syntax = xxx
+                        m.syntax = sourceSyntax.forProtobuf
                     }),
                     outputStyle: outputStyle,
                     createSourceMap: createSourceMap)
@@ -165,7 +165,8 @@ public final class Compiler {
         }
         catch {
             // error with some layer of the protocol.
-            // the only erp we have to is to try and restart it.
+            // the only erp we have to is to try and restart it into a known
+            // clean state.  seems ott to retry the command here, see how we go.
             do {
                 debug("End-ProtocolError CompileRequest id=\(compilationId), restarting")
                 child.process.terminate()
@@ -209,8 +210,19 @@ public final class Compiler {
             // xxx
             throw CompilerError("Sass says no: \(f)")
         case nil:
-            // mandatory field is optional
             throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
+        }
+    }
+}
+
+// MARK: Protobuf <-> Public type conversions
+
+extension Sass.InputSyntax {
+    var forProtobuf: Sass_EmbeddedProtocol_InboundMessage.Syntax {
+        switch self {
+        case .css: return .css
+        case .indented, .sass: return .indented
+        case .scss: return .scss
         }
     }
 }

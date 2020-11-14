@@ -16,10 +16,10 @@
 		025C6253255D54C000AEA420 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6251255D54C000AEA420 /* Errors.swift */; };
 		025C6255255E8A6900AEA420 /* SassTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6254255E8A6900AEA420 /* SassTypes.swift */; };
 		025C6256255E8A6900AEA420 /* SassTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6254255E8A6900AEA420 /* SassTypes.swift */; };
+		0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C7256000A400F6BE14 /* TestInterface.swift */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
 		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
 		OBJ_120 /* embedded_sass.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* embedded_sass.pb.swift */; };
-		OBJ_130 /* TestBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_14 /* TestBootstrap.swift */; };
 		OBJ_131 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* TestUtils.swift */; };
 		OBJ_133 /* DartSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::DartSass::Product" /* DartSass.framework */; };
 /* End PBXBuildFile section */
@@ -63,9 +63,9 @@
 		025C624E255D2C9300AEA420 /* BinaryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryProtocol.swift; sourceTree = "<group>"; };
 		025C6251255D54C000AEA420 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		025C6254255E8A6900AEA420 /* SassTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SassTypes.swift; sourceTree = "<group>"; };
+		0291E7C7256000A400F6BE14 /* TestInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestInterface.swift; sourceTree = "<group>"; };
 		OBJ_10 /* Compiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compiler.swift; sourceTree = "<group>"; };
 		OBJ_11 /* embedded_sass.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = embedded_sass.pb.swift; sourceTree = "<group>"; };
-		OBJ_14 /* TestBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestBootstrap.swift; sourceTree = "<group>"; };
 		OBJ_15 /* TestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		OBJ_9 /* Exec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exec.swift; sourceTree = "<group>"; };
@@ -122,14 +122,14 @@
 		OBJ_13 /* DartSassTests */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_14 /* TestBootstrap.swift */,
+				0291E7C7256000A400F6BE14 /* TestInterface.swift */,
 				OBJ_15 /* TestUtils.swift */,
 			);
 			name = DartSassTests;
 			path = Tests/DartSassTests;
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -138,7 +138,6 @@
 				OBJ_105 /* Products */,
 				025C622E255C16FD00AEA420 /* Frameworks */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_7 /* Sources */ = {
@@ -217,7 +216,7 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_105 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -246,9 +245,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				OBJ_130 /* TestBootstrap.swift in Sources */,
 				025C6256255E8A6900AEA420 /* SassTypes.swift in Sources */,
 				025C6253255D54C000AEA420 /* Errors.swift in Sources */,
+				0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */,
 				OBJ_131 /* TestUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
