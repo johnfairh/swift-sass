@@ -56,10 +56,13 @@ public final class Compiler {
     }
     private var state: State
 
+    private var compilationID: UInt32
+
     public init(embeddedDartSass: URL) throws {
         childRestart = { try Exec.spawn(embeddedDartSass) }
         child = try childRestart()
         state = .idle
+        compilationID = 8000
     }
 
     deinit {
@@ -130,9 +133,10 @@ public final class Compiler {
     private func compile(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
                          outputStyle: Sass.OutputStyle,
                          createSourceMap: Bool) throws -> Sass.Results {
-        try compile(message: .with { wrapper in
+        compilationID += 1
+        return try compile(message: .with { wrapper in
             wrapper.message = .compileRequest(.with { msg in
-                msg.id = 42 // XXX
+                msg.id = compilationID
                 msg.input = input
                 // msg.style = xxx
                 msg.sourceMap = createSourceMap
@@ -200,7 +204,7 @@ public final class Compiler {
 
     /// Inbound `CompileResponse` handler
     private func handleInbound(compileResponse: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) throws -> Sass.Results {
-        if compileResponse.id != 42 {
+        if compileResponse.id != compilationID {
             throw ProtocolError("Bad compilation ID, expected 42 got \(compileResponse.id)")
         }
         switch compileResponse.result {
