@@ -16,7 +16,7 @@ import DartSass
 class TestCompiler: XCTestCase {
 
     func newCompiler() throws -> Compiler {
-        let c = try Compiler(embeddedDartSass: TestUtils.dartSassEmbeddedURL)
+        let c = try Compiler(embeddedCompilerURL: TestUtils.dartSassEmbeddedURL)
         c.debugHandler = { m in print(m) }
         return c
     }
@@ -109,5 +109,26 @@ class TestCompiler: XCTestCase {
             let results = try compiler.compile(sourceText: scssIn, sourceSyntax: .scss, outputStyle: tc.0)
             XCTAssertEqual(tc.1, results.css, String(describing: tc.0))
         }
+    }
+
+    /// Can we search PATH properly
+    func testCompilerSearch() throws {
+        do {
+            let compiler = try Compiler(embeddedCompilerName: "not-a-compiler")
+            XCTFail("Created a weird compiler \(compiler)")
+        } catch let error as ProtocolError {
+            print(error.text)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+        // omg don't @ me
+        let oldPATH = strdup(getenv("PATH"))
+        let oldPATHString = String(cString: oldPATH!)
+        defer { setenv("PATH", oldPATH!, 1) }
+        let newPATH = "\(TestUtils.dartSassEmbeddedDirURL.path):\(oldPATHString)"
+        setenv("PATH", strdup(newPATH), 1)
+        let compiler = try Compiler(embeddedCompilerName: "dart-sass-embedded")
+        let results = try compiler.compile(sourceText: "")
+        XCTAssertEqual("", results.css)
     }
 }

@@ -13,7 +13,7 @@ enum TestUtils {
         URL(fileURLWithPath: #filePath).deletingLastPathComponent()
     }
 
-    static var dartSassEmbeddedURL: URL {
+    static var dartSassEmbeddedDirURL: URL {
         let rootURL = unitTestDirURL.appendingPathComponent("dart-sass-embedded")
         #if os(Linux)
         let platformURL = rootURL.appendingPathComponent("linux")
@@ -21,6 +21,9 @@ enum TestUtils {
         let platformURL = rootURL.appendingPathComponent("macos")
         #endif
         return platformURL.appendingPathComponent("sass_embedded")
-            .appendingPathComponent("dart-sass-embedded")
+    }
+
+    static var dartSassEmbeddedURL: URL {
+        dartSassEmbeddedDirURL.appendingPathComponent("dart-sass-embedded")
     }
 }

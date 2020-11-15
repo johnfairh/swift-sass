@@ -58,11 +58,33 @@ public final class Compiler {
 
     private var compilationID: UInt32
 
-    public init(embeddedDartSass: URL) throws {
-        childRestart = { try Exec.spawn(embeddedDartSass) }
+    /// Initialize using the given program as the embedded Sass compiler.
+    ///
+    /// - parameter embeddedCompilerURL: The file URL to `dart-sass-embedded`
+    ///   or something else that speaks the embedded Sass protocol.
+    /// - throws: Something from Foundation if the program does not start.
+    ///
+    /// Blocks while the compiler starts up.
+    public init(embeddedCompilerURL: URL) throws {
+        childRestart = { try Exec.spawn(embeddedCompilerURL) }
         child = try childRestart()
         state = .idle
         compilationID = 8000
+    }
+
+    /// Initialize using a program found on `PATH` as the embedded Sass compiler.
+    ///
+    /// - parameter embeddedCompilerName: Name of the program, default `dart-sass-embedded`.
+    /// - throws: `ProtocolError()` if the program can't be found.
+    ///           Everything from `init(embeddedCompilerURL:)`
+    ///
+    /// Blocks while the compiler starts up.
+    public convenience init(embeddedCompilerName: String = "dart-sass-embedded") throws {
+        let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName, stderr: .discard)
+        guard let path = results.successString else {
+            throw ProtocolError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
+        }
+        try self.init(embeddedCompilerURL: URL(fileURLWithPath: path))
     }
 
     deinit {
