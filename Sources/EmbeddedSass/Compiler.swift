@@ -1,6 +1,6 @@
 //
 //  Compiler.swift
-//  DartSass
+//  EmbeddedSass
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/master/LICENSE)
@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// An instance of the Dart Sass compiler.
+/// An instance of the embedded Sass compiler hosted in Swift.
 ///
 /// It runs the compiler as a child process and lets you provide importers and Sass Script routines
 /// in your Swift code.

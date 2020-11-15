@@ -9,22 +9,22 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "DartSass",
-            targets: ["DartSass"]),
+            name: "EmbeddedSass",
+            targets: ["EmbeddedSass"]),
     ],
     dependencies: [
       .package(
         name: "SwiftProtobuf",
         url: "https://github.com/apple/swift-protobuf.git",
-        from: "1.6.0"),
+        from: "1.13.0"),
     ],
     targets: [
       .target(
-        name: "DartSass",
+        name: "EmbeddedSass",
         dependencies: ["SwiftProtobuf"]),
       .testTarget(
-        name: "DartSassTests",
-        dependencies: ["DartSass"],
+        name: "EmbeddedSassTests",
+        dependencies: ["EmbeddedSass"],
         exclude: ["dart-sass-embedded"]),
     ]
 )

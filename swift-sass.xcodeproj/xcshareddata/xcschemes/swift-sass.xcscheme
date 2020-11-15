@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "swift-sass::DartSass"
                BuildableName = "DartSass.framework"
-               BlueprintName = "DartSass"
+               BlueprintName = "EmbeddedSass"
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -35,7 +35,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "swift-sass::DartSassTests"
                BuildableName = "DartSassTests.xctest"
-               BlueprintName = "DartSassTests"
+               BlueprintName = "EmbeddedSassTests"
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
          </TestableReference>

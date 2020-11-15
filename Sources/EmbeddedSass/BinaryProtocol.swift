@@ -7,7 +7,7 @@
 //
 
 //
-// Routines to send and receive messages to the embedded dart sass compiler.
+// Routines to send and receive messages to the embedded Sass compiler.
 //
 // Two horror stories in standards compliance and interop here:
 //
@@ -18,7 +18,7 @@
 //
 // 2) Protobuf's written docs are vague about how binary delimiters should work.
 //    The code is unambiguous though: use a varint32 to hold the length.
-//    The dart sass team interpreted this differently though and require a
+//    The Sass team interpreted this differently though and require a
 //    straight 32-bit number (in reverse network byte order).
 //
 // Now, these two things sort of cancel each other out!  Because of (2) we don't
@@ -46,7 +46,7 @@ extension Exec.Child {
     ///
     /// - parameter message: The message to send to the compiler ('inbound' from their perspective...).
     /// - throws: `SassError.protocolError()` if we can't squeeze the bytes out.
-    /// - note: Uses the dart-sass-embedded binary delimiter protocol, not the regular protobuf one.
+    /// - note: Uses the embedded Sass binary delimiter protocol, not the regular protobuf one.
     func send(message: Sass_EmbeddedProtocol_InboundMessage) throws {
         let data = try message.serializedData()
         var networkMessageLen = Int32(data.count).littleEndian
@@ -63,9 +63,9 @@ extension Exec.Child {
 
     /// Read and deserialize a message from the embedded sass compiler.
     ///
-    /// - throws: `SassError.protocolError()` if we can't get the bytes out of dart.
+    /// - throws: `ProtocolError()` if we can't get the bytes out of the compiler.
     ///           `SwiftProtobuf.BinaryDecodingError` if we can't make sense of the bytes.
-    /// - note: Uses the dart-sass-embedded binary delimiter protocol, not the regular protobuf one.
+    /// - note: Uses the embedded Sass binary delimiter protocol, not the regular protobuf one.
     func receive() throws -> Sass_EmbeddedProtocol_OutboundMessage {
         var networkMsgLen = Int32(0)
         let rc = read(standardOutput.fileDescriptor, &networkMsgLen, MemoryLayout<Int32>.size)

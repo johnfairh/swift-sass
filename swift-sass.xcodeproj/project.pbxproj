@@ -19,7 +19,7 @@
 		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
 		OBJ_120 /* embedded_sass.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* embedded_sass.pb.swift */; };
 		OBJ_131 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* TestUtils.swift */; };
-		OBJ_133 /* DartSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::DartSass::Product" /* DartSass.framework */; };
+		OBJ_133 /* EmbeddedSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::DartSass::Product" /* EmbeddedSass.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,8 +67,8 @@
 		OBJ_15 /* TestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		OBJ_9 /* Exec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exec.swift; sourceTree = "<group>"; };
-		"swift-sass::DartSass::Product" /* DartSass.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DartSass.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"swift-sass::DartSassTests::Product" /* DartSassTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = DartSassTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		"swift-sass::DartSass::Product" /* EmbeddedSass.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = EmbeddedSass.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"swift-sass::DartSassTests::Product" /* EmbeddedSassTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = EmbeddedSassTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,7 +84,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 0;
 			files = (
-				OBJ_133 /* DartSass.framework in Frameworks */,
+				OBJ_133 /* EmbeddedSass.framework in Frameworks */,
 				025C6240255C18F700AEA420 /* SwiftProtobuf.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -103,8 +103,8 @@
 		OBJ_105 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				"swift-sass::DartSass::Product" /* DartSass.framework */,
-				"swift-sass::DartSassTests::Product" /* DartSassTests.xctest */,
+				"swift-sass::DartSass::Product" /* EmbeddedSass.framework */,
+				"swift-sass::DartSassTests::Product" /* EmbeddedSassTests.xctest */,
 			);
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -112,19 +112,19 @@
 		OBJ_12 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_13 /* DartSassTests */,
+				OBJ_13 /* EmbeddedSassTests */,
 			);
 			name = Tests;
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_13 /* DartSassTests */ = {
+		OBJ_13 /* EmbeddedSassTests */ = {
 			isa = PBXGroup;
 			children = (
 				0291E7C7256000A400F6BE14 /* TestInterface.swift */,
 				OBJ_15 /* TestUtils.swift */,
 			);
-			name = DartSassTests;
-			path = Tests/DartSassTests;
+			name = EmbeddedSassTests;
+			path = Tests/EmbeddedSassTests;
 			sourceTree = SOURCE_ROOT;
 		};
 		OBJ_5 = {
@@ -141,12 +141,12 @@
 		OBJ_7 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_8 /* DartSass */,
+				OBJ_8 /* EmbeddedSass */,
 			);
 			name = Sources;
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_8 /* DartSass */ = {
+		OBJ_8 /* EmbeddedSass */ = {
 			isa = PBXGroup;
 			children = (
 				OBJ_10 /* Compiler.swift */,
@@ -156,16 +156,16 @@
 				025C6254255E8A6900AEA420 /* SassTypes.swift */,
 				OBJ_11 /* embedded_sass.pb.swift */,
 			);
-			name = DartSass;
-			path = Sources/DartSass;
+			name = EmbeddedSass;
+			path = Sources/EmbeddedSass;
 			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		"swift-sass::DartSass" /* DartSass */ = {
+		"swift-sass::DartSass" /* EmbeddedSass */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = OBJ_114 /* Build configuration list for PBXNativeTarget "DartSass" */;
+			buildConfigurationList = OBJ_114 /* Build configuration list for PBXNativeTarget "EmbeddedSass" */;
 			buildPhases = (
 				OBJ_117 /* Sources */,
 				OBJ_121 /* Frameworks */,
@@ -175,14 +175,14 @@
 			);
 			dependencies = (
 			);
-			name = DartSass;
+			name = EmbeddedSass;
 			productName = DartSass;
-			productReference = "swift-sass::DartSass::Product" /* DartSass.framework */;
+			productReference = "swift-sass::DartSass::Product" /* EmbeddedSass.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		"swift-sass::DartSassTests" /* DartSassTests */ = {
+		"swift-sass::DartSassTests" /* EmbeddedSassTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = OBJ_126 /* Build configuration list for PBXNativeTarget "DartSassTests" */;
+			buildConfigurationList = OBJ_126 /* Build configuration list for PBXNativeTarget "EmbeddedSassTests" */;
 			buildPhases = (
 				OBJ_129 /* Sources */,
 				OBJ_132 /* Frameworks */,
@@ -193,9 +193,9 @@
 			dependencies = (
 				OBJ_135 /* PBXTargetDependency */,
 			);
-			name = DartSassTests;
+			name = EmbeddedSassTests;
 			productName = DartSassTests;
-			productReference = "swift-sass::DartSassTests::Product" /* DartSassTests.xctest */;
+			productReference = "swift-sass::DartSassTests::Product" /* EmbeddedSassTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -219,8 +219,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				"swift-sass::DartSass" /* DartSass */,
-				"swift-sass::DartSassTests" /* DartSassTests */,
+				"swift-sass::DartSass" /* EmbeddedSass */,
+				"swift-sass::DartSassTests" /* EmbeddedSassTests */,
 			);
 		};
 /* End PBXProject section */
@@ -253,7 +253,7 @@
 /* Begin PBXTargetDependency section */
 		OBJ_135 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "swift-sass::DartSass" /* DartSass */;
+			target = "swift-sass::DartSass" /* EmbeddedSass */;
 			targetProxy = 025C61F7255C154800AEA420 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -269,21 +269,21 @@
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
-				INFOPLIST_FILE = "swift-sass.xcodeproj/DartSass_Info.plist";
+				INFOPLIST_FILE = "swift-sass.xcodeproj/EmbeddedSass_Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = DartSass;
+				PRODUCT_BUNDLE_IDENTIFIER = EmbeddedSass;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				SWIFT_VERSION = 5.0;
-				TARGET_NAME = DartSass;
+				TARGET_NAME = EmbeddedSass;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
@@ -299,21 +299,21 @@
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
-				INFOPLIST_FILE = "swift-sass.xcodeproj/DartSass_Info.plist";
+				INFOPLIST_FILE = "swift-sass.xcodeproj/EmbeddedSass_Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = DartSass;
+				PRODUCT_BUNDLE_IDENTIFIER = EmbeddedSass;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				SWIFT_VERSION = 5.0;
-				TARGET_NAME = DartSass;
+				TARGET_NAME = EmbeddedSass;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
@@ -330,7 +330,7 @@
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
-				INFOPLIST_FILE = "swift-sass.xcodeproj/DartSassTests_Info.plist";
+				INFOPLIST_FILE = "swift-sass.xcodeproj/EmbeddedSassTests_Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
@@ -340,7 +340,7 @@
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				SWIFT_VERSION = 5.0;
-				TARGET_NAME = DartSassTests;
+				TARGET_NAME = EmbeddedSassTests;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
@@ -357,7 +357,7 @@
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
-				INFOPLIST_FILE = "swift-sass.xcodeproj/DartSassTests_Info.plist";
+				INFOPLIST_FILE = "swift-sass.xcodeproj/EmbeddedSassTests_Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
@@ -367,7 +367,7 @@
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				SWIFT_VERSION = 5.0;
-				TARGET_NAME = DartSassTests;
+				TARGET_NAME = EmbeddedSassTests;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
@@ -427,7 +427,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		OBJ_114 /* Build configuration list for PBXNativeTarget "DartSass" */ = {
+		OBJ_114 /* Build configuration list for PBXNativeTarget "EmbeddedSass" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				OBJ_115 /* Debug */,
@@ -436,7 +436,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		OBJ_126 /* Build configuration list for PBXNativeTarget "DartSassTests" */ = {
+		OBJ_126 /* Build configuration list for PBXNativeTarget "EmbeddedSassTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				OBJ_127 /* Debug */,

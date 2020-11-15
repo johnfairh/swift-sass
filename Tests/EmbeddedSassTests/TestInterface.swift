@@ -1,13 +1,13 @@
 //
 //  TestCompiler.swift
-//  DartSassTests
+//  EmbeddedSassTests
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/master/LICENSE)
 //
 
 import XCTest
-import DartSass
+import EmbeddedSass
 
 ///
 /// Tests to check the normal operation of the sass compiler -- not testing the compiler itself,
