@@ -149,7 +149,7 @@ enum Exec {
     /// A running child process.
     ///
     /// When the last reference to this object is released the `await()` method is called
-    /// to block for termination.
+    /// to block for termination -- we take no action to ensure this termination though.
     final class Child {
         /// The `Process` object for the child
         let process: Process
@@ -179,9 +179,7 @@ enum Exec {
         }
 
         deinit {
-            if process.isRunning {
-                _ = await()
-            }
+            _ = await()
         }
     }
 }

@@ -83,7 +83,7 @@ public final class Compiler {
     ///
     /// - parameters:
     ///   - sourceFileURL: The file:// URL to compile.  The file extension is used to guess the
-    ///                    syntax of the contents.
+    ///                    syntax of the contents, so it must be css/scss/sass.
     ///   - outputStyle: How to format the produced CSS.
     ///   - createSourceMap: Create a JSON source map for the CSS.
     /// - throws: `SassError.compilerError()` if there is a critical error with the input, for
@@ -98,7 +98,9 @@ public final class Compiler {
     public func compile(sourceFileURL: URL,
                         outputStyle: Sass.OutputStyle = .expanded,
                         createSourceMap: Bool = false) throws -> Sass.Results {
-        throw CompilerError("Not implemented")
+        try compile(input: .path(sourceFileURL.path),
+                    outputStyle: outputStyle,
+                    createSourceMap: createSourceMap)
     }
 
     /// Compile to CSS from some text.

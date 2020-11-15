@@ -69,6 +69,21 @@ class TestCompiler: XCTestCase {
         XCTAssertEqual(sassOutExpanded, results3.css)
     }
 
+    private func checkCompileFromFile(_ compiler: Compiler, extnsion: String, content: String, expected: String) throws {
+        let tmpFile = FileManager.default.temporaryDirectory.appendingPathComponent("file.\(extnsion)")
+        try content.write(toFile: tmpFile.path, atomically: false, encoding: .utf8)
+        let results = try compiler.compile(sourceFileURL: tmpFile)
+        XCTAssertEqual(expected, results.css)
+    }
+
+    /// Does it work, from a file
+    func testCoreFile() throws {
+        let compiler = try newCompiler()
+        try checkCompileFromFile(compiler, extnsion: "scss", content: scssIn, expected: scssOutExpanded)
+        try checkCompileFromFile(compiler, extnsion: "sass", content: sassIn, expected: sassOutExpanded)
+    }
+
+    /// Is source map transmitted OK
     func testSourceMap() throws {
         let compiler = try newCompiler()
 
@@ -82,6 +97,7 @@ class TestCompiler: XCTestCase {
         XCTAssertEqual("AACI;EACI", map["mappings"] as? String)
     }
 
+    /// Is outputstyle enum translated OK
     func testOutputStyle() throws {
         let compiler = try newCompiler()
 
