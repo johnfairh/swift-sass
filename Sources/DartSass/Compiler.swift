@@ -138,7 +138,7 @@ public final class Compiler {
             wrapper.message = .compileRequest(.with { msg in
                 msg.id = compilationID
                 msg.input = input
-                // msg.style = xxx
+                msg.style = outputStyle.forProtobuf
                 msg.sourceMap = createSourceMap
             })
         })
@@ -227,6 +227,17 @@ extension Sass.InputSyntax {
         case .css: return .css
         case .indented, .sass: return .indented
         case .scss: return .scss
+        }
+    }
+}
+
+extension Sass.OutputStyle {
+    var forProtobuf: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OutputStyle {
+        switch self {
+        case .compact: return .compact
+        case .compressed: return .compressed
+        case .expanded: return .expanded
+        case .nested: return .nested
         }
     }
 }
