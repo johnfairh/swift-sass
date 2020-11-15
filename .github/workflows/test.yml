@@ -13,7 +13,7 @@ jobs:
       - name: SPM tests
         run: make test platform=macos
       - name: Normalize coverage info
-        run: xcrun llvm-cov export -format lcov .build/debug/swift-sassPackageTests.xctest/Contents/MacOS/swift-sassPackageTests -instr-profile .build/debug/codecov/default.profdata -ignore-filename-regex Test > coverage.lcov
+        run: xcrun llvm-cov export -format lcov .build/debug/swift-sassPackageTests.xctest/Contents/MacOS/swift-sassPackageTests -instr-profile .build/debug/codecov/default.profdata -ignore-filename-regex "(Test|checkouts|pb\.swift$)" > coverage.lcov
       - name: Upload coverage
         run: bash <(curl -s https://codecov.io/bash) -f coverage.lcov
 
