@@ -1,6 +1,6 @@
 //
 //  SassTypes.swift
-//  swift-sass
+//  EmbeddedSass
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/master/LICENSE)
@@ -114,7 +114,7 @@ public enum Sass {
         public let message: String
         /// Optionally a description of the source that triggered the log.
         public let span: SourceSpan?
-        /// Stack trace
+        /// Stack trace.
         public let stackTrace: String?
     }
 

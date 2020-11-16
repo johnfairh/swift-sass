@@ -1,6 +1,6 @@
 //
 //  Errors.swift
-//  swift-sass
+//  EmbeddedSass
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/master/LICENSE)
@@ -19,10 +19,9 @@ public struct ProtocolError: Error {
     }
 }
 
+// Sass.CompilerError ?
 public struct CompilerError: Error {
-    public let text: String
-
-    init(_ text: String) {
-        self.text = text
-    }
+    public let message: String
+    public let span: Sass.SourceSpan?
+    public let stackTrace: String?
 }

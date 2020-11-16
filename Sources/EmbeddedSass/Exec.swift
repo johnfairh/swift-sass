@@ -1,6 +1,6 @@
 //
 //  Exec.swift
-//  TMLMisc -> SourceKittenFramework -> BebopLib -> swift-sass
+//  TMLMisc -> SourceKittenFramework -> BebopLib -> EmbeddedSass
 //
 //  Copyright © 2019 SourceKitten. All rights reserved.
 //  Copyright 2020 Bebop Authors

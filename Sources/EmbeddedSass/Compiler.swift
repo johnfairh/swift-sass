@@ -101,7 +101,7 @@ public final class Compiler {
         debugHandler?(.init(message: "Host: \(msg())", span: nil, stackTrace: nil))
     }
 
-    /// Compile to CSS from a local file.
+    /// Compile to CSS from a file.
     ///
     /// - parameters:
     ///   - sourceFileURL: The file:// URL to compile.  The file extension is used to guess the
@@ -235,8 +235,7 @@ public final class Compiler {
         case .success(let s):
             return .init(css: s.css, sourceMap: s.sourceMap.isEmpty ? nil : s.sourceMap)
         case .failure(let f):
-            // xxx
-            throw CompilerError("Sass says no: \(f)")
+            throw CompilerError(protobuf: f)
         case nil:
             throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
         }
@@ -263,5 +262,31 @@ extension Sass.OutputStyle {
         case .expanded: return .expanded
         case .nested: return .nested
         }
+    }
+}
+
+extension Sass.SourceSpan {
+    init(protobuf: Sass_EmbeddedProtocol_SourceSpan) {
+        text = protobuf.text
+        url = protobuf.url.isEmpty ? nil : protobuf.url
+        start = Location(protobuf: protobuf.start)
+        end = protobuf.hasEnd ? Location(protobuf: protobuf.end) : nil
+        context = protobuf.context.isEmpty ? nil : protobuf.context
+    }
+}
+
+extension Sass.SourceSpan.Location {
+    init(protobuf: Sass_EmbeddedProtocol_SourceSpan.SourceLocation) {
+        offset = Int(protobuf.offset)
+        line = Int(protobuf.line)
+        column = Int(protobuf.column)
+    }
+}
+
+extension CompilerError {
+    init(protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure) {
+        message = protobuf.message
+        span = protobuf.hasSpan ? .init(protobuf: protobuf.span) : nil
+        stackTrace = protobuf.stackTrace.isEmpty ? nil : protobuf.stackTrace
     }
 }
