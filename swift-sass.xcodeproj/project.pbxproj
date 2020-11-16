@@ -15,6 +15,7 @@
 		025C6252255D54C000AEA420 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6251255D54C000AEA420 /* Errors.swift */; };
 		025C6255255E8A6900AEA420 /* SassTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6254255E8A6900AEA420 /* SassTypes.swift */; };
 		0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C7256000A400F6BE14 /* TestInterface.swift */; };
+		0291E7CA2562E82F00F6BE14 /* TestErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C92562E82F00F6BE14 /* TestErrors.swift */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
 		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
 		OBJ_120 /* embedded_sass.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* embedded_sass.pb.swift */; };
@@ -62,6 +63,7 @@
 		025C6251255D54C000AEA420 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		025C6254255E8A6900AEA420 /* SassTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SassTypes.swift; sourceTree = "<group>"; };
 		0291E7C7256000A400F6BE14 /* TestInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestInterface.swift; sourceTree = "<group>"; };
+		0291E7C92562E82F00F6BE14 /* TestErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestErrors.swift; sourceTree = "<group>"; };
 		OBJ_10 /* Compiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compiler.swift; sourceTree = "<group>"; };
 		OBJ_11 /* embedded_sass.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = embedded_sass.pb.swift; sourceTree = "<group>"; };
 		OBJ_15 /* TestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				0291E7C7256000A400F6BE14 /* TestInterface.swift */,
+				0291E7C92562E82F00F6BE14 /* TestErrors.swift */,
 				OBJ_15 /* TestUtils.swift */,
 			);
 			name = EmbeddedSassTests;
@@ -245,6 +248,7 @@
 			files = (
 				0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */,
 				OBJ_131 /* TestUtils.swift in Sources */,
+				0291E7CA2562E82F00F6BE14 /* TestErrors.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

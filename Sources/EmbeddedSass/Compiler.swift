@@ -98,7 +98,7 @@ public final class Compiler {
     public var debugHandler: Sass.DebugHandler?
 
     private func debug(_ msg: @autoclosure () -> String) {
-        debugHandler?(.init(message: "Host: \(msg())", span: nil, stackTrace: nil))
+        debugHandler?(.init(message: "Host: \(msg())", span: nil))
     }
 
     /// Compile to CSS from a file.

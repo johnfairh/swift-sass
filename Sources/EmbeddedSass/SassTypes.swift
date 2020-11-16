@@ -120,7 +120,8 @@ public enum Sass {
         /// Optionally a description of the source that triggered the warning.
         public let span: SourceSpan?
 
-        /// The stack trace associated with the failure.
+        /// The stack trace through the compiler input source files leading to the
+        /// point of the warning.
         public let stackTrace: String?
     }
 
@@ -135,9 +136,6 @@ public enum Sass {
 
         /// Optionally a description of the source that triggered the log.
         public let span: SourceSpan?
-
-        /// Stack trace.
-        public let stackTrace: String?
     }
 
     /// A routine to receive log events during compilation.
@@ -175,7 +173,6 @@ protocol LogFormatter {
     var stackTrace: String? { get }
 
     var description: String { get }
-    var debugDescription: String { get }
 }
 
 extension LogFormatter {
@@ -183,23 +180,21 @@ extension LogFormatter {
 
     /// A  human-readable description of the message.
     public var description: String {
-        baseDescription
-    }
-
-    var baseDescription: String {
-        let desc = span.flatMap { "\($0): " } ?? ""
-        let type = messageType.flatMap { "\($0): " } ?? ""
-        return desc + type + message
-    }
-
-    /// A  description of the message suitable for debugging, includes any internal
-    /// stack trace supplied by the compiler.
-    public var debugDescription: String {
-        baseDescription + (stackTrace.flatMap { "\n\($0)" } ?? "")
+        var desc = span.flatMap { "\($0): " } ?? ""
+        desc += messageType.flatMap { "\($0): " } ?? ""
+        desc += message
+        if let trace = stackTrace?.trimmingCharacters(in: .newlines),
+           !trace.isEmpty {
+            let paddedTrace = trace.split(separator: "\n")
+                .map { "    " + $0 }
+                .joined(separator: "\n")
+            desc += "\n\(paddedTrace)"
+        }
+        return desc
     }
 }
 
-extension Sass.CompilerError: CustomStringConvertible, CustomDebugStringConvertible, LogFormatter {
+extension Sass.CompilerError: CustomStringConvertible, LogFormatter {
     var messageType: String? { "error" }
 }
 
@@ -213,13 +208,10 @@ extension Sass.WarningType: CustomStringConvertible {
     }
 }
 
-extension Sass.CompilerWarning: CustomStringConvertible, CustomDebugStringConvertible, LogFormatter {
+extension Sass.CompilerWarning: CustomStringConvertible, LogFormatter {
     var messageType: String? { type.description }
 }
 
 extension Sass.DebugMessage: CustomStringConvertible, LogFormatter {
-    /// A human-readable description of the message.
-    public var description: String {
-        debugDescription
-    }
+    var stackTrace: String? { nil }
 }

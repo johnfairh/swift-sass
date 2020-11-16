@@ -14,13 +14,6 @@ import EmbeddedSass
 /// just that we can talk to it honestly and translate enums etc. properly.
 ///
 class TestCompiler: XCTestCase {
-
-    func newCompiler() throws -> Compiler {
-        let c = try Compiler(embeddedCompilerURL: TestUtils.dartSassEmbeddedURL)
-        c.debugHandler = { m in print(m) }
-        return c
-    }
-
     let scssIn = """
     div {
         a {
@@ -54,7 +47,7 @@ class TestCompiler: XCTestCase {
 
     /// Does it work, goodpath, no imports, scss/sass/css inline input
     func testCoreInline() throws {
-        let compiler = try newCompiler()
+        let compiler = try TestUtils.newCompiler()
 
         let results1 = try compiler.compile(sourceText: scssIn)
         XCTAssertNil(results1.sourceMap)
@@ -70,22 +63,21 @@ class TestCompiler: XCTestCase {
     }
 
     private func checkCompileFromFile(_ compiler: Compiler, extnsion: String, content: String, expected: String) throws {
-        let tmpFile = FileManager.default.temporaryDirectory.appendingPathComponent("file.\(extnsion)")
-        try content.write(toFile: tmpFile.path, atomically: false, encoding: .utf8)
-        let results = try compiler.compile(sourceFileURL: tmpFile)
+        let url = try TestUtils.tempFile(filename: "file.\(extnsion)", contents: content)
+        let results = try compiler.compile(sourceFileURL: url)
         XCTAssertEqual(expected, results.css)
     }
 
     /// Does it work, from a file
     func testCoreFile() throws {
-        let compiler = try newCompiler()
+        let compiler = try TestUtils.newCompiler()
         try checkCompileFromFile(compiler, extnsion: "scss", content: scssIn, expected: scssOutExpanded)
         try checkCompileFromFile(compiler, extnsion: "sass", content: sassIn, expected: sassOutExpanded)
     }
 
     /// Is source map transmitted OK
     func testSourceMap() throws {
-        let compiler = try newCompiler()
+        let compiler = try TestUtils.newCompiler()
 
         let results = try compiler.compile(sourceText: scssIn, createSourceMap: true)
         XCTAssertEqual(scssOutExpanded, results.css)
@@ -99,7 +91,7 @@ class TestCompiler: XCTestCase {
 
     /// Is outputstyle enum translated OK
     func testOutputStyle() throws {
-        let compiler = try newCompiler()
+        let compiler = try TestUtils.newCompiler()
 
         // Current dart-sass-embedded maps everything !compressed down to nested
         // so this is a bit scuffed...

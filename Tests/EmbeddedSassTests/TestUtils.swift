@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import EmbeddedSass
 
 enum TestUtils {
     static var unitTestDirURL: URL {
@@ -25,5 +26,17 @@ enum TestUtils {
 
     static var dartSassEmbeddedURL: URL {
         dartSassEmbeddedDirURL.appendingPathComponent("dart-sass-embedded")
+    }
+
+    static func newCompiler() throws -> Compiler {
+        let c = try Compiler(embeddedCompilerURL: TestUtils.dartSassEmbeddedURL)
+        c.debugHandler = { m in print("debug: \(m)") }
+        return c
+    }
+
+    static func tempFile(filename: String, contents: String) throws -> URL {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+        try contents.write(toFile: url.path, atomically: false, encoding: .utf8)
+        return url
     }
 }
