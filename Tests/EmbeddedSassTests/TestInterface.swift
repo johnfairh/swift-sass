@@ -117,7 +117,7 @@ class TestCompiler: XCTestCase {
             let compiler = try Compiler(embeddedCompilerName: "not-a-compiler")
             XCTFail("Created a weird compiler \(compiler)")
         } catch let error as ProtocolError {
-            print(error.text)
+            print(error)
         } catch {
             XCTFail("Unexpected error: \(error)")
         }

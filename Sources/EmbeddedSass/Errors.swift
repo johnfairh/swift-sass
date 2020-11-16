@@ -11,17 +11,11 @@
 /// There was an error communicating with the embedded sass compiler.
 /// The payload is english text describing the nature of the problem.  There is probably nothing that
 /// a user can do about this.
-public struct ProtocolError: Error {
-    public let text: String
+public struct ProtocolError: Error, CustomStringConvertible {
+    /// English text explaining the protocol error.
+    public let description: String
 
     init(_ text: String) {
-        self.text = text
+        description = text
     }
-}
-
-// Sass.CompilerError ?
-public struct CompilerError: Error {
-    public let message: String
-    public let span: Sass.SourceSpan?
-    public let stackTrace: String?
 }

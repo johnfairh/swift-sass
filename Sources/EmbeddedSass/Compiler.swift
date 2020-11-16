@@ -186,7 +186,7 @@ public final class Compiler {
             debug("End-Success CompileRequest id=\(compilationId)")
             return results
         }
-        catch let error as CompilerError {
+        catch let error as Sass.CompilerError {
             state = .idle
             debug("End-CompilerError CompileRequest id=\(compilationId)")
             throw error
@@ -235,7 +235,7 @@ public final class Compiler {
         case .success(let s):
             return .init(css: s.css, sourceMap: s.sourceMap.isEmpty ? nil : s.sourceMap)
         case .failure(let f):
-            throw CompilerError(protobuf: f)
+            throw Sass.CompilerError(f)
         case nil:
             throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
         }
@@ -266,27 +266,39 @@ extension Sass.OutputStyle {
 }
 
 extension Sass.SourceSpan {
-    init(protobuf: Sass_EmbeddedProtocol_SourceSpan) {
-        text = protobuf.text
-        url = protobuf.url.isEmpty ? nil : protobuf.url
-        start = Location(protobuf: protobuf.start)
-        end = protobuf.hasEnd ? Location(protobuf: protobuf.end) : nil
-        context = protobuf.context.isEmpty ? nil : protobuf.context
+    init(_ protobuf: Sass_EmbeddedProtocol_SourceSpan) {
+        text = protobuf.text.nonEmptyString
+        url = protobuf.url.nonEmptyString
+        start = Location(protobuf.start)
+        end = protobuf.hasEnd ? Location(protobuf.end) : nil
+        context = protobuf.context.nonEmptyString
     }
 }
 
 extension Sass.SourceSpan.Location {
-    init(protobuf: Sass_EmbeddedProtocol_SourceSpan.SourceLocation) {
+    init(_ protobuf: Sass_EmbeddedProtocol_SourceSpan.SourceLocation) {
         offset = Int(protobuf.offset)
         line = Int(protobuf.line)
         column = Int(protobuf.column)
     }
 }
 
-extension CompilerError {
-    init(protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure) {
+extension Sass.Results {
+    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess) {
+        css = protobuf.css
+        sourceMap = protobuf.sourceMap.nonEmptyString
+    }
+}
+extension Sass.CompilerError {
+    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure) {
         message = protobuf.message
-        span = protobuf.hasSpan ? .init(protobuf: protobuf.span) : nil
-        stackTrace = protobuf.stackTrace.isEmpty ? nil : protobuf.stackTrace
+        span = protobuf.hasSpan ? .init(protobuf.span) : nil
+        stackTrace = protobuf.stackTrace.nonEmptyString
+    }
+}
+
+private extension String {
+    var nonEmptyString: String? {
+        isEmpty ? nil : self
     }
 }
