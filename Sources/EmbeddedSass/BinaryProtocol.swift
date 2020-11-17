@@ -71,6 +71,8 @@ extension Exec.Child {
             }
         }
 
+        // TODO: timeout on readable - need a proper bad compiler though to test.
+
         var networkMsgLen = Int32(0)
         try doRecv(&networkMsgLen, MemoryLayout<Int32>.size)
         let msgLen = Int(Int32(littleEndian: networkMsgLen))

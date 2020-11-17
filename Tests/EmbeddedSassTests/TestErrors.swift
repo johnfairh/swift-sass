@@ -66,9 +66,10 @@ class TestErrors: XCTestCase {
         }
     }
 
-    func testProtocolError() throws {
+    // Deal with missing child & SIGPIPE-avoidance measures
+    func testChildTermination() throws {
         let compiler = try TestUtils.newCompiler()
-        compiler.child.process.terminate()
+        kill(compiler.compilerProcessIdentifier, SIGTERM)
         do {
             let results = try compiler.compile(sourceText: "")
             XCTFail("Managed to compile with dead compiler: \(results)")
@@ -77,5 +78,36 @@ class TestErrors: XCTestCase {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+
+        // check recovered
+        let results = try compiler.compile(sourceText: "")
+        XCTAssertEqual("", results.css)
     }
+
+    // Deal with in-band reported protocol error
+    func testProtocolError() throws {
+        let compiler = try TestUtils.newCompiler()
+        let msg = Sass_EmbeddedProtocol_InboundMessage.with { msg in
+            msg.importResponse = .with { rsp in
+                rsp.id = 108
+            }
+        }
+        try compiler.child.send(message: msg)
+        do {
+            let results = try compiler.compile(sourceText: "")
+            XCTFail("Managed to compile with weird message: \(results)")
+        } catch let error as ProtocolError {
+            print(error)
+            XCTAssertTrue(error.description.contains("108"))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+
+        // check compiler is now working OK
+        let results = try compiler.compile(sourceText: "")
+        XCTAssertEqual("", results.css)
+    }
+
+    // If this were a real/critical product I'd write a badly-behaved Sass
+    // compiler to explore all the protocol errors, timeouts, etc.
 }

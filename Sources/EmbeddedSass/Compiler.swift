@@ -72,6 +72,10 @@ public final class Compiler {
         compilationID = 8000
     }
 
+    private func restart() throws {
+        child = try childRestart()
+    }
+
     /// Initialize using a program found on `PATH` as the embedded Sass compiler.
     ///
     /// - parameter embeddedCompilerName: Name of the program, default `dart-sass-embedded`.
@@ -153,6 +157,29 @@ public final class Compiler {
                     createSourceMap: createSourceMap)
     }
 
+    /// Restart the Sass compiler process.
+    ///
+    /// Normally a single instance of the compiler process persists across all invocations to
+    /// `compile(...)` on this `Compiler` instance.   This method stops the current
+    /// compiler process and starts a new one: the intended use is for compilers whose
+    /// resource usage escalates over time and need calming down.  You probably don't need to
+    /// call it.
+    ///
+    /// Don't use this to unstick a stuck `compile(...)` call, that will terminate eventually
+    /// unless I haven't written the timeout logic yet, in which case you can try poking the `compilerPid`.
+    public func reinit() throws {
+        precondition(state.compileRequestLegal)
+        child.process.terminate()
+        try restart()
+    }
+
+    /// The process ID of the compiler process.
+    ///
+    /// Not normally needed; can be used to adjust resource usage or maybe send it a signal if stuck.
+    public var compilerProcessIdentifier: Int32 {
+        child.process.processIdentifier
+    }
+
     /// Helper to generate the compile request message
     private func compile(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
                          outputStyle: Sass.OutputStyle,
@@ -196,9 +223,9 @@ public final class Compiler {
             // the only erp we have to is to try and restart it into a known
             // clean state.  seems ott to retry the command here, see how we go.
             do {
-                debug("End-ProtocolError CompileRequest id=\(compilationId), restarting")
+                debug("End-ProtocolError CompileRequest id=\(compilationId), restarting compiler")
                 child.process.terminate()
-                child = try childRestart()
+                try restart()
                 state = .idle
                 debug("End-ProtocolError CompileRequest id=\(compilationId), restart OK")
             } catch {
@@ -220,8 +247,12 @@ public final class Compiler {
                 debug("  Got CompileResponse")
                 return try receive(compileResponse: rsp)
 
+            case .error(let rsp):
+                debug("  Got Error")
+                try receive(error: rsp)
+
             default:
-                throw ProtocolError("Unexpected response: response")
+                throw ProtocolError("Unexpected response: \(response)")
             }
         }
     }
@@ -229,7 +260,7 @@ public final class Compiler {
     /// Inbound `CompileResponse` handler
     private func receive(compileResponse: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) throws -> Sass.Results {
         if compileResponse.id != compilationID {
-            throw ProtocolError("Bad compilation ID, expected 42 got \(compileResponse.id)")
+            throw ProtocolError("Bad compilation ID, expected \(compilationID) got \(compileResponse.id)")
         }
         switch compileResponse.result {
         case .success(let s):
@@ -239,6 +270,11 @@ public final class Compiler {
         case nil:
             throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
         }
+    }
+
+    /// Inbound `Error` handler
+    private func receive(error: Sass_EmbeddedProtocol_ProtocolError) throws {
+        throw ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)")
     }
 }
 
