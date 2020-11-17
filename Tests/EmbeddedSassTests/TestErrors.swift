@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import EmbeddedSass
+@testable import EmbeddedSass
 
 
 ///
@@ -61,6 +61,19 @@ class TestErrors: XCTestCase {
             XCTAssertTrue(d.hasPrefix(badSassFileErrorPrefix))
             XCTAssertTrue(d.hasSuffix(badSassFileErrorSuffix))
             XCTAssertTrue(d.contains(url.path))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testProtocolError() throws {
+        let compiler = try TestUtils.newCompiler()
+        compiler.child.process.terminate()
+        do {
+            let results = try compiler.compile(sourceText: "")
+            XCTFail("Managed to compile with dead compiler: \(results)")
+        } catch let error as ProtocolError {
+            print(error)
         } catch {
             XCTFail("Unexpected error: \(error)")
         }

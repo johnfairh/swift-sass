@@ -14,7 +14,7 @@
 // 1) SwiftProtobuf has `BinaryDelimited` helpers to make this stuff trivial.
 //    Unfortunately they require `InputStream`/`OutputStream` whereas we have
 //    `FileHandle`s and I'm too dumb to find a standard gadget for matching
-//    these up.
+//    these up, never mind with the requisite anti-SIGPIPE measures.
 //
 // 2) Protobuf's written docs are vague about how binary delimiters should work.
 //    The code is unambiguous though: use a varint32 to hold the length.
@@ -26,20 +26,9 @@
 // we can manually do its fixed-header format, bypassing `BinaryDelimited`
 // entirely.
 //
-// Still left with having to do I/O to Foundation's crufty `FileHandle` objects
-// with dubious Objective-C-era error handling.  This looks to be being fixed
-// right now, bizarrely, so I've left them being used instead of just falling
-// back to read(2)/write(2).
-//
 
 import Foundation
 import SwiftProtobuf
-
-#if canImport(Darwin)
-import Darwin
-#else
-import Glibc
-#endif
 
 extension Exec.Child {
     /// Send a message to the embedded sass compiler.
@@ -48,17 +37,23 @@ extension Exec.Child {
     /// - throws: `SassError.protocolError()` if we can't squeeze the bytes out.
     /// - note: Uses the embedded Sass binary delimiter protocol, not the regular protobuf one.
     func send(message: Sass_EmbeddedProtocol_InboundMessage) throws {
-        let data = try message.serializedData()
-        var networkMessageLen = Int32(data.count).littleEndian
-        let rc = write(standardInput.fileDescriptor, &networkMessageLen, MemoryLayout<Int32>.size)
-        if rc == -1 {
-            throw ProtocolError("Write of message length failed, errno=\(errno)")
-        } else if rc != MemoryLayout<Int32>.size {
-            throw ProtocolError("Write of message length underran, only \(rc) bytes")
+        func doSend(_ bytes: UnsafeRawPointer!, _ count: Int) throws {
+            let rc = standardInput.sockSend(bytes, count: count)
+            if rc == -1 {
+                throw ProtocolError("Write of \(count) bytes failed, errno=\(errno)")
+            } else if rc != count {
+                throw ProtocolError("Write of \(count) bytes underran, only \(rc) bytes written")
+            }
         }
-        /// XXX Move to `write(contentsOf:)` when macOS 10.16 is reasonable deploy target
-        /// XXX This current version will crash the process on underrun or I/O error
-        standardInput.write(data)
+
+        let data = try message.serializedData()
+
+        var networkMessageLen = Int32(data.count).littleEndian
+        try doSend(&networkMessageLen, MemoryLayout<Int32>.size)
+
+        try data.withUnsafeBytes { bufferPointer in
+            try doSend(bufferPointer.baseAddress, data.count)
+        }
     }
 
     /// Read and deserialize a message from the embedded sass compiler.
@@ -67,21 +62,24 @@ extension Exec.Child {
     ///           `SwiftProtobuf.BinaryDecodingError` if we can't make sense of the bytes.
     /// - note: Uses the embedded Sass binary delimiter protocol, not the regular protobuf one.
     func receive() throws -> Sass_EmbeddedProtocol_OutboundMessage {
-        var networkMsgLen = Int32(0)
-        let rc = read(standardOutput.fileDescriptor, &networkMsgLen, MemoryLayout<Int32>.size)
-        if rc == -1 {
-            throw ProtocolError("Read of message length failed, errno=\(errno)")
-        } else if rc != MemoryLayout<Int32>.size {
-            throw ProtocolError("Read of message length underran, only \(rc) bytes")
+        func doRecv(_ bytes: UnsafeMutableRawPointer!, _ count: Int) throws {
+            let rc = standardOutput.sockRecv(bytes, count: count)
+            if rc == -1 {
+                throw ProtocolError("Read of \(count) bytes failed, errno=\(errno)")
+            } else if rc != count {
+                throw ProtocolError("Read of \(count) bytes underran, only \(rc) bytes read")
+            }
         }
+
+        var networkMsgLen = Int32(0)
+        try doRecv(&networkMsgLen, MemoryLayout<Int32>.size)
         let msgLen = Int(Int32(littleEndian: networkMsgLen))
 
-        /// XXX Move to `read(upToCount:)` when macOS 10.16 is reasonable deploy target
-        /// XXX This current version will crash the process on I/O errors.
-        let data = standardOutput.readData(ofLength: msgLen)
-        if data.count != msgLen {
-            throw ProtocolError("Read of message underran, only \(data.count) bytes of \(msgLen)")
+        var data = Data(count: msgLen)
+        try data.withUnsafeMutableBytes { bufferPointer in
+            try doRecv(bufferPointer.baseAddress, msgLen)
         }
+
         var message = Sass_EmbeddedProtocol_OutboundMessage()
         try message.merge(serializedData: data)
         return message

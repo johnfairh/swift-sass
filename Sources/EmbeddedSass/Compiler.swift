@@ -34,7 +34,7 @@ import Foundation
 /// To debug problems, start with the output from `Compiler.debugHandler`, all the source files
 /// being given to the compiler, and the description of any errors thrown.
 public final class Compiler {
-    private var child: Exec.Child
+    private(set) var child: Exec.Child // internal getter for testing
     private let childRestart: () throws -> Exec.Child
 
     private enum State {
@@ -218,7 +218,7 @@ public final class Compiler {
             switch response.message {
             case .compileResponse(let rsp):
                 debug("  Got CompileResponse")
-                return try handleInbound(compileResponse: rsp)
+                return try receive(compileResponse: rsp)
 
             default:
                 throw ProtocolError("Unexpected response: response")
@@ -227,13 +227,13 @@ public final class Compiler {
     }
 
     /// Inbound `CompileResponse` handler
-    private func handleInbound(compileResponse: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) throws -> Sass.Results {
+    private func receive(compileResponse: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) throws -> Sass.Results {
         if compileResponse.id != compilationID {
             throw ProtocolError("Bad compilation ID, expected 42 got \(compileResponse.id)")
         }
         switch compileResponse.result {
         case .success(let s):
-            return .init(css: s.css, sourceMap: s.sourceMap.isEmpty ? nil : s.sourceMap)
+            return .init(s)
         case .failure(let f):
             throw Sass.CompilerError(f)
         case nil:

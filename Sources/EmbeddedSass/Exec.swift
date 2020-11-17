@@ -10,6 +10,74 @@
 
 import Foundation
 
+//
+// Firstly some 'orrible gubbins to deal with SIGPIPE, which
+// happens if the child process dies.
+//
+// We're a library so can't just mask it off globally.
+//
+// So available techniques are pthread_sigmask(3) and FD-centric options.
+// I'm more confident about getting the FD approach working solidly on
+// Darwin so we do that.
+//
+// Darwin: has SO_NOSIGPIPE on setsockopt(2)
+// Linux: has MSG_NOSIGNAL on send(2)
+//        Actually Darwin has MSG_NOSIGNAL in the header file under a weird
+//        ifdef, but it's not in the man page: leave it out.
+//
+// Include socket FD reader and writer APIs -- the official ones that look
+// like they might be safe require a Big Sur deployment target.  And probably
+// won't understand MSG_NOSIGNAL.
+//
+
+/// Create a pair of connected sockets in PF_LOCAL.
+///
+/// Set `NO_SIGPIPE` on supported platforms.
+///
+/// The connection is bidirectional but the sockets are named `reader` and `writer` to
+/// make it easier to reason about their use.
+struct SocketPipe {
+    let reader: FileHandle
+    let writer: FileHandle
+
+    init() {
+        var fds: [Int32] = [0, 0]
+        #if os(Linux)
+        let sockStream = Int32(SOCK_STREAM.rawValue)
+        #else
+        let sockStream = SOCK_STREAM
+        #endif // such anger
+        let rc = socketpair(PF_LOCAL, sockStream, 0, &fds)
+        precondition(rc == 0, "socketpair(2) failed errno=\(errno)")
+        #if os(macOS)
+        fds.forEach { fd in
+            var opt = UInt32(1)
+            let rc = setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &opt, UInt32(MemoryLayout<Int32>.size))
+            precondition(rc == 0, "setsockopt(2) failed errno=\(errno)")
+        }
+        #endif
+        reader = FileHandle(fileDescriptor: fds[0], closeOnDealloc: true)
+        writer = FileHandle(fileDescriptor: fds[1], closeOnDealloc: true)
+        // Not obvious this `closeOnDealloc` works - see `Exec.spawn(...)`.
+    }
+}
+
+extension FileHandle {
+    /// Send data to a socket.  Set `MSG_NOSIGNAL` on supported platforms.
+    func sockSend(_ bytes: UnsafeRawPointer, count: Int) -> Int {
+        #if os(macOS)
+        return send(fileDescriptor, bytes, count, 0)
+        #elseif os(Linux)
+        return send(fileDescriptor, bytes, count, Int32(MSG_NOSIGNAL))
+        #endif
+    }
+
+    /// Read data from a socket.
+    func sockRecv(_ bytes: UnsafeMutableRawPointer, count: Int) -> Int {
+        recv(fileDescriptor, bytes, count, Int32(MSG_WAITALL))
+    }
+}
+
 /// Namespace for utilities to execute a child process.
 enum Exec {
     /// How to handle stderr output from the child process.
@@ -115,7 +183,8 @@ enum Exec {
             return Results(command: command, arguments: arguments, terminationStatus: -1, data: Data())
         }
 
-        return Child(process: process).await()
+        let fd = pipe.fileHandleForReading
+        return Child(process: process, stdin: fd, stdout: fd).await()
     }
 
     /// Start an asynchrous child process.
@@ -135,15 +204,23 @@ enum Exec {
         let process = Process()
         process.arguments = arguments
 
-        process.standardOutput = Pipe()
-        process.standardInput = Pipe()
+        let stdoutPipe = SocketPipe()
+        let stdinPipe = SocketPipe()
+
+        process.standardOutput = stdoutPipe.writer
+        process.standardInput = stdinPipe.reader
         process.standardError = FileHandle(forWritingAtPath: "/dev/null")!
 
         process.executableURL = command
         process.currentDirectoryURL = URL(fileURLWithPath: currentDirectory)
         try process.run()
+        // Close our copy of the child's FDs.
+        // `FileHandle` claims to do this for us but it either doesn't work or is
+        // too clever to be useful.
+        try stdoutPipe.writer.close()
+        try stdinPipe.reader.close()
 
-        return Child(process: process)
+        return Child(process: process, stdin: stdinPipe.writer, stdout: stdoutPipe.reader)
     }
 
     /// A running child process.
@@ -153,19 +230,15 @@ enum Exec {
     final class Child {
         /// The `Process` object for the child
         let process: Process
-
-        /// The child's `stdout`.  Read from it.
-        lazy var standardOutput: FileHandle = {
-            (process.standardOutput as! Pipe).fileHandleForReading
-        }()
-
         /// The child's `stdin`.  Write to it.
-        lazy var standardInput: FileHandle = {
-            (process.standardInput as! Pipe).fileHandleForWriting
-        }()
+        let standardInput: FileHandle
+        /// The child's `stdout`.  Read from it.
+        let standardOutput: FileHandle
 
-        init(process: Process) {
+        init(process: Process, stdin: FileHandle, stdout: FileHandle) {
             self.process = process
+            self.standardInput = stdin
+            self.standardOutput = stdout
         }
 
         /// Block until the process terminates and report status.
