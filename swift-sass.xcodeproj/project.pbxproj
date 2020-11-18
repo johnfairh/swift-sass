@@ -21,7 +21,7 @@
 		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
 		OBJ_120 /* embedded_sass.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* embedded_sass.pb.swift */; };
 		OBJ_131 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* TestUtils.swift */; };
-		OBJ_133 /* EmbeddedSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::DartSass::Product" /* EmbeddedSass.framework */; };
+		OBJ_133 /* EmbeddedSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,8 +29,8 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = "swift-sass::DartSass";
-			remoteInfo = DartSass;
+			remoteGlobalIDString = "swift-sass::EmbeddedSass";
+			remoteInfo = EmbeddedSass;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -71,8 +71,8 @@
 		OBJ_15 /* TestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		OBJ_9 /* Exec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exec.swift; sourceTree = "<group>"; };
-		"swift-sass::DartSass::Product" /* EmbeddedSass.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = EmbeddedSass.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"swift-sass::DartSassTests::Product" /* EmbeddedSassTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = EmbeddedSassTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		"swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = EmbeddedSass.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"swift-sass::EmbeddedSassTests::Product" /* EmbeddedSassTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = EmbeddedSassTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,8 +107,8 @@
 		OBJ_105 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				"swift-sass::DartSass::Product" /* EmbeddedSass.framework */,
-				"swift-sass::DartSassTests::Product" /* EmbeddedSassTests.xctest */,
+				"swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */,
+				"swift-sass::EmbeddedSassTests::Product" /* EmbeddedSassTests.xctest */,
 			);
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -169,7 +169,7 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		"swift-sass::DartSass" /* EmbeddedSass */ = {
+		"swift-sass::EmbeddedSass" /* EmbeddedSass */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_114 /* Build configuration list for PBXNativeTarget "EmbeddedSass" */;
 			buildPhases = (
@@ -182,11 +182,11 @@
 			dependencies = (
 			);
 			name = EmbeddedSass;
-			productName = DartSass;
-			productReference = "swift-sass::DartSass::Product" /* EmbeddedSass.framework */;
+			productName = EmbeddedSass;
+			productReference = "swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		"swift-sass::DartSassTests" /* EmbeddedSassTests */ = {
+		"swift-sass::EmbeddedSassTests" /* EmbeddedSassTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_126 /* Build configuration list for PBXNativeTarget "EmbeddedSassTests" */;
 			buildPhases = (
@@ -200,8 +200,8 @@
 				OBJ_135 /* PBXTargetDependency */,
 			);
 			name = EmbeddedSassTests;
-			productName = DartSassTests;
-			productReference = "swift-sass::DartSassTests::Product" /* EmbeddedSassTests.xctest */;
+			productName = EmbeddedSassTests;
+			productReference = "swift-sass::EmbeddedSassTests::Product" /* EmbeddedSassTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -225,8 +225,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				"swift-sass::DartSass" /* EmbeddedSass */,
-				"swift-sass::DartSassTests" /* EmbeddedSassTests */,
+				"swift-sass::EmbeddedSass" /* EmbeddedSass */,
+				"swift-sass::EmbeddedSassTests" /* EmbeddedSassTests */,
 			);
 		};
 /* End PBXProject section */
@@ -261,7 +261,7 @@
 /* Begin PBXTargetDependency section */
 		OBJ_135 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "swift-sass::DartSass" /* EmbeddedSass */;
+			target = "swift-sass::EmbeddedSass" /* EmbeddedSass */;
 			targetProxy = 025C61F7255C154800AEA420 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */

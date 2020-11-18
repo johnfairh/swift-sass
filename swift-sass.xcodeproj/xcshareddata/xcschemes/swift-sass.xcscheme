@@ -14,8 +14,8 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "swift-sass::DartSass"
-               BuildableName = "DartSass.framework"
+               BlueprintIdentifier = "swift-sass::EmbeddedSass"
+               BuildableName = "EmbeddedSass.framework"
                BlueprintName = "EmbeddedSass"
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
@@ -33,8 +33,8 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "swift-sass::DartSassTests"
-               BuildableName = "DartSassTests.xctest"
+               BlueprintIdentifier = "swift-sass::EmbeddedSassTests"
+               BuildableName = "EmbeddedSassTests.xctest"
                BlueprintName = "EmbeddedSassTests"
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
