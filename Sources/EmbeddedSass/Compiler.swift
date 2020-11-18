@@ -60,7 +60,7 @@ public final class Compiler {
 
     // State of the current job
     private var compilationID: UInt32
-    private var warnings: [Sass.CompilerWarning]
+    private var warnings: [Sass.Warning]
 
     /// Initialize using the given program as the embedded Sass compiler.
     ///
@@ -223,7 +223,7 @@ public final class Compiler {
             debug("End-Success CompileRequest id=\(compilationId)")
             return results
         }
-        catch let error as Sass.CompilerError {
+        catch let error as Sass.Error {
             state = .idle
             debug("End-CompilerError CompileRequest id=\(compilationId)")
             throw error
@@ -284,7 +284,7 @@ public final class Compiler {
         case .success(let s):
             return .init(s, warnings: warnings)
         case .failure(let f):
-            throw Sass.CompilerError(f, warnings: warnings)
+            throw Sass.Error(f, warnings: warnings)
         case nil:
             throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
         }
@@ -334,7 +334,7 @@ extension Sass.OutputStyle {
     }
 }
 
-extension Sass.SourceSpan {
+extension Sass.Span {
     init(_ protobuf: Sass_EmbeddedProtocol_SourceSpan) {
         text = protobuf.text.nonEmptyString
         url = protobuf.url.nonEmptyString
@@ -344,7 +344,7 @@ extension Sass.SourceSpan {
     }
 }
 
-extension Sass.SourceSpan.Location {
+extension Sass.Span.Location {
     init(_ protobuf: Sass_EmbeddedProtocol_SourceSpan.SourceLocation) {
         offset = Int(protobuf.offset)
         line = Int(protobuf.line)
@@ -354,15 +354,15 @@ extension Sass.SourceSpan.Location {
 
 extension Sass.Results {
     init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess,
-         warnings: [Sass.CompilerWarning]) {
+         warnings: [Sass.Warning]) {
         css = protobuf.css
         sourceMap = protobuf.sourceMap.nonEmptyString
         self.warnings = warnings
     }
 }
-extension Sass.CompilerError {
+extension Sass.Error {
     init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure,
-         warnings: [Sass.CompilerWarning]) {
+         warnings: [Sass.Warning]) {
         message = protobuf.message
         span = protobuf.hasSpan ? .init(protobuf.span) : nil
         stackTrace = protobuf.stackTrace.nonEmptyString
@@ -370,7 +370,7 @@ extension Sass.CompilerError {
     }
 }
 
-extension Sass.CompilerWarning {
+extension Sass.Warning {
     init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) {
         message = protobuf.message
         span = protobuf.hasSpan ? .init(protobuf.span) : nil

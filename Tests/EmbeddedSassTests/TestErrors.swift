@@ -41,7 +41,7 @@ class TestErrors: XCTestCase {
         do {
             let results = try compiler.compile(sourceText: badSass, sourceSyntax: .sass)
             XCTFail("Managed to compile, got: \(results.css)")
-        } catch let error as Sass.CompilerError {
+        } catch let error as Sass.Error {
             XCTAssertEqual(badSassInlineError, error.description)
         } catch {
             XCTFail("Unexpected error: \(error)")
@@ -54,7 +54,7 @@ class TestErrors: XCTestCase {
         do {
             let results = try compiler.compile(sourceFileURL: url)
             XCTFail("Managed to compile, got: \(results.css)")
-        } catch let error as Sass.CompilerError {
+        } catch let error as Sass.Error {
             let d = error.description
             // The sass stack trace includes the full path of the temp file
             // so we can't test for it exactly
@@ -150,7 +150,7 @@ class TestErrors: XCTestCase {
         do {
             let results = try compiler.compile(sourceText: badWarningScss, sourceSyntax: .scss)
             XCTFail("Managed to compile nonsense: \(results)")
-        } catch let error as Sass.CompilerError {
+        } catch let error as Sass.Error {
             print(error)
         } catch {
             XCTFail("Unexpected error: \(error)")
