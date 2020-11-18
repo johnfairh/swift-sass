@@ -66,6 +66,97 @@ class TestErrors: XCTestCase {
         }
     }
 
+    let warnsomeSass = """
+    $known-prefixes: webkit, moz, ms, o
+    @mixin prefix($property, $value, $prefixes)
+      @each $prefix in $prefixes
+        @if not index($known-prefixes, $prefix)
+          @warn "Unknown prefix #{$prefix}."
+
+        -#{$prefix}-#{$property}: $value
+
+      #{$property}: $value
+
+    .tilt
+      @include prefix(transform, rotate(15deg), wekbit ms)
+    """
+
+    // Compiler warnings - no span
+    func testCompilerWarning() throws {
+        let compiler = try TestUtils.newCompiler()
+        let results = try compiler.compile(sourceText: warnsomeSass, sourceSyntax: .sass)
+        XCTAssertEqual(1, results.warnings.count)
+        XCTAssertTrue(results.warnings[0].kind == .warning)
+        XCTAssertTrue(results.warnings[0].message.contains("Unknown prefix"))
+        XCTAssertNil(results.warnings[0].span)
+    }
+
+    let multiWarningSass = """
+    @warn "First warning"
+    @warn "Second warning"
+    """
+
+    // Multiple warnings
+    func testCompilerWarningMultiple() throws {
+        let compiler = try TestUtils.newCompiler()
+        let results = try compiler.compile(sourceText: multiWarningSass, sourceSyntax: .sass)
+        XCTAssertEqual(2, results.warnings.count)
+        print(results.warnings)
+        results.warnings.forEach { w in
+            XCTAssertEqual(.warning, w.kind)
+            XCTAssertTrue(w.message.contains("warning"))
+            XCTAssertNil(w.span)
+        }
+    }
+
+    let deprecatedScss = """
+    $my-list: () !default !global
+    """
+
+    // Deprecation warning
+    func testDeprecationWarning() throws {
+        let compiler = try TestUtils.newCompiler()
+        let results = try compiler.compile(sourceText: deprecatedScss, sourceSyntax: .scss)
+        XCTAssertEqual("", results.css)
+        XCTAssertEqual(1, results.warnings.count)
+        XCTAssertEqual(.deprecation, results.warnings[0].kind)
+    }
+
+    let warningScssWithLocation = """
+    .label {
+      --#{blue}: 24;
+    }
+    """
+
+    // Warning with a span
+    func testWarningSpan() throws {
+        let compiler = try TestUtils.newCompiler()
+        let results = try compiler.compile(sourceText: warningScssWithLocation, sourceSyntax: .scss)
+        XCTAssertEqual(1, results.warnings.count)
+        XCTAssertEqual(.warning, results.warnings[0].kind)
+        XCTAssertNotNil(results.warnings[0].span)
+    }
+
+    let badWarningScss = """
+    .label {
+      --#{blue}: 24;
+    }
+    @error "Stop";
+    """
+
+    // Compiler error and a warning
+    func testErrorAndWarning() throws {
+        let compiler = try TestUtils.newCompiler()
+        do {
+            let results = try compiler.compile(sourceText: badWarningScss, sourceSyntax: .scss)
+            XCTFail("Managed to compile nonsense: \(results)")
+        } catch let error as Sass.CompilerError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
     // Helper to trigger & test a protocol error
     func checkProtocolError(_ compiler: Compiler, _ text: String? = nil) {
         do {

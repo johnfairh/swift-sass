@@ -58,7 +58,9 @@ public final class Compiler {
 
     private let overallTimeout: Int
 
+    // State of the current job
     private var compilationID: UInt32
+    private var warnings: [Sass.CompilerWarning]
 
     /// Initialize using the given program as the embedded Sass compiler.
     ///
@@ -77,6 +79,7 @@ public final class Compiler {
         state = .idle
         overallTimeout = overallTimeoutSeconds
         compilationID = 8000
+        warnings = []
     }
 
     private func restart() throws {
@@ -102,9 +105,6 @@ public final class Compiler {
     deinit {
         child.process.terminate()
     }
-
-    /// An optional callback to receive warning messages from the compiler.
-    public var warningHandler: Sass.WarningHandler?
 
     /// An optional callback to receive debug log messages from us and the compiler.
     public var debugHandler: Sass.DebugHandler?
@@ -192,6 +192,8 @@ public final class Compiler {
                          outputStyle: Sass.OutputStyle,
                          createSourceMap: Bool) throws -> Sass.Results {
         compilationID += 1
+        warnings = []
+
         return try compile(message: .with { wrapper in
             wrapper.message = .compileRequest(.with { msg in
                 msg.id = compilationID
@@ -203,6 +205,7 @@ public final class Compiler {
     }
 
     /// Top-level compiler protocol runner.  Handles erp, such as there is.
+
     private func compile(message: Sass_EmbeddedProtocol_InboundMessage) throws -> Sass.Results {
         precondition(state.compileRequestLegal, "Call to `compile(...)` already active")
         if case .idle_broken = state {
@@ -262,6 +265,10 @@ public final class Compiler {
                 debug("  Got Error, \(elapsedTime)s")
                 try receive(error: rsp)
 
+            case .logEvent(let rsp):
+                debug("  Got Log, \(elapsedTime)")
+                try receive(log: rsp)
+
             default:
                 throw ProtocolError("Unexpected response: \(response)")
             }
@@ -270,14 +277,14 @@ public final class Compiler {
 
     /// Inbound `CompileResponse` handler
     private func receive(compileResponse: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) throws -> Sass.Results {
-        if compileResponse.id != compilationID {
+        guard compileResponse.id == compilationID else {
             throw ProtocolError("Bad compilation ID, expected \(compilationID) got \(compileResponse.id)")
         }
         switch compileResponse.result {
         case .success(let s):
-            return .init(s)
+            return .init(s, warnings: warnings)
         case .failure(let f):
-            throw Sass.CompilerError(f)
+            throw Sass.CompilerError(f, warnings: warnings)
         case nil:
             throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
         }
@@ -286,6 +293,21 @@ public final class Compiler {
     /// Inbound `Error` handler
     private func receive(error: Sass_EmbeddedProtocol_ProtocolError) throws {
         throw ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)")
+    }
+
+    /// Inbound `Log` handler
+    private func receive(log: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) throws {
+        guard log.compilationID == compilationID else {
+            throw ProtocolError("Bad compilation ID, expected \(compilationID) got \(log.compilationID)")
+        }
+        switch log.type {
+        case .debug:
+            debug(log.message)
+        case .warning, .deprecationWarning:
+            warnings.append(.init(log))
+        case .UNRECOGNIZED(let value):
+            throw ProtocolError("Unrecognized warning type \(value) from compiler: \(log.message)")
+        }
     }
 }
 
@@ -331,16 +353,33 @@ extension Sass.SourceSpan.Location {
 }
 
 extension Sass.Results {
-    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess) {
+    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess,
+         warnings: [Sass.CompilerWarning]) {
         css = protobuf.css
         sourceMap = protobuf.sourceMap.nonEmptyString
+        self.warnings = warnings
     }
 }
 extension Sass.CompilerError {
-    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure) {
+    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure,
+         warnings: [Sass.CompilerWarning]) {
         message = protobuf.message
         span = protobuf.hasSpan ? .init(protobuf.span) : nil
         stackTrace = protobuf.stackTrace.nonEmptyString
+        self.warnings = warnings
+    }
+}
+
+extension Sass.CompilerWarning {
+    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) {
+        message = protobuf.message
+        span = protobuf.hasSpan ? .init(protobuf.span) : nil
+        stackTrace = protobuf.stackTrace.nonEmptyString
+        switch protobuf.type {
+        case .deprecationWarning: kind = .deprecation
+        case .warning: kind = .warning
+        default: preconditionFailure() // handled at callsite
+        }
     }
 }
 
