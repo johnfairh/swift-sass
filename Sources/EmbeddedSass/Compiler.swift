@@ -3,7 +3,7 @@
 //  EmbeddedSass
 //
 //  Copyright 2020 swift-sass contributors
-//  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/master/LICENSE)
+//  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
 import Foundation
