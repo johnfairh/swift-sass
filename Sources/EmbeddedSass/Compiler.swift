@@ -56,24 +56,32 @@ public final class Compiler {
     }
     private var state: State
 
+    private let overallTimeout: Int
+
     private var compilationID: UInt32
 
     /// Initialize using the given program as the embedded Sass compiler.
     ///
     /// - parameter embeddedCompilerURL: The file URL to `dart-sass-embedded`
     ///   or something else that speaks the embedded Sass protocol.
-    /// - throws: Something from Foundation if the program does not start.
+    /// - parameter timeoutSeconds: The maximum time allowed  for the embedded
+    ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
+    ///   -1 to disable timeouts.
     ///
-    /// Blocks while the compiler starts up.
-    public init(embeddedCompilerURL: URL) throws {
+    /// - throws: Something from Foundation if the program does not start.
+    public init(embeddedCompilerURL: URL,
+                overallTimeoutSeconds: Int = 60) throws {
+        precondition(embeddedCompilerURL.isFileURL, "Not a file: \(embeddedCompilerURL)")
         childRestart = { try Exec.spawn(embeddedCompilerURL) }
         child = try childRestart()
         state = .idle
+        overallTimeout = overallTimeoutSeconds
         compilationID = 8000
     }
 
     private func restart() throws {
         child = try childRestart()
+        state = .idle
     }
 
     /// Initialize using a program found on `PATH` as the embedded Sass compiler.
@@ -81,14 +89,14 @@ public final class Compiler {
     /// - parameter embeddedCompilerName: Name of the program, default `dart-sass-embedded`.
     /// - throws: `ProtocolError()` if the program can't be found.
     ///           Everything from `init(embeddedCompilerURL:)`
-    ///
-    /// Blocks while the compiler starts up.
-    public convenience init(embeddedCompilerName: String = "dart-sass-embedded") throws {
+    public convenience init(embeddedCompilerName: String = "dart-sass-embedded",
+                            overallTimeoutSeconds: Int = 60) throws {
         let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName, stderr: .discard)
         guard let path = results.successString else {
             throw ProtocolError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
         }
-        try self.init(embeddedCompilerURL: URL(fileURLWithPath: path))
+        try self.init(embeddedCompilerURL: URL(fileURLWithPath: path),
+                      overallTimeoutSeconds: overallTimeoutSeconds)
     }
 
     deinit {
@@ -165,8 +173,7 @@ public final class Compiler {
     /// resource usage escalates over time and need calming down.  You probably don't need to
     /// call it.
     ///
-    /// Don't use this to unstick a stuck `compile(...)` call, that will terminate eventually
-    /// unless I haven't written the timeout logic yet, in which case you can try poking the `compilerPid`.
+    /// Don't use this to unstick a stuck `compile(...)` call, that will terminate eventually.
     public func reinit() throws {
         precondition(state.compileRequestLegal)
         child.process.terminate()
@@ -226,7 +233,6 @@ public final class Compiler {
                 debug("End-ProtocolError CompileRequest id=\(compilationId), restarting compiler")
                 child.process.terminate()
                 try restart()
-                state = .idle
                 debug("End-ProtocolError CompileRequest id=\(compilationId), restart OK")
             } catch {
                 // the system looks to be broken, sadface
@@ -240,15 +246,20 @@ public final class Compiler {
 
     /// Inbound message dispatch, top-level validation
     private func receiveMessages() throws -> Sass.Results {
+        let timer = Timer()
+
         while true {
-            let response = try child.receive()
+            let elapsedTime = timer.elapsed
+            let timeout = overallTimeout < 0 ? -1 : max(1, overallTimeout - elapsedTime)
+            let response = try child.receive(timeout: timeout)
+
             switch response.message {
             case .compileResponse(let rsp):
-                debug("  Got CompileResponse")
+                debug("  Got CompileResponse, \(elapsedTime)s")
                 return try receive(compileResponse: rsp)
 
             case .error(let rsp):
-                debug("  Got Error")
+                debug("  Got Error, \(elapsedTime)s")
                 try receive(error: rsp)
 
             default:

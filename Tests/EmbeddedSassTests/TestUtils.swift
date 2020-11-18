@@ -33,10 +33,22 @@ enum TestUtils {
         c.debugHandler = { m in print("debug: \(m)") }
         return c
     }
+}
 
-    static func tempFile(filename: String, contents: String) throws -> URL {
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+extension FileManager {
+
+    func createTempFile(filename: String, contents: String) throws -> URL {
+        let url = temporaryDirectory.appendingPathComponent(filename)
         try contents.write(toFile: url.path, atomically: false, encoding: .utf8)
         return url
+    }
+
+    /// Create a new empty temporary directory.  Caller must delete.
+    func createTemporaryDirectory(inDirectory directory: URL? = nil, name: String? = nil) throws -> URL {
+        let directoryName = name ?? UUID().uuidString
+        let parentDirectoryURL = directory ?? temporaryDirectory
+        let directoryURL = parentDirectoryURL.appendingPathComponent(directoryName)
+        try createDirectory(at: directoryURL, withIntermediateDirectories: false)
+        return directoryURL
     }
 }

@@ -58,10 +58,11 @@ extension Exec.Child {
 
     /// Read and deserialize a message from the embedded sass compiler.
     ///
+    /// - parameter timeout: Max seconds to wait for a reply, -1 to disable.
     /// - throws: `ProtocolError()` if we can't get the bytes out of the compiler.
     ///           `SwiftProtobuf.BinaryDecodingError` if we can't make sense of the bytes.
     /// - note: Uses the embedded Sass binary delimiter protocol, not the regular protobuf one.
-    func receive() throws -> Sass_EmbeddedProtocol_OutboundMessage {
+    func receive(timeout: Int) throws -> Sass_EmbeddedProtocol_OutboundMessage {
         func doRecv(_ bytes: UnsafeMutableRawPointer!, _ count: Int) throws {
             let rc = standardOutput.sockRecv(bytes, count: count)
             if rc == -1 {
@@ -71,7 +72,18 @@ extension Exec.Child {
             }
         }
 
-        // TODO: timeout on readable - need a proper bad compiler though to test.
+        // A grotty (but cross-platform!) timeout-to-readable to detect a stuck compiler
+        // process.  TODO-NIO.
+        var pfd = pollfd(fd: standardOutput.fileDescriptor,
+                         events: Int16(POLLIN),
+                         revents: 0)
+        let rc = poll(&pfd, 1, timeout == -1 ? -1 : Int32(timeout * 1000))
+        if rc == 0 {
+            throw ProtocolError("Timeout waiting for compiler to respond after \(timeout) seconds")
+        }
+        if rc == -1 {
+            throw ProtocolError("poll(2) failed, errno=\(errno)")
+        }
 
         var networkMsgLen = Int32(0)
         try doRecv(&networkMsgLen, MemoryLayout<Int32>.size)

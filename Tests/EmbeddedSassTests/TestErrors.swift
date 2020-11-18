@@ -50,7 +50,7 @@ class TestErrors: XCTestCase {
 
     func testCompilerErrorFile() throws {
         let compiler = try TestUtils.newCompiler()
-        let url = try TestUtils.tempFile(filename: "badfile.sass", contents: badSass)
+        let url = try FileManager.default.createTempFile(filename: "badfile.sass", contents: badSass)
         do {
             let results = try compiler.compile(sourceFileURL: url)
             XCTFail("Managed to compile, got: \(results.css)")
@@ -66,18 +66,26 @@ class TestErrors: XCTestCase {
         }
     }
 
+    // Helper to trigger & test a protocol error
+    func checkProtocolError(_ compiler: Compiler, _ text: String? = nil) {
+        do {
+            let results = try compiler.compile(sourceText: "")
+            XCTFail("Managed to compile with compiler that should have failed: \(results)")
+        } catch let error as ProtocolError {
+            print(error)
+            if let text = text {
+                XCTAssertTrue(error.description.contains(text))
+            }
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
     // Deal with missing child & SIGPIPE-avoidance measures
     func testChildTermination() throws {
         let compiler = try TestUtils.newCompiler()
         kill(compiler.compilerProcessIdentifier, SIGTERM)
-        do {
-            let results = try compiler.compile(sourceText: "")
-            XCTFail("Managed to compile with dead compiler: \(results)")
-        } catch let error as ProtocolError {
-            print(error)
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
+        checkProtocolError(compiler)
 
         // check recovered
         let results = try compiler.compile(sourceText: "")
@@ -93,15 +101,7 @@ class TestErrors: XCTestCase {
             }
         }
         try compiler.child.send(message: msg)
-        do {
-            let results = try compiler.compile(sourceText: "")
-            XCTFail("Managed to compile with weird message: \(results)")
-        } catch let error as ProtocolError {
-            print(error)
-            XCTAssertTrue(error.description.contains("108"))
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
+        checkProtocolError(compiler, "108")
 
         // check compiler is now working OK
         let results = try compiler.compile(sourceText: "")
@@ -110,4 +110,61 @@ class TestErrors: XCTestCase {
 
     // If this were a real/critical product I'd write a badly-behaved Sass
     // compiler to explore all the protocol errors, timeouts, etc.
+    //
+    // Instead, dumb timeout tests exercising the overall timeout path,
+    // using tail(1) as a poor Sass compiler.
+
+    // Check we detect stuck requests
+    func testTimeout() throws {
+        let badCompiler = try Compiler(embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
+                                       overallTimeoutSeconds: 1)
+        badCompiler.debugHandler = { m in print("debug: \(m)") }
+
+        checkProtocolError(badCompiler, "Timeout")
+    }
+
+    // Test disabling the timeout works
+    func testTimeoutDisabled() throws {
+        let badCompiler = try Compiler(embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
+                                       overallTimeoutSeconds: -1)
+        badCompiler.debugHandler = { m in print("debug: \(m)") }
+
+        // TODO-NIO: make this less disgusting and more likely to pass TSAN
+
+        Thread.detachNewThread {
+            sleep(1)
+            badCompiler.child.process.terminate()
+        }
+        checkProtocolError(badCompiler, "underran")
+    }
+
+    // Test the 'compiler will not restart' corner
+    func testUnrestartableCompiler() throws {
+        let tmpDir = try FileManager.default.createTemporaryDirectory()
+        let realHeadURL = URL(fileURLWithPath: "/usr/bin/tail")
+        let tmpHeadURL = tmpDir.appendingPathComponent("tail")
+        try FileManager.default.copyItem(at: realHeadURL, to: tmpHeadURL)
+
+        let badCompiler = try Compiler(embeddedCompilerURL: tmpHeadURL, overallTimeoutSeconds: 1)
+        badCompiler.debugHandler = { m in print("debug: \(m)") }
+
+        // it's now running using the copied program
+        try FileManager.default.removeItem(at: tmpHeadURL)
+
+        // Use the instance we have up, will timeout & be killed
+        checkProtocolError(badCompiler, "Timeout")
+
+        // Should be in idle_broken, restart not possible
+        checkProtocolError(badCompiler, "failed to restart")
+
+        // Try to recover - no dice
+        do {
+            try badCompiler.reinit()
+            XCTFail("Managed to reinit somehow")
+        } catch let error as NSError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
 }

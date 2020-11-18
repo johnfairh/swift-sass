@@ -63,7 +63,7 @@ class TestCompiler: XCTestCase {
     }
 
     private func checkCompileFromFile(_ compiler: Compiler, extnsion: String, content: String, expected: String) throws {
-        let url = try TestUtils.tempFile(filename: "file.\(extnsion)", contents: content)
+        let url = try FileManager.default.createTempFile(filename: "file.\(extnsion)", contents: content)
         let results = try compiler.compile(sourceFileURL: url)
         XCTAssertEqual(expected, results.css)
     }
@@ -122,20 +122,5 @@ class TestCompiler: XCTestCase {
         let compiler = try Compiler(embeddedCompilerName: "dart-sass-embedded")
         let results = try compiler.compile(sourceText: "")
         XCTAssertEqual("", results.css)
-    }
-
-    // Can we reinit
-    func testReinit() throws {
-        let compiler = try TestUtils.newCompiler()
-
-        let results1 = try compiler.compile(sourceText: scssIn)
-        XCTAssertNil(results1.sourceMap)
-        XCTAssertEqual(scssOutExpanded, results1.css)
-
-        try compiler.reinit()
-
-        let results2 = try compiler.compile(sourceText: sassIn, sourceSyntax: .sass)
-        XCTAssertNil(results2.sourceMap)
-        XCTAssertEqual(sassOutExpanded, results2.css)
     }
 }
