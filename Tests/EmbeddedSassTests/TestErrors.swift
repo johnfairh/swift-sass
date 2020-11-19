@@ -9,7 +9,6 @@
 import XCTest
 @testable import EmbeddedSass
 
-
 ///
 /// Tests for compiler error decoding and transmission.
 /// Plus warnings; plus protocol errors
@@ -41,7 +40,7 @@ class TestErrors: XCTestCase {
         do {
             let results = try compiler.compile(sourceText: badSass, sourceSyntax: .sass)
             XCTFail("Managed to compile, got: \(results.css)")
-        } catch let error as Sass.Error {
+        } catch let error as CompilerError {
             XCTAssertEqual(badSassInlineError, error.description)
         } catch {
             XCTFail("Unexpected error: \(error)")
@@ -54,7 +53,7 @@ class TestErrors: XCTestCase {
         do {
             let results = try compiler.compile(sourceFileURL: url)
             XCTFail("Managed to compile, got: \(results.css)")
-        } catch let error as Sass.Error {
+        } catch let error as CompilerError {
             let d = error.description
             // The sass stack trace includes the full path of the temp file
             // so we can't test for it exactly
@@ -150,7 +149,7 @@ class TestErrors: XCTestCase {
         do {
             let results = try compiler.compile(sourceText: badWarningScss, sourceSyntax: .scss)
             XCTFail("Managed to compile nonsense: \(results)")
-        } catch let error as Sass.Error {
+        } catch let error as CompilerError {
             print(error)
         } catch {
             XCTFail("Unexpected error: \(error)")

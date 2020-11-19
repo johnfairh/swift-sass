@@ -20,8 +20,11 @@ let package = Package(
     ],
     targets: [
       .target(
+        name: "Sass",
+        dependencies: []),
+      .target(
         name: "EmbeddedSass",
-        dependencies: ["SwiftProtobuf"]),
+        dependencies: ["SwiftProtobuf", "Sass"]),
       .testTarget(
         name: "EmbeddedSassTests",
         dependencies: ["EmbeddedSass"],

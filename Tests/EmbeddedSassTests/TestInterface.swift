@@ -98,7 +98,7 @@ class TestCompiler: XCTestCase {
 
         // Current dart-sass-embedded maps everything !compressed down to nested
         // so this is a bit scuffed...
-        let styles: [Sass.OutputStyle] = [.compact, .compressed, .nested]
+        let styles: [CssStyle] = [.compact, .compressed, .nested]
         let expected = [scssOutExpanded, scssOutCompressed, scssOutExpanded]
         try zip(styles, expected).forEach { tc in
             let results = try compiler.compile(sourceText: scssIn, sourceSyntax: .scss, outputStyle: tc.0)

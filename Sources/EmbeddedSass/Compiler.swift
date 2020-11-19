@@ -7,6 +7,7 @@
 //
 
 import Foundation
+@_exported import Sass
 
 /// An instance of the embedded Sass compiler hosted in Swift.
 ///
@@ -60,7 +61,7 @@ public final class Compiler {
 
     // State of the current job
     private var compilationID: UInt32
-    private var warnings: [Sass.Warning]
+    private var warnings: [CompilerWarning]
 
     /// Initialize using the given program as the embedded Sass compiler.
     ///
@@ -107,10 +108,10 @@ public final class Compiler {
     }
 
     /// An optional callback to receive debug log messages from us and the compiler.
-    public var debugHandler: Sass.DebugHandler?
+    public var debugHandler: DebugHandler?
 
     private func debug(_ msg: @autoclosure () -> String) {
-        debugHandler?(.init(message: "Host: \(msg())", span: nil))
+        debugHandler?(DebugMessage("Host: \(msg())"))
     }
 
     /// Compile to CSS from a file.
@@ -130,8 +131,8 @@ public final class Compiler {
     /// XXX describe callbacks
     /// XXX importer rules
     public func compile(sourceFileURL: URL,
-                        outputStyle: Sass.OutputStyle = .expanded,
-                        createSourceMap: Bool = false) throws -> Sass.Results {
+                        outputStyle: CssStyle = .expanded,
+                        createSourceMap: Bool = false) throws -> CompilerResults {
         try compile(input: .path(sourceFileURL.path),
                     outputStyle: outputStyle,
                     createSourceMap: createSourceMap)
@@ -154,9 +155,9 @@ public final class Compiler {
     /// XXX describe callbacks
     /// XXX special importer + rules
     public func compile(sourceText: String,
-                        sourceSyntax: Sass.InputSyntax = .scss,
-                        outputStyle: Sass.OutputStyle = .expanded,
-                        createSourceMap: Bool = false) throws -> Sass.Results {
+                        sourceSyntax: Syntax = .scss,
+                        outputStyle: CssStyle = .expanded,
+                        createSourceMap: Bool = false) throws -> CompilerResults {
         try compile(input: .string(.with { m in
                         m.source = sourceText
                         m.syntax = sourceSyntax.forProtobuf
@@ -189,8 +190,8 @@ public final class Compiler {
 
     /// Helper to generate the compile request message
     private func compile(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
-                         outputStyle: Sass.OutputStyle,
-                         createSourceMap: Bool) throws -> Sass.Results {
+                         outputStyle: CssStyle,
+                         createSourceMap: Bool) throws -> CompilerResults {
         compilationID += 1
         warnings = []
 
@@ -206,7 +207,7 @@ public final class Compiler {
 
     /// Top-level compiler protocol runner.  Handles erp, such as there is.
 
-    private func compile(message: Sass_EmbeddedProtocol_InboundMessage) throws -> Sass.Results {
+    private func compile(message: Sass_EmbeddedProtocol_InboundMessage) throws -> CompilerResults {
         precondition(state.compileRequestLegal, "Call to `compile(...)` already active")
         if case .idle_broken = state {
             throw ProtocolError("Sass compiler failed to restart after previous errors.")
@@ -223,7 +224,7 @@ public final class Compiler {
             debug("End-Success CompileRequest id=\(compilationId)")
             return results
         }
-        catch let error as Sass.Error {
+        catch let error as CompilerError {
             state = .idle
             debug("End-CompilerError CompileRequest id=\(compilationId)")
             throw error
@@ -248,7 +249,7 @@ public final class Compiler {
     }
 
     /// Inbound message dispatch, top-level validation
-    private func receiveMessages() throws -> Sass.Results {
+    private func receiveMessages() throws -> CompilerResults {
         let timer = Timer()
 
         while true {
@@ -276,7 +277,7 @@ public final class Compiler {
     }
 
     /// Inbound `CompileResponse` handler
-    private func receive(compileResponse: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) throws -> Sass.Results {
+    private func receive(compileResponse: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) throws -> CompilerResults {
         guard compileResponse.id == compilationID else {
             throw ProtocolError("Bad compilation ID, expected \(compilationID) got \(compileResponse.id)")
         }
@@ -284,7 +285,7 @@ public final class Compiler {
         case .success(let s):
             return .init(s, warnings: warnings)
         case .failure(let f):
-            throw Sass.Error(f, warnings: warnings)
+            throw CompilerError(f, warnings: warnings)
         case nil:
             throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
         }
@@ -313,7 +314,7 @@ public final class Compiler {
 
 // MARK: Protobuf <-> Public type conversions
 
-extension Sass.InputSyntax {
+extension Syntax {
     var forProtobuf: Sass_EmbeddedProtocol_InboundMessage.Syntax {
         switch self {
         case .css: return .css
@@ -323,7 +324,7 @@ extension Sass.InputSyntax {
     }
 }
 
-extension Sass.OutputStyle {
+extension CssStyle {
     var forProtobuf: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OutputStyle {
         switch self {
         case .compact: return .compact
@@ -334,52 +335,59 @@ extension Sass.OutputStyle {
     }
 }
 
-extension Sass.Span {
+extension Span {
     init(_ protobuf: Sass_EmbeddedProtocol_SourceSpan) {
-        text = protobuf.text.nonEmptyString
-        url = protobuf.url.nonEmptyString
-        start = Location(protobuf.start)
-        end = protobuf.hasEnd ? Location(protobuf.end) : nil
-        context = protobuf.context.nonEmptyString
+        self = Self(text: protobuf.text.nonEmptyString,
+                    url: protobuf.url.nonEmptyString,
+                    start: Location(protobuf.start),
+                    end: protobuf.hasEnd ? Location(protobuf.end) : nil,
+                    context: protobuf.context.nonEmptyString)
     }
 }
 
-extension Sass.Span.Location {
+extension Span.Location {
     init(_ protobuf: Sass_EmbeddedProtocol_SourceSpan.SourceLocation) {
-        offset = Int(protobuf.offset)
-        line = Int(protobuf.line)
-        column = Int(protobuf.column)
+        self = Self(offset: Int(protobuf.offset),
+                    line: Int(protobuf.line),
+                    column: Int(protobuf.column))
     }
 }
 
-extension Sass.Results {
+extension CompilerResults {
     init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess,
-         warnings: [Sass.Warning]) {
-        css = protobuf.css
-        sourceMap = protobuf.sourceMap.nonEmptyString
-        self.warnings = warnings
-    }
-}
-extension Sass.Error {
-    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure,
-         warnings: [Sass.Warning]) {
-        message = protobuf.message
-        span = protobuf.hasSpan ? .init(protobuf.span) : nil
-        stackTrace = protobuf.stackTrace.nonEmptyString
-        self.warnings = warnings
+         warnings: [CompilerWarning]) {
+        self = Self(css: protobuf.css,
+                    sourceMap: protobuf.sourceMap.nonEmptyString,
+                    warnings: warnings)
     }
 }
 
-extension Sass.Warning {
-    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) {
-        message = protobuf.message
-        span = protobuf.hasSpan ? .init(protobuf.span) : nil
-        stackTrace = protobuf.stackTrace.nonEmptyString
-        switch protobuf.type {
-        case .deprecationWarning: kind = .deprecation
-        case .warning: kind = .warning
+extension CompilerError {
+    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure,
+         warnings: [CompilerWarning]) {
+        self = Self(message: protobuf.message,
+                    span: protobuf.hasSpan ? .init(protobuf.span) : nil,
+                    stackTrace: protobuf.stackTrace.nonEmptyString,
+                    warnings: warnings)
+    }
+}
+
+extension CompilerWarning.Kind {
+    init(_ type: Sass_EmbeddedProtocol_OutboundMessage.LogEvent.TypeEnum) {
+        switch type {
+        case .deprecationWarning: self = .deprecation
+        case .warning: self = .warning
         default: preconditionFailure() // handled at callsite
         }
+    }
+}
+
+extension CompilerWarning {
+    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) {
+        self = Self(kind: Kind(protobuf.type),
+                    message: protobuf.message,
+                    span: protobuf.hasSpan ? .init(protobuf.span) : nil,
+                    stackTrace: protobuf.stackTrace.nonEmptyString)
     }
 }
 

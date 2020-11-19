@@ -14,6 +14,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0289BB1725666B060004544A"
+               BuildableName = "Sass.framework"
+               BlueprintName = "Sass"
+               ReferencedContainer = "container:swift-sass.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "swift-sass::EmbeddedSass"
                BuildableName = "EmbeddedSass.framework"
                BlueprintName = "EmbeddedSass"
@@ -58,6 +72,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "swift-sass::EmbeddedSass"
+            BuildableName = "EmbeddedSass.framework"
+            BlueprintName = "EmbeddedSass"
+            ReferencedContainer = "container:swift-sass.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
