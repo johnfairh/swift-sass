@@ -9,6 +9,9 @@
 import Foundation
 @_exported import Sass
 
+// Mouthful
+private typealias PBImporter = Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer
+
 /// An instance of the embedded Sass compiler hosted in Swift.
 ///
 /// It runs the compiler as a child process and lets you provide importers and Sass Script routines
@@ -57,7 +60,12 @@ public final class Compiler {
     }
     private var state: State
 
+    // Configuration
     private let overallTimeout: Int
+    private let loadPaths: [URL]
+    private var globalImporters: [PBImporter] {
+        loadPaths.asImporters
+    }
 
     // State of the current job
     private var compilationID: UInt32
@@ -67,18 +75,23 @@ public final class Compiler {
     ///
     /// - parameter embeddedCompilerURL: The file URL to `dart-sass-embedded`
     ///   or something else that speaks the embedded Sass protocol.
-    /// - parameter timeoutSeconds: The maximum time allowed  for the embedded
+    /// - parameter overallTimeoutSeconds: The maximum time allowed  for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
+    /// - parameter loadPaths: The directories to search to satisfy `@use` or `@import`
+    ///   for all compile requests made of this instance.  See [[xref-importers]].
     ///
     /// - throws: Something from Foundation if the program does not start.
     public init(embeddedCompilerURL: URL,
-                overallTimeoutSeconds: Int = 60) throws {
+                overallTimeoutSeconds: Int = 60,
+                loadPaths: [URL] = []) throws {
         precondition(embeddedCompilerURL.isFileURL, "Not a file: \(embeddedCompilerURL)")
         childRestart = { try Exec.spawn(embeddedCompilerURL) }
         child = try childRestart()
         state = .idle
         overallTimeout = overallTimeoutSeconds
+        loadPaths.checkLoadPaths()
+        self.loadPaths = loadPaths
         compilationID = 8000
         warnings = []
     }
@@ -91,16 +104,24 @@ public final class Compiler {
     /// Initialize using a program found on `PATH` as the embedded Sass compiler.
     ///
     /// - parameter embeddedCompilerName: Name of the program, default `dart-sass-embedded`.
+    /// - parameter timeoutSeconds: The maximum time allowed  for the embedded
+    ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
+    ///   -1 to disable timeouts.
+    /// - parameter loadPaths: The directories to search to satisfy `@use` or `@import`
+    ///   for all compile requests made of this instance.  See [[xref-importers]].
+    /// 
     /// - throws: `ProtocolError()` if the program can't be found.
     ///           Everything from `init(embeddedCompilerURL:)`
     public convenience init(embeddedCompilerName: String = "dart-sass-embedded",
-                            overallTimeoutSeconds: Int = 60) throws {
+                            overallTimeoutSeconds: Int = 60,
+                            loadPaths: [URL] = []) throws {
         let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName, stderr: .discard)
         guard let path = results.successString else {
             throw ProtocolError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
         }
         try self.init(embeddedCompilerURL: URL(fileURLWithPath: path),
-                      overallTimeoutSeconds: overallTimeoutSeconds)
+                      overallTimeoutSeconds: overallTimeoutSeconds,
+                      loadPaths: loadPaths)
     }
 
     deinit {
@@ -117,10 +138,12 @@ public final class Compiler {
     /// Compile to CSS from a file.
     ///
     /// - parameters:
-    ///   - sourceFileURL: The file:// URL to compile.  The file extension is used to guess the
-    ///                    syntax of the contents, so it must be css/scss/sass.
+    ///   - sourceFileURL: The file:// URL to compile.  The file extension determines the
+    ///     expected syntax of the contents, so it must be css/scss/sass.
     ///   - outputStyle: How to format the produced CSS.
     ///   - createSourceMap: Create a JSON source map for the CSS.
+    ///   - loadPaths: The directories to search to satisfy `@use` or `@import`
+    ///     for this compilation, searched after any set at the `Compiler` level.  See [[xref-importers]].
     /// - throws: `SassError.compilerError()` if there is a critical error with the input, for
     ///           example a syntax error.
     ///           `SassError.protocolError()` if something goes wrong with the compiler
@@ -132,10 +155,12 @@ public final class Compiler {
     /// XXX importer rules
     public func compile(sourceFileURL: URL,
                         outputStyle: CssStyle = .expanded,
-                        createSourceMap: Bool = false) throws -> CompilerResults {
+                        createSourceMap: Bool = false,
+                        loadPaths: [URL] = []) throws -> CompilerResults {
         try compile(input: .path(sourceFileURL.path),
                     outputStyle: outputStyle,
-                    createSourceMap: createSourceMap)
+                    createSourceMap: createSourceMap,
+                    loadPaths: loadPaths)
     }
 
     /// Compile to CSS from some text.
@@ -145,6 +170,8 @@ public final class Compiler {
     ///   - sourceSyntax: The syntax of `sourceText`.
     ///   - outputStyle: How to format the produced CSS.
     ///   - createSourceMap: Create a JSON source map for the CSS.
+    ///   - loadPaths: The directories to search to satisfy `@use` or `@import`
+    ///     for this compilation, searched after any set at the `Compiler` level.  See [[xref-importers]].
     /// - throws: `SassError.compilerError()` if there is a critical error with the input, for
     ///           example a syntax error.
     ///           `SassError.protocolError()` if something goes wrong with the compiler
@@ -157,13 +184,15 @@ public final class Compiler {
     public func compile(sourceText: String,
                         sourceSyntax: Syntax = .scss,
                         outputStyle: CssStyle = .expanded,
-                        createSourceMap: Bool = false) throws -> CompilerResults {
+                        createSourceMap: Bool = false,
+                        loadPaths: [URL] = []) throws -> CompilerResults {
         try compile(input: .string(.with { m in
                         m.source = sourceText
                         m.syntax = sourceSyntax.forProtobuf
                     }),
                     outputStyle: outputStyle,
-                    createSourceMap: createSourceMap)
+                    createSourceMap: createSourceMap,
+                    loadPaths: loadPaths)
     }
 
     /// Restart the Sass compiler process.
@@ -191,9 +220,12 @@ public final class Compiler {
     /// Helper to generate the compile request message
     private func compile(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
                          outputStyle: CssStyle,
-                         createSourceMap: Bool) throws -> CompilerResults {
+                         createSourceMap: Bool,
+                         loadPaths: [URL]) throws -> CompilerResults {
         compilationID += 1
         warnings = []
+        loadPaths.checkLoadPaths()
+        // localImporters =
 
         return try compile(message: .with { wrapper in
             wrapper.message = .compileRequest(.with { msg in
@@ -201,6 +233,7 @@ public final class Compiler {
                 msg.input = input
                 msg.style = outputStyle.forProtobuf
                 msg.sourceMap = createSourceMap
+                msg.importers = globalImporters + loadPaths.asImporters
             })
         })
     }
@@ -394,5 +427,17 @@ extension CompilerWarning {
 private extension String {
     var nonEmptyString: String? {
         isEmpty ? nil : self
+    }
+}
+
+private extension Array where Element == URL {
+    var asImporters: [PBImporter] {
+        map { url in .with { $0.path = url.path } }
+    }
+
+    func checkLoadPaths() {
+        forEach { url in
+            precondition(url.isFileURL, "Loadpath URL not directory: \(url)")
+        }
     }
 }

@@ -28,18 +28,24 @@ enum TestUtils {
         dartSassEmbeddedDirURL.appendingPathComponent("dart-sass-embedded")
     }
 
-    static func newCompiler() throws -> Compiler {
-        let c = try Compiler(embeddedCompilerURL: TestUtils.dartSassEmbeddedURL)
+    static func newCompiler(loadPaths: [URL] = []) throws -> Compiler {
+        let c = try Compiler(embeddedCompilerURL: TestUtils.dartSassEmbeddedURL,
+                             loadPaths: loadPaths)
         c.debugHandler = { m in print("debug: \(m)") }
         return c
     }
 }
 
+extension String {
+    func write(to url: URL) throws {
+        try write(toFile: url.path, atomically: false, encoding: .utf8)
+    }
+}
 extension FileManager {
 
     func createTempFile(filename: String, contents: String) throws -> URL {
         let url = temporaryDirectory.appendingPathComponent(filename)
-        try contents.write(toFile: url.path, atomically: false, encoding: .utf8)
+        try contents.write(to: url)
         return url
     }
 

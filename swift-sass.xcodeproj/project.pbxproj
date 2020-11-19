@@ -16,6 +16,8 @@
 		0289BB2225666BA70004544A /* Sass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0289BB1825666B060004544A /* Sass.framework */; };
 		0289BB2325666BA70004544A /* Sass.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0289BB1825666B060004544A /* Sass.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0289BB2F25666C940004544A /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB2B25666C8F0004544A /* Types.swift */; };
+		0289BB3425669E610004544A /* Importer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB3325669E610004544A /* Importer.swift */; };
+		0289BB372566A62B0004544A /* TestImporters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB362566A62B0004544A /* TestImporters.swift */; };
 		0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C7256000A400F6BE14 /* TestInterface.swift */; };
 		0291E7CA2562E82F00F6BE14 /* TestErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C92562E82F00F6BE14 /* TestErrors.swift */; };
 		0291E7CC2565416400F6BE14 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7CB2565416400F6BE14 /* Timer.swift */; };
@@ -74,6 +76,8 @@
 		025C6251255D54C000AEA420 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		0289BB1825666B060004544A /* Sass.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Sass.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0289BB2B25666C8F0004544A /* Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
+		0289BB3325669E610004544A /* Importer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Importer.swift; sourceTree = "<group>"; };
+		0289BB362566A62B0004544A /* TestImporters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestImporters.swift; sourceTree = "<group>"; };
 		0291E7C7256000A400F6BE14 /* TestInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestInterface.swift; sourceTree = "<group>"; };
 		0291E7C92562E82F00F6BE14 /* TestErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestErrors.swift; sourceTree = "<group>"; };
 		0291E7CB2565416400F6BE14 /* Timer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
@@ -127,6 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				0289BB2B25666C8F0004544A /* Types.swift */,
+				0289BB3325669E610004544A /* Importer.swift */,
 			);
 			name = Sass;
 			path = Sources/Sass;
@@ -155,6 +160,7 @@
 			children = (
 				0291E7C7256000A400F6BE14 /* TestInterface.swift */,
 				0291E7C92562E82F00F6BE14 /* TestErrors.swift */,
+				0289BB362566A62B0004544A /* TestImporters.swift */,
 				OBJ_15 /* TestUtils.swift */,
 			);
 			name = EmbeddedSassTests;
@@ -301,6 +307,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0289BB2F25666C940004544A /* Types.swift in Sources */,
+				0289BB3425669E610004544A /* Importer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,6 +331,7 @@
 				0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */,
 				OBJ_131 /* TestUtils.swift in Sources */,
 				0291E7CA2562E82F00F6BE14 /* TestErrors.swift in Sources */,
+				0289BB372566A62B0004544A /* TestImporters.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
