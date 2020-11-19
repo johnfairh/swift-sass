@@ -28,9 +28,9 @@ enum TestUtils {
         dartSassEmbeddedDirURL.appendingPathComponent("dart-sass-embedded")
     }
 
-    static func newCompiler(loadPaths: [URL] = []) throws -> Compiler {
+    static func newCompiler(importers: [ImportResolver] = []) throws -> Compiler {
         let c = try Compiler(embeddedCompilerURL: TestUtils.dartSassEmbeddedURL,
-                             loadPaths: loadPaths)
+                             importers: importers)
         c.debugHandler = { m in print("debug: \(m)") }
         return c
     }

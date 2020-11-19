@@ -62,14 +62,12 @@ public final class Compiler {
 
     // Configuration
     private let overallTimeout: Int
-    private let loadPaths: [URL]
-    private var globalImporters: [PBImporter] {
-        loadPaths.asImporters
-    }
+    private let globalImporters: [ImportResolver]
 
     // State of the current job
     private var compilationID: UInt32
     private var warnings: [CompilerWarning]
+    private var currentImporters: [ImportResolver]
 
     /// Initialize using the given program as the embedded Sass compiler.
     ///
@@ -78,22 +76,24 @@ public final class Compiler {
     /// - parameter overallTimeoutSeconds: The maximum time allowed  for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
-    /// - parameter loadPaths: The directories to search to satisfy `@use` or `@import`
-    ///   for all compile requests made of this instance.  See [[xref-importers]].
+    /// - parameter importers: Rules for resolving `@use` or `@import` that cannot be
+    ///   satisfied relative to the source file's URL, used for all compile requests to this instance.
+    ///   See [[xref-importers]].
     ///
     /// - throws: Something from Foundation if the program does not start.
     public init(embeddedCompilerURL: URL,
                 overallTimeoutSeconds: Int = 60,
-                loadPaths: [URL] = []) throws {
+                importers: [ImportResolver] = []) throws {
         precondition(embeddedCompilerURL.isFileURL, "Not a file: \(embeddedCompilerURL)")
         childRestart = { try Exec.spawn(embeddedCompilerURL) }
         child = try childRestart()
         state = .idle
         overallTimeout = overallTimeoutSeconds
-        loadPaths.checkLoadPaths()
-        self.loadPaths = loadPaths
+        importers.check()
+        globalImporters = importers
         compilationID = 8000
         warnings = []
+        currentImporters = []
     }
 
     private func restart() throws {
@@ -107,21 +107,22 @@ public final class Compiler {
     /// - parameter timeoutSeconds: The maximum time allowed  for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
-    /// - parameter loadPaths: The directories to search to satisfy `@use` or `@import`
-    ///   for all compile requests made of this instance.  See [[xref-importers]].
-    /// 
+    /// - parameter importers: Rules for resolving `@use` or `@import` that cannot be
+    ///   satisfied relative to the source file's URL, used for all compile requests to this instance.
+    ///   See [[xref-importers]].
+    ///
     /// - throws: `ProtocolError()` if the program can't be found.
     ///           Everything from `init(embeddedCompilerURL:)`
     public convenience init(embeddedCompilerName: String = "dart-sass-embedded",
                             overallTimeoutSeconds: Int = 60,
-                            loadPaths: [URL] = []) throws {
+                            importers: [ImportResolver] = []) throws {
         let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName, stderr: .discard)
         guard let path = results.successString else {
             throw ProtocolError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
         }
         try self.init(embeddedCompilerURL: URL(fileURLWithPath: path),
                       overallTimeoutSeconds: overallTimeoutSeconds,
-                      loadPaths: loadPaths)
+                      importers: importers)
     }
 
     deinit {
@@ -142,8 +143,9 @@ public final class Compiler {
     ///     expected syntax of the contents, so it must be css/scss/sass.
     ///   - outputStyle: How to format the produced CSS.
     ///   - createSourceMap: Create a JSON source map for the CSS.
-    ///   - loadPaths: The directories to search to satisfy `@use` or `@import`
-    ///     for this compilation, searched after any set at the `Compiler` level.  See [[xref-importers]].
+    ///   - importers: Rules for resolving `@use` or `@import` for this compilation, used in
+    ///     order after `sourceFileURL`'s directory and any set at the `Compiler` level.
+    ///     See [[xref-importers]].
     /// - throws: `SassError.compilerError()` if there is a critical error with the input, for
     ///           example a syntax error.
     ///           `SassError.protocolError()` if something goes wrong with the compiler
@@ -156,11 +158,11 @@ public final class Compiler {
     public func compile(sourceFileURL: URL,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
-                        loadPaths: [URL] = []) throws -> CompilerResults {
+                        importers: [ImportResolver] = []) throws -> CompilerResults {
         try compile(input: .path(sourceFileURL.path),
                     outputStyle: outputStyle,
                     createSourceMap: createSourceMap,
-                    loadPaths: loadPaths)
+                    importers: importers)
     }
 
     /// Compile to CSS from some text.
@@ -170,8 +172,9 @@ public final class Compiler {
     ///   - sourceSyntax: The syntax of `sourceText`.
     ///   - outputStyle: How to format the produced CSS.
     ///   - createSourceMap: Create a JSON source map for the CSS.
-    ///   - loadPaths: The directories to search to satisfy `@use` or `@import`
-    ///     for this compilation, searched after any set at the `Compiler` level.  See [[xref-importers]].
+    ///   - importers: Rules for resolving `@use` or `@import` for this compilation, used in
+    ///     order after `sourceFileURL`'s directory and any set at the `Compiler` level.
+    ///     See [[xref-importers]].
     /// - throws: `SassError.compilerError()` if there is a critical error with the input, for
     ///           example a syntax error.
     ///           `SassError.protocolError()` if something goes wrong with the compiler
@@ -185,14 +188,14 @@ public final class Compiler {
                         sourceSyntax: Syntax = .scss,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
-                        loadPaths: [URL] = []) throws -> CompilerResults {
+                        importers: [ImportResolver] = []) throws -> CompilerResults {
         try compile(input: .string(.with { m in
                         m.source = sourceText
                         m.syntax = sourceSyntax.forProtobuf
                     }),
                     outputStyle: outputStyle,
                     createSourceMap: createSourceMap,
-                    loadPaths: loadPaths)
+                    importers: importers)
     }
 
     /// Restart the Sass compiler process.
@@ -221,11 +224,11 @@ public final class Compiler {
     private func compile(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
                          outputStyle: CssStyle,
                          createSourceMap: Bool,
-                         loadPaths: [URL]) throws -> CompilerResults {
+                         importers: [ImportResolver]) throws -> CompilerResults {
         compilationID += 1
         warnings = []
-        loadPaths.checkLoadPaths()
-        // localImporters =
+        importers.check()
+        currentImporters = globalImporters + importers
 
         return try compile(message: .with { wrapper in
             wrapper.message = .compileRequest(.with { msg in
@@ -233,7 +236,7 @@ public final class Compiler {
                 msg.input = input
                 msg.style = outputStyle.forProtobuf
                 msg.sourceMap = createSourceMap
-                msg.importers = globalImporters + loadPaths.asImporters
+                msg.importers = currentImporters.forProtobuf(startingID: 0)
             })
         })
     }
@@ -303,6 +306,14 @@ public final class Compiler {
                 debug("  Got Log, \(elapsedTime)")
                 try receive(log: rsp)
 
+            case .canonicalizeRequest(let req):
+                debug("  Got CanonReq, \(elapsedTime)")
+                try receive(canonicalizeRequest: req)
+
+            case .importRequest(let req):
+                debug("  Got ImportReq, \(elapsedTime)")
+                try receive(importRequest: req)
+
             default:
                 throw ProtocolError("Unexpected response: \(response)")
             }
@@ -342,6 +353,61 @@ public final class Compiler {
         case .UNRECOGNIZED(let value):
             throw ProtocolError("Unrecognized warning type \(value) from compiler: \(log.message)")
         }
+    }
+
+    /// Inbound `CanonicalizeRequest` heandler
+    private func receive(canonicalizeRequest req: Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest) throws {
+        guard req.compilationID == compilationID else {
+            throw ProtocolError("Bad compilation ID, expected \(compilationID) got \(req.compilationID)")
+        }
+        guard req.importerID < currentImporters.count else {
+            throw ProtocolError("Bad importer ID \(req.importerID), out of range (max \(currentImporters.count - 1)")
+        }
+        guard let customImporter = currentImporters[Int(req.importerID)].asCustom else {
+            throw ProtocolError("Bad importer ID \(req.importerID), not a custom importer")
+        }
+        var rsp = Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse()
+        rsp.id = req.id
+        do {
+            if let canonURL = try customImporter.canonicalize(filespec: req.url) {
+                rsp.result = .url(canonURL.absoluteString)
+            }
+            // else leave result nil -> can't deal with this request
+        } catch {
+            rsp.result = .error(String(describing: error))
+        }
+        debug("  Send CanonRsp id=\(req.id)")
+        try child.send(message: .with { $0.message = .canonicalizeResponse(rsp) })
+    }
+
+    /// Inbound `ImportRequest` heandler
+    private func receive(importRequest req: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest) throws {
+        guard req.compilationID == compilationID else {
+            throw ProtocolError("Bad compilation ID, expected \(compilationID) got \(req.compilationID)")
+        }
+        guard req.importerID < currentImporters.count else {
+            throw ProtocolError("Bad importer ID \(req.importerID), out of range (max \(currentImporters.count - 1)")
+        }
+        guard let customImporter = currentImporters[Int(req.importerID)].asCustom else {
+            throw ProtocolError("Bad importer ID \(req.importerID), not a custom importer")
+        }
+        guard let url = URL(string: req.url) else {
+            throw ProtocolError("Malformed import URL \(req.url)")
+        }
+        var rsp = Sass_EmbeddedProtocol_InboundMessage.ImportResponse()
+        rsp.id = req.id
+        do {
+            let results = try customImporter.import(canonicalURL: url)
+            rsp.result = .success(.with { msg in
+                msg.contents = results.contents
+                msg.syntax = results.syntax.forProtobuf
+                results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
+            })
+        } catch {
+            rsp.result = .error(String(describing: error))
+        }
+        debug("  Send ImportRsp id=\(req.id)")
+        try child.send(message: .with { $0.message = .importResponse(rsp) })
     }
 }
 
@@ -430,14 +496,39 @@ private extension String {
     }
 }
 
-private extension Array where Element == URL {
-    var asImporters: [PBImporter] {
-        map { url in .with { $0.path = url.path } }
+private extension ImportResolver {
+    func check() {
+        switch self {
+        case .loadPath(let url):
+            precondition(url.isFileURL, "Loadpath URL not directory: \(url)")
+        case .custom(_):
+            break
+        }
     }
 
-    func checkLoadPaths() {
-        forEach { url in
-            precondition(url.isFileURL, "Loadpath URL not directory: \(url)")
+    func forProtobuf(id: Int) -> PBImporter {
+        switch self {
+        case .loadPath(let url):
+            return .with { $0.path = url.path }
+        case .custom(_):
+            return .with { $0.importerID = UInt32(id) }
         }
+    }
+
+    var asCustom: CustomImporter? {
+        switch self {
+        case .loadPath(_): return nil
+        case .custom(let c): return c
+        }
+    }
+}
+
+private extension Array where Element == ImportResolver {
+    func check() {
+        forEach { $0.check() }
+    }
+
+    func forProtobuf(startingID: Int) -> [PBImporter] {
+        enumerated().map { $0.1.forProtobuf(id: $0.0 + startingID) }
     }
 }

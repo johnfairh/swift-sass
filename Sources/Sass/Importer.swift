@@ -8,7 +8,7 @@
 
 import Foundation
 
-// Types used as part of custom importers.
+// Types used as part of resolving `@import` and `@use` rules.
 
 public struct ImportResults {
     public let contents: String
@@ -22,8 +22,18 @@ public struct ImportResults {
     }
 }
 
-public protocol Importer {
+public protocol CustomImporter {
+    /// - returns: `nil` means cannot resolve filespec to a stylesheet.
+    ///            Otherwise the canonical URL for the filespec.
+    /// - throws: something if the filespec is ambiguous and matches multiple stylesheets meaning
+    ///           the canonical URL cannot be determined.
     func canonicalize(filespec: String) throws -> URL?
     func `import`(canonicalURL: URL) throws -> ImportResults
 }
 
+public enum ImportResolver {
+    /// Search a filesystem directory to resolve the rule.
+    case loadPath(URL)
+    /// Call back through the `CustomImporter` to resolve the rule.
+    case custom(CustomImporter)
+}
