@@ -38,7 +38,7 @@ class TestErrors: XCTestCase {
     func testCompilerErrorInline() throws {
         let compiler = try TestUtils.newCompiler()
         do {
-            let results = try compiler.compile(sourceText: badSass, sourceSyntax: .sass)
+            let results = try compiler.compile(text: badSass, syntax: .sass)
             XCTFail("Managed to compile, got: \(results.css)")
         } catch let error as CompilerError {
             XCTAssertEqual(badSassInlineError, error.description)
@@ -51,7 +51,7 @@ class TestErrors: XCTestCase {
         let compiler = try TestUtils.newCompiler()
         let url = try FileManager.default.createTempFile(filename: "badfile.sass", contents: badSass)
         do {
-            let results = try compiler.compile(sourceFileURL: url)
+            let results = try compiler.compile(fileURL: url)
             XCTFail("Managed to compile, got: \(results.css)")
         } catch let error as CompilerError {
             let d = error.description
@@ -83,7 +83,7 @@ class TestErrors: XCTestCase {
     // Compiler warnings - no span
     func testCompilerWarning() throws {
         let compiler = try TestUtils.newCompiler()
-        let results = try compiler.compile(sourceText: warnsomeSass, sourceSyntax: .sass)
+        let results = try compiler.compile(text: warnsomeSass, syntax: .sass)
         XCTAssertEqual(1, results.warnings.count)
         XCTAssertTrue(results.warnings[0].kind == .warning)
         XCTAssertTrue(results.warnings[0].message.contains("Unknown prefix"))
@@ -98,7 +98,7 @@ class TestErrors: XCTestCase {
     // Multiple warnings
     func testCompilerWarningMultiple() throws {
         let compiler = try TestUtils.newCompiler()
-        let results = try compiler.compile(sourceText: multiWarningSass, sourceSyntax: .sass)
+        let results = try compiler.compile(text: multiWarningSass, syntax: .sass)
         XCTAssertEqual(2, results.warnings.count)
         print(results.warnings)
         results.warnings.forEach { w in
@@ -115,7 +115,7 @@ class TestErrors: XCTestCase {
     // Deprecation warning
     func testDeprecationWarning() throws {
         let compiler = try TestUtils.newCompiler()
-        let results = try compiler.compile(sourceText: deprecatedScss, sourceSyntax: .scss)
+        let results = try compiler.compile(text: deprecatedScss, syntax: .scss)
         XCTAssertEqual("", results.css)
         XCTAssertEqual(1, results.warnings.count)
         XCTAssertEqual(.deprecation, results.warnings[0].kind)
@@ -130,7 +130,7 @@ class TestErrors: XCTestCase {
     // Warning with a span
     func testWarningSpan() throws {
         let compiler = try TestUtils.newCompiler()
-        let results = try compiler.compile(sourceText: warningScssWithLocation, sourceSyntax: .scss)
+        let results = try compiler.compile(text: warningScssWithLocation, syntax: .scss)
         XCTAssertEqual(1, results.warnings.count)
         XCTAssertEqual(.warning, results.warnings[0].kind)
         XCTAssertNotNil(results.warnings[0].span)
@@ -147,7 +147,7 @@ class TestErrors: XCTestCase {
     func testErrorAndWarning() throws {
         let compiler = try TestUtils.newCompiler()
         do {
-            let results = try compiler.compile(sourceText: badWarningScss, sourceSyntax: .scss)
+            let results = try compiler.compile(text: badWarningScss, syntax: .scss)
             XCTFail("Managed to compile nonsense: \(results)")
         } catch let error as CompilerError {
             print(error)
@@ -159,7 +159,7 @@ class TestErrors: XCTestCase {
     // Helper to trigger & test a protocol error
     func checkProtocolError(_ compiler: Compiler, _ text: String? = nil) {
         do {
-            let results = try compiler.compile(sourceText: "")
+            let results = try compiler.compile(text: "")
             XCTFail("Managed to compile with compiler that should have failed: \(results)")
         } catch let error as ProtocolError {
             print(error)
@@ -178,7 +178,7 @@ class TestErrors: XCTestCase {
         checkProtocolError(compiler)
 
         // check recovered
-        let results = try compiler.compile(sourceText: "")
+        let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
     }
 
@@ -194,7 +194,7 @@ class TestErrors: XCTestCase {
         checkProtocolError(compiler, "108")
 
         // check compiler is now working OK
-        let results = try compiler.compile(sourceText: "")
+        let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
     }
 

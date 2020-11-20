@@ -76,9 +76,8 @@ public final class Compiler {
     /// - parameter overallTimeoutSeconds: The maximum time allowed  for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
-    /// - parameter importers: Rules for resolving `@use` or `@import` that cannot be
-    ///   satisfied relative to the source file's URL, used for all compile requests to this instance.
-    ///   See [[xref-importers]].
+    /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
+    ///   the source file's URL, used for all compile requests to this instance.
     ///
     /// - throws: Something from Foundation if the program does not start.
     public init(embeddedCompilerURL: URL,
@@ -107,9 +106,8 @@ public final class Compiler {
     /// - parameter timeoutSeconds: The maximum time allowed  for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
-    /// - parameter importers: Rules for resolving `@use` or `@import` that cannot be
-    ///   satisfied relative to the source file's URL, used for all compile requests to this instance.
-    ///   See [[xref-importers]].
+    /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
+    ///   the source file's URL, used for all compile requests to this instance.
     ///
     /// - throws: `ProtocolError()` if the program can't be found.
     ///           Everything from `init(embeddedCompilerURL:)`
@@ -139,27 +137,21 @@ public final class Compiler {
     /// Compile to CSS from a file.
     ///
     /// - parameters:
-    ///   - sourceFileURL: The file:// URL to compile.  The file extension determines the
+    ///   - fileURL: The `file:` URL to compile.  The file extension determines the
     ///     expected syntax of the contents, so it must be css/scss/sass.
     ///   - outputStyle: How to format the produced CSS.
     ///   - createSourceMap: Create a JSON source map for the CSS.
-    ///   - importers: Rules for resolving `@use` or `@import` for this compilation, used in
-    ///     order after `sourceFileURL`'s directory and any set at the `Compiler` level.
-    ///     See [[xref-importers]].
-    /// - throws: `SassError.compilerError()` if there is a critical error with the input, for
-    ///           example a syntax error.
-    ///           `SassError.protocolError()` if something goes wrong with the compiler
-    ///           infrastructure itself.
+    ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
+    ///     `sourceFileURL`'s directory and any set at the `Compiler` level.
+    /// - throws: `CompilerError()` if there is a critical error with the input, for example a syntax error.
+    ///           `ProtocolError()` if something goes wrong with the compiler infrastructure itself.
     /// - returns: CSS and optional source map.
     /// - precondition: no call to `compile(...)` outstanding on this instance.
-    ///
-    /// XXX describe callbacks
-    /// XXX importer rules
-    public func compile(sourceFileURL: URL,
+    public func compile(fileURL: URL,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
                         importers: [ImportResolver] = []) throws -> CompilerResults {
-        try compile(input: .path(sourceFileURL.path),
+        try compile(input: .path(fileURL.path),
                     outputStyle: outputStyle,
                     createSourceMap: createSourceMap,
                     importers: importers)
@@ -168,30 +160,29 @@ public final class Compiler {
     /// Compile to CSS from some text.
     ///
     /// - parameters:
-    ///   - sourceText: The document to compile.
-    ///   - sourceSyntax: The syntax of `sourceText`.
+    ///   - text: The document to compile.
+    ///   - syntax: The syntax of `text`.
+    ///   - url: Optionally, the absolute URL whence came `text`.
     ///   - outputStyle: How to format the produced CSS.
     ///   - createSourceMap: Create a JSON source map for the CSS.
-    ///   - importers: Rules for resolving `@use` or `@import` for this compilation, used in
-    ///     order after `sourceFileURL`'s directory and any set at the `Compiler` level.
-    ///     See [[xref-importers]].
-    /// - throws: `SassError.compilerError()` if there is a critical error with the input, for
-    ///           example a syntax error.
-    ///           `SassError.protocolError()` if something goes wrong with the compiler
-    ///           infrastructure itself.
+    ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
+    ///     `sourceFileURL`'s directory and any set at the `Compiler` level.
+    /// - throws: `CompilerError()` if there is a critical error with the input, for example a syntax error.
+    ///           `ProtocolError()` if something goes wrong with the compiler infrastructure itself.
     /// - returns: CSS and optional source map.
     /// - precondition: no call to `compile(...)` outstanding on this instance.
-    ///
-    /// XXX describe callbacks
-    /// XXX special importer + rules
-    public func compile(sourceText: String,
-                        sourceSyntax: Syntax = .scss,
+    /// - todo: Mebbe ought to have a special importer to go with `url` but compiler doesn't implement
+    ///         it so ....
+    public func compile(text: String,
+                        syntax: Syntax = .scss,
+                        url: URL? = nil,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
                         importers: [ImportResolver] = []) throws -> CompilerResults {
         try compile(input: .string(.with { m in
-                        m.source = sourceText
-                        m.syntax = sourceSyntax.forProtobuf
+                        m.source = text
+                        m.syntax = syntax.forProtobuf
+                        url.flatMap { m.url = $0.absoluteString }
                     }),
                     outputStyle: outputStyle,
                     createSourceMap: createSourceMap,
@@ -380,8 +371,8 @@ public final class Compiler {
         var rsp = Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse()
         rsp.id = req.id
         do {
-            if let canonURL = try importer.canonicalize(fileSpec: req.url) {
-                rsp.result = .url(canonURL.absoluteString)
+            if let canonicalURL = try importer.canonicalize(importURL: req.url) {
+                rsp.result = .url(canonicalURL.absoluteString)
             }
             // else leave result nil -> can't deal with this request
         } catch {
@@ -400,7 +391,7 @@ public final class Compiler {
         var rsp = Sass_EmbeddedProtocol_InboundMessage.ImportResponse()
         rsp.id = req.id
         do {
-            let results = try importer.import(canonicalURL: url)
+            let results = try importer.load(canonicalURL: url)
             rsp.result = .success(.with { msg in
                 msg.contents = results.contents
                 msg.syntax = results.syntax.forProtobuf

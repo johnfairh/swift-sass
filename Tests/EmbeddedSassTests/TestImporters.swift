@@ -42,7 +42,7 @@ class TestImporters: XCTestCase {
     func testCompilerLoadPath() throws {
         let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
         let compiler = try TestUtils.newCompiler(importers: [.loadPath(tmpDir)])
-        let results = try compiler.compile(sourceText: importingSass, sourceSyntax: .sass, outputStyle: .compressed)
+        let results = try compiler.compile(text: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssBlue, results.css)
     }
 
@@ -50,7 +50,7 @@ class TestImporters: XCTestCase {
     func testJobLoadPath() throws {
         let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
         let compiler = try TestUtils.newCompiler()
-        let results = try compiler.compile(sourceText: usingSass, sourceSyntax: .sass,
+        let results = try compiler.compile(text: usingSass, syntax: .sass,
                                            outputStyle: .compressed,
                                            importers: [.loadPath(tmpDir)])
         XCTAssertEqual(secondaryCssBlue, results.css)
@@ -61,7 +61,7 @@ class TestImporters: XCTestCase {
         let tmpDirBlue = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
         let tmpDirRed = try createFileInNewDir(secondaryCssRed, filename: secondaryCssFilename)
         let compiler = try TestUtils.newCompiler(importers: [.loadPath(tmpDirRed)])
-        let results = try compiler.compile(sourceText: usingSass, sourceSyntax: .sass,
+        let results = try compiler.compile(text: usingSass, syntax: .sass,
                                            outputStyle: .compressed,
                                            importers: [.loadPath(tmpDirBlue)])
         XCTAssertEqual(secondaryCssRed, results.css)
@@ -72,7 +72,7 @@ class TestImporters: XCTestCase {
         let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
         let nonsenseDir = URL(fileURLWithPath: "/not/a/directory")
         let compiler = try TestUtils.newCompiler(importers: [.loadPath(nonsenseDir), .loadPath(tmpDir)])
-        let results = try compiler.compile(sourceText: importingSass, sourceSyntax: .sass, outputStyle: .compressed)
+        let results = try compiler.compile(text: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssBlue, results.css)
     }
 
@@ -98,7 +98,7 @@ class TestImporters: XCTestCase {
         var claimRequest: Bool = true
         var unclaimedRequestCount = 0
 
-        func canonicalize(fileSpec: String) throws -> URL? {
+        func canonicalize(importURL: String) throws -> URL? {
             if let failNextCanon = failNextCanon {
                 failedCanonCount += 1
                 throw Error(message: failNextCanon)
@@ -107,19 +107,19 @@ class TestImporters: XCTestCase {
                 unclaimedRequestCount += 1
                 return nil
             }
-            return URL(string: "test://\(fileSpec)")
+            return URL(string: "test://\(importURL)")
         }
 
         /// Fail the next import
         var failNextImport: String? = nil
         var failedImportCount = 0
 
-        func `import`(canonicalURL: URL) throws -> ImportResults {
+        func load(canonicalURL: URL) throws -> ImporterResults {
             if let failNextImport = failNextImport {
                 failedImportCount += 1
                 throw Error(message: failNextImport)
             }
-            return ImportResults(css, syntax: .css)
+            return ImporterResults(css, syntax: .css)
         }
     }
 
@@ -127,7 +127,7 @@ class TestImporters: XCTestCase {
     func testCustomImporter() throws {
         let importer = TestImporter(css: secondaryCssRed)
         let compiler = try TestUtils.newCompiler(importers: [.custom(importer)])
-        let results = try compiler.compile(sourceText: importingSass, sourceSyntax: .sass, outputStyle: .compressed)
+        let results = try compiler.compile(text: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssRed, results.css)
     }
 
@@ -137,7 +137,7 @@ class TestImporters: XCTestCase {
         customize(importer)
         let compiler = try TestUtils.newCompiler(importers: [.custom(importer)])
         do {
-            let results = try compiler.compile(sourceText: usingSass, sourceSyntax: .sass)
+            let results = try compiler.compile(text: usingSass, syntax: .sass)
             XCTFail("Compiled something: \(results)")
         } catch let error as CompilerError {
             check(importer, error)
@@ -162,7 +162,7 @@ class TestImporters: XCTestCase {
         }
     }
 
-    // import fails
+    // load fails
     func testImportFails() throws {
         try checkFaultyImporter(customize: { $0.failNextImport = "Objection" }) { i, e in
             XCTAssertEqual(i.failNextImport, e.message)

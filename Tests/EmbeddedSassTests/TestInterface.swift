@@ -49,17 +49,17 @@ class TestCompiler: XCTestCase {
     func testCoreInline() throws {
         let compiler = try TestUtils.newCompiler()
 
-        let results1 = try compiler.compile(sourceText: scssIn)
+        let results1 = try compiler.compile(text: scssIn)
         XCTAssertNil(results1.sourceMap)
         XCTAssertTrue(results1.warnings.isEmpty)
         XCTAssertEqual(scssOutExpanded, results1.css)
 
-        let results2 = try compiler.compile(sourceText: sassIn, sourceSyntax: .sass)
+        let results2 = try compiler.compile(text: sassIn, syntax: .sass)
         XCTAssertNil(results2.sourceMap)
         XCTAssertTrue(results1.warnings.isEmpty)
         XCTAssertEqual(sassOutExpanded, results2.css)
 
-        let results3 = try compiler.compile(sourceText: sassOutExpanded, sourceSyntax: .css)
+        let results3 = try compiler.compile(text: sassOutExpanded, syntax: .css)
         XCTAssertNil(results3.sourceMap)
         XCTAssertTrue(results1.warnings.isEmpty)
         XCTAssertEqual(sassOutExpanded, results3.css)
@@ -67,7 +67,7 @@ class TestCompiler: XCTestCase {
 
     private func checkCompileFromFile(_ compiler: Compiler, extnsion: String, content: String, expected: String) throws {
         let url = try FileManager.default.createTempFile(filename: "file.\(extnsion)", contents: content)
-        let results = try compiler.compile(sourceFileURL: url)
+        let results = try compiler.compile(fileURL: url)
         XCTAssertEqual(expected, results.css)
     }
 
@@ -82,7 +82,7 @@ class TestCompiler: XCTestCase {
     func testSourceMap() throws {
         let compiler = try TestUtils.newCompiler()
 
-        let results = try compiler.compile(sourceText: scssIn, createSourceMap: true)
+        let results = try compiler.compile(text: scssIn, createSourceMap: true)
         XCTAssertEqual(scssOutExpanded, results.css)
 
         let json = try XCTUnwrap(results.sourceMap)
@@ -101,7 +101,7 @@ class TestCompiler: XCTestCase {
         let styles: [CssStyle] = [.compact, .compressed, .nested]
         let expected = [scssOutExpanded, scssOutCompressed, scssOutExpanded]
         try zip(styles, expected).forEach { tc in
-            let results = try compiler.compile(sourceText: scssIn, sourceSyntax: .scss, outputStyle: tc.0)
+            let results = try compiler.compile(text: scssIn, syntax: .scss, outputStyle: tc.0)
             XCTAssertEqual(tc.1, results.css, String(describing: tc.0))
         }
     }
@@ -123,7 +123,7 @@ class TestCompiler: XCTestCase {
         let newPATH = "\(TestUtils.dartSassEmbeddedDirURL.path):\(oldPATHString)"
         setenv("PATH", strdup(newPATH), 1)
         let compiler = try Compiler(embeddedCompilerName: "dart-sass-embedded")
-        let results = try compiler.compile(sourceText: "")
+        let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
     }
 }
