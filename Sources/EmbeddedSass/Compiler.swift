@@ -9,9 +9,6 @@
 import Foundation
 @_exported import Sass
 
-// Mouthful
-private typealias PBImporter = Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer
-
 /// An instance of the embedded Sass compiler hosted in Swift.
 ///
 /// It runs the compiler as a child process and lets you provide importers and Sass Script routines
@@ -88,7 +85,6 @@ public final class Compiler {
         child = try childRestart()
         state = .idle
         overallTimeout = overallTimeoutSeconds
-        importers.check()
         globalImporters = importers
         compilationID = 1000
         warnings = []
@@ -125,6 +121,28 @@ public final class Compiler {
 
     deinit {
         child.process.terminate()
+    }
+
+    /// Restart the Sass compiler process.
+    ///
+    /// Normally a single instance of the compiler process persists across all invocations to
+    /// `compile(...)` on this `Compiler` instance.   This method stops the current
+    /// compiler process and starts a new one: the intended use is for compilers whose
+    /// resource usage escalates over time and need calming down.  You probably don't need to
+    /// call it.
+    ///
+    /// Don't use this to unstick a stuck `compile(...)` call, that will terminate eventually.
+    public func reinit() throws {
+        precondition(state.compileRequestLegal)
+        child.process.terminate()
+        try restart()
+    }
+
+    /// The process ID of the compiler process.
+    ///
+    /// Not normally needed; can be used to adjust resource usage or maybe send it a signal if stuck.
+    public var compilerProcessIdentifier: Int32 {
+        child.process.processIdentifier
     }
 
     /// An optional callback to receive debug log messages from us and the compiler.
@@ -181,34 +199,12 @@ public final class Compiler {
                         importers: [ImportResolver] = []) throws -> CompilerResults {
         try compile(input: .string(.with { m in
                         m.source = text
-                        m.syntax = syntax.forProtobuf
+                        m.syntax = .init(syntax)
                         url.flatMap { m.url = $0.absoluteString }
                     }),
                     outputStyle: outputStyle,
                     createSourceMap: createSourceMap,
                     importers: importers)
-    }
-
-    /// Restart the Sass compiler process.
-    ///
-    /// Normally a single instance of the compiler process persists across all invocations to
-    /// `compile(...)` on this `Compiler` instance.   This method stops the current
-    /// compiler process and starts a new one: the intended use is for compilers whose
-    /// resource usage escalates over time and need calming down.  You probably don't need to
-    /// call it.
-    ///
-    /// Don't use this to unstick a stuck `compile(...)` call, that will terminate eventually.
-    public func reinit() throws {
-        precondition(state.compileRequestLegal)
-        child.process.terminate()
-        try restart()
-    }
-
-    /// The process ID of the compiler process.
-    ///
-    /// Not normally needed; can be used to adjust resource usage or maybe send it a signal if stuck.
-    public var compilerProcessIdentifier: Int32 {
-        child.process.processIdentifier
     }
 
     /// Helper to generate the compile request message
@@ -218,16 +214,15 @@ public final class Compiler {
                          importers: [ImportResolver]) throws -> CompilerResults {
         compilationID += 1
         warnings = []
-        importers.check()
         currentImporters = globalImporters + importers
 
-        return try compile(message: .with { wrapper in
-            wrapper.message = .compileRequest(.with { msg in
+        return try compile(message: .with {
+            $0.message = .compileRequest(.with { msg in
                 msg.id = compilationID
                 msg.input = input
-                msg.style = outputStyle.forProtobuf
+                msg.style = .init(outputStyle)
                 msg.sourceMap = createSourceMap
-                msg.importers = currentImporters.forProtobuf(startingID: Self.baseImporterID)
+                msg.importers = .init(currentImporters, startingID: Self.baseImporterID)
             })
         })
     }
@@ -350,6 +345,7 @@ public final class Compiler {
 
     static let baseImporterID = UInt32(4000)
 
+    /// Helper
     private func getCustomImporter(compilationID: UInt32, importerID: UInt32) throws -> CustomImporter {
         guard compilationID == self.compilationID else {
             throw ProtocolError("Bad compilation ID, expected \(self.compilationID) got \(compilationID)")
@@ -359,7 +355,7 @@ public final class Compiler {
         guard importerID >= minImporterID, importerID <= maxImporterID else {
             throw ProtocolError("Bad importer ID \(importerID), out of range (\(minImporterID)-\(maxImporterID))")
         }
-        guard let customImporter = currentImporters[Int(importerID - minImporterID)].asCustom else {
+        guard let customImporter = currentImporters[Int(importerID - minImporterID)].customImporter else {
             throw ProtocolError("Bad importer ID \(importerID), not a custom importer")
         }
         return customImporter
@@ -394,7 +390,7 @@ public final class Compiler {
             let results = try importer.load(canonicalURL: url)
             rsp.result = .success(.with { msg in
                 msg.contents = results.contents
-                msg.syntax = results.syntax.forProtobuf
+                msg.syntax = .init(results.syntax)
                 results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
             })
         } catch {
@@ -405,124 +401,11 @@ public final class Compiler {
     }
 }
 
-// MARK: Protobuf / Public type conversions
-
-extension Syntax {
-    var forProtobuf: Sass_EmbeddedProtocol_InboundMessage.Syntax {
-        switch self {
-        case .css: return .css
-        case .indented, .sass: return .indented
-        case .scss: return .scss
-        }
-    }
-}
-
-extension CssStyle {
-    var forProtobuf: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OutputStyle {
-        switch self {
-        case .compact: return .compact
-        case .compressed: return .compressed
-        case .expanded: return .expanded
-        case .nested: return .nested
-        }
-    }
-}
-
-extension Span {
-    init(_ protobuf: Sass_EmbeddedProtocol_SourceSpan) {
-        self = Self(text: protobuf.text.nonEmptyString,
-                    url: protobuf.url.nonEmptyString,
-                    start: Location(protobuf.start),
-                    end: protobuf.hasEnd ? Location(protobuf.end) : nil,
-                    context: protobuf.context.nonEmptyString)
-    }
-}
-
-extension Span.Location {
-    init(_ protobuf: Sass_EmbeddedProtocol_SourceSpan.SourceLocation) {
-        self = Self(offset: Int(protobuf.offset),
-                    line: Int(protobuf.line),
-                    column: Int(protobuf.column))
-    }
-}
-
-extension CompilerResults {
-    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess,
-         warnings: [CompilerWarning]) {
-        self = Self(css: protobuf.css,
-                    sourceMap: protobuf.sourceMap.nonEmptyString,
-                    warnings: warnings)
-    }
-}
-
-extension CompilerError {
-    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure,
-         warnings: [CompilerWarning]) {
-        self = Self(message: protobuf.message,
-                    span: protobuf.hasSpan ? .init(protobuf.span) : nil,
-                    stackTrace: protobuf.stackTrace.nonEmptyString,
-                    warnings: warnings)
-    }
-}
-
-extension CompilerWarning.Kind {
-    init(_ type: Sass_EmbeddedProtocol_OutboundMessage.LogEvent.TypeEnum) {
-        switch type {
-        case .deprecationWarning: self = .deprecation
-        case .warning: self = .warning
-        default: preconditionFailure() // handled at callsite
-        }
-    }
-}
-
-extension CompilerWarning {
-    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) {
-        self = Self(kind: Kind(protobuf.type),
-                    message: protobuf.message,
-                    span: protobuf.hasSpan ? .init(protobuf.span) : nil,
-                    stackTrace: protobuf.stackTrace.nonEmptyString)
-    }
-}
-
-private extension String {
-    var nonEmptyString: String? {
-        isEmpty ? nil : self
-    }
-}
-
 private extension ImportResolver {
-    func check() {
-        switch self {
-        case .loadPath(let url):
-            precondition(url.isFileURL, "Loadpath URL not directory: \(url)")
-        case .custom(_):
-            break
-        }
-    }
-
-    func forProtobuf(id: UInt32) -> PBImporter {
-        switch self {
-        case .loadPath(let url):
-            return .with { $0.path = url.path }
-        case .custom(_):
-            return .with { $0.importerID = id }
-        }
-    }
-
-    var asCustom: CustomImporter? {
+    var customImporter: CustomImporter? {
         switch self {
         case .loadPath(_): return nil
         case .custom(let c): return c
         }
-    }
-}
-
-private extension Array where Element == ImportResolver {
-    func check() {
-        forEach { $0.check() }
-    }
-
-    func forProtobuf(startingID: UInt32) -> [PBImporter] {
-        enumerated().map { $0.1.forProtobuf(id: UInt32($0.0) + startingID) }
     }
 }

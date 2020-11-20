@@ -8,8 +8,6 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
-import Foundation
-
 //
 // Firstly some 'orrible gubbins to deal with SIGPIPE, which
 // happens if the child process dies.
@@ -29,6 +27,8 @@ import Foundation
 // like they might be safe require a Big Sur deployment target.  And probably
 // won't understand MSG_NOSIGNAL.
 //
+
+import Foundation
 
 /// Create a pair of connected sockets in PF_LOCAL.
 ///

@@ -5,11 +5,14 @@
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
-
-import Foundation
+//  Much text here taken verbatim or only slightly editted from the embedded
+//  Copyright (c) 2019, Google LLC
+//  Licensed under MIT (https://github.com/sass/embedded-protocol/blob/master/LICENSE)
+//
 
 // Sass compiler interface types, shared between embedded Sass and libsass.
-// Doc comments mostly lifted from Sass docs.
+
+import Foundation
 
 /// Possible ways to format the CSS produced by a Sass compiler.
 public enum CssStyle {
