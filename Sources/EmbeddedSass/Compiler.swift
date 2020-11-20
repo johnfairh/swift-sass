@@ -91,7 +91,7 @@ public final class Compiler {
         overallTimeout = overallTimeoutSeconds
         importers.check()
         globalImporters = importers
-        compilationID = 8000
+        compilationID = 1000
         warnings = []
         currentImporters = []
     }
@@ -236,7 +236,7 @@ public final class Compiler {
                 msg.input = input
                 msg.style = outputStyle.forProtobuf
                 msg.sourceMap = createSourceMap
-                msg.importers = currentImporters.forProtobuf(startingID: 0)
+                msg.importers = currentImporters.forProtobuf(startingID: Self.baseImporterID)
             })
         })
     }
@@ -355,21 +355,32 @@ public final class Compiler {
         }
     }
 
+    // MARK: Importers
+
+    static let baseImporterID = UInt32(4000)
+
+    private func getCustomImporter(compilationID: UInt32, importerID: UInt32) throws -> CustomImporter {
+        guard compilationID == self.compilationID else {
+            throw ProtocolError("Bad compilation ID, expected \(self.compilationID) got \(compilationID)")
+        }
+        let minImporterID = Self.baseImporterID
+        let maxImporterID = minImporterID + UInt32(currentImporters.count) - 1
+        guard importerID >= minImporterID, importerID <= maxImporterID else {
+            throw ProtocolError("Bad importer ID \(importerID), out of range (\(minImporterID)-\(maxImporterID))")
+        }
+        guard let customImporter = currentImporters[Int(importerID - minImporterID)].asCustom else {
+            throw ProtocolError("Bad importer ID \(importerID), not a custom importer")
+        }
+        return customImporter
+    }
+
     /// Inbound `CanonicalizeRequest` heandler
     private func receive(canonicalizeRequest req: Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest) throws {
-        guard req.compilationID == compilationID else {
-            throw ProtocolError("Bad compilation ID, expected \(compilationID) got \(req.compilationID)")
-        }
-        guard req.importerID < currentImporters.count else {
-            throw ProtocolError("Bad importer ID \(req.importerID), out of range (max \(currentImporters.count - 1)")
-        }
-        guard let customImporter = currentImporters[Int(req.importerID)].asCustom else {
-            throw ProtocolError("Bad importer ID \(req.importerID), not a custom importer")
-        }
+        let importer = try getCustomImporter(compilationID: req.compilationID, importerID: req.importerID)
         var rsp = Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse()
         rsp.id = req.id
         do {
-            if let canonURL = try customImporter.canonicalize(filespec: req.url) {
+            if let canonURL = try importer.canonicalize(fileSpec: req.url) {
                 rsp.result = .url(canonURL.absoluteString)
             }
             // else leave result nil -> can't deal with this request
@@ -382,22 +393,14 @@ public final class Compiler {
 
     /// Inbound `ImportRequest` heandler
     private func receive(importRequest req: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest) throws {
-        guard req.compilationID == compilationID else {
-            throw ProtocolError("Bad compilation ID, expected \(compilationID) got \(req.compilationID)")
-        }
-        guard req.importerID < currentImporters.count else {
-            throw ProtocolError("Bad importer ID \(req.importerID), out of range (max \(currentImporters.count - 1)")
-        }
-        guard let customImporter = currentImporters[Int(req.importerID)].asCustom else {
-            throw ProtocolError("Bad importer ID \(req.importerID), not a custom importer")
-        }
+        let importer = try getCustomImporter(compilationID: req.compilationID, importerID: req.importerID)
         guard let url = URL(string: req.url) else {
             throw ProtocolError("Malformed import URL \(req.url)")
         }
         var rsp = Sass_EmbeddedProtocol_InboundMessage.ImportResponse()
         rsp.id = req.id
         do {
-            let results = try customImporter.import(canonicalURL: url)
+            let results = try importer.import(canonicalURL: url)
             rsp.result = .success(.with { msg in
                 msg.contents = results.contents
                 msg.syntax = results.syntax.forProtobuf
@@ -411,7 +414,7 @@ public final class Compiler {
     }
 }
 
-// MARK: Protobuf <-> Public type conversions
+// MARK: Protobuf / Public type conversions
 
 extension Syntax {
     var forProtobuf: Sass_EmbeddedProtocol_InboundMessage.Syntax {
@@ -506,12 +509,12 @@ private extension ImportResolver {
         }
     }
 
-    func forProtobuf(id: Int) -> PBImporter {
+    func forProtobuf(id: UInt32) -> PBImporter {
         switch self {
         case .loadPath(let url):
             return .with { $0.path = url.path }
         case .custom(_):
-            return .with { $0.importerID = UInt32(id) }
+            return .with { $0.importerID = id }
         }
     }
 
@@ -528,7 +531,7 @@ private extension Array where Element == ImportResolver {
         forEach { $0.check() }
     }
 
-    func forProtobuf(startingID: Int) -> [PBImporter] {
-        enumerated().map { $0.1.forProtobuf(id: $0.0 + startingID) }
+    func forProtobuf(startingID: UInt32) -> [PBImporter] {
+        enumerated().map { $0.1.forProtobuf(id: UInt32($0.0) + startingID) }
     }
 }

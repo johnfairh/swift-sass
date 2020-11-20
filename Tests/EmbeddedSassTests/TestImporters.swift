@@ -79,7 +79,7 @@ class TestImporters: XCTestCase {
     // MARK: Custom Importers
 
     // A custom importer
-    struct TestImporter: CustomImporter {
+    final class TestImporter: CustomImporter {
         let css: String
 
         init(css: String) {
@@ -88,25 +88,35 @@ class TestImporters: XCTestCase {
 
         /// State next request 'cannot be canonicalized'
         var failNextCanon: String? = nil
-        struct Error: Swift.Error {
+        var failedCanonCount = 0
+        struct Error: Swift.Error, CustomStringConvertible {
             let message: String
+            var description: String { message }
         }
 
         /// Claim next request
         var claimRequest: Bool = true
+        var unclaimedRequestCount = 0
 
-        func canonicalize(filespec: String) throws -> URL? {
+        func canonicalize(fileSpec: String) throws -> URL? {
             if let failNextCanon = failNextCanon {
+                failedCanonCount += 1
                 throw Error(message: failNextCanon)
             }
-            return claimRequest ? URL(string: "test://\(filespec)") : nil
+            guard claimRequest else {
+                unclaimedRequestCount += 1
+                return nil
+            }
+            return URL(string: "test://\(fileSpec)")
         }
 
         /// Fail the next import
         var failNextImport: String? = nil
+        var failedImportCount = 0
 
         func `import`(canonicalURL: URL) throws -> ImportResults {
             if let failNextImport = failNextImport {
+                failedImportCount += 1
                 throw Error(message: failNextImport)
             }
             return ImportResults(css, syntax: .css)
@@ -121,7 +131,42 @@ class TestImporters: XCTestCase {
         XCTAssertEqual(secondaryCssRed, results.css)
     }
 
-    // canon says nil
-    // canon throws
+    // Bad path harness
+    func checkFaultyImporter(customize: (TestImporter) -> Void, check: (TestImporter, CompilerError) -> Void) throws {
+        let importer = TestImporter(css: secondaryCssRed)
+        customize(importer)
+        let compiler = try TestUtils.newCompiler(importers: [.custom(importer)])
+        do {
+            let results = try compiler.compile(sourceText: usingSass, sourceSyntax: .sass)
+            XCTFail("Compiled something: \(results)")
+        } catch let error as CompilerError {
+            check(importer, error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    // Canon says nil (not recognized)
+    func testImportNotFound() throws {
+        try checkFaultyImporter(customize: { $0.claimRequest = false }) { i, e in
+            XCTAssertEqual(1, i.unclaimedRequestCount)
+            XCTAssertTrue(e.message.contains("Can't find stylesheet"))
+        }
+    }
+
+    // Canon fails (ambiguous)
+    func testImportCanonFails() throws {
+        try checkFaultyImporter(customize: { $0.failNextCanon = "Objection" }) { i, e in
+            XCTAssertEqual(i.failNextCanon, e.message)
+            XCTAssertEqual(1, i.failedCanonCount)
+        }
+    }
+
     // import fails
+    func testImportFails() throws {
+        try checkFaultyImporter(customize: { $0.failNextImport = "Objection" }) { i, e in
+            XCTAssertEqual(i.failNextImport, e.message)
+            XCTAssertEqual(1, i.failedImportCount)
+        }
+    }
 }

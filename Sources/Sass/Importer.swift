@@ -27,7 +27,7 @@ public protocol CustomImporter {
     ///            Otherwise the canonical URL for the filespec.
     /// - throws: something if the filespec is ambiguous and matches multiple stylesheets meaning
     ///           the canonical URL cannot be determined.
-    func canonicalize(filespec: String) throws -> URL?
+    func canonicalize(fileSpec: String) throws -> URL?
     func `import`(canonicalURL: URL) throws -> ImportResults
 }
 
