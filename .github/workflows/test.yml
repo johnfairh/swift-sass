@@ -14,6 +14,15 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            .build
+            Tests/EmbeddedSassTests/dart-sass-embedded
+          key: ${{ runner.os }}-spm2-${{ hashFiles('Package.resolved', 'Makefile') }}
+
       - name: SPM tests
         run: make test platform=macos
       - name: Normalize coverage info
@@ -26,6 +35,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            .build
+            Tests/EmbeddedSassTests/dart-sass-embedded
+          key: ${{ runner.os }}-spm2-${{ hashFiles('Package.resolved', 'Makefile') }}
+
       - name: Run tests
         run: make test platform=linux
 
@@ -34,6 +52,15 @@ jobs:
     runs-on: macos-11.0
     steps:
       - uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            .build
+            Tests/EmbeddedSassTests/dart-sass-embedded
+          key: ${{ runner.os }}-spm2-${{ hashFiles('Package.resolved', 'Makefile') }}
+
       - name: Xcode
         run: sudo xcode-select -s /Applications/Xcode_12.2.app/Contents/Developer
       - name: SPM tests
