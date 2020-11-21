@@ -149,7 +149,7 @@ public final class Compiler {
     public var debugHandler: DebugHandler?
 
     private func debug(_ msg: @autoclosure () -> String) {
-        debugHandler?(DebugMessage("Host: \(msg())"))
+        debugHandler?(DebugMessage("[compid=\(compilationID)] \(msg())"))
     }
 
     /// Compile to CSS from a file.
@@ -235,20 +235,18 @@ public final class Compiler {
             throw ProtocolError("Sass compiler failed to restart after previous errors.")
         }
 
-        let compilationId = message.compileRequest.id
-
         do {
             state = .active
-            debug("Start CompileRequest id=\(compilationId)")
+            debug("start")
             try child.send(message: message)
             let results = try receiveMessages()
             state = .idle
-            debug("End-Success CompileRequest id=\(compilationId)")
+            debug("end-success")
             return results
         }
         catch let error as CompilerError {
             state = .idle
-            debug("End-CompilerError CompileRequest id=\(compilationId)")
+            debug("end-compiler-error")
             throw error
         }
         catch {
@@ -256,14 +254,14 @@ public final class Compiler {
             // the only erp we have to is to try and restart it into a known
             // clean state.  seems ott to retry the command here, see how we go.
             do {
-                debug("End-ProtocolError CompileRequest id=\(compilationId), restarting compiler")
+                debug("end-protocol-error - restarting compiler...")
                 child.process.terminate()
                 try restart()
-                debug("End-ProtocolError CompileRequest id=\(compilationId), restart OK")
+                debug("end-protocol-error - restart ok")
             } catch {
                 // the system looks to be broken, sadface
                 state = .idle_broken
-                debug("End-ProtocolError CompileRequest id=\(compilationId), restart failed (\(error))")
+                debug("end-protocol-error - restart failed: \(error)")
             }
             // Propagate original error
             throw error
@@ -278,26 +276,26 @@ public final class Compiler {
             let elapsedTime = timer.elapsed
             let timeout = overallTimeout < 0 ? -1 : max(1, overallTimeout - elapsedTime)
             let response = try child.receive(timeout: timeout)
+            debug("  rx \(response.logMessage)")
+            if let rspCompilationID = response.compilationID,
+               rspCompilationID != compilationID {
+                throw ProtocolError("Bad compilation ID, expected \(compilationID) got \(rspCompilationID)")
+            }
 
             switch response.message {
             case .compileResponse(let rsp):
-                debug("  Got CompileResponse, \(elapsedTime)s")
                 return try receive(compileResponse: rsp)
 
             case .error(let rsp):
-                debug("  Got Error, \(elapsedTime)s")
                 try receive(error: rsp)
 
             case .logEvent(let rsp):
-                debug("  Got Log, \(elapsedTime)")
                 try receive(log: rsp)
 
             case .canonicalizeRequest(let req):
-                debug("  Got CanonReq, \(elapsedTime)")
                 try receive(canonicalizeRequest: req)
 
             case .importRequest(let req):
-                debug("  Got ImportReq, \(elapsedTime)")
                 try receive(importRequest: req)
 
             default:
@@ -308,9 +306,6 @@ public final class Compiler {
 
     /// Inbound `CompileResponse` handler
     private func receive(compileResponse: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) throws -> CompilerResults {
-        guard compileResponse.id == compilationID else {
-            throw ProtocolError("Bad compilation ID, expected \(compilationID) got \(compileResponse.id)")
-        }
         switch compileResponse.result {
         case .success(let s):
             return .init(s, messages: messages)
@@ -328,9 +323,6 @@ public final class Compiler {
 
     /// Inbound `Log` handler
     private func receive(log: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) throws {
-        guard log.compilationID == compilationID else {
-            throw ProtocolError("Bad compilation ID, expected \(compilationID) got \(log.compilationID)")
-        }
         switch log.type {
         case .warning, .deprecationWarning, .debug:
             messages.append(.init(log))
@@ -344,10 +336,7 @@ public final class Compiler {
     static let baseImporterID = UInt32(4000)
 
     /// Helper
-    private func getCustomImporter(compilationID: UInt32, importerID: UInt32) throws -> CustomImporter {
-        guard compilationID == self.compilationID else {
-            throw ProtocolError("Bad compilation ID, expected \(self.compilationID) got \(compilationID)")
-        }
+    private func getCustomImporter(importerID: UInt32) throws -> CustomImporter {
         let minImporterID = Self.baseImporterID
         let maxImporterID = minImporterID + UInt32(currentImporters.count) - 1
         guard importerID >= minImporterID, importerID <= maxImporterID else {
@@ -359,26 +348,29 @@ public final class Compiler {
         return customImporter
     }
 
-    /// Inbound `CanonicalizeRequest` heandler
+    /// Inbound `CanonicalizeRequest` handler
     private func receive(canonicalizeRequest req: Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest) throws {
-        let importer = try getCustomImporter(compilationID: req.compilationID, importerID: req.importerID)
+        let importer = try getCustomImporter(importerID: req.importerID)
         var rsp = Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse()
         rsp.id = req.id
         do {
             if let canonicalURL = try importer.canonicalize(importURL: req.url) {
                 rsp.result = .url(canonicalURL.absoluteString)
+                debug("  tx canon-rsp-success reqid=\(req.id)")
+            } else {
+                // leave result nil -> can't deal with this request
+                debug("  tx canon-rsp-nil reqid=\(req.id)")
             }
-            // else leave result nil -> can't deal with this request
         } catch {
             rsp.result = .error(String(describing: error))
+            debug("  tx canon-rsp-error reqid=\(req.id)")
         }
-        debug("  Send CanonRsp id=\(req.id)")
         try child.send(message: .with { $0.message = .canonicalizeResponse(rsp) })
     }
 
-    /// Inbound `ImportRequest` heandler
+    /// Inbound `ImportRequest` handler
     private func receive(importRequest req: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest) throws {
-        let importer = try getCustomImporter(compilationID: req.compilationID, importerID: req.importerID)
+        let importer = try getCustomImporter(importerID: req.importerID)
         guard let url = URL(string: req.url) else {
             throw ProtocolError("Malformed import URL \(req.url)")
         }
@@ -391,10 +383,11 @@ public final class Compiler {
                 msg.syntax = .init(results.syntax)
                 results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
             })
+            debug("  tx import-rsp-success reqid=\(req.id)")
         } catch {
             rsp.result = .error(String(describing: error))
+            debug("  tx import-rsp-error reqid=\(req.id)")
         }
-        debug("  Send ImportRsp id=\(req.id)")
         try child.send(message: .with { $0.message = .importResponse(rsp) })
     }
 }

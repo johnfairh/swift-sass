@@ -10,10 +10,6 @@
 
 import Foundation
 
-protocol Debuggable {
-    var debugMessage: String { get }
-}
-
 // MARK: PB -> Native
 
 extension String {
@@ -121,3 +117,98 @@ extension Array where Element == Sass_EmbeddedProtocol_InboundMessage.CompileReq
         }
     }
 }
+
+// MARK: Inbound message polymorphism
+
+// Not sure this needs to be a protocol, TODO-NIO
+protocol Loggable {
+    var logMessage: String { get }
+}
+
+extension Sass_EmbeddedProtocol_OutboundMessage : Loggable {
+    var logMessage: String {
+        message?.logMessage ?? "unknown-1"
+    }
+
+    var compilationID: UInt32? {
+        message?.compilationID
+    }
+}
+
+extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message : Loggable {
+    var logMessage: String {
+        switch self {
+        case .canonicalizeRequest(let m): return m.logMessage
+        case .compileResponse(let m): return m.logMessage
+        case .error(let m): return m.logMessage
+//      case .fileImportRequest(let m): return m.logMessage
+//      case .functionCallRequest(let m): return m.logMessage
+        case .importRequest(let m): return m.logMessage
+        case .logEvent(let m): return m.logMessage
+        default: return "unknown-2"
+        }
+    }
+
+    var compilationID: UInt32? {
+        switch self {
+        case .canonicalizeRequest(let m): return m.compilationID
+        case .compileResponse(let m): return UInt32(m.id) // XXX oops bad protobuf
+        case .error(_): return nil
+//      case .fileImportRequest(let m): return m.compilationID
+//      case .functionCallRequest(let m): return m.compilationID
+        case .importRequest(let m): return m.compilationID
+        case .logEvent(let m): return m.compilationID
+        default: return nil
+        }
+    }
+}
+
+extension Sass_EmbeddedProtocol_ProtocolError : Loggable {
+    var logMessage: String {
+        "protocol-error id=\(id)"
+    }
+}
+extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse : Loggable {
+    var logMessage: String {
+        "compile-response compid=\(id)"
+    }
+}
+
+extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent : Loggable {
+    var logMessage: String {
+        "log-event compid=\(compilationID)"
+    }
+}
+
+extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest : Loggable {
+    var logMessage: String {
+        "canon-req compid=\(compilationID) reqid=\(id) impid=\(importerID)"
+    }
+}
+
+extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest : Loggable {
+    var logMessage: String {
+        "import-req compid=\(compilationID) reqid=\(id) impid=\(importerID)"
+    }
+}
+
+//extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest : Loggable {
+//    var logMessage: String {
+//        "file-import-req compid=\(compilationID) reqid=\(id) impid=\(importerID)"
+//    }
+//}
+
+//extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest : Loggable {
+//    var logMessage: String {
+//        "fncall-req compid=\(compilationID) reqid=\(id) fnid=\(identifier?.logMessage ?? "[nil]")"
+//    }
+//}
+//
+//extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest.OneOf_Identifier : Loggable {
+//    var logMessage: String {
+//        switch self {
+//        case .functionID(let id): return String(id)
+//        case .name(let name): return name
+//        }
+//    }
+//}
