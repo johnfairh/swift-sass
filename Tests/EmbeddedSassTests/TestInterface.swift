@@ -51,17 +51,17 @@ class TestCompiler: XCTestCase {
 
         let results1 = try compiler.compile(text: scssIn)
         XCTAssertNil(results1.sourceMap)
-        XCTAssertTrue(results1.warnings.isEmpty)
+        XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(scssOutExpanded, results1.css)
 
         let results2 = try compiler.compile(text: sassIn, syntax: .sass)
         XCTAssertNil(results2.sourceMap)
-        XCTAssertTrue(results1.warnings.isEmpty)
+        XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(sassOutExpanded, results2.css)
 
         let results3 = try compiler.compile(text: sassOutExpanded, syntax: .css)
         XCTAssertNil(results3.sourceMap)
-        XCTAssertTrue(results1.warnings.isEmpty)
+        XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(sassOutExpanded, results3.css)
     }
 

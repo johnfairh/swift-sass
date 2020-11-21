@@ -84,28 +84,32 @@ class TestErrors: XCTestCase {
     func testCompilerWarning() throws {
         let compiler = try TestUtils.newCompiler()
         let results = try compiler.compile(text: warnsomeSass, syntax: .sass)
-        XCTAssertEqual(1, results.warnings.count)
-        XCTAssertTrue(results.warnings[0].kind == .warning)
-        XCTAssertTrue(results.warnings[0].message.contains("Unknown prefix"))
-        XCTAssertNil(results.warnings[0].span)
+        XCTAssertEqual(1, results.messages.count)
+        XCTAssertTrue(results.messages[0].kind == .warning)
+        XCTAssertTrue(results.messages[0].message.contains("Unknown prefix"))
+        XCTAssertNil(results.messages[0].span)
     }
 
     let multiWarningSass = """
     @warn "First warning"
     @warn "Second warning"
+    @debug "Third debug"
     """
 
     // Multiple warnings
     func testCompilerWarningMultiple() throws {
         let compiler = try TestUtils.newCompiler()
         let results = try compiler.compile(text: multiWarningSass, syntax: .sass)
-        XCTAssertEqual(2, results.warnings.count)
-        print(results.warnings)
-        results.warnings.forEach { w in
+        XCTAssertEqual(3, results.messages.count)
+        print(results.messages)
+        results.messages[0...1].forEach { w in
             XCTAssertEqual(.warning, w.kind)
             XCTAssertTrue(w.message.contains("warning"))
             XCTAssertNil(w.span)
         }
+        XCTAssertEqual(.debug, results.messages[2].kind)
+        XCTAssertTrue(results.messages[2].message.contains("debug"))
+        XCTAssertNotNil(results.messages[2].span) // randomly...
     }
 
     let deprecatedScss = """
@@ -117,8 +121,8 @@ class TestErrors: XCTestCase {
         let compiler = try TestUtils.newCompiler()
         let results = try compiler.compile(text: deprecatedScss, syntax: .scss)
         XCTAssertEqual("", results.css)
-        XCTAssertEqual(1, results.warnings.count)
-        XCTAssertEqual(.deprecation, results.warnings[0].kind)
+        XCTAssertEqual(1, results.messages.count)
+        XCTAssertEqual(.deprecation, results.messages[0].kind)
     }
 
     let warningScssWithLocation = """
@@ -131,9 +135,9 @@ class TestErrors: XCTestCase {
     func testWarningSpan() throws {
         let compiler = try TestUtils.newCompiler()
         let results = try compiler.compile(text: warningScssWithLocation, syntax: .scss)
-        XCTAssertEqual(1, results.warnings.count)
-        XCTAssertEqual(.warning, results.warnings[0].kind)
-        XCTAssertNotNil(results.warnings[0].span)
+        XCTAssertEqual(1, results.messages.count)
+        XCTAssertEqual(.warning, results.messages[0].kind)
+        XCTAssertNotNil(results.messages[0].span)
     }
 
     let badWarningScss = """

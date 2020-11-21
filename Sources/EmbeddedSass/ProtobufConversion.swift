@@ -10,6 +10,10 @@
 
 import Foundation
 
+protocol Debuggable {
+    var debugMessage: String { get }
+}
+
 // MARK: PB -> Native
 
 extension String {
@@ -38,34 +42,35 @@ extension Span.Location {
 
 extension CompilerResults {
     init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess,
-         warnings: [CompilerWarning]) {
+         messages: [CompilerMessage]) {
         self = Self(css: protobuf.css,
                     sourceMap: protobuf.sourceMap.nonEmptyString,
-                    warnings: warnings)
+                    messages: messages)
     }
 }
 
 extension CompilerError {
     init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure,
-         warnings: [CompilerWarning]) {
+         messages: [CompilerMessage]) {
         self = Self(message: protobuf.message,
                     span: protobuf.hasSpan ? .init(protobuf.span) : nil,
                     stackTrace: protobuf.stackTrace.nonEmptyString,
-                    warnings: warnings)
+                    messages: messages)
     }
 }
 
-extension CompilerWarning.Kind {
+extension CompilerMessage.Kind {
     init(_ type: Sass_EmbeddedProtocol_OutboundMessage.LogEvent.TypeEnum) {
         switch type {
         case .deprecationWarning: self = .deprecation
         case .warning: self = .warning
+        case .debug: self = .debug
         default: preconditionFailure() // handled at callsite
         }
     }
 }
 
-extension CompilerWarning {
+extension CompilerMessage {
     init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) {
         self = Self(kind: Kind(protobuf.type),
                     message: protobuf.message,

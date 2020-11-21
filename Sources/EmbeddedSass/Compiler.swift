@@ -63,7 +63,7 @@ public final class Compiler {
 
     // State of the current job
     private var compilationID: UInt32
-    private var warnings: [CompilerWarning]
+    private var messages: [CompilerMessage]
     private var currentImporters: [ImportResolver]
 
     /// Initialize using the given program as the embedded Sass compiler.
@@ -87,7 +87,7 @@ public final class Compiler {
         overallTimeout = overallTimeoutSeconds
         globalImporters = importers
         compilationID = 1000
-        warnings = []
+        messages = []
         currentImporters = []
     }
 
@@ -213,7 +213,7 @@ public final class Compiler {
                          createSourceMap: Bool,
                          importers: [ImportResolver]) throws -> CompilerResults {
         compilationID += 1
-        warnings = []
+        messages = []
         currentImporters = globalImporters + importers
 
         return try compile(message: .with {
@@ -313,9 +313,9 @@ public final class Compiler {
         }
         switch compileResponse.result {
         case .success(let s):
-            return .init(s, warnings: warnings)
+            return .init(s, messages: messages)
         case .failure(let f):
-            throw CompilerError(f, warnings: warnings)
+            throw CompilerError(f, messages: messages)
         case nil:
             throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
         }
@@ -332,10 +332,8 @@ public final class Compiler {
             throw ProtocolError("Bad compilation ID, expected \(compilationID) got \(log.compilationID)")
         }
         switch log.type {
-        case .debug:
-            debug(log.message)
-        case .warning, .deprecationWarning:
-            warnings.append(.init(log))
+        case .warning, .deprecationWarning, .debug:
+            messages.append(.init(log))
         case .UNRECOGNIZED(let value):
             throw ProtocolError("Unrecognized warning type \(value) from compiler: \(log.message)")
         }
