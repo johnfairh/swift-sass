@@ -29,5 +29,8 @@ let package = Package(
         name: "EmbeddedSassTests",
         dependencies: ["EmbeddedSass"],
         exclude: ["dart-sass-embedded"]),
+      .testTarget(
+        name: "SassTests",
+        dependencies: ["Sass"])
     ]
 )

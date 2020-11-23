@@ -19,6 +19,9 @@
 		0289BB3425669E610004544A /* Importer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB3325669E610004544A /* Importer.swift */; };
 		0289BB372566A62B0004544A /* TestImporters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB362566A62B0004544A /* TestImporters.swift */; };
 		0289BB3A2568471D0004544A /* ProtobufConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB392568471D0004544A /* ProtobufConversion.swift */; };
+		0289BB3D256BD3BE0004544A /* SassValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB3C256BD3BE0004544A /* SassValue.swift */; };
+		0289BB40256BDE460004544A /* SassString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB3F256BDE460004544A /* SassString.swift */; };
+		0289BB4A256BEE760004544A /* TestString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB49256BEE760004544A /* TestString.swift */; };
 		0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C7256000A400F6BE14 /* TestInterface.swift */; };
 		0291E7CA2562E82F00F6BE14 /* TestErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C92562E82F00F6BE14 /* TestErrors.swift */; };
 		0291E7CC2565416400F6BE14 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7CB2565416400F6BE14 /* Timer.swift */; };
@@ -80,6 +83,9 @@
 		0289BB3325669E610004544A /* Importer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Importer.swift; sourceTree = "<group>"; };
 		0289BB362566A62B0004544A /* TestImporters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestImporters.swift; sourceTree = "<group>"; };
 		0289BB392568471D0004544A /* ProtobufConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtobufConversion.swift; sourceTree = "<group>"; };
+		0289BB3C256BD3BE0004544A /* SassValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SassValue.swift; sourceTree = "<group>"; };
+		0289BB3F256BDE460004544A /* SassString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SassString.swift; sourceTree = "<group>"; };
+		0289BB49256BEE760004544A /* TestString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestString.swift; sourceTree = "<group>"; };
 		0291E7C7256000A400F6BE14 /* TestInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestInterface.swift; sourceTree = "<group>"; };
 		0291E7C92562E82F00F6BE14 /* TestErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestErrors.swift; sourceTree = "<group>"; };
 		0291E7CB2565416400F6BE14 /* Timer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
@@ -134,10 +140,21 @@
 			children = (
 				0289BB2B25666C8F0004544A /* Types.swift */,
 				0289BB3325669E610004544A /* Importer.swift */,
+				0289BB3C256BD3BE0004544A /* SassValue.swift */,
+				0289BB3F256BDE460004544A /* SassString.swift */,
 			);
 			name = Sass;
 			path = Sources/Sass;
 			sourceTree = SOURCE_ROOT;
+		};
+		0289BB42256BEB2B0004544A /* SassTests */ = {
+			isa = PBXGroup;
+			children = (
+				0289BB49256BEE760004544A /* TestString.swift */,
+			);
+			name = SassTests;
+			path = Tests/SassTests;
+			sourceTree = "<group>";
 		};
 		OBJ_105 /* Products */ = {
 			isa = PBXGroup;
@@ -152,6 +169,7 @@
 		OBJ_12 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				0289BB42256BEB2B0004544A /* SassTests */,
 				OBJ_13 /* EmbeddedSassTests */,
 			);
 			name = Tests;
@@ -309,7 +327,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0289BB40256BDE460004544A /* SassString.swift in Sources */,
 				0289BB2F25666C940004544A /* Types.swift in Sources */,
+				0289BB3D256BD3BE0004544A /* SassValue.swift in Sources */,
 				0289BB3425669E610004544A /* Importer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -333,6 +353,7 @@
 			buildActionMask = 0;
 			files = (
 				0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */,
+				0289BB4A256BEE760004544A /* TestString.swift in Sources */,
 				OBJ_131 /* TestUtils.swift in Sources */,
 				0291E7CA2562E82F00F6BE14 /* TestErrors.swift in Sources */,
 				0289BB372566A62B0004544A /* TestImporters.swift in Sources */,
