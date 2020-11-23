@@ -15,6 +15,19 @@
 public class SassValue {
     /// The CSS spelling of the value.
     public var css: String { "" }
+
+    /// Call the corresponding method of `visitor` against this object.
+    public func accept<V, R>(visitor: V) throws -> R where V: SassValueVisitor, R == V.ReturnType {
+        preconditionFailure()
+    }
+}
+
+/// A protocol for implementing polymorphic operations over `SassValue` objects.
+public protocol SassValueVisitor {
+    /// The return type of the operation.
+    associatedtype ReturnType
+    /// The operation for `SassString`s.
+    func visit(string: SassString) throws -> ReturnType
 }
 
 /// Errors thrown for common `SassValue` scenarios.
@@ -39,5 +52,30 @@ public enum SassValueError: Error, CustomStringConvertible {
         case let .subscriptIndex(max: max, actual: actual):
             return "Index out of range: \(actual), valid 1-\(max)."
         }
+    }
+}
+
+/// The Swift type of a SassScript function.
+/// Any parameters with default values are instantiated before the function is called.
+public typealias SassFunction = ([SassValue]) throws -> SassValue
+
+/// A set of `SassFunction`s and their signatures.
+///
+/// The string in each pair must be a valid Sass function signature that could appear after
+/// `@function` in a Sass stylesheet, such as `mix($color1, $color2, $weight: 50%)`.
+public typealias SassFunctionMap = [String : SassFunction]
+
+extension Dictionary where Key == String {
+    /// Convert from a map keyed by SassScript function signature (which includes the args)
+    /// to a map keyed by function name (everything before the paren).
+    /// Must not have duplicate function names. :nodoc:
+    public var asSassFunctionNameMap: Self {
+        var byName = Self()
+        forEach { kv in
+            let name = String(kv.key.prefix(while: { $0 != "("}))
+            precondition(byName[name] == nil, "SassScript function names not unique: \(kv.key)")
+            byName[name] = kv.value
+        }
+        return byName
     }
 }

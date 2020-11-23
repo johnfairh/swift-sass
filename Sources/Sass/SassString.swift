@@ -51,6 +51,10 @@ public class SassString: SassValue, Hashable, CustomStringConvertible {
         return "\(quote)\(text)\(quote)"
     }
 
+    public override func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
+        try visitor.visit(string: self)
+    }
+
     /// : nodoc:
     public var description: String {
         "String(\(css))"

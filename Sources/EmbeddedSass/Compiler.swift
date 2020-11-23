@@ -60,11 +60,13 @@ public final class Compiler {
     // Configuration
     private let overallTimeout: Int
     private let globalImporters: [ImportResolver]
+    private let globalFunctions: SassFunctionMap
 
     // State of the current job
     private var compilationID: UInt32
     private var messages: [CompilerMessage]
     private var currentImporters: [ImportResolver]
+    private var currentFunctions: SassFunctionMap
 
     /// Initialize using the given program as the embedded Sass compiler.
     ///
@@ -74,21 +76,26 @@ public final class Compiler {
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
-    ///   the source file's URL, used for all compile requests to this instance.
+    ///   the source file's URL, used for all compile requests made of this instance.
+    /// - parameter functions: Custom SassScript functions available to all compile requests made
+    ///   of this instance.
     ///
     /// - throws: Something from Foundation if the program does not start.
     public init(embeddedCompilerURL: URL,
                 overallTimeoutSeconds: Int = 60,
-                importers: [ImportResolver] = []) throws {
+                importers: [ImportResolver] = [],
+                functions: SassFunctionMap = [:]) throws {
         precondition(embeddedCompilerURL.isFileURL, "Not a file: \(embeddedCompilerURL)")
         childRestart = { try Exec.spawn(embeddedCompilerURL) }
         child = try childRestart()
         state = .idle
         overallTimeout = overallTimeoutSeconds
         globalImporters = importers
+        globalFunctions = functions
         compilationID = 1000
         messages = []
         currentImporters = []
+        currentFunctions = [:]
     }
 
     private func restart() throws {
@@ -104,19 +111,23 @@ public final class Compiler {
     ///   -1 to disable timeouts.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
     ///   the source file's URL, used for all compile requests to this instance.
+    /// - parameter functions: Custom SassScript functions available to all compile requests made
+    ///   of this instance.
     ///
     /// - throws: `ProtocolError()` if the program can't be found.
     ///           Everything from `init(embeddedCompilerURL:)`
     public convenience init(embeddedCompilerName: String = "dart-sass-embedded",
                             overallTimeoutSeconds: Int = 60,
-                            importers: [ImportResolver] = []) throws {
+                            importers: [ImportResolver] = [],
+                            functions: SassFunctionMap = [:]) throws {
         let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName, stderr: .discard)
         guard let path = results.successString else {
             throw ProtocolError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
         }
         try self.init(embeddedCompilerURL: URL(fileURLWithPath: path),
                       overallTimeoutSeconds: overallTimeoutSeconds,
-                      importers: importers)
+                      importers: importers,
+                      functions: functions)
     }
 
     deinit {
@@ -215,6 +226,7 @@ public final class Compiler {
         compilationID += 1
         messages = []
         currentImporters = globalImporters + importers
+        currentFunctions = globalFunctions.asSassFunctionNameMap
 
         return try compile(message: .with {
             $0.message = .compileRequest(.with { msg in
@@ -223,6 +235,7 @@ public final class Compiler {
                 msg.style = .init(outputStyle)
                 msg.sourceMap = createSourceMap
                 msg.importers = .init(currentImporters, startingID: Self.baseImporterID)
+                msg.globalFunctions = Array(globalFunctions.keys)
             })
         })
     }
@@ -297,6 +310,9 @@ public final class Compiler {
 
             case .importRequest(let req):
                 try receive(importRequest: req)
+
+            case .functionCallRequest(let req):
+                try receive(functionCallRequest: req)
 
             default:
                 throw ProtocolError("Unexpected response: \(response)")
@@ -385,10 +401,37 @@ public final class Compiler {
             })
             debug("  tx import-rsp-success reqid=\(req.id)")
         } catch {
-            rsp.result = .error(String(describing: error))
+            rsp.error = String(describing: error)
             debug("  tx import-rsp-error reqid=\(req.id)")
         }
         try child.send(message: .with { $0.message = .importResponse(rsp) })
+    }
+
+    // MARK: Functions
+
+    /// Inbound 'FunctionCallRequest' handler
+    private func receive(functionCallRequest req: Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest) throws {
+        switch req.identifier {
+        case .functionID(_):
+            throw ProtocolError("FunctionCallRequest-by-ID not supported")
+        case .name(let name):
+            guard let customFunc = currentFunctions[name] else {
+                throw ProtocolError("Host function \(name) not registered.")
+            }
+            var rsp = Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse()
+            rsp.id = req.id
+            do {
+                let resultValue = try customFunc(req.arguments.map { try $0.asSassValue() })
+                rsp.success = .init(resultValue)
+                debug("  tx fncall-rsp-success reqid=\(req.id)")
+            } catch {
+                rsp.error = String(describing: error)
+                debug("  tx fncall-rsp-error reqid=\(req.id)")
+            }
+            try child.send(message: .with { $0.message = .functionCallResponse(rsp) })
+        case nil:
+            throw ProtocolError("Missing 'identifier' field in FunctionCallRequest")
+        }
     }
 }
 

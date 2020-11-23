@@ -20,6 +20,7 @@ class TestString: XCTestCase {
         let str2 = SassString("Two", isQuoted: false)
         XCTAssertEqual("Two", str2.text)
         XCTAssertEqual("Two", str2.css)
+        XCTAssertEqual("String(Two)", "\(str2)")
     }
 
     func testIndex() {

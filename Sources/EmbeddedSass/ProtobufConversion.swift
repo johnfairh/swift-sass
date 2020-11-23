@@ -142,7 +142,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message : Loggable {
         case .compileResponse(let m): return m.logMessage
         case .error(let m): return m.logMessage
 //      case .fileImportRequest(let m): return m.logMessage
-//      case .functionCallRequest(let m): return m.logMessage
+        case .functionCallRequest(let m): return m.logMessage
         case .importRequest(let m): return m.logMessage
         case .logEvent(let m): return m.logMessage
         default: return "unknown-2"
@@ -155,7 +155,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message : Loggable {
         case .compileResponse(let m): return UInt32(m.id) // XXX oops bad protobuf
         case .error(_): return nil
 //      case .fileImportRequest(let m): return m.compilationID
-//      case .functionCallRequest(let m): return m.compilationID
+        case .functionCallRequest(let m): return m.compilationID
         case .importRequest(let m): return m.compilationID
         case .logEvent(let m): return m.compilationID
         default: return nil
@@ -198,17 +198,49 @@ extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest : Loggable {
 //    }
 //}
 
-//extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest : Loggable {
-//    var logMessage: String {
-//        "fncall-req compid=\(compilationID) reqid=\(id) fnid=\(identifier?.logMessage ?? "[nil]")"
-//    }
-//}
-//
-//extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest.OneOf_Identifier : Loggable {
-//    var logMessage: String {
-//        switch self {
-//        case .functionID(let id): return String(id)
-//        case .name(let name): return name
-//        }
-//    }
-//}
+extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest : Loggable {
+    var logMessage: String {
+        "fncall-req compid=\(compilationID) reqid=\(id) fnid=\(identifier?.logMessage ?? "[nil]")"
+    }
+}
+
+extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest.OneOf_Identifier : Loggable {
+    var logMessage: String {
+        switch self {
+        case .functionID(let id): return String(id)
+        case .name(let name): return name
+        }
+    }
+}
+
+// MARK: SassValue conversion
+
+// Protobuf -> SassValue
+
+extension Sass_EmbeddedProtocol_Value {
+    func asSassValue() throws -> SassValue {
+        switch value {
+        case .string(let m):
+            return SassString(m.text, isQuoted: m.quoted)
+        case nil:
+            throw ProtocolError("Missing SassValue type.")
+        default:
+            throw ProtocolError("Unsupported SassValue type: \(String(describing: value))")
+        }
+    }
+}
+
+// SassValue -> Protobuf
+
+extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
+    func visit(string: SassString) throws -> Sass_EmbeddedProtocol_Value.OneOf_Value {
+        .string(.with {
+            $0.text = string.text
+            $0.quoted = string.isQuoted
+        })
+    }
+
+    init(_ val: SassValue) {
+        self.value = try! val.accept(visitor: self)
+    }
+}
