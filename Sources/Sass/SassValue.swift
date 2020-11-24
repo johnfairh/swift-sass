@@ -6,21 +6,18 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-/// A SassScript value passed to or returned from a custom function.
+/// Common behavior between SassScript values passed to or returned from custom functions.
 ///
 /// The Sass compiler lets you define custom functions written Swift that are available to
 /// stylesheets as they are compiled.  `SassValue` is used to transmit function parameters
 /// and return values.  Usually the first job of your custom function is to downcast each parameter
 /// to the expected type using methods like `SassValue.asString(...)`.
-public class SassValue {
-    /// The CSS spelling of the value.
-    public var css: String { "" }
-
+public protocol SassValue {
     /// Call the corresponding method of `visitor` against this object.
-    public func accept<V, R>(visitor: V) throws -> R where V: SassValueVisitor, R == V.ReturnType {
-        preconditionFailure()
-    }
+    func accept<V, R>(visitor: V) throws -> R where V: SassValueVisitor, R == V.ReturnType
 }
+
+// MARK: Visitor
 
 /// A protocol for implementing polymorphic operations over `SassValue` objects.
 public protocol SassValueVisitor {
@@ -29,6 +26,8 @@ public protocol SassValueVisitor {
     /// The operation for `SassString`s.
     func visit(string: SassString) throws -> ReturnType
 }
+
+// MARK: Errors
 
 /// Errors thrown for common `SassValue` scenarios.
 ///
@@ -48,12 +47,14 @@ public enum SassValueError: Error, CustomStringConvertible {
         case let .wrongType(expected: expected, actual: actual):
             return "Value has wrong type, expected \(expected) but got \(actual)."
         case let .subscriptType(actual):
-            return "Non-integer value used an index: \(type(of: actual)) \(actual)."
+            return "Non-integer value used as index: \(actual)."
         case let .subscriptIndex(max: max, actual: actual):
-            return "Index out of range: \(actual), valid 1-\(max)."
+            return "Index \(actual) out of range: valid range is 1...\(max)."
         }
     }
 }
+
+// MARK: Functions
 
 /// The Swift type of a SassScript function.
 /// Any parameters with default values are instantiated before the function is called.
@@ -65,17 +66,17 @@ public typealias SassFunction = ([SassValue]) throws -> SassValue
 /// `@function` in a Sass stylesheet, such as `mix($color1, $color2, $weight: 50%)`.
 public typealias SassFunctionMap = [String : SassFunction]
 
+extension String {
+    /// Get the Sass function name (everything before the paren) from a signature. :nodoc:
+    public var sassFunctionName: String {
+        String(prefix(while: { $0 != "("}))
+    }
+}
+
 extension Dictionary where Key == String {
-    /// Convert from a map keyed by SassScript function signature (which includes the args)
-    /// to a map keyed by function name (everything before the paren).
-    /// Must not have duplicate function names. :nodoc:
-    public var asSassFunctionNameMap: Self {
-        var byName = Self()
-        forEach { kv in
-            let name = String(kv.key.prefix(while: { $0 != "("}))
-            precondition(byName[name] == nil, "SassScript function names not unique: \(kv.key)")
-            byName[name] = kv.value
-        }
-        return byName
+    /// Remap a Sass function signature dictionary to be keyed by Sass function name with
+    /// elements the (signature, callback) tuple.  :nodoc:
+    public var asSassFunctionNameElementMap: [String: Self.Element] {
+        Dictionary<String, Self.Element>(uniqueKeysWithValues: map { ($0.key.sassFunctionName, $0) })
     }
 }

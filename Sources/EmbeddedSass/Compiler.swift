@@ -172,6 +172,8 @@ public final class Compiler {
     ///   - createSourceMap: Create a JSON source map for the CSS.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
     ///     `sourceFileURL`'s directory and any set at the `Compiler` level.
+    ///   - functions: Custom functions for this compilation, overriding any with the same name set
+    ///     at the `Compiler` level.
     /// - throws: `CompilerError()` if there is a critical error with the input, for example a syntax error.
     ///           `ProtocolError()` if something goes wrong with the compiler infrastructure itself.
     /// - returns: CSS and optional source map.
@@ -179,11 +181,13 @@ public final class Compiler {
     public func compile(fileURL: URL,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
-                        importers: [ImportResolver] = []) throws -> CompilerResults {
+                        importers: [ImportResolver] = [],
+                        functions: SassFunctionMap = [:]) throws -> CompilerResults {
         try compile(input: .path(fileURL.path),
                     outputStyle: outputStyle,
                     createSourceMap: createSourceMap,
-                    importers: importers)
+                    importers: importers,
+                    functions: functions)
     }
 
     /// Compile to CSS from some text.
@@ -196,6 +200,8 @@ public final class Compiler {
     ///   - createSourceMap: Create a JSON source map for the CSS.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
     ///     `sourceFileURL`'s directory and any set at the `Compiler` level.
+    ///   - functions: Custom functions for this compilation, overriding any with the same name set
+    ///     at the `Compiler` level.
     /// - throws: `CompilerError()` if there is a critical error with the input, for example a syntax error.
     ///           `ProtocolError()` if something goes wrong with the compiler infrastructure itself.
     /// - returns: CSS and optional source map.
@@ -207,7 +213,8 @@ public final class Compiler {
                         url: URL? = nil,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
-                        importers: [ImportResolver] = []) throws -> CompilerResults {
+                        importers: [ImportResolver] = [],
+                        functions: SassFunctionMap = [:]) throws -> CompilerResults {
         try compile(input: .string(.with { m in
                         m.source = text
                         m.syntax = .init(syntax)
@@ -215,18 +222,28 @@ public final class Compiler {
                     }),
                     outputStyle: outputStyle,
                     createSourceMap: createSourceMap,
-                    importers: importers)
+                    importers: importers,
+                    functions: functions)
     }
 
     /// Helper to generate the compile request message
     private func compile(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
                          outputStyle: CssStyle,
                          createSourceMap: Bool,
-                         importers: [ImportResolver]) throws -> CompilerResults {
+                         importers: [ImportResolver],
+                         functions: SassFunctionMap) throws -> CompilerResults {
         compilationID += 1
         messages = []
         currentImporters = globalImporters + importers
-        currentFunctions = globalFunctions.asSassFunctionNameMap
+
+        // Discard any signatures in global with names matching local.
+        // Pass the resulting signatures to the compiler.
+        // Retain a map from function name (not signature) to callback.
+        let localFnsNameMap = functions.asSassFunctionNameElementMap
+        let globalFnsNameMap = globalFunctions.asSassFunctionNameElementMap
+        let mergedFnsNameMap = globalFnsNameMap.merging(localFnsNameMap) { g, l in l }
+        let signatures = mergedFnsNameMap.values.map { $0.0 }
+        currentFunctions = mergedFnsNameMap.mapValues { $0.value }
 
         return try compile(message: .with {
             $0.message = .compileRequest(.with { msg in
@@ -235,7 +252,7 @@ public final class Compiler {
                 msg.style = .init(outputStyle)
                 msg.sourceMap = createSourceMap
                 msg.importers = .init(currentImporters, startingID: Self.baseImporterID)
-                msg.globalFunctions = Array(globalFunctions.keys)
+                msg.globalFunctions = signatures
             })
         })
     }
@@ -371,14 +388,14 @@ public final class Compiler {
         rsp.id = req.id
         do {
             if let canonicalURL = try importer.canonicalize(importURL: req.url) {
-                rsp.result = .url(canonicalURL.absoluteString)
+                rsp.url = canonicalURL.absoluteString
                 debug("  tx canon-rsp-success reqid=\(req.id)")
             } else {
                 // leave result nil -> can't deal with this request
                 debug("  tx canon-rsp-nil reqid=\(req.id)")
             }
         } catch {
-            rsp.result = .error(String(describing: error))
+            rsp.error = String(describing: error)
             debug("  tx canon-rsp-error reqid=\(req.id)")
         }
         try child.send(message: .with { $0.message = .canonicalizeResponse(rsp) })
@@ -394,11 +411,11 @@ public final class Compiler {
         rsp.id = req.id
         do {
             let results = try importer.load(canonicalURL: url)
-            rsp.result = .success(.with { msg in
+            rsp.success = .with { msg in
                 msg.contents = results.contents
                 msg.syntax = .init(results.syntax)
                 results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
-            })
+            }
             debug("  tx import-rsp-success reqid=\(req.id)")
         } catch {
             rsp.error = String(describing: error)

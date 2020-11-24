@@ -25,7 +25,7 @@ public class SassString: SassValue, Hashable, CustomStringConvertible {
     /// Whether the string is quoted " or raw.
     public let isQuoted: Bool
 
-    /// Initialize a new string.  Quote the string unless there's a good reason not to.
+    /// Initialize a new string.  You should quote strings unless there's a good reason not to.
     public init(_ text: String, isQuoted: Bool = true) {
         self.text = text
         self.isQuoted = isQuoted
@@ -46,18 +46,15 @@ public class SassString: SassValue, Hashable, CustomStringConvertible {
         throw SassValueError.subscriptType(index)
     }
 
-    public override var css: String {
-        let quote = isQuoted ? "\"" : ""
-        return "\(quote)\(text)\(quote)"
-    }
-
-    public override func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
+    /// Take part in the `SassValueVisitor` protocol.
+    public func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
         try visitor.visit(string: self)
     }
 
-    /// : nodoc:
+    /// A short description of the string.
     public var description: String {
-        "String(\(css))"
+        let quote = isQuoted ? "\"" : ""
+        return "String(\(quote)\(text)\(quote))"
     }
 
     /// Two `SassString`s are equal if they have the same text, whether or not either is quoted.
