@@ -56,19 +56,20 @@ extension CompilerError {
 }
 
 extension CompilerMessage.Kind {
-    init(_ type: Sass_EmbeddedProtocol_OutboundMessage.LogEvent.TypeEnum) {
+    init(_ type: Sass_EmbeddedProtocol_OutboundMessage.LogEvent.TypeEnum) throws {
         switch type {
         case .deprecationWarning: self = .deprecation
         case .warning: self = .warning
         case .debug: self = .debug
-        default: preconditionFailure() // handled at callsite
+        default:
+            throw ProtocolError("Unrecognized warning type \(type) from compiler")
         }
     }
 }
 
 extension CompilerMessage {
-    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) {
-        self = Self(kind: Kind(protobuf.type),
+    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) throws {
+        self = Self(kind: try Kind(protobuf.type),
                     message: protobuf.message,
                     span: protobuf.hasSpan ? .init(protobuf.span) : nil,
                     stackTrace: protobuf.stackTrace.nonEmptyString)
@@ -217,11 +218,28 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest.OneOf_Identi
 
 // Protobuf -> SassValue
 
+extension SassList.Separator {
+    init(_ separator: Sass_EmbeddedProtocol_Value.List.Separator) throws {
+        switch separator {
+        case .comma: self = .comma
+        case .slash: self = .slash
+        case .space: self = .space
+        case .undecided: self = .undecided
+        case .UNRECOGNIZED(let u):
+            throw ProtocolError("Unrecognized list separator: \(u)")
+        }
+    }
+}
+
 extension Sass_EmbeddedProtocol_Value {
     func asSassValue() throws -> SassValue {
         switch value {
         case .string(let m):
             return SassString(m.text, isQuoted: m.quoted)
+        case .list(let l):
+            return try SassList(l.contents.map { try $0.asSassValue() },
+                                separator: .init(l.separator),
+                                hasBrackets: l.hasBrackets_p)
         case nil:
             throw ProtocolError("Missing SassValue type.")
         default:
@@ -232,8 +250,27 @@ extension Sass_EmbeddedProtocol_Value {
 
 // SassValue -> Protobuf
 
+extension Sass_EmbeddedProtocol_Value.List.Separator {
+    init(_ separator: SassList.Separator) {
+        switch separator {
+        case .comma: self = .comma
+        case .slash: self = .slash
+        case .space: self = .space
+        case .undecided: self = .undecided
+        }
+    }
+}
+
 extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
-    func visit(string: SassString) throws -> Sass_EmbeddedProtocol_Value.OneOf_Value {
+    func visit(list: SassList) throws -> OneOf_Value {
+        .list(.with {
+            $0.separator = .init(list.separator)
+            $0.hasBrackets_p = list.hasBrackets
+            $0.contents = list.map { .init($0) }
+        })
+    }
+
+    func visit(string: SassString) throws -> OneOf_Value {
         .string(.with {
             $0.text = string.text
             $0.quoted = string.isQuoted

@@ -12,9 +12,75 @@
 /// stylesheets as they are compiled.  `SassValue` is used to transmit function parameters
 /// and return values.  Usually the first job of your custom function is to downcast each parameter
 /// to the expected type using methods like `SassValue.asString(...)`.
-public protocol SassValue {
+///
+/// All Sass values can be treated as lists: singleton values like strings behave like
+/// 1-element lists and maps behave like lists of pairs. [XXX wait, what is a 'pair'???]
+open class SassValue: Hashable, Sequence, CustomStringConvertible {
+    /// The list separator used by this value when viewed as a list.
+    public var separator: SassList.Separator { .undecided }
+
+    /// Whether this value, viewed as a list, is surrounded by brackets.
+    public var hasBrackets: Bool { false }
+
+    /// Not public, used to optimize `arrayIndexFrom(sassIndex:)`.
+    var listCount: Int { 1 }
+
+    /// Interpret a Sass list index.
+    /// - parameter index: A Sass value intended to be used as an index into this value viewed as a list.
+    ///   This must be an integer between 1 and the number of elements in this value viewed as a list.
+    /// - throws: `SassValueError` if `index` is not an integer or out of range.
+    /// - returns: An integer suitable for subscripting the array created from this value.
+    public func arrayIndexFrom(sassIndex: SassValue) throws -> Int {
+        /// let indexValue = try Int(sassIndex.asNumber())
+        /// guard indexValue >= 1 && indexValue <= listCount else {
+        ///     throw SassValueError.subscriptType(sassIndex)
+        /// }
+        /// return indexValue - 1
+        throw SassValueError.subscriptType(sassIndex)
+    }
+
+    /// Subscript the value using a Sass list index.
+    ///
+    /// (Swift can't throw exceptions from `subscript`).
+    /// - parameter sassIndex: A Sass value intended to be used as an index into this value viewed as a list.
+    ///   This must be an integer between 1 and `asArray.count` inclusive.
+    /// - throws: `SassValueError` if `index` is not an integer or out of range.
+    /// - returns: The value at the Sass Index.
+    public func valueAt(sassIndex: SassValue) throws -> SassValue {
+        _ = try arrayIndexFrom(sassIndex: sassIndex)
+        return self
+    }
+
+    /// An iterator for the values in the list.
+    public func makeIterator() -> AnyIterator<SassValue> {
+        AnyIterator(CollectionOfOne(self).makeIterator())
+    }
+
     /// Call the corresponding method of `visitor` against this object.
-    func accept<V, R>(visitor: V) throws -> R where V: SassValueVisitor, R == V.ReturnType
+    public func accept<V, R>(visitor: V) throws -> R where V: SassValueVisitor, R == V.ReturnType {
+        preconditionFailure()
+    }
+
+    public static func == (lhs: SassValue, rhs: SassValue) -> Bool {
+        switch (lhs, rhs) {
+        case let (lstr, rstr) as (SassString, SassString):
+            return lstr == rstr
+        case let (llist, rlist) as (SassList, SassList):
+            return llist == rlist
+        default:
+            return false
+        }
+    }
+
+    /// :nodoc:
+    public func hash(into hasher: inout Hasher) {
+        preconditionFailure()
+    }
+
+    /// :nodoc:
+    public var description: String {
+        preconditionFailure()
+    }
 }
 
 // MARK: Visitor
@@ -25,6 +91,8 @@ public protocol SassValueVisitor {
     associatedtype ReturnType
     /// The operation for `SassString`s.
     func visit(string: SassString) throws -> ReturnType
+    /// The operation for `SassList`s.
+    func visit(list: SassList) throws -> ReturnType
 }
 
 // MARK: Errors
@@ -80,3 +148,35 @@ extension Dictionary where Key == String {
         Dictionary<String, Self.Element>(uniqueKeysWithValues: map { ($0.key.sassFunctionName, $0) })
     }
 }
+
+//protocol SassValueConvertible {a
+//    init(_ value: SassValue) throws
+//    var sassValue: SassValue { get }
+//}
+//
+//extension SassNumber {
+//    init<I: BinaryInteger>() throws {
+//    }
+//    func asBinaryInteger<I: BinaryInteger>() throws -> I {
+//        let weirdDoubleValue: Double = dblVal
+//        guard let myInt = I(exactly: intValue) else {
+//            throw "Int dont fit"
+//        }
+//        return myInt
+//    }
+//}
+//
+//extension BinaryInteger {
+//    init(_ value: SassValue) throws {
+//        guard let numValue = value as SassNumber else {
+//            throw SassValueError.wrongType(expected: "SassNumber", actual: value)
+//        }
+//        self = try numValue.toInt()
+//    }
+//
+//    var sassValue: SassValue {
+//        SassNumber(self)
+//    }
+//}
+//
+//extension UInt32: SassValueConvertible {}

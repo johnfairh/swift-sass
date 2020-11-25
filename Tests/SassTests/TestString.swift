@@ -43,6 +43,8 @@ class TestString: XCTestCase {
         var map = [SassString:String]()
         map[str1] = "Fish"
         XCTAssertEqual("Fish", map[str3])
+
+        XCTAssertNotEqual(str1, SassList([str1]))
     }
 
     func testDowncast() throws {
@@ -50,6 +52,28 @@ class TestString: XCTestCase {
         let str2 = try str.asString()
         XCTAssertTrue(str === str2)
 
-        // TODO: failure when we can have things other than strings...
+        let list = SassList([])
+        do {
+            let str3 = try list.asString()
+            XCTFail("Made string out of list: \(str3)")
+        } catch let error as SassValueError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    /// Really a SassValue test - all the singleton not-list lists.
+    func testListView() throws {
+        let str = SassString("AString")
+        XCTAssertEqual(.undecided, str.separator)
+        XCTAssertEqual(false, str.hasBrackets)
+
+        let listView = Array(str)
+        XCTAssertEqual(1, listView.count)
+        XCTAssertEqual(str, listView[0])
+        XCTAssertTrue(str === listView[0])
+
+        // TODO list indexes when we understand numbers
     }
 }

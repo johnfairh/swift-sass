@@ -19,7 +19,7 @@
 /// Further, Sass models 1 as the first element and `count` as the last.  This class offers
 /// a `sassIndexToSwiftIndex(...)`  method to wrap up both parts of this conversion, but offers
 /// only sympathy to users having to deal with the results.
-public class SassString: SassValue, Hashable, CustomStringConvertible {
+open class SassString: SassValue {
     /// The text value of the string.  Does not include any quotes.
     public let text: String
     /// Whether the string is quoted " or raw.
@@ -42,28 +42,28 @@ public class SassString: SassValue, Hashable, CustomStringConvertible {
     /// - parameter index: A Sass value intended to be used as a string index.  This must be an
     ///   integer between 1 and `sassLength` inclusive.
     /// - throws: `SassValueError` if `index` is not an integer or out of range.
-    public func sassIndexToScalarIndex(_ index: SassValue) throws -> String.UnicodeScalarIndex {
-        throw SassValueError.subscriptType(index)
+    public func scalarIndexFrom(sassIndex: SassValue) throws -> String.UnicodeScalarIndex {
+        throw SassValueError.subscriptType(sassIndex)
     }
 
     /// Take part in the `SassValueVisitor` protocol.
-    public func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
+    public override func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
         try visitor.visit(string: self)
     }
 
     /// A short description of the string.
-    public var description: String {
+    public override var description: String {
         let quote = isQuoted ? "\"" : ""
         return "String(\(quote)\(text)\(quote))"
     }
 
-    /// Two `SassString`s are equal if they have the same text, whether or not either is quoted.
+    /// String equality: two `SassString`s are equal if they have the same text, whether or not either is quoted.
     public static func == (lhs: SassString, rhs: SassString) -> Bool {
         lhs.text == rhs.text
     }
 
-    /// Two `SassString`s are equal if they have the same text, whether or not either is quoted.
-    public func hash(into hasher: inout Hasher) {
+    /// Hash the string's text.
+    public override func hash(into hasher: inout Hasher) {
         hasher.combine(text)
     }
 }
@@ -73,7 +73,7 @@ extension SassValue {
     /// - throws: `SassTypeError` if it isn't a string.
     public func asString() throws -> SassString {
         guard let selfString = self as? SassString else {
-            throw SassValueError.wrongType(expected: "String", actual: self)
+            throw SassValueError.wrongType(expected: "SassString", actual: self)
         }
         return selfString
     }

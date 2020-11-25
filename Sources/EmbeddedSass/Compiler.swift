@@ -354,14 +354,9 @@ public final class Compiler {
         throw ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)")
     }
 
-    /// Inbound `Log` handler
+    /// Inbound `LogEvent` handler
     private func receive(log: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) throws {
-        switch log.type {
-        case .warning, .deprecationWarning, .debug:
-            messages.append(.init(log))
-        case .UNRECOGNIZED(let value):
-            throw ProtocolError("Unrecognized warning type \(value) from compiler: \(log.message)")
-        }
+        try messages.append(.init(log))
     }
 
     // MARK: Importers
