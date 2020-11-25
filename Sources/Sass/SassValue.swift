@@ -16,10 +16,18 @@
 /// All Sass values can be treated as lists: singleton values like strings behave like
 /// 1-element lists and maps behave like lists of pairs. [XXX wait, what is a 'pair'???]
 open class SassValue: Hashable, Sequence, CustomStringConvertible {
+    /// Sass considers all values except `null` and `false` to be "truthy", meaning
+    /// your host function should almost always be checking this property instead of trying
+    /// to downcast to `SassBool`.
+    public var isTruthy: Bool { true }
+
+    /// Does this value represent Sass's `null` value?
+    public var isNull: Bool { false }
+
     /// The list separator used by this value when viewed as a list.
     public var separator: SassList.Separator { .undecided }
 
-    /// Whether this value, viewed as a list, is surrounded by brackets.
+    /// Is this value, viewed as a list, surrounded by brackets?
     public var hasBrackets: Bool { false }
 
     /// Not public, used to optimize `arrayIndexFrom(sassIndex:)`.
@@ -67,14 +75,17 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
             return lstr == rstr
         case let (llist, rlist) as (SassList, SassList):
             return llist == rlist
+        case let (lbool, rbool) as (SassBool, SassBool):
+            return lbool == rbool
+        case let (lnull, rnull) as (SassNull, SassNull):
+            return lnull == rnull // ...
         default:
             return false
         }
     }
 
-    /// :nodoc:
+    /// `SassValue` can be used as a dictionary key.
     public func hash(into hasher: inout Hasher) {
-        preconditionFailure()
     }
 
     /// :nodoc:
@@ -89,10 +100,14 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
 public protocol SassValueVisitor {
     /// The return type of the operation.
     associatedtype ReturnType
-    /// The operation for `SassString`s.
+    /// The operation for `SassString`
     func visit(string: SassString) throws -> ReturnType
-    /// The operation for `SassList`s.
+    /// The operation for `SassList`
     func visit(list: SassList) throws -> ReturnType
+    /// The operation for `SassBool`
+    func visit(bool: SassBool) throws -> ReturnType
+    /// The operation for `SassNull`
+    func visit(null: SassNull) throws -> ReturnType
 }
 
 // MARK: Errors

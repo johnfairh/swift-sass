@@ -240,6 +240,14 @@ extension Sass_EmbeddedProtocol_Value {
             return try SassList(l.contents.map { try $0.asSassValue() },
                                 separator: .init(l.separator),
                                 hasBrackets: l.hasBrackets_p)
+        case .singleton(let s):
+            switch s {
+            case .false: return SassConstants.false
+            case .true: return SassConstants.true
+            case .null: return SassConstants.null
+            case .UNRECOGNIZED(let i):
+                throw ProtocolError("Unknown singleton type \(i)")
+            }
         case nil:
             throw ProtocolError("Missing SassValue type.")
         default:
@@ -263,6 +271,13 @@ extension Sass_EmbeddedProtocol_Value.List.Separator {
 }
 
 extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
+    func visit(string: SassString) throws -> OneOf_Value {
+        .string(.with {
+            $0.text = string.text
+            $0.quoted = string.isQuoted
+        })
+    }
+
     func visit(list: SassList) throws -> OneOf_Value {
         .list(.with {
             $0.separator = .init(list.separator)
@@ -271,11 +286,12 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
         })
     }
 
-    func visit(string: SassString) throws -> OneOf_Value {
-        .string(.with {
-            $0.text = string.text
-            $0.quoted = string.isQuoted
-        })
+    func visit(bool: SassBool) throws -> OneOf_Value {
+        .singleton(bool.value ? .true : .false)
+    }
+
+    func visit(null: SassNull) throws -> OneOf_Value {
+        .singleton(.null)
     }
 
     init(_ val: SassValue) {

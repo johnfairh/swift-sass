@@ -84,4 +84,20 @@ class TestFunctions: XCTestCase {
         // And the reason we have our own enum
         XCTAssertThrowsError(try SassList.Separator(.UNRECOGNIZED(1)))
     }
+
+    /// SassConstant conversion
+    func testSassConstantConversion() throws {
+        try [SassConstants.true,
+             SassConstants.false,
+             SassConstants.null].forEach { sassVal in
+            let pbVal = Sass_EmbeddedProtocol_Value(sassVal)
+            let backVal = try pbVal.asSassValue()
+            XCTAssertEqual(sassVal, backVal)
+        }
+
+        // Bad singleton value
+        var value = Sass_EmbeddedProtocol_Value()
+        value.singleton = .UNRECOGNIZED(2)
+        XCTAssertThrowsError(try value.asSassValue())
+    }
 }
