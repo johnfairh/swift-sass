@@ -243,6 +243,7 @@ extension Sass_EmbeddedProtocol_Value {
         case nil:
             throw ProtocolError("Missing SassValue type.")
         default:
+            // TODO: delete when switch is exhaustive
             throw ProtocolError("Unsupported SassValue type: \(String(describing: value))")
         }
     }
