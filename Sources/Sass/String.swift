@@ -17,17 +17,17 @@
 /// scalar view of the string.
 ///
 /// Further, Sass models 1 as the first element and `count` as the last.  This class offers
-/// a `sassIndexToSwiftIndex(...)`  method to wrap up both parts of this conversion, but offers
+/// a `scalarIndexFrom(sassIndex:)`  method to wrap up both parts of this conversion, but offers
 /// only sympathy to users having to deal with the results.
 public final class SassString: SassValue {
-    /// The text value of the string.  Does not include any quotes.
-    public let text: String
+    /// The value of the string.  Does not include any quotes.
+    public let string: String
     /// Whether the string is quoted " or raw.
     public let isQuoted: Bool
 
     /// Initialize a new string.  You should quote strings unless there's a good reason not to.
-    public init(_ text: String, isQuoted: Bool = true) {
-        self.text = text
+    public init(_ string: String, isQuoted: Bool = true) {
+        self.string = string
         self.isQuoted = isQuoted
     }
 
@@ -35,7 +35,7 @@ public final class SassString: SassValue {
     ///
     /// The number of unicode scalars in the string.
     public var sassLength: Int {
-        text.unicodeScalars.count
+        string.unicodeScalars.count
     }
 
     /// Interpret a Sass string index.
@@ -53,17 +53,17 @@ public final class SassString: SassValue {
 
     public override var description: String {
         let quote = isQuoted ? "\"" : ""
-        return "String(\(quote)\(text)\(quote))"
+        return "String(\(quote)\(string)\(quote))"
     }
 
     /// Two `SassString`s are equal if they have the same text, whether or not either is quoted.
     public static func == (lhs: SassString, rhs: SassString) -> Bool {
-        lhs.text == rhs.text
+        lhs.string == rhs.string
     }
 
     /// Hash the string's text.
     public override func hash(into hasher: inout Hasher) {
-        hasher.combine(text)
+        hasher.combine(string)
     }
 }
 

@@ -86,6 +86,11 @@ public class SassValue: Hashable, Sequence, CustomStringConvertible {
             return lstr == rstr
         case let (llist, rlist) as (SassList, SassList):
             return llist == rlist
+        case let (lmap, rmap) as (SassMap, SassMap):
+            return lmap == rmap
+        case let (map, list) as (SassMap, SassList),
+             let (list, map) as (SassList, SassMap):
+            return list.listCount == 0 && map.listCount == 0
         case let (lbool, rbool) as (SassBool, SassBool):
             return lbool == rbool
         case let (lnull, rnull) as (SassNull, SassNull):
@@ -117,6 +122,8 @@ public protocol SassValueVisitor {
     func visit(string: SassString) throws -> ReturnType
     /// The operation for `SassList`
     func visit(list: SassList) throws -> ReturnType
+    /// The operation for `SassMap`
+    func visit(map: SassMap) throws -> ReturnType
     /// The operation for `SassBool`
     func visit(bool: SassBool) throws -> ReturnType
     /// The operation for `SassNull`

@@ -13,10 +13,10 @@ import Sass
 ///
 class TestList: XCTestCase {
     func testBrackets() {
-        let with = SassList([])
-        XCTAssertEqual("List([])", with.description)
-        let without = SassList([], hasBrackets: false)
-        XCTAssertEqual("List()", without.description)
+        let with = SassList([SassConstants.null])
+        XCTAssertEqual("List([Null])", with.description)
+        let without = SassList([SassConstants.null], hasBrackets: false)
+        XCTAssertEqual("List(Null)", without.description)
 
         XCTAssertNotEqual(with, without)
     }
@@ -47,6 +47,7 @@ class TestList: XCTestCase {
         // TODO: valueAt when we understand numbers
     }
 
+    /// List equality -- incorporating deviation from dart-sass for empty lists...
     func testEquality() {
         let empty1 = SassList([])
         let empty2 = SassList([], hasBrackets: false)
@@ -58,9 +59,9 @@ class TestList: XCTestCase {
         let nEmpty3a = SassList([empty1, str1])
         let nEmpty3b = SassList([empty1, str1])
 
-        XCTAssertNotEqual(empty1, empty2)
-        XCTAssertNotEqual(empty2, empty3)
-        XCTAssertNotEqual(empty1, empty3)
+        XCTAssertEqual(empty1, empty2)
+        XCTAssertEqual(empty2, empty3)
+        XCTAssertEqual(empty1, empty3)
 
         XCTAssertNotEqual(nEmpty1, nEmpty2)
         XCTAssertNotEqual(nEmpty1, nEmpty3a)
@@ -70,7 +71,7 @@ class TestList: XCTestCase {
         var dict = [SassValue:Int]()
         dict[empty1] = 1
         dict[empty2] = 2
-        XCTAssertEqual(1, dict[empty1])
+        XCTAssertEqual(2, dict[empty1])
         XCTAssertEqual(2, dict[empty2])
         dict[nEmpty3a] = 3
         XCTAssertEqual(3, dict[nEmpty3b])

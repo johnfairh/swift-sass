@@ -240,6 +240,17 @@ extension Sass_EmbeddedProtocol_Value {
             return try SassList(l.contents.map { try $0.asSassValue() },
                                 separator: .init(l.separator),
                                 hasBrackets: l.hasBrackets_p)
+        case .map(let m):
+            var dict = [SassValue: SassValue]()
+            try m.entries.forEach { entry in
+                let key = try entry.key.asSassValue()
+                let value = try entry.value.asSassValue()
+                guard dict[key] == nil else {
+                    throw ProtocolError("Bad map from compiler, duplicate key \(key).")
+                }
+                dict[key] = value
+            }
+            return SassMap(dict)
         case .singleton(let s):
             switch s {
             case .false: return SassConstants.false
@@ -273,7 +284,7 @@ extension Sass_EmbeddedProtocol_Value.List.Separator {
 extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
     func visit(string: SassString) throws -> OneOf_Value {
         .string(.with {
-            $0.text = string.text
+            $0.text = string.string
             $0.quoted = string.isQuoted
         })
     }
@@ -283,6 +294,17 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
             $0.separator = .init(list.separator)
             $0.hasBrackets_p = list.hasBrackets
             $0.contents = list.map { .init($0) }
+        })
+    }
+
+    func visit(map: SassMap) throws -> OneOf_Value {
+        .map(.with { mapVal in
+            mapVal.entries = map.dictionary.map { kv in
+                .with {
+                    $0.key = .init(kv.key)
+                    $0.value = .init(kv.value)
+                }
+            }
         })
     }
 

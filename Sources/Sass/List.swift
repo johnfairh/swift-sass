@@ -25,12 +25,12 @@ public final class SassList: SassValue {
         case undecided = "?"
     }
 
-    private let elements: [SassValue]
+    private let array: [SassValue]
     private let _separator: Separator
     private let _hasBrackets: Bool
     public override var separator: Separator { _separator }
     public override var hasBrackets: Bool { _hasBrackets }
-    override var listCount: Int { elements.count }
+    override var listCount: Int { array.count }
 
     /// Initialize a new list with the contents of a Swift collection.
     ///
@@ -41,9 +41,9 @@ public final class SassList: SassValue {
     /// - parameter hasBrackets: Whether the list should display with brackets.  Normally `true`.
     public init<C>(_ sequence: C, separator: Separator = .space, hasBrackets: Bool = true)
     where C: Sequence, C.Element == SassValue {
-        self.elements = Array(sequence)
+        self.array = Array(sequence)
         self._hasBrackets = hasBrackets
-        if elements.count > 1 && separator == .undecided {
+        if array.count > 1 && separator == .undecided {
             self._separator = .space
         } else {
             self._separator = separator
@@ -52,12 +52,12 @@ public final class SassList: SassValue {
 
     public override func valueAt(sassIndex: SassValue) throws -> SassValue {
         let arrayIndex = try arrayIndexFrom(sassIndex: sassIndex)
-        return elements[arrayIndex]
+        return array[arrayIndex]
     }
 
     /// An iterator for the values in the list.
     public override func makeIterator() -> AnyIterator<SassValue> {
-        AnyIterator(elements.makeIterator())
+        AnyIterator(array.makeIterator())
     }
 
     public override func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
@@ -70,20 +70,33 @@ public final class SassList: SassValue {
             "\(hasBrackets ? "]" : ""))"
     }
 
-    /// List equality: two `SassList`s are equal if they have the same separator, brackets, and contents.
-    ///
-    /// TODO "An empty list is equal to an empty map." ffs - hashing!!
+    /// List equality: all empty `SassList`s are equal.  Non-empty lists are equal iff they have the same separator, brackets, and contents.
     public static func == (lhs: SassList, rhs: SassList) -> Bool {
-        lhs.hasBrackets == rhs.hasBrackets &&
-            lhs.separator == rhs.separator &&
-            lhs.listCount == rhs.listCount &&
-            zip(lhs, rhs).reduce(true) { eq, next in eq && next.0 == next.1 }
+        // Dart Sass defines the `==` relation on `List` to make it not be an
+        // equivalance relation (two empty lists with different separators are not
+        // equal to each other, but both are equal to the empty map) which is not
+        // OK in Swift.  This feels like the easiest tweak to make it work.
+        (lhs.array.isEmpty && rhs.array.isEmpty) ||
+            (lhs.hasBrackets == rhs.hasBrackets &&
+                lhs.separator == rhs.separator &&
+                lhs.array == rhs.array)
     }
+
+    private static let emptyMap = SassMap([:])
 
     /// Hashes the list's properties and contents.
     public override func hash(into hasher: inout Hasher) {
-        forEach { $0.hash(into: &hasher) }
-        hasher.combine(hasBrackets)
-        hasher.combine(separator)
+        if array.isEmpty {
+            // Sass requires that empty lists and maps are the same.
+            // The cross-type equality part of this is handled in `SassValue.==(_:_:)`.
+            //
+            // Further to "all empty lists are equal to each other" above, all empty
+            // lists hash as though they were the empty map.
+            hasher.combine(SassList.emptyMap)
+        } else {
+            hasher.combine(array)
+            hasher.combine(hasBrackets)
+            hasher.combine(separator)
+        }
     }
 }

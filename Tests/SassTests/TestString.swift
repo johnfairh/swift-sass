@@ -14,11 +14,11 @@ import Sass
 class TestString: XCTestCase {
     func testProperties() {
         let str1 = SassString("One")
-        XCTAssertEqual("One", str1.text)
+        XCTAssertEqual("One", str1.string)
         XCTAssertEqual(#"String("One")"#, "\(str1)")
 
         let str2 = SassString("Two", isQuoted: false)
-        XCTAssertEqual("Two", str2.text)
+        XCTAssertEqual("Two", str2.string)
         XCTAssertEqual("String(Two)", "\(str2)")
 
         XCTAssertTrue(str1.isTruthy)

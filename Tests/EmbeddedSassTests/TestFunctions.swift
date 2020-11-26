@@ -20,7 +20,7 @@ class TestFunctions: XCTestCase {
     let quoteStringFunction: SassFunctionMap = [
         "myQuoteString($param)" : { args in
             let str = try args[0].asString()
-            return SassString(str.text, isQuoted: true)
+            return SassString(str.string, isQuoted: true)
         }
     ]
 
@@ -122,5 +122,32 @@ class TestFunctions: XCTestCase {
         var value = Sass_EmbeddedProtocol_Value()
         value.singleton = .UNRECOGNIZED(2)
         XCTAssertThrowsError(try value.asSassValue())
+    }
+
+    /// SassMap conversion
+    func testSassMapConversion() throws {
+        let map = SassMap(uniqueKeysWithValues: [
+            (SassConstants.true, SassString("str1")),
+            (SassConstants.false, SassString("str2"))
+        ])
+        let pbVal = Sass_EmbeddedProtocol_Value(map)
+        let backMap = try pbVal.asSassValue()
+        XCTAssertEqual(map, backMap)
+
+        // Dodgy map from the compiler
+        var badPbVal = Sass_EmbeddedProtocol_Value()
+        badPbVal.map = .with {
+            $0.entries = [
+                .with { ent in
+                    ent.key = .init(SassConstants.true)
+                    ent.value = .init(SassConstants.null)
+                },
+                .with { ent in
+                    ent.key = .init(SassConstants.true)
+                    ent.value = .init(SassConstants.null)
+                }
+            ]
+        }
+        XCTAssertThrowsError(try badPbVal.asSassValue())
     }
 }

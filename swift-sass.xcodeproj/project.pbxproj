@@ -19,6 +19,8 @@
 		0285E831256EE56E00956F18 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E830256EE56E00956F18 /* Constants.swift */; };
 		0285E834256EEE5300956F18 /* TestConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E833256EEE5300956F18 /* TestConstants.swift */; };
 		0285E837256FAD9200956F18 /* Function.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E836256FAD9200956F18 /* Function.swift */; };
+		0285E83F256FBC2400956F18 /* Map.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E83E256FBC2400956F18 /* Map.swift */; };
+		0285E843256FCEDA00956F18 /* TestMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E842256FCEDA00956F18 /* TestMap.swift */; };
 		0289BB2225666BA70004544A /* Sass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0289BB1825666B060004544A /* Sass.framework */; };
 		0289BB2325666BA70004544A /* Sass.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0289BB1825666B060004544A /* Sass.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0289BB2F25666C940004544A /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB2B25666C8F0004544A /* Types.swift */; };
@@ -90,6 +92,8 @@
 		0285E830256EE56E00956F18 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		0285E833256EEE5300956F18 /* TestConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestConstants.swift; sourceTree = "<group>"; };
 		0285E836256FAD9200956F18 /* Function.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Function.swift; sourceTree = "<group>"; };
+		0285E83E256FBC2400956F18 /* Map.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Map.swift; sourceTree = "<group>"; };
+		0285E842256FCEDA00956F18 /* TestMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestMap.swift; sourceTree = "<group>"; };
 		0289BB1825666B060004544A /* Sass.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Sass.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0289BB2B25666C8F0004544A /* Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
 		0289BB3325669E610004544A /* Importer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Importer.swift; sourceTree = "<group>"; };
@@ -154,9 +158,10 @@
 				0289BB3325669E610004544A /* Importer.swift */,
 				0285E836256FAD9200956F18 /* Function.swift */,
 				0289BB3C256BD3BE0004544A /* Value.swift */,
-				0289BB3F256BDE460004544A /* String.swift */,
-				0285E82A256D9ABB00956F18 /* List.swift */,
 				0285E830256EE56E00956F18 /* Constants.swift */,
+				0285E82A256D9ABB00956F18 /* List.swift */,
+				0285E83E256FBC2400956F18 /* Map.swift */,
+				0289BB3F256BDE460004544A /* String.swift */,
 			);
 			name = Sass;
 			path = Sources/Sass;
@@ -167,6 +172,7 @@
 			children = (
 				0289BB49256BEE760004544A /* TestString.swift */,
 				0285E82D256EDB6700956F18 /* TestList.swift */,
+				0285E842256FCEDA00956F18 /* TestMap.swift */,
 				0285E833256EEE5300956F18 /* TestConstants.swift */,
 			);
 			name = SassTests;
@@ -347,6 +353,7 @@
 			files = (
 				0289BB40256BDE460004544A /* String.swift in Sources */,
 				0289BB2F25666C940004544A /* Types.swift in Sources */,
+				0285E83F256FBC2400956F18 /* Map.swift in Sources */,
 				0285E837256FAD9200956F18 /* Function.swift in Sources */,
 				0285E82B256D9ABB00956F18 /* List.swift in Sources */,
 				0289BB3D256BD3BE0004544A /* Value.swift in Sources */,
@@ -373,6 +380,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				0285E843256FCEDA00956F18 /* TestMap.swift in Sources */,
 				0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */,
 				0285E828256C4C2900956F18 /* TestFunctions.swift in Sources */,
 				0289BB4A256BEE760004544A /* TestString.swift in Sources */,
