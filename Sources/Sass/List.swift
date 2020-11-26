@@ -1,19 +1,17 @@
 //
-//  SassList.swift
+//  List.swift
 //  Sass
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import Foundation
-
-/// A SassScript list.
+/// A Sass list value.
 ///
 /// Sass lists are immutable, have a separator and may be surrounded with brackets.
 /// All Sass values can be treated as lists so much list-like behavior is available via
 /// `SassValue`.  This type is mostly useful for constructing your own multi-element lists.
-open class SassList: SassValue {
+public final class SassList: SassValue {
     /// A CSS list-separator style.
     public enum Separator: String, Equatable {
         /// Comma
@@ -66,7 +64,6 @@ open class SassList: SassValue {
         try visitor.visit(list: self)
     }
 
-    /// A short description of the list.
     public override var description: String {
         "List(\(hasBrackets ? "[" : "")" +
             map { $0.description }.joined(separator: separator.rawValue) +

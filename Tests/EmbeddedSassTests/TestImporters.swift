@@ -79,7 +79,7 @@ class TestImporters: XCTestCase {
     // MARK: Custom Importers
 
     // A custom importer
-    final class TestImporter: CustomImporter {
+    final class TestImporter: Importer {
         let css: String
 
         init(css: String) {
@@ -126,7 +126,7 @@ class TestImporters: XCTestCase {
     // Goodpath.
     func testCustomImporter() throws {
         let importer = TestImporter(css: secondaryCssRed)
-        let compiler = try TestUtils.newCompiler(importers: [.custom(importer)])
+        let compiler = try TestUtils.newCompiler(importers: [.importer(importer)])
         let results = try compiler.compile(text: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssRed, results.css)
     }
@@ -135,7 +135,7 @@ class TestImporters: XCTestCase {
     func checkFaultyImporter(customize: (TestImporter) -> Void, check: (TestImporter, CompilerError) -> Void) throws {
         let importer = TestImporter(css: secondaryCssRed)
         customize(importer)
-        let compiler = try TestUtils.newCompiler(importers: [.custom(importer)])
+        let compiler = try TestUtils.newCompiler(importers: [.importer(importer)])
         do {
             let results = try compiler.compile(text: usingSass, syntax: .sass)
             XCTFail("Compiled something: \(results)")

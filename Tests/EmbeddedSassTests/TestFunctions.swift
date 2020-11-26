@@ -33,6 +33,29 @@ class TestFunctions: XCTestCase {
         }
     }
 
+    // Errors reported
+
+    let errorFunction: SassFunctionMap = [
+        "badFunction($param)" : { args in
+            let bool = try args[0].asBool()
+            XCTFail("Managed to get a bool")
+            return SassConstants.null
+        }
+    ]
+
+    func testError() throws {
+        let compiler = try TestUtils.newCompiler(functions: errorFunction)
+
+        do {
+            let results = try compiler.compile(text: "$data: badFunction('22');")
+            XCTFail("Managed to compile nonsense: \(results)")
+        } catch let error as CompilerError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
     // Local func overrides global
 
     let globalOverrideFunction: SassFunctionMap = [

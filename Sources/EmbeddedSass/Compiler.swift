@@ -9,10 +9,12 @@
 import Foundation
 @_exported import Sass
 
+/// Xxx rewrite much later
+///
 /// An instance of the embedded Sass compiler hosted in Swift.
 ///
-/// It runs the compiler as a child process and lets you provide importers and Sass Script routines
-/// in your Swift code.
+/// It runs the compiler as a child process and lets you provide stylesheet importers and Sass functions
+/// that are part of your Swift code.
 ///
 /// Most simple usage looks like:
 /// ```swift
@@ -28,9 +30,6 @@ import Foundation
 /// other thing supporting the Embedded Sass protocol that this class runs under the hood.
 ///
 /// Use `Compiler.warningHandler` to get sight of warnings from the compiler.
-///
-/// Xxx importers
-/// Xxx SassScript
 ///
 /// To debug problems, start with the output from `Compiler.debugHandler`, all the source files
 /// being given to the compiler, and the description of any errors thrown.
@@ -77,8 +76,7 @@ public final class Compiler {
     ///   -1 to disable timeouts.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
     ///   the source file's URL, used for all compile requests made of this instance.
-    /// - parameter functions: Custom SassScript functions available to all compile requests made
-    ///   of this instance.
+    /// - parameter functions: Sass functions available to all compile requests made of this instance.
     ///
     /// - throws: Something from Foundation if the program does not start.
     public init(embeddedCompilerURL: URL,
@@ -111,9 +109,7 @@ public final class Compiler {
     ///   -1 to disable timeouts.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
     ///   the source file's URL, used for all compile requests to this instance.
-    /// - parameter functions: Custom SassScript functions available to all compile requests made
-    ///   of this instance.
-    ///
+    /// - parameter functions: Sass functions available to all compile requests made of this instance.    ///
     /// - throws: `ProtocolError()` if the program can't be found.
     ///           Everything from `init(embeddedCompilerURL:)`
     public convenience init(embeddedCompilerName: String = "dart-sass-embedded",
@@ -172,8 +168,8 @@ public final class Compiler {
     ///   - createSourceMap: Create a JSON source map for the CSS.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
     ///     `sourceFileURL`'s directory and any set at the `Compiler` level.
-    ///   - functions: Custom functions for this compilation, overriding any with the same name set
-    ///     at the `Compiler` level.
+    ///   - functions: Functions for this compilation, overriding any with the same name set at the
+    ///     `Compiler` level.
     /// - throws: `CompilerError()` if there is a critical error with the input, for example a syntax error.
     ///           `ProtocolError()` if something goes wrong with the compiler infrastructure itself.
     /// - returns: CSS and optional source map.
@@ -200,8 +196,8 @@ public final class Compiler {
     ///   - createSourceMap: Create a JSON source map for the CSS.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
     ///     `sourceFileURL`'s directory and any set at the `Compiler` level.
-    ///   - functions: Custom functions for this compilation, overriding any with the same name set
-    ///     at the `Compiler` level.
+    ///   - functions: Functions for this compilation, overriding any with the same name set at the
+    ///     `Compiler` level.
     /// - throws: `CompilerError()` if there is a critical error with the input, for example a syntax error.
     ///           `ProtocolError()` if something goes wrong with the compiler infrastructure itself.
     /// - returns: CSS and optional source map.
@@ -239,8 +235,8 @@ public final class Compiler {
         // Discard any signatures in global with names matching local.
         // Pass the resulting signatures to the compiler.
         // Retain a map from function name (not signature) to callback.
-        let localFnsNameMap = functions.asSassFunctionNameElementMap
-        let globalFnsNameMap = globalFunctions.asSassFunctionNameElementMap
+        let localFnsNameMap = functions._asSassFunctionNameElementMap
+        let globalFnsNameMap = globalFunctions._asSassFunctionNameElementMap
         let mergedFnsNameMap = globalFnsNameMap.merging(localFnsNameMap) { g, l in l }
         let signatures = mergedFnsNameMap.values.map { $0.0 }
         currentFunctions = mergedFnsNameMap.mapValues { $0.value }
@@ -364,21 +360,21 @@ public final class Compiler {
     static let baseImporterID = UInt32(4000)
 
     /// Helper
-    private func getCustomImporter(importerID: UInt32) throws -> CustomImporter {
+    private func getImporter(importerID: UInt32) throws -> Importer {
         let minImporterID = Self.baseImporterID
         let maxImporterID = minImporterID + UInt32(currentImporters.count) - 1
         guard importerID >= minImporterID, importerID <= maxImporterID else {
             throw ProtocolError("Bad importer ID \(importerID), out of range (\(minImporterID)-\(maxImporterID))")
         }
-        guard let customImporter = currentImporters[Int(importerID - minImporterID)].customImporter else {
-            throw ProtocolError("Bad importer ID \(importerID), not a custom importer")
+        guard let importer = currentImporters[Int(importerID - minImporterID)].importer else {
+            throw ProtocolError("Bad importer ID \(importerID), not an importer")
         }
-        return customImporter
+        return importer
     }
 
     /// Inbound `CanonicalizeRequest` handler
     private func receive(canonicalizeRequest req: Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest) throws {
-        let importer = try getCustomImporter(importerID: req.importerID)
+        let importer = try getImporter(importerID: req.importerID)
         var rsp = Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse()
         rsp.id = req.id
         do {
@@ -398,7 +394,7 @@ public final class Compiler {
 
     /// Inbound `ImportRequest` handler
     private func receive(importRequest req: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest) throws {
-        let importer = try getCustomImporter(importerID: req.importerID)
+        let importer = try getImporter(importerID: req.importerID)
         guard let url = URL(string: req.url) else {
             throw ProtocolError("Malformed import URL \(req.url)")
         }
@@ -427,13 +423,13 @@ public final class Compiler {
         case .functionID(_):
             throw ProtocolError("FunctionCallRequest-by-ID not supported")
         case .name(let name):
-            guard let customFunc = currentFunctions[name] else {
+            guard let sassFunc = currentFunctions[name] else {
                 throw ProtocolError("Host function \(name) not registered.")
             }
             var rsp = Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse()
             rsp.id = req.id
             do {
-                let resultValue = try customFunc(req.arguments.map { try $0.asSassValue() })
+                let resultValue = try sassFunc(req.arguments.map { try $0.asSassValue() })
                 rsp.success = .init(resultValue)
                 debug("  tx fncall-rsp-success reqid=\(req.id)")
             } catch {
@@ -448,10 +444,10 @@ public final class Compiler {
 }
 
 private extension ImportResolver {
-    var customImporter: CustomImporter? {
+    var importer: Importer? {
         switch self {
         case .loadPath(_): return nil
-        case .custom(let c): return c
+        case .importer(let i): return i
         }
     }
 }

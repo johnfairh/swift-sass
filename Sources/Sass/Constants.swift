@@ -1,16 +1,18 @@
 //
-//  SassConstants.swift
+//  Constants.swift
 //  Sass
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-/// A SassScript boolean.
+// SassBool & SassNull
+
+/// A Sass boolean value.
 ///
 /// You cannot create instances of this type: use `SassConstants.true` and `SassConstants.false`
 /// instead.
-public class SassBool: SassValue {
+public final class SassBool: SassValue {
     /// The value of the boolean.
     public let value: Bool
 
@@ -26,7 +28,6 @@ public class SassBool: SassValue {
         try visitor.visit(bool: self)
     }
 
-    /// A short description of the boolean.
     public override var description: String {
         return "Bool(\(value))"
     }
@@ -54,10 +55,10 @@ extension SassValue {
     }
 }
 
-/// The SassScript `null` value.
+/// The Sass `null` value.
 ///
 /// Use `SassConstants.null` to reference the null constant.
-public class SassNull: SassValue {
+public final class SassNull: SassValue {
     public override var isTruthy: Bool { false }
     public override var isNull: Bool { true }
 
@@ -68,7 +69,6 @@ public class SassNull: SassValue {
         try visitor.visit(null: self)
     }
 
-    /// A short description of the string.
     public override var description: String {
         "Null"
     }

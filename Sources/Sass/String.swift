@@ -1,12 +1,12 @@
 //
-//  SassString.swift
+//  String.swift
 //  Sass
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-/// A SassScript string.
+/// A Sass string value.
 ///
 /// Strings are immutable and may be quoted.
 ///
@@ -19,7 +19,7 @@
 /// Further, Sass models 1 as the first element and `count` as the last.  This class offers
 /// a `sassIndexToSwiftIndex(...)`  method to wrap up both parts of this conversion, but offers
 /// only sympathy to users having to deal with the results.
-open class SassString: SassValue {
+public final class SassString: SassValue {
     /// The text value of the string.  Does not include any quotes.
     public let text: String
     /// Whether the string is quoted " or raw.
@@ -51,13 +51,12 @@ open class SassString: SassValue {
         try visitor.visit(string: self)
     }
 
-    /// A short description of the string.
     public override var description: String {
         let quote = isQuoted ? "\"" : ""
         return "String(\(quote)\(text)\(quote))"
     }
 
-    /// String equality: two `SassString`s are equal if they have the same text, whether or not either is quoted.
+    /// Two `SassString`s are equal if they have the same text, whether or not either is quoted.
     public static func == (lhs: SassString, rhs: SassString) -> Bool {
         lhs.text == rhs.text
     }

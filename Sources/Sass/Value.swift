@@ -1,21 +1,23 @@
 //
-//  SassValue.swift
+//  Value.swift
 //  Sass
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-/// Common behavior between SassScript values passed to or returned from custom functions.
-///
-/// The Sass compiler lets you define custom functions written Swift that are available to
-/// stylesheets as they are compiled.  `SassValue` is used to transmit function parameters
-/// and return values.  Usually the first job of your custom function is to downcast each parameter
-/// to the expected type using methods like `SassValue.asString(...)`.
+// Base class for Sass value behaviour.  Some uncomfortable bits in Swift
+// but using protocols right now runs into the whole 'existentials-aren't-
+// really-types' mess.
+//
+// Give the concrete type names a `Sass` prefix to avoid tedious collisions
+// with stdlib types.
+
+/// Common behavior between values passed to or returned from Sass functions.
 ///
 /// All Sass values can be treated as lists: singleton values like strings behave like
-/// 1-element lists and maps behave like lists of pairs. [XXX wait, what is a 'pair'???]
-open class SassValue: Hashable, Sequence, CustomStringConvertible {
+/// 1-element lists and maps behave like lists of two-element (key, value) lists.
+public class SassValue: Hashable, Sequence, CustomStringConvertible {
     /// Sass considers all values except `null` and `false` to be "truthy", meaning
     /// your host function should almost always be checking this property instead of trying
     /// to downcast to `SassBool`.
@@ -23,6 +25,8 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
 
     /// Does this value represent Sass's `null` value?
     public var isNull: Bool { false }
+
+    // MARK: Listiness
 
     /// The list separator used by this value when viewed as a list.
     public var separator: SassList.Separator { .undecided }
@@ -33,11 +37,12 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
     /// Not public, used to optimize `arrayIndexFrom(sassIndex:)`.
     var listCount: Int { 1 }
 
-    /// Interpret a Sass list index.
+    /// Convert a Sass list index.
     /// - parameter index: A Sass value intended to be used as an index into this value viewed as a list.
     ///   This must be an integer between 1 and the number of elements in this value viewed as a list.
     /// - throws: `SassValueError` if `index` is not an integer or out of range.
-    /// - returns: An integer suitable for subscripting the array created from this value.
+    /// - returns: An integer suitable for subscripting the array created from this value, guaranteed
+    ///   to be a valid subscript.
     public func arrayIndexFrom(sassIndex: SassValue) throws -> Int {
         /// let indexValue = try Int(sassIndex.asNumber())
         /// guard indexValue >= 1 && indexValue <= listCount else {
@@ -64,11 +69,17 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
         AnyIterator(CollectionOfOne(self).makeIterator())
     }
 
+    // MARK: Visitor
+
     /// Call the corresponding method of `visitor` against this object.
     public func accept<V, R>(visitor: V) throws -> R where V: SassValueVisitor, R == V.ReturnType {
         preconditionFailure()
     }
 
+    // MARK: Hashable
+
+    /// Two `SassValue`s are generally equal if they have the same dynamic type and
+    /// compare equally as that type.
     public static func == (lhs: SassValue, rhs: SassValue) -> Bool {
         switch (lhs, rhs) {
         case let (lstr, rstr) as (SassString, SassString):
@@ -88,7 +99,9 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
     public func hash(into hasher: inout Hasher) {
     }
 
-    /// :nodoc:
+    // MARK: CustomStringConvertible
+
+    /// A short description of the value.
     public var description: String {
         preconditionFailure()
     }
@@ -108,60 +121,6 @@ public protocol SassValueVisitor {
     func visit(bool: SassBool) throws -> ReturnType
     /// The operation for `SassNull`
     func visit(null: SassNull) throws -> ReturnType
-}
-
-// MARK: Errors
-
-/// Errors thrown for common `SassValue` scenarios.
-///
-/// Generally you will throw these out of your custom function and the compilation will
-/// fail with the details of this error as the reason.
-public enum SassValueError: Error, CustomStringConvertible {
-    /// A Sass value was not the expected type.
-    case wrongType(expected: String, actual: SassValue)
-    /// A Sass value used as a list or string index was not an integer.
-    case subscriptType(SassValue)
-    /// A Sass value used as a list or string index was out of range.
-    case subscriptIndex(max: Int, actual: Int)
-
-    /// A human-readable description of the error.
-    public var description: String {
-        switch self {
-        case let .wrongType(expected: expected, actual: actual):
-            return "Value has wrong type, expected \(expected) but got \(actual)."
-        case let .subscriptType(actual):
-            return "Non-integer value used as index: \(actual)."
-        case let .subscriptIndex(max: max, actual: actual):
-            return "Index \(actual) out of range: valid range is 1...\(max)."
-        }
-    }
-}
-
-// MARK: Functions
-
-/// The Swift type of a SassScript function.
-/// Any parameters with default values are instantiated before the function is called.
-public typealias SassFunction = ([SassValue]) throws -> SassValue
-
-/// A set of `SassFunction`s and their signatures.
-///
-/// The string in each pair must be a valid Sass function signature that could appear after
-/// `@function` in a Sass stylesheet, such as `mix($color1, $color2, $weight: 50%)`.
-public typealias SassFunctionMap = [String : SassFunction]
-
-extension String {
-    /// Get the Sass function name (everything before the paren) from a signature. :nodoc:
-    public var sassFunctionName: String {
-        String(prefix(while: { $0 != "("}))
-    }
-}
-
-extension Dictionary where Key == String {
-    /// Remap a Sass function signature dictionary to be keyed by Sass function name with
-    /// elements the (signature, callback) tuple.  :nodoc:
-    public var asSassFunctionNameElementMap: [String: Self.Element] {
-        Dictionary<String, Self.Element>(uniqueKeysWithValues: map { ($0.key.sassFunctionName, $0) })
-    }
 }
 
 //protocol SassValueConvertible {a

@@ -105,7 +105,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer {
         switch importer {
         case .loadPath(let url):
             path = url.path
-        case .custom(_):
+        case .importer(_):
             importerID = id
         }
     }

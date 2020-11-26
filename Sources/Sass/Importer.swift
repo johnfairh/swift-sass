@@ -14,7 +14,7 @@
 
 import Foundation
 
-/// Methods required to implement a custom importer.
+/// Methods required to implement a stylesheet importer.
 ///
 /// This type resolves `@import`, `@use`, and `@forward` rules in
 /// stylesheets.  The methods are called back by the compiler during compilation.  You
@@ -25,18 +25,18 @@ import Foundation
 ///
 /// An import has two steps: canonicalization and loading.
 ///
-/// `CustomImporter.canonicalize(...)` is always called first with whatever URL
+/// `Importer.canonicalize(...)` is always called first with whatever URL
 /// text the user has written in their rule.  The routine interprets that and returns a _canonical_
 /// URL that is absolute with a scheme.
 ///
 /// The compiler most likely implements a cache based on canonical URLs.  If the compiler
 /// does not have a stylesheet cached for the canonical URL then it calls
-/// `CustomImporter.load(...)` with that URL to get at the content.
+/// `Importer.load(...)` with that URL to get at the content.
 ///
 /// ### File extension rules
 ///
 /// Sass itself handles imports from the filesystem using various filename conventions.
-/// Users of your custom importer mostly likely expect the same behavior if the URLs you
+/// Users of your importer mostly likely expect the same behavior if the URLs you
 /// are importing resemble filenames with extensions and directories.
 ///
 /// From the embedded Sass protocol documentation:
@@ -70,7 +70,7 @@ import Foundation
 ///
 ///   If more than one of these implicit index resources exist then the importer must
 ///   throw an error indicating that the import is ambiguous.
-public protocol CustomImporter {
+public protocol Importer {
     /// Convert an imported URL to its canonical format.
     ///
     /// The returned URL must be absolute and include a scheme.  If the routine
@@ -101,7 +101,7 @@ public protocol CustomImporter {
     func load(canonicalURL: URL) throws -> ImporterResults
 }
 
-/// The results of loading a stylesheet through a custom importer.
+/// The results of loading a stylesheet through an importer.
 public struct ImporterResults {
     /// The contents of the stylesheet.
     public let contents: String
@@ -129,6 +129,6 @@ public struct ImporterResults {
 public enum ImportResolver {
     /// Search a filesystem directory to resolve the rule.
     case loadPath(URL)
-    /// Call back through the `CustomImporter` to resolve the rule.
-    case custom(CustomImporter)
+    /// Call back through the `Importer` to resolve the rule.
+    case importer(Importer)
 }
