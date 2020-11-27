@@ -150,4 +150,12 @@ class TestFunctions: XCTestCase {
         }
         XCTAssertThrowsError(try badPbVal.asSassValue())
     }
+
+    /// SassNumber conversion - unitless
+    func testSassNumberConversion() throws {
+        let num = SassNumber(Double.pi)
+        let pbVal = Sass_EmbeddedProtocol_Value(num)
+        let backNum = try pbVal.asSassValue()
+        XCTAssertEqual(num, backNum)
+    }
 }

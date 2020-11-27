@@ -48,13 +48,14 @@ extension Dictionary where Key == String {
     }
 }
 
-
 // MARK: Errors
 
 /// Errors thrown for common `SassValue` scenarios.
 ///
 /// Generally you throw these from your `SassFunction`.  Then the compilation
-/// fails, giving the description of the error as the failure reason.
+/// fails, giving the description of the error as the failure reason.  Generally you don't
+/// need to construct them manually, rather they are thrown for you from various
+/// `SassValue` family methods.
 public enum SassValueError: Error, CustomStringConvertible {
     /// A Sass value was not the expected type.
     case wrongType(expected: String, actual: SassValue)
@@ -62,6 +63,10 @@ public enum SassValueError: Error, CustomStringConvertible {
     case subscriptType(SassValue)
     /// A Sass value used as a list or string index was out of range.
     case subscriptIndex(max: Int, actual: Int)
+    /// A `SassNumber` used as an integer wasn't.
+    case notInteger(SassNumber)
+    /// A `SassNumber` was not in the expected range.
+    case notInRange(SassNumber, String)
 
     /// A human-readable description of the error.
     public var description: String {
@@ -72,6 +77,10 @@ public enum SassValueError: Error, CustomStringConvertible {
             return "Non-integer value used as index: \(actual)."
         case let .subscriptIndex(max: max, actual: actual):
             return "Index \(actual) out of range: valid range is 1...\(max)."
+        case let .notInteger(num):
+            return "Number \(num) is not an integer."
+        case let .notInRange(num, rangeDescription):
+            return "Number \(num) is not in range: \(rangeDescription)."
         }
     }
 }
