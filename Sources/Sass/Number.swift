@@ -12,9 +12,9 @@
 // MARK: SassDouble
 
 /// The numeric part of a Sass number is expressed as a 64-bit floating point value.
-/// Integer / equality rounding is defined to be done with a tolerance of 1e-11.  This isn't exactly representable
-/// which makes me unnecessarily anxious.  This only makes a difference to iee754 up to around 8000, which
-/// is the area CSS is interested in really!
+/// Integer / equality rounding has special rules that unfortunately don't seem to be sound.  Will gently pursue
+/// this upstream.  For now we implement our own thing inspired by theirs, basically rounding to 11 decimal
+/// places.
 ///
 /// Infinities and NaNs are left vague but they probably don't crop up very often in the domain --
 /// will do divide-by-zero test and see what happens.
@@ -23,9 +23,30 @@
 struct SassDouble: Hashable, Comparable {
     static let tolerance = Double(1e-11)
 
+    /// From the sass protocol spec: "A hash code with the same equality semantics can be generated
+    /// for a number x by [schoolbook] rounding x * 1e11 to the nearest integer and taking the hash
+    /// code of the result."  This is definitely _not_ the "same equality semantics", it's rounding to
+    /// 11 decimal places.
+    static let hashInverseTolerance = Double(1e11)
+
+    static func hashEquivalent(_ double: Double) -> Int {
+        Int((double * hashInverseTolerance).rounded())
+    }
+
+    /// Sass protocol spec: Two numbers are equal if their numerical value are within 1e-11 of one another.
+    /// This is an unsound definition of equality, inconsistent with the same spec's hashing idea (above),
+    /// and is keeping me awake at night.  So we don't use it.
+//    static func sass_areEqual(_ lhs: Double, _ rhs: Double) -> Bool {
+//        let r = (lhs - rhs).magnitude < tolerance
+//        return r
+//    }
+
+    /// Instead use the hash approach - schoolbook round to 11 decimal places.  This is sound (equivalence
+    /// relation) and doesn't break Swift hashing (values equal guarantee their hashvalues are equal).
+    ///
+    /// It's inconsistent with Dart Sass.  Oh well.
     static func areEqual(_ lhs: Double, _ rhs: Double) -> Bool {
-        let r = (lhs - rhs).magnitude < tolerance
-        return r
+        hashEquivalent(lhs) == hashEquivalent(rhs)
     }
 
     static func isStrictlyLessThan(_ lhs: Double, _ rhs: Double) -> Bool {
@@ -75,17 +96,11 @@ struct SassDouble: Hashable, Comparable {
 
     // MARK: Hashable Comparable
 
-    static let hashInverseTolerance = Double(1e11)
-
     var hashEquivalent: Int {
-        Int((double * SassDouble.hashInverseTolerance).rounded())
+        SassDouble.hashEquivalent(double)
     }
 
     /// A hash value compatible with the definitely of equality.
-    ///
-    /// From the sass protocol spec: "A hash code with the same equality semantics can be generated
-    /// for a number x by [schoolbook] rounding x * 1e11 to the nearest integer and taking the hash
-    /// code of the result."  This isn't true but implement it anyway...
     func hash(into hasher: inout Hasher) {
         hasher.combine(hashEquivalent)
     }
@@ -120,16 +135,24 @@ extension Int {
 
 /// A Sass numeric value.
 ///
-/// Numbers are fundamentally `Double`s but with special rules about comparison and converting to
-/// integers.  Numbers also have units omg.
+/// Numbers are `Double`s that use only 11 decimal places for comparison and integer conversion.
+/// Numbers have units omg.
 ///
 public final class SassNumber: SassValue, Comparable {
     private let sassDouble: SassDouble
 
     /// The underlying value of the number.
-    /// XXX warning
-    /// Sass and Swift use different tolerances on float -> int conversion.  Use `asInt()` to
-    /// get the Sass-approved integer value for a `SassNumber` instead of `Int(exactly:)`.
+    ///
+    /// - warning: Take care using this directly because Sass and Swift use different tolerances for
+    ///   comparison and integer conversion.
+    ///
+    ///   * Use `asInt()` to check a  `SassNumber` is an integer  instead of `Int(exactly:)`.
+    ///     (It could be that `Int(exactly: n.double)` would fail.)
+    ///   * Use `asIn(range:)` to check a floating point `SassNumber` is within a range and convert
+    ///     it to a Swift `Double` within the range. (It could be that `range.contains(n.double)`
+    ///     would fail.)
+    ///   * If you must compare floating-point `SassNumber`s then consistently compare the `SassNumber`s
+    ///     themselves, not the `double`s within.  Similarly, use the `SassNumber` itself as a dictionary key.
     public var double: Double {
         sassDouble.double
     }
