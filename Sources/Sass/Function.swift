@@ -59,10 +59,10 @@ extension Dictionary where Key == String {
 public enum SassValueError: Error, CustomStringConvertible {
     /// A Sass value was not the expected type.
     case wrongType(expected: String, actual: SassValue)
-    /// A Sass value used as a list or string index was not an integer.
-    case subscriptType(SassValue)
-    /// A Sass value used as a list or string index was out of range.
-    case subscriptIndex(max: Int, actual: Int)
+    /// A Sass value used as a list index was out of range.
+    case badListIndex(max: Int, actual: Int)
+    /// A Sass value used as a string index was out of range.
+    case badStringIndex(max: Int, actual: Int)
     /// A `SassNumber` used as an integer wasn't.
     case notInteger(SassNumber)
     /// A `SassNumber` was not in the expected range.
@@ -73,10 +73,10 @@ public enum SassValueError: Error, CustomStringConvertible {
         switch self {
         case let .wrongType(expected: expected, actual: actual):
             return "Value has wrong type, expected \(expected) but got \(actual)."
-        case let .subscriptType(actual):
-            return "Non-integer value used as index: \(actual)."
-        case let .subscriptIndex(max: max, actual: actual):
-            return "Index \(actual) out of range: valid range is 1...\(max)."
+        case let .badListIndex(max: max, actual: actual):
+            return "List index \(actual) out of range: valid range is 1...\(max)."
+        case let .badStringIndex(max: max, actual: actual):
+            return "String index \(actual) out of range: valid range is 1...\(max)."
         case let .notInteger(num):
             return "Number \(num) is not an integer."
         case let .notInRange(num, rangeDescription):

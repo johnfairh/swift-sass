@@ -25,7 +25,7 @@ class TestString: XCTestCase {
         XCTAssertFalse(str1.isNull)
     }
 
-    func testIndex() {
+    func testIndex() throws {
         let strBasic = SassString("Fred")
         XCTAssertEqual(strBasic.sassLength, 4)
         let strEmoji = SassString("😄")
@@ -33,7 +33,19 @@ class TestString: XCTestCase {
         let flagEmoji = SassString("🇦🇶")
         XCTAssertEqual(flagEmoji.sassLength, 2)
 
-        // TODO: indexes when we can understand numbers...
+        let eIndex = try strBasic.scalarIndexFrom(sassIndex: SassNumber(3))
+        let letter = strBasic.string.unicodeScalars[eIndex]
+        XCTAssertEqual("e", letter)
+        do {
+            let v = try strEmoji.scalarIndexFrom(sassIndex: SassNumber(0))
+            XCTFail("Bad index OK: \(v)")
+        } catch {
+            print(error)
+        }
+
+        let ALindex = try flagEmoji.scalarIndexFrom(sassIndex: SassNumber(-2))
+        let symbol = flagEmoji.string.unicodeScalars[ALindex]
+        XCTAssertEqual("🇦", symbol)
     }
 
     func testEqualityAndHashing() {

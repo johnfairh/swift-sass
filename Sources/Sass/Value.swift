@@ -39,17 +39,17 @@ public class SassValue: Hashable, Sequence, CustomStringConvertible {
 
     /// Convert a Sass list index.
     /// - parameter index: A Sass value intended to be used as an index into this value viewed as a list.
-    ///   This must be an integer between 1 and the number of elements in this value viewed as a list.
-    /// - throws: `SassValueError` if `index` is not an integer or out of range.
+    ///   This must be an integer between 1 and the number of elements in this value viewed as a list,
+    ///   or negative in the same range to index from the end.
+    /// - throws: `SassValueError` if `sassIndex` is not an integer or out of range.
     /// - returns: An integer suitable for subscripting the array created from this value, guaranteed
-    ///   to be a valid subscript.
+    ///   to be a valid subscript in the range [0..<count]
     public func arrayIndexFrom(sassIndex: SassValue) throws -> Int {
-        /// let indexValue = try Int(sassIndex.asNumber())
-        /// guard indexValue >= 1 && indexValue <= listCount else {
-        ///     throw SassValueError.subscriptType(sassIndex)
-        /// }
-        /// return indexValue - 1
-        throw SassValueError.subscriptType(sassIndex)
+        let indexValue = try sassIndex.asNumber().asInt()
+        guard indexValue.magnitude >= 1 && indexValue.magnitude <= listCount else {
+            throw SassValueError.badListIndex(max: listCount, actual: indexValue)
+        }
+        return indexValue > 0 ? (indexValue - 1) : (listCount + indexValue)
     }
 
     /// Subscript the value using a Sass list index.

@@ -40,10 +40,16 @@ public final class SassString: SassValue {
 
     /// Interpret a Sass string index.
     /// - parameter index: A Sass value intended to be used as a string index.  This must be an
-    ///   integer between 1 and `sassLength` inclusive.
+    ///   integer between 1 and `sassLength` inclusive, or negative with the same magnitude to
+    ///   index from the end.
     /// - throws: `SassValueError` if `index` is not an integer or out of range.
     public func scalarIndexFrom(sassIndex: SassValue) throws -> String.UnicodeScalarIndex {
-        throw SassValueError.subscriptType(sassIndex)
+        let indexValue = try sassIndex.asNumber().asInt()
+        guard indexValue.magnitude >= 1 && indexValue.magnitude <= sassLength else {
+            throw SassValueError.badStringIndex(max: sassLength, actual: indexValue)
+        }
+        let offset = indexValue > 0 ? (indexValue - 1) : (sassLength + indexValue)
+        return string.unicodeScalars.index(string.unicodeScalars.startIndex, offsetBy: offset)
     }
 
     /// Take part in the `SassValueVisitor` protocol.

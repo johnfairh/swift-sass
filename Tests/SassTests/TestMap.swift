@@ -58,7 +58,8 @@ class TestMap: XCTestCase {
         }
         XCTAssertEqual(3, count)
 
-        // TODO something with numeric index when they exist
+        let somePair = try map.valueAt(sassIndex: SassNumber(2))
+        XCTAssertEqual(2, Array(somePair).count)
     }
 
     /// Empty list-map equivalence

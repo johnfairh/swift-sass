@@ -207,18 +207,16 @@ public typealias DebugHandler = (DebugMessage) -> Void
 /// Gadget to share implementation between the subtly different error/warning/debug log types.
 protocol LogFormatter {
     var message: String { get }
-    var messageType: String? { get }
+    var messageType: String { get }
     var span: Span? { get }
     var stackTrace: String? { get }
     var description: String { get }
 }
 
 extension LogFormatter {
-    var messageType: String? { nil }
-
     var baseDescription: String {
         var desc = span.flatMap { "\($0): " } ?? ""
-        desc += messageType.flatMap { "\($0): " } ?? ""
+        desc += "\(messageType): "
         desc += message
         if let trace = stackTrace?.trimmingCharacters(in: .newlines),
            !trace.isEmpty {
@@ -234,7 +232,7 @@ extension LogFormatter {
 }
 
 extension CompilerError: CustomStringConvertible, LogFormatter {
-    var messageType: String? { "error" }
+    var messageType: String { "error" }
 
     /// A  human-readable description of the message.
     public var description: String {
@@ -254,5 +252,5 @@ extension CompilerMessage.Kind: CustomStringConvertible {
 }
 
 extension CompilerMessage: CustomStringConvertible, LogFormatter {
-    var messageType: String? { kind.description }
+    var messageType: String { kind.description }
 }

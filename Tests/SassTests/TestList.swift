@@ -44,7 +44,7 @@ class TestList: XCTestCase {
         XCTAssertEqual(2, array.count)
         XCTAssertEqual([str1, str2], array)
 
-        // TODO: valueAt when we understand numbers
+        XCTAssertEqual(str2, try list.valueAt(sassIndex: SassNumber(-1)))
     }
 
     /// List equality -- incorporating deviation from dart-sass for empty lists...
