@@ -126,4 +126,52 @@ class TestNumber: XCTestCase {
         XCTAssertThrowsError(try SassNumber(20).asIn(range: 10..<20))
         XCTAssertEqual(10, try SassNumber(10).asIn(range: 10..<20))
     }
+
+    // MARK: Units
+
+    // Check the conversion tables aren't wrong.
+    func testUnitConversion() {
+        // lengths
+        let inch = Sass.Unit(name: "in")
+        XCTAssertEqual(1, inch.convert(1, to: "in"))
+        XCTAssertEqual(2.54, inch.convert(1, to: "cm"))
+        XCTAssertEqual(254, inch.convert(1, to: "mm"))
+        XCTAssertEqual(254*4, inch.convert(1, to: "q"))
+        XCTAssertEqual(96, inch.convert(1, to: "px"))
+        XCTAssertEqual(6, inch.convert(1, to: "pc"))
+        XCTAssertEqual(72, inch.convert(1, to: "pt"))
+
+        // angles
+        let rad = Sass.Unit(name: "rad")
+        XCTAssertEqual(.pi, rad.convert(.pi, to: "rad"))
+        XCTAssertEqual(180, rad.convert(.pi, to: "deg"))
+        XCTAssertEqual(200, rad.convert(.pi, to: "grad"))
+        XCTAssertEqual(0.5, rad.convert(.pi, to: "turn"))
+
+        // time
+        let ms = Sass.Unit(name: "ms")
+        XCTAssertEqual(2500, ms.convert(2500, to: "ms"))
+        XCTAssertEqual(2.5, ms.convert(2500, to: "s"))
+
+        // freq
+        let khz = Sass.Unit(name: "kHz")
+        XCTAssertEqual(1.5, khz.convert(1.5, to: "khz"))
+        XCTAssertEqual(1500, khz.convert(1.5, to: "hz"))
+
+        // res
+        let dpi = Sass.Unit(name: "dpi")
+        XCTAssertEqual(100/96, dpi.convert(100, to: "dppx"))
+        XCTAssertEqual(100/96, dpi.convert(100, to: "x"))
+        XCTAssertEqual(100/2.54, dpi.convert(100, to: "dpcm"))
+    }
+}
+
+extension Sass.Unit {
+    func convert(_ value: Double, to otherUnit: Name) -> Double? {
+        guard let dim = dimension else {
+            return nil
+        }
+        let ratio = dim.ratio(from: name, to: otherUnit)
+        return ratio.multiply(value)
+    }
 }
