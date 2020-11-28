@@ -22,13 +22,13 @@ extension Sass.Unit {
             return nil
         }
         let ratio = dim.ratio(from: name, to: otherUnit)
-        return ratio.multiply(value)
+        return ratio.apply(value)
     }
 }
 
 extension Ratio : Equatable {
     public static func == (lhs: Ratio, rhs: Ratio) -> Bool {
-        SassDouble.areEqual(lhs.multiply(1), rhs.multiply(1))
+        SassDouble.areEqual(lhs.apply(1), rhs.apply(1))
     }
 }
 
@@ -206,7 +206,7 @@ class TestNumber: XCTestCase {
         XCTAssertEqual(Ratio(10, 1), cm.ratio(to: Unit(name: "mm")))
     }
 
-    // Unit-product-level conversions
+    // Unit-product conversions
     func testUnitProduct() throws {
         let cmArea = UnitProduct(names: ["cm", "cm"])
         XCTAssertEqual("cm * cm", cmArea.description)
@@ -241,5 +241,37 @@ class TestNumber: XCTestCase {
         } catch {
             print(error)
         }
+    }
+
+    // Unit-quotient
+    func testUnitQuotientBasics() throws {
+        let emptyUQ = try UnitQuotient(numerator: [], denominator: [])
+        XCTAssertFalse(emptyUQ.hasUnits)
+        XCTAssertEqual("", emptyUQ.description)
+
+        let cm = try UnitQuotient(numerator: ["cm"], denominator: [])
+        XCTAssertEqual("cm", cm.description)
+        let mps = try UnitQuotient(numerator: ["m"], denominator: ["s"])
+        XCTAssertEqual("m / s", mps.description)
+        let ps = try UnitQuotient(numerator: [], denominator: ["s"])
+        XCTAssertEqual("(s)^-1", ps.description)
+
+        do {
+            let uncancelledUQ = try UnitQuotient(numerator: ["px"], denominator: ["in", "s"])
+            XCTFail("Managed to create px / in * s: \(uncancelledUQ)")
+        } catch {
+            print(error)
+        }
+    }
+
+    func testUnitQuotientConversion() throws {
+        let cmPerMs = try UnitQuotient(numerator: ["cm"], denominator: ["ms"])
+        let canon = cmPerMs.canonicalUnitsAndRatio
+        XCTAssertEqual("px / s", canon.0.description)
+        XCTAssertEqual(Ratio(1000 * 96, 2.54), canon.1)
+
+        let cmPerS = try UnitQuotient(numerator: ["cm"], denominator: ["s"])
+        let ratio = try cmPerMs.ratio(to: cmPerS)
+        XCTAssertEqual(Ratio(1000, 1), ratio)
     }
 }

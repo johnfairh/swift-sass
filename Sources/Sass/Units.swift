@@ -27,20 +27,26 @@ struct Ratio {
 
     static let identity = Ratio(1, 1)
 
+    /// Create a ratio from the product of a bunch of others
     init(_ ratios: [Ratio]) {
-        let product = ratios.reduce((1,1)) { result, next in
-            (result.0 * next.num, result.1 * next.denom)
+        self = ratios.reduce(.identity) { result, next in
+            result.multiplied(by: next)
         }
-        self.num = product.0
-        self.denom = product.1
     }
 
-    func multiply(_ double: Double) -> Double {
+    /// New ratio by multiplying by another.
+    func multiplied(by other: Ratio) -> Ratio {
+        Ratio(num * other.num, denom * other.denom)
+    }
+
+    /// New ratio by dividing by another.
+    func divided(by other: Ratio) -> Ratio {
+        Ratio(num * other.denom, denom * other.num)
+    }
+
+    /// Finally apply the ratio to a value
+    func apply(_ double: Double) -> Double {
         (num * double) / denom
-    }
-
-    func divide(_ double: Double) -> Double {
-        (denom * double) / num
     }
 }
 
@@ -149,6 +155,10 @@ struct Unit: Equatable {
         lhs.name == rhs.name
     }
 
+    var canonicalUnitName: Name {
+        dimension?.canonical ?? name
+    }
+
     var canonicalUnitAndRatio: (Unit, Ratio) {
         guard let dimension = dimension else {
             return (self, .identity)
@@ -251,5 +261,69 @@ struct UnitProduct: CustomStringConvertible, Equatable {
                                                     leftovers: otherUnits.descriptionText)
         }
         return Ratio(ratios)
+    }
+}
+
+/// A compound unit formed by dividing two sets of units.
+/// Not permitted to have units with the same dimension in num & denom.
+struct UnitQuotient: CustomStringConvertible {
+    let numerator: UnitProduct
+    let denominator: UnitProduct
+
+    /// Form a new unit quotient from unit names.
+    /// Throws an error if the two lists share a dimension.
+    init(numerator: [Unit.Name], denominator: [Unit.Name]) throws {
+        self.numerator = UnitProduct(names: numerator)
+        self.denominator = UnitProduct(names: denominator)
+
+        // Check for user not doing their cancelling...
+        let numCanon = Set(self.numerator.units.map { $0.canonicalUnitName })
+        let denomCanon = Set(self.denominator.units.map { $0.canonicalUnitName })
+        guard numCanon.intersection(denomCanon).isEmpty else {
+            throw SassValueError.uncancelledUnits(numerator: self.numerator.description,
+                                                  denominator: self.denominator.description)
+        }
+    }
+
+    private init(numerator: UnitProduct, denominator: UnitProduct) {
+        self.numerator = numerator
+        self.denominator = denominator
+    }
+
+    /// Are there actually any units in this unit quotient?
+    var hasUnits: Bool {
+        !numerator.units.isEmpty || !denominator.units.isEmpty
+    }
+
+    /// Human-readable description of the unit quotient.
+    var description: String {
+        if numerator.units.isEmpty {
+            if denominator.units.isEmpty {
+                return ""
+            }
+            return "(\(denominator))^-1"
+        }
+        if denominator.units.isEmpty {
+            return numerator.description
+        }
+        return "\(numerator) / \(denominator)"
+    }
+
+    /// The quotient with convertible units in their canonical form, along with the
+    /// `Ratio` required to convert a value to that form.  Guaranteed to exist.
+    var canonicalUnitsAndRatio: (UnitQuotient, Ratio) {
+        let numUnitsAndRatio = numerator.canonicalUnitsAndRatio
+        let denomUnitsAndRatio = denominator.canonicalUnitsAndRatio
+
+        return (UnitQuotient(numerator: numUnitsAndRatio.0, denominator: denomUnitsAndRatio.0),
+                numUnitsAndRatio.1.divided(by: denomUnitsAndRatio.1))
+    }
+
+    /// The ratio required to convert a value of our unit-quotient to the given other quotient.
+    /// Exists only if the two unit-quotients are compatible.
+    func ratio(to other: UnitQuotient) throws -> Ratio {
+        let numRatio = try numerator.ratio(to: other.numerator)
+        let denomRatio = try denominator.ratio(to: other.denominator)
+        return numRatio.divided(by: denomRatio)
     }
 }
