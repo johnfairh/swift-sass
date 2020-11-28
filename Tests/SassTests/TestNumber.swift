@@ -9,6 +9,29 @@
 import XCTest
 @testable import Sass // number implementation gorp
 
+func XCTAssertAlmostEqual(_ d1: Double?, _ d2: Double?) {
+    guard let d1a = d1, let d2a = d2, SassDouble.areEqual(d1a, d2a) else {
+        XCTFail("Not equal: \(String(describing: d1)), \(String(describing: d2)).")
+        return
+    }
+}
+
+extension Sass.Unit {
+    func convert(_ value: Double, to otherUnit: Name) -> Double? {
+        guard let dim = dimension else {
+            return nil
+        }
+        let ratio = dim.ratio(from: name, to: otherUnit)
+        return ratio.multiply(value)
+    }
+}
+
+extension Ratio : Equatable {
+    public static func == (lhs: Ratio, rhs: Ratio) -> Bool {
+        SassDouble.areEqual(lhs.multiply(1), rhs.multiply(1))
+    }
+}
+
 class TestNumber: XCTestCase {
 
     // MARK: SassDouble
@@ -130,13 +153,13 @@ class TestNumber: XCTestCase {
     // MARK: Units
 
     // Check the conversion tables aren't wrong.
-    func testUnitConversion() {
+    func testDimensionConversion() {
         // lengths
         let inch = Sass.Unit(name: "in")
         XCTAssertEqual(1, inch.convert(1, to: "in"))
         XCTAssertEqual(2.54, inch.convert(1, to: "cm"))
-        XCTAssertEqual(254, inch.convert(1, to: "mm"))
-        XCTAssertEqual(254*4, inch.convert(1, to: "q"))
+        XCTAssertAlmostEqual(25.4, inch.convert(1, to: "mm")) // floating point...
+        XCTAssertAlmostEqual(25.4*4, inch.convert(1, to: "q")) // floating point...
         XCTAssertEqual(96, inch.convert(1, to: "px"))
         XCTAssertEqual(6, inch.convert(1, to: "pc"))
         XCTAssertEqual(72, inch.convert(1, to: "pt"))
@@ -164,14 +187,59 @@ class TestNumber: XCTestCase {
         XCTAssertEqual(100/96, dpi.convert(100, to: "x"))
         XCTAssertEqual(100/2.54, dpi.convert(100, to: "dpcm"))
     }
-}
 
-extension Sass.Unit {
-    func convert(_ value: Double, to otherUnit: Name) -> Double? {
-        guard let dim = dimension else {
-            return nil
+    // Unit-level conversions
+    func testUnitConversion() throws {
+        let funk = Sass.Unit(name: "funk")
+        let cm = Sass.Unit(name: "cm")
+        XCTAssertTrue(funk.isConvertibleTo(funk))
+        XCTAssertFalse(funk.isConvertibleTo(cm))
+        XCTAssertEqual(.identity, funk.ratio(to: funk))
+
+        let c1 = funk.canonicalUnitAndRatio
+        XCTAssertEqual(funk, c1.0)
+        XCTAssertEqual(.identity, c1.1)
+
+        let c2 = cm.canonicalUnitAndRatio
+        XCTAssertEqual(Sass.Unit(name: "px"), c2.0)
+        XCTAssertEqual(Ratio(96, 2.54), c2.1)
+        XCTAssertEqual(Ratio(10, 1), cm.ratio(to: Unit(name: "mm")))
+    }
+
+    // Unit-product-level conversions
+    func testUnitProduct() throws {
+        let cmArea = UnitProduct(names: ["cm", "cm"])
+        XCTAssertEqual("cm * cm", cmArea.description)
+
+        let canon = cmArea.canonicalUnitsAndRatio
+        XCTAssertEqual(UnitProduct(names: ["px", "px"]), canon.0)
+        XCTAssertEqual(Ratio(96 * 96, 2.54 * 2.54), canon.1)
+
+        let frogSeconds = UnitProduct(names: ["s", "frog"])
+        XCTAssertEqual("frog * s", frogSeconds.description)
+        // self conversion
+        XCTAssertEqual(.identity, try frogSeconds.ratio(to: frogSeconds))
+
+        // valid conversion
+        let frogMs = UnitProduct(names: ["ms", "frog"])
+        XCTAssertEqual(Ratio(1000, 1), try frogSeconds.ratio(to: frogMs))
+
+        // bad conversion, missing target
+        let ms = UnitProduct(names: ["ms"])
+        do {
+            let r = try frogSeconds.ratio(to: ms)
+            XCTFail("Managed to convert away frogs: \(r)")
+        } catch {
+            print(error)
         }
-        let ratio = dim.ratio(from: name, to: otherUnit)
-        return ratio.multiply(value)
+
+        // bad conversion, missing source
+        let frogOhmMs = UnitProduct(names: ["ms", "ohm", "frog"])
+        do {
+            let r = try frogSeconds.ratio(to: frogOhmMs)
+            XCTFail("Managed to convert to ohms: \(r)")
+        } catch {
+            print(error)
+        }
     }
 }

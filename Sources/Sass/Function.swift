@@ -67,6 +67,10 @@ public enum SassValueError: Error, CustomStringConvertible {
     case notInteger(SassNumber)
     /// A `SassNumber` was not in the expected range.
     case notInRange(SassNumber, String)
+    /// A `SassNumber` couldn't be converted to some requested units.
+    case unconvertibleUnit1(from: String, to: String, specifically: String)
+    /// A `SassNumber` couldn't be converted to requested units.
+    case unconvertibleUnit2(from: String, to: String, leftovers: String)
 
     /// A human-readable description of the error.
     public var description: String {
@@ -81,6 +85,10 @@ public enum SassValueError: Error, CustomStringConvertible {
             return "Number \(num) is not an integer."
         case let .notInRange(num, rangeDescription):
             return "Number \(num) is not in range: \(rangeDescription)."
+        case let .unconvertibleUnit1(from: from, to: to, specifically: specifically):
+            return "Units '\(from)' couldn't be converted to '\(to)', specifically from '\(specifically)'."
+        case let .unconvertibleUnit2(from: from, to: to, leftovers: leftovers):
+            return "Units '\(from)' couldn't be converted to '\(to)', leftovers '\(leftovers)'."
         }
     }
 }
