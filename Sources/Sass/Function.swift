@@ -73,6 +73,10 @@ public enum SassValueError: Error, CustomStringConvertible {
     case unconvertibleUnit2(from: String, to: String, leftovers: String)
     /// A `SassNumber` couldn't be formed because of uncancelled units.
     case uncancelledUnits(numerator: String, denominator: String)
+    /// A `SassNumber` had units that weren't expected.
+    case unexpectedUnits(SassNumber)
+    /// A `SassNumber` didn't have a specific single unit.
+    case missingUnit(SassNumber, String)
 
     /// A human-readable description of the error.
     public var description: String {
@@ -93,6 +97,10 @@ public enum SassValueError: Error, CustomStringConvertible {
             return "Units '\(from)' couldn't be converted to '\(to)', leftovers '\(leftovers)'."
         case let .uncancelledUnits(numerator: numerator, denominator: denominator):
             return "Units have redundant dimension: numerator '\(numerator)', denominator '\(denominator)'"
+        case let .unexpectedUnits(number):
+            return "\(number) has units but expected none."
+        case let .missingUnit(number, unit):
+            return "\(number) did not have single expected unit '\(unit)'."
         }
     }
 }

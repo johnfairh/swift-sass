@@ -237,7 +237,9 @@ extension Sass_EmbeddedProtocol_Value {
         case .string(let m):
             return SassString(m.text, isQuoted: m.quoted)
         case .number(let n):
-            return SassNumber(n.value)
+            return try SassNumber(n.value,
+                                  numeratorUnits: n.numerators,
+                                  denominatorUnits: n.denominators)
         case .list(let l):
             return try SassList(l.contents.map { try $0.asSassValue() },
                                 separator: .init(l.separator),
@@ -294,6 +296,8 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
     func visit(number: SassNumber) throws -> OneOf_Value {
         .number(.with {
             $0.value = number.double
+            $0.numerators = number.numeratorUnits
+            $0.denominators = number.denominatorUnits
         })
     }
 

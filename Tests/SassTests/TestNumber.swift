@@ -133,8 +133,6 @@ class TestNumber: XCTestCase {
         XCTAssertThrowsError(try str.asNumber())
 
         let o = SassNumber(13.4)
-        XCTAssertGreaterThanOrEqual(o, n)
-
         XCTAssertEqual(12, try n.asInt())
         XCTAssertEqual(12, try m.asInt())
         XCTAssertThrowsError(try o.asInt())
@@ -273,5 +271,58 @@ class TestNumber: XCTestCase {
         let cmPerS = try UnitQuotient(numerator: ["cm"], denominator: ["s"])
         let ratio = try cmPerMs.ratio(to: cmPerS)
         XCTAssertEqual(Ratio(1000, 1), ratio)
+    }
+
+    // Numbers with units
+    func testNumberUnit() throws {
+        let unitFree = SassNumber(.pi)
+        try unitFree.checkNoUnits()
+        XCTAssertFalse(unitFree.hasUnit(name: "ms"))
+        do {
+            try unitFree.checkHasUnit(name: "ms")
+            XCTFail("Found ms in \(unitFree)")
+        } catch {
+            print(error)
+        }
+
+        let freq = SassNumber(123, unit: "khz")
+        try freq.checkHasUnit(name: "khz")
+        XCTAssertFalse(freq.hasNoUnits)
+        do {
+            try freq.checkNoUnits()
+            XCTFail("Didn't find any units in \(freq)")
+        } catch {
+            print(error)
+        }
+
+        let frog = SassNumber(12, unit: "frog")
+        let bark = SassNumber(12, unit: "bark")
+        XCTAssertNotEqual(frog, bark)
+        XCTAssertEqual(["frog"], frog.numeratorUnits)
+        XCTAssertEqual([], frog.denominatorUnits)
+
+        let noUnit = try bark.asConvertedTo(numeratorUnits: [], denominatorUnits: [])
+        XCTAssertNotEqual(noUnit, frog)
+        XCTAssertNotEqual(noUnit, bark)
+        let frogAgain = try noUnit.asConvertedTo(numeratorUnits: frog.numeratorUnits, denominatorUnits: frog.denominatorUnits)
+        XCTAssertEqual(frog, frogAgain)
+    }
+
+    func testNumberUnitConversion() throws {
+        let width = try SassNumber(100, numeratorUnits: ["cm"])
+
+        let widthInPixels = try width.asConvertedTo(numeratorUnits: ["px"])
+        XCTAssertAlmostEqual((100 * 96) / 2.54, widthInPixels.double)
+
+        XCTAssertEqual(width, widthInPixels)
+
+        var dict = [width: true]
+        XCTAssertTrue(dict[widthInPixels]!)
+
+        let century = SassNumber(100, unit: "runs")
+        dict[century] = false
+        XCTAssertTrue(dict[widthInPixels]!)
+        XCTAssertFalse(dict[century]!)
+        XCTAssertNotEqual(width, century)
     }
 }

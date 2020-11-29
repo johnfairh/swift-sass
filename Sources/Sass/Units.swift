@@ -132,7 +132,7 @@ extension Dimension {
 }
 
 /// A unit - some we know, others are opaque.
-struct Unit: Equatable {
+struct Unit: Hashable {
     /// A unit's name.
     typealias Name = String
 
@@ -153,6 +153,10 @@ struct Unit: Equatable {
 
     static func == (lhs: Unit, rhs: Unit) -> Bool {
         lhs.name == rhs.name
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
     }
 
     var canonicalUnitName: Name {
@@ -189,14 +193,18 @@ struct Unit: Equatable {
 }
 
 extension Array where Element == Unit {
+    var names: [String] {
+        map { $0.name }
+    }
+
     var descriptionText: String {
-        map { $0.name }.joined(separator: " * ")
+        names.joined(separator: " * ")
     }
 }
 
 /// A compound unit formed by multiplying units.  Legitimate to have repeated units,
 /// or multiple units sharing the same dimension, eg. cm * cm for area.
-struct UnitProduct: CustomStringConvertible, Equatable {
+struct UnitProduct: CustomStringConvertible, Hashable {
     /// The factors in the compound unit, sorted by unit name.  The sort defines
     /// the canonical form for a given multiset of units.
     let units: [Unit]
@@ -266,7 +274,7 @@ struct UnitProduct: CustomStringConvertible, Equatable {
 
 /// A compound unit formed by dividing two sets of units.
 /// Not permitted to have units with the same dimension in num & denom.
-struct UnitQuotient: CustomStringConvertible {
+struct UnitQuotient: CustomStringConvertible, Hashable {
     let numerator: UnitProduct
     let denominator: UnitProduct
 

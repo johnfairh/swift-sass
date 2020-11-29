@@ -135,16 +135,31 @@ extension Int {
 
 /// A Sass numeric value.
 ///
-/// Numbers are `Double`s that use only 11 decimal places for comparison and integer conversion.
-/// Numbers have units omg.
+/// Sass numbers are `Double`s with units.
 ///
-public final class SassNumber: SassValue, Comparable {
+/// Sass has its own rules for numeric equality and integer conversion that use only the first
+/// 11 decimal places.  Use the `SassNumber` methods to convert to integers and test for ranges.
+///
+/// The units on a `SassNumber` can describe the result of multiplying and dividing numbers with
+/// primitive units.  Best described in the (Sass docs)[https://sass-lang.com/documentation/values/numbers#units].
+/// The (CSS values spec)[https://www.w3.org/TR/css-values-4/#intro] defines several common
+/// units and how to convert between them, for example _px_ to _pt_.  `SassNumber.asConvertedTo(...)`
+/// implements these conversions which lets you, for example, write a function that accepts any length unit
+/// that you can easily convert to your preferred unit.
+///
+/// Because of units, `SassNumber` is not `Comparable` --- there is no ordering relation
+/// possible between "5 cm" and "12 kHz".  It is `Equatable` though respecting unit conversion
+/// so that "1 cm" == "10 mm".
+public final class SassNumber: SassValue {
     private let sassDouble: SassDouble
+    private let units: UnitQuotient
 
-    /// The underlying value of the number.
+    /// The underlying sign and magnitude of the number.
     ///
-    /// - warning: Take care using this directly because Sass and Swift use different tolerances for
-    ///   comparison and integer conversion.
+    /// Fairly meaningless without understanding the number's units.
+    ///
+    /// - warning: Take care using this value directly because Sass and Swift use different
+    ///   tolerances for comparison and integer conversion.
     ///
     ///   * Use `asInt()` to check a  `SassNumber` is an integer  instead of `Int(exactly:)`.
     ///     (It could be that `Int(exactly: n.double)` would fail.)
@@ -157,14 +172,30 @@ public final class SassNumber: SassValue, Comparable {
         sassDouble.double
     }
 
-    /// Initialize a new number from a floating point value.
-    public init(_ double: Double) {
-        self.sassDouble = SassDouble(double)
+    /// Initialize a new number from a value and optionally a unit.
+    public init(_ double: Double, unit: String? = nil) {
+        sassDouble = SassDouble(double)
+        units = try! UnitQuotient(numerator: unit.flatMap { [$0] } ?? [], denominator: [])
     }
 
-    /// Initialize a new number from an integer value.
-    public convenience init(_ int: Int) {
-        self.init(Double(int))
+    /// Initialize a new number from a value and a list of numerator and denominator units.
+    ///
+    /// For example an acceleration:
+    /// ```SassNumber(981, numeratorUnits: ["cm"], denominatorUnits: ["s", "s"])```
+    ///
+    /// - parameter double: The value of the number.
+    /// - parameter numeratorUnits: The names of units applied to the number.
+    /// - parameter denominatorUnits: The names of units whose reciprocals are applied to the number.
+    /// - throws: `SassValueError.uncancelledUnits(...)` if units for the same dimension are listed in
+    ///   both `numeratorUnits` and `denominatorUnits`.
+    public init(_ double: Double, numeratorUnits: [String] = [], denominatorUnits: [String] = []) throws {
+        sassDouble = SassDouble(double)
+        units = try UnitQuotient(numerator: numeratorUnits, denominator: denominatorUnits)
+    }
+
+    private init(_ double: Double, units: UnitQuotient) {
+        self.sassDouble = SassDouble(double)
+        self.units = units
     }
 
     /// The integer value of this number.
@@ -183,6 +214,8 @@ public final class SassNumber: SassValue, Comparable {
 
     /// The value of this number within a closed range.
     ///
+    /// If you have an integer range than do `asInt()` first and work on that.
+    ///
     /// - returns: The `Double` value corresponding to this `SassValue` in `range`.
     /// - throws: `SassValueError.notInRange(...)` if the number is not in
     ///   the range, using Sass's rounding rules at the ends of the range.
@@ -195,6 +228,8 @@ public final class SassNumber: SassValue, Comparable {
 
     /// The value of this number within a half-open range.
     ///
+    /// If you have an integer range than do `asInt()` first and work on that.
+    ///
     /// - returns: The `Double` value corresponding to this `SassValue` in `range`.
     /// - throws: `SassValueError.notInRange(...)` if the number is not in
     ///   the range, using Sass's rounding rules at the ends of the range.
@@ -205,36 +240,107 @@ public final class SassNumber: SassValue, Comparable {
         return clamped
     }
 
+    /// Is the number free of units?
+    public var hasNoUnits: Bool {
+        !units.hasUnits
+    }
+
+    /// Throw an error if the number has any units.
+    public func checkNoUnits() throws {
+        guard hasNoUnits else {
+            throw SassValueError.unexpectedUnits(self)
+        }
+    }
+
+    /// Does the number have exactly this unit?
+    public func hasUnit(name: String) -> Bool {
+        try! units == UnitQuotient(numerator: [name], denominator: [])
+    }
+
+    /// Throw an error unless the number has exactly the single unit.
+    public func checkHasUnit(name: String) throws {
+        guard hasUnit(name: name) else {
+            throw SassValueError.missingUnit(self, name)
+        }
+    }
+
+    /// The names of the 'numerator' units.
+    public var numeratorUnits: [String] {
+        units.numerator.units.names
+    }
+
+    /// The names of the 'denominator' units.
+    public var denominatorUnits: [String] {
+        units.denominator.units.names
+    }
+
+    /// The equivalent `SassNumber` converted to the requested units.
+    ///
+    /// Only units described in the (CSS spec)[https://www.w3.org/TR/css-values-4/#intro] as 'convertible'
+    /// can be converted.
+    ///
+    /// A number without any units can be 'converted' to any set of units.
+    ///
+    /// - throws: If the requested units are invalid, or if the number's units are not convertible to the requested units.
+    public func asConvertedTo(numeratorUnits: [String] = [], denominatorUnits: [String] = []) throws -> SassNumber {
+        let newUnits = try UnitQuotient(numerator: numeratorUnits, denominator: denominatorUnits)
+        if !units.hasUnits || !newUnits.hasUnits || units == newUnits {
+            return SassNumber(double, units: newUnits)
+        }
+        return try asConvertedTo(units: newUnits)
+    }
+
+    private func asConvertedTo(units newUnits: UnitQuotient) throws -> SassNumber {
+        let ratio = try units.ratio(to: newUnits)
+        return SassNumber(ratio.apply(double), units: newUnits)
+    }
+
     /// Take part in the `SassValueVisitor` protocol.
     public override func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
         try visitor.visit(number: self)
     }
 
     public override var description: String {
-        return "Number(\(sassDouble.double))"
+        let unitStr = hasNoUnits ? "" : " \(units)"
+        return "Number(\(sassDouble.double)\(unitStr))"
     }
 
-    // Comparable
-
-    /// Two `SassNumber`s are equal if ...
+    /// Two `SassNumber`s are equal iff:
+    /// 1. Neither have units and their values are the same to 11 decimal places; or
+    /// 2. They have convertible units and, when both converted to the same units, have values
+    ///   that are equal to 11dp.
     public static func == (lhs: SassNumber, rhs: SassNumber) -> Bool {
-        lhs.sassDouble == rhs.sassDouble
-    }
-
-    /// Compare two `SassNumber`s using Sass's comparison rules.
-    public static func < (lhs: SassNumber, rhs: SassNumber) -> Bool {
-        lhs.sassDouble < rhs.sassDouble
+        if lhs.hasNoUnits != rhs.hasNoUnits {
+            return false
+        }
+        if lhs.hasNoUnits || lhs.units == rhs.units {
+            return lhs.sassDouble == rhs.sassDouble
+        }
+        do {
+            let lhsScaled = try lhs.asConvertedTo(units: rhs.units)
+            return lhsScaled.sassDouble == rhs.sassDouble
+        } catch {
+            // units not compatible
+            return false
+        }
     }
 
     /// Hash the value.
     public override func hash(into hasher: inout Hasher) {
-        sassDouble.hash(into: &hasher)
+        if hasNoUnits {
+            sassDouble.hash(into: &hasher)
+            return
+        }
+        let canon = units.canonicalUnitsAndRatio
+        let canonValue = canon.1.apply(double)
+        hasher.combine(SassDouble.hashEquivalent(canonValue))
+        hasher.combine(canon.0)
     }
 }
 
 extension SassValue {
-    /// Reinterpret the value as a string.
-    /// - throws: `SassTypeError` if it isn't a string.
+    /// Reinterpret the value as a number.
+    /// - throws: `SassTypeError` if it isn't a number.
     public func asNumber() throws -> SassNumber {
         guard let selfString = self as? SassNumber else {
             throw SassValueError.wrongType(expected: "SassNumber", actual: self)
