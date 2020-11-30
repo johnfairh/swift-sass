@@ -77,6 +77,8 @@ public enum SassValueError: Error, CustomStringConvertible {
     case unexpectedUnits(SassNumber)
     /// A `SassNumber` didn't have a specific single unit.
     case missingUnit(SassNumber, String)
+    /// A color channel value was not in the expected range.
+    case channelNotInRange(String, Double, String)
 
     /// A human-readable description of the error.
     public var description: String {
@@ -88,9 +90,9 @@ public enum SassValueError: Error, CustomStringConvertible {
         case let .badStringIndex(max: max, actual: actual):
             return "String index \(actual) out of range: valid range is 1...\(max)."
         case let .notInteger(num):
-            return "Number \(num) is not an integer."
+            return "\(num) is not an integer."
         case let .notInRange(num, rangeDescription):
-            return "Number \(num) is not in range: \(rangeDescription)."
+            return "\(num) is not in range \(rangeDescription)."
         case let .unconvertibleUnit1(from: from, to: to, specifically: specifically):
             return "Units '\(from)' couldn't be converted to '\(to)', specifically from '\(specifically)'."
         case let .unconvertibleUnit2(from: from, to: to, leftovers: leftovers):
@@ -101,6 +103,8 @@ public enum SassValueError: Error, CustomStringConvertible {
             return "\(number) has units but expected none."
         case let .missingUnit(number, unit):
             return "\(number) did not have single expected unit '\(unit)'."
+        case let .channelNotInRange(channel, number, rangeDescription):
+            return "Value \(number) not in range \(rangeDescription) for color channel \(channel)."
         }
     }
 }

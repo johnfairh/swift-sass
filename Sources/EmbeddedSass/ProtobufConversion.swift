@@ -240,6 +240,16 @@ extension Sass_EmbeddedProtocol_Value {
             return try SassNumber(n.value,
                                   numeratorUnits: n.numerators,
                                   denominatorUnits: n.denominators)
+        case .rgbColor(let c):
+            return try SassColor(red: Int(c.red),
+                                 green: Int(c.green),
+                                 blue: Int(c.blue),
+                                 alpha: c.alpha)
+        case .hslColor(let c):
+            return try SassColor(hue: c.hue,
+                                 saturation: c.saturation,
+                                 lightness: c.lightness,
+                                 alpha: c.alpha)
         case .list(let l):
             return try SassList(l.contents.map { try $0.asSassValue() },
                                 separator: .init(l.separator),
@@ -298,6 +308,23 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
             $0.value = number.double
             $0.numerators = number.numeratorUnits
             $0.denominators = number.denominatorUnits
+        })
+    }
+
+    func visit(color: SassColor) throws -> OneOf_Value {
+        if color._prefersRgb {
+            return .rgbColor(.with {
+                $0.red = UInt32(color.red)
+                $0.green = UInt32(color.green)
+                $0.blue = UInt32(color.blue)
+                $0.alpha = color.alpha
+            })
+        }
+        return .hslColor(.with {
+            $0.hue = color.hue
+            $0.saturation = color.saturation
+            $0.lightness = color.lightness
+            $0.alpha = color.alpha
         })
     }
 

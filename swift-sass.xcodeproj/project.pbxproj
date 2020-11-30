@@ -24,6 +24,8 @@
 		0285E8492570363E00956F18 /* Number.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E8452570363A00956F18 /* Number.swift */; };
 		0285E84C2571153900956F18 /* TestNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E84B2571153900956F18 /* TestNumber.swift */; };
 		0285E84F257266D800956F18 /* Units.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E84E257266D800956F18 /* Units.swift */; };
+		0285E8532575109200956F18 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E8522575109200956F18 /* Color.swift */; };
+		0285E85625756B1500956F18 /* TestColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E85525756B1400956F18 /* TestColor.swift */; };
 		0289BB2225666BA70004544A /* Sass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0289BB1825666B060004544A /* Sass.framework */; };
 		0289BB2325666BA70004544A /* Sass.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0289BB1825666B060004544A /* Sass.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0289BB2F25666C940004544A /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB2B25666C8F0004544A /* Types.swift */; };
@@ -100,6 +102,8 @@
 		0285E8452570363A00956F18 /* Number.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Number.swift; sourceTree = "<group>"; };
 		0285E84B2571153900956F18 /* TestNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestNumber.swift; sourceTree = "<group>"; };
 		0285E84E257266D800956F18 /* Units.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Units.swift; sourceTree = "<group>"; };
+		0285E8522575109200956F18 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
+		0285E85525756B1400956F18 /* TestColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestColor.swift; sourceTree = "<group>"; };
 		0289BB1825666B060004544A /* Sass.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Sass.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0289BB2B25666C8F0004544A /* Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
 		0289BB3325669E610004544A /* Importer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Importer.swift; sourceTree = "<group>"; };
@@ -170,6 +174,7 @@
 				0289BB3F256BDE460004544A /* String.swift */,
 				0285E8452570363A00956F18 /* Number.swift */,
 				0285E84E257266D800956F18 /* Units.swift */,
+				0285E8522575109200956F18 /* Color.swift */,
 			);
 			name = Sass;
 			path = Sources/Sass;
@@ -183,6 +188,7 @@
 				0285E842256FCEDA00956F18 /* TestMap.swift */,
 				0285E833256EEE5300956F18 /* TestConstants.swift */,
 				0285E84B2571153900956F18 /* TestNumber.swift */,
+				0285E85525756B1400956F18 /* TestColor.swift */,
 			);
 			name = SassTests;
 			path = Tests/SassTests;
@@ -362,6 +368,7 @@
 			files = (
 				0289BB40256BDE460004544A /* String.swift in Sources */,
 				0289BB2F25666C940004544A /* Types.swift in Sources */,
+				0285E8532575109200956F18 /* Color.swift in Sources */,
 				0285E8492570363E00956F18 /* Number.swift in Sources */,
 				0285E83F256FBC2400956F18 /* Map.swift in Sources */,
 				0285E837256FAD9200956F18 /* Function.swift in Sources */,
@@ -393,6 +400,7 @@
 			files = (
 				0285E843256FCEDA00956F18 /* TestMap.swift in Sources */,
 				0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */,
+				0285E85625756B1500956F18 /* TestColor.swift in Sources */,
 				0285E828256C4C2900956F18 /* TestFunctions.swift in Sources */,
 				0289BB4A256BEE760004544A /* TestString.swift in Sources */,
 				0285E84C2571153900956F18 /* TestNumber.swift in Sources */,
