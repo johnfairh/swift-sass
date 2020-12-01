@@ -26,6 +26,10 @@ private func checkAlpha(_ val: Double) throws -> Double {
     try check(val, range: 0...1, channel: "alpha")
 }
 
+private func checkHue(_ val: Double) throws -> Double {
+    try check(val, range: 0...360, channel: "hue")
+}
+
 private func checkSatLight(_ val: Double, channel: String) throws -> Double {
     try check(val, range: 0...100, channel: channel)
 }
@@ -96,7 +100,7 @@ struct HslColor: Equatable, CustomStringConvertible {
     }
 
     init(hue: Double, saturation: Double, lightness: Double) throws {
-        self.hue = hue < 0 ? hue + 360 : hue
+        self.hue = try checkHue(hue)
         self.saturation = try checkSatLight(saturation, channel: "saturation")
         self.lightness = try checkSatLight(lightness, channel: "lightness")
     }
@@ -207,7 +211,7 @@ enum ColorValue: CustomStringConvertible {
     }
 
     var description: String {
-        "\(componentDescription) alpha=\(alpha)"
+        "\(componentDescription) alpha \(alpha)"
     }
 }
 
