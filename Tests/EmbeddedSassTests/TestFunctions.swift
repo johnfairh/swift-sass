@@ -219,4 +219,46 @@ class TestFunctions: XCTestCase {
         let results = try compiler.compile(text: scss, outputStyle: .compressed)
         XCTAssertEqual(#"a{b:"something"}"#, results.css)
     }
+
+    /// Dynamic host functions
+    func testSassDynamicFunctionConversion() throws {
+        let f1 = SassDynamicFunction(signature: "f()") { _ in SassConstants.false }
+        let fVal = Sass_EmbeddedProtocol_Value(f1)
+        XCTAssertThrowsError(try fVal.asSassValue())
+        let hFunc = fVal.hostFunction
+        XCTAssertEqual("f()", hFunc.signature)
+        XCTAssertEqual(f1.id, hFunc.id)
+    }
+
+    func testSassDynamicFunction() throws {
+        // A curried addition function!
+        let adderMaker: SassFunction = { args in
+            let lhsOp = try args[0].asNumber()
+            return SassDynamicFunction(signature: "addN($n)") { args in
+                let rhsOp = try args[0].asNumber()
+                return SassNumber(lhsOp.double + rhsOp.double)
+            }
+        }
+
+        let scss = """
+        @use "sass:meta";
+
+        @function curriedAdd($op1, $op2) {
+          $hfn: makeAdder($op1);
+          @return meta.call($hfn, $op2);
+        }
+
+        a {
+          b: curriedAdd(4, 5);
+        }
+        """
+
+        let compiler = try TestUtils.newCompiler(functions: [
+            "makeAdder($op1)" : adderMaker
+        ])
+        let results = try compiler.compile(text: scss, outputStyle: .compressed)
+        XCTAssertEqual(#"a{b:9}"#, results.css)
+
+        // what a monstrosity
+    }
 }

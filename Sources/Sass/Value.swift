@@ -17,7 +17,7 @@
 ///
 /// All Sass values can be treated as lists: singleton values like strings behave like
 /// 1-element lists and maps behave like lists of two-element (key, value) lists.
-public class SassValue: Hashable, Sequence, CustomStringConvertible {
+open class SassValue: Hashable, Sequence, CustomStringConvertible {
     /// Sass considers all values except `null` and `false` to be "truthy", meaning
     /// your host function should almost always be checking this property instead of trying
     /// to downcast to `SassBool`.
@@ -101,6 +101,8 @@ public class SassValue: Hashable, Sequence, CustomStringConvertible {
             return lnull == rnull // ...
         case let (lcfunc, rcfunc) as (SassCompilerFunction, SassCompilerFunction):
             return lcfunc == rcfunc
+        case let (ldfunc, rdfunc) as (SassDynamicFunction, SassDynamicFunction):
+            return ldfunc == rdfunc
         default:
             return false
         }
@@ -140,6 +142,8 @@ public protocol SassValueVisitor {
     func visit(null: SassNull) throws -> ReturnType
     /// The operation for `SassCompilerFunction`
     func visit(compilerFunction: SassCompilerFunction) throws -> ReturnType
+    /// The operation for `SassDynamicFunction`
+    func visit(dynamicFunction: SassDynamicFunction) throws -> ReturnType
 }
 
 //protocol SassValueConvertible {a

@@ -283,12 +283,12 @@ extension Sass_EmbeddedProtocol_Value {
         case .compilerFunction(let c):
             return SassCompilerFunction(id: c.id)
 
+        case .hostFunction(let h):
+            // not supposed to receive these in arguments
+            throw ProtocolError("Don't know how to deserialize hostfunction \(h)")
+
         case nil:
             throw ProtocolError("Missing SassValue type.")
-
-        default:
-            // TODO: delete when switch is exhaustive
-            throw ProtocolError("Unsupported SassValue type: \(String(describing: value))")
         }
     }
 }
@@ -369,6 +369,13 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
     func visit(compilerFunction: SassCompilerFunction) throws -> OneOf_Value {
         .compilerFunction(.with {
             $0.id = compilerFunction.id
+        })
+    }
+
+    func visit(dynamicFunction: SassDynamicFunction) throws -> OneOf_Value {
+        .hostFunction(.with {
+            $0.id = dynamicFunction.id
+            $0.signature = dynamicFunction.signature
         })
     }
 

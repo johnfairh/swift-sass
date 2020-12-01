@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		02440A1625765786008F0862 /* CompilerFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1525765786008F0862 /* CompilerFunction.swift */; };
 		02440A1925765C0C008F0862 /* TestFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1825765C0C008F0862 /* TestFunction.swift */; };
+		02440A1C2576679E008F0862 /* DynamicFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1B2576679E008F0862 /* DynamicFunction.swift */; };
 		025C623D255C18D000AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
 		025C623E255C18D000AEA420 /* SwiftProtobuf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		025C6240255C18F700AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
@@ -92,6 +93,7 @@
 /* Begin PBXFileReference section */
 		02440A1525765786008F0862 /* CompilerFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerFunction.swift; sourceTree = "<group>"; };
 		02440A1825765C0C008F0862 /* TestFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFunction.swift; sourceTree = "<group>"; };
+		02440A1B2576679E008F0862 /* DynamicFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicFunction.swift; sourceTree = "<group>"; };
 		025C623C255C18D000AEA420 /* SwiftProtobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftProtobuf.framework; path = Carthage/Build/Mac/SwiftProtobuf.framework; sourceTree = "<group>"; };
 		025C624E255D2C9300AEA420 /* BinaryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryProtocol.swift; sourceTree = "<group>"; };
 		025C6251255D54C000AEA420 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
@@ -180,6 +182,7 @@
 				0285E84E257266D800956F18 /* Units.swift */,
 				0285E8522575109200956F18 /* Color.swift */,
 				02440A1525765786008F0862 /* CompilerFunction.swift */,
+				02440A1B2576679E008F0862 /* DynamicFunction.swift */,
 			);
 			name = Sass;
 			path = Sources/Sass;
@@ -374,6 +377,7 @@
 			files = (
 				0289BB40256BDE460004544A /* String.swift in Sources */,
 				0289BB2F25666C940004544A /* Types.swift in Sources */,
+				02440A1C2576679E008F0862 /* DynamicFunction.swift in Sources */,
 				0285E8532575109200956F18 /* Color.swift in Sources */,
 				0285E8492570363E00956F18 /* Number.swift in Sources */,
 				0285E83F256FBC2400956F18 /* Map.swift in Sources */,

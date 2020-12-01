@@ -27,7 +27,20 @@ class TestFunction: XCTestCase {
         let dict = [f1 as SassValue: true]
         XCTAssertTrue(dict[f3]!)
         XCTAssertNil(dict[f2])
+    }
 
+    func testDynamicFunction() throws {
+        let f1 = SassDynamicFunction(signature: "f()") { args in SassConstants.false }
+        XCTAssertEqual("f()", f1.signature)
+        let f1ID = f1.id
+        XCTAssertEqual("DynamicFunction(\(f1ID) f())", f1.description)
+        XCTAssertEqual(Sass._lookUpDynamicFunction(id: f1ID), f1)
 
+        let val: SassValue = f1
+        XCTAssertNoThrow(try val.asDynamicFunction())
+        XCTAssertThrowsError(try SassConstants.null.asDynamicFunction())
+
+        let dict = [f1 as SassValue: true]
+        XCTAssertTrue(dict[val]!)
     }
 }

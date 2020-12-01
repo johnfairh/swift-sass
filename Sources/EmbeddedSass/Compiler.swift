@@ -419,17 +419,12 @@ public final class Compiler {
 
     /// Inbound 'FunctionCallRequest' handler
     private func receive(functionCallRequest req: Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest) throws {
-        switch req.identifier {
-        case .functionID(_):
-            throw ProtocolError("FunctionCallRequest-by-ID not supported")
-        case .name(let name):
-            guard let sassFunc = currentFunctions[name] else {
-                throw ProtocolError("Host function \(name) not registered.")
-            }
+        /// Helper to run the callback after we locate it
+        func doSassFunction(_ fn: SassFunction) throws {
             var rsp = Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse()
             rsp.id = req.id
             do {
-                let resultValue = try sassFunc(req.arguments.map { try $0.asSassValue() })
+                let resultValue = try fn(req.arguments.map { try $0.asSassValue() })
                 rsp.success = .init(resultValue)
                 debug("  tx fncall-rsp-success reqid=\(req.id)")
             } catch {
@@ -437,6 +432,21 @@ public final class Compiler {
                 debug("  tx fncall-rsp-error reqid=\(req.id)")
             }
             try child.send(message: .with { $0.message = .functionCallResponse(rsp) })
+        }
+
+        switch req.identifier {
+        case .functionID(let id):
+            guard let sassDynamicFunc = Sass._lookUpDynamicFunction(id: id) else {
+                throw ProtocolError("Host function id \(id) not registered.")
+            }
+            try doSassFunction(sassDynamicFunc.function)
+
+        case .name(let name):
+            guard let sassFunc = currentFunctions[name] else {
+                throw ProtocolError("Host function \(name) not registered.")
+            }
+            try doSassFunction(sassFunc)
+
         case nil:
             throw ProtocolError("Missing 'identifier' field in FunctionCallRequest")
         }
