@@ -61,8 +61,8 @@ extension CompilerMessage.Kind {
         case .deprecationWarning: self = .deprecation
         case .warning: self = .warning
         case .debug: self = .debug
-        default:
-            throw ProtocolError("Unrecognized warning type \(type) from compiler")
+        case .UNRECOGNIZED(let i):
+            throw ProtocolError("Unrecognized warning type \(i) from compiler")
         }
     }
 }
@@ -236,24 +236,29 @@ extension Sass_EmbeddedProtocol_Value {
         switch value {
         case .string(let m):
             return SassString(m.text, isQuoted: m.quoted)
+
         case .number(let n):
             return try SassNumber(n.value,
                                   numeratorUnits: n.numerators,
                                   denominatorUnits: n.denominators)
+
         case .rgbColor(let c):
             return try SassColor(red: Int(c.red),
                                  green: Int(c.green),
                                  blue: Int(c.blue),
                                  alpha: c.alpha)
+
         case .hslColor(let c):
             return try SassColor(hue: c.hue,
                                  saturation: c.saturation,
                                  lightness: c.lightness,
                                  alpha: c.alpha)
+
         case .list(let l):
             return try SassList(l.contents.map { try $0.asSassValue() },
                                 separator: .init(l.separator),
                                 hasBrackets: l.hasBrackets_p)
+
         case .map(let m):
             var dict = [SassValue: SassValue]()
             try m.entries.forEach { entry in
@@ -265,6 +270,7 @@ extension Sass_EmbeddedProtocol_Value {
                 dict[key] = value
             }
             return SassMap(dict)
+
         case .singleton(let s):
             switch s {
             case .false: return SassConstants.false
@@ -273,8 +279,13 @@ extension Sass_EmbeddedProtocol_Value {
             case .UNRECOGNIZED(let i):
                 throw ProtocolError("Unknown singleton type \(i)")
             }
+
+        case .compilerFunction(let c):
+            return SassCompilerFunction(id: c.id)
+
         case nil:
             throw ProtocolError("Missing SassValue type.")
+
         default:
             // TODO: delete when switch is exhaustive
             throw ProtocolError("Unsupported SassValue type: \(String(describing: value))")
@@ -353,6 +364,12 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
 
     func visit(null: SassNull) throws -> OneOf_Value {
         .singleton(.null)
+    }
+
+    func visit(compilerFunction: SassCompilerFunction) throws -> OneOf_Value {
+        .compilerFunction(.with {
+            $0.id = compilerFunction.id
+        })
     }
 
     init(_ val: SassValue) {

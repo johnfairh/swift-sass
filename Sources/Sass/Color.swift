@@ -218,6 +218,12 @@ enum ColorValue: CustomStringConvertible {
 // MARK: SassColor
 
 /// A Sass color value.
+///
+/// Colors are immutable and represent a point in the sRGB color space.  They are defined using
+/// either RGB-A or HSL-A parameters but can be accessed as either.
+///
+/// - note: Parameter values follow web standards rather the Apple SDK standards,
+///   so for example 'red' is modelled as an integer in 0...255.
 public final class SassColor: SassValue {
     private var colorValue: ColorValue
 

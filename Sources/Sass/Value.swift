@@ -99,6 +99,8 @@ public class SassValue: Hashable, Sequence, CustomStringConvertible {
             return lbool == rbool
         case let (lnull, rnull) as (SassNull, SassNull):
             return lnull == rnull // ...
+        case let (lcfunc, rcfunc) as (SassCompilerFunction, SassCompilerFunction):
+            return lcfunc == rcfunc
         default:
             return false
         }
@@ -136,6 +138,8 @@ public protocol SassValueVisitor {
     func visit(bool: SassBool) throws -> ReturnType
     /// The operation for `SassNull`
     func visit(null: SassNull) throws -> ReturnType
+    /// The operation for `SassCompilerFunction`
+    func visit(compilerFunction: SassCompilerFunction) throws -> ReturnType
 }
 
 //protocol SassValueConvertible {a

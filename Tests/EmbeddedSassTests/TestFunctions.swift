@@ -178,4 +178,45 @@ class TestFunctions: XCTestCase {
         XCTAssertFalse(backHsl._prefersRgb)
         XCTAssertEqual(hsl, backHsl)
     }
+
+    /// Compiler functions
+    func testSassCompilerFunctionConversion() throws {
+        let f1 = SassCompilerFunction(id: 100)
+        let fVal = Sass_EmbeddedProtocol_Value(f1)
+        let backF = try fVal.asSassValue()
+        XCTAssertEqual(f1, backF)
+    }
+
+    func testSassCompilerFunction() throws {
+
+        let echoFunc: SassFunction = { args in
+            XCTAssertEqual(1, args.count)
+            let funcVal = try args[0].asCompilerFunction()
+            return funcVal
+        }
+
+        let scss = """
+        @use "sass:meta";
+
+        @function something() {
+          @return "something";
+        }
+
+        @function something_else() {
+          $s_fn: meta.get-function("something");
+          $h_fn: hostEcho($s_fn);
+          @return meta.call($h_fn);
+        }
+
+        a {
+          b: something_else();
+        }
+        """
+
+        let compiler = try TestUtils.newCompiler(functions: [
+            "hostEcho($param)" : echoFunc
+        ])
+        let results = try compiler.compile(text: scss, outputStyle: .compressed)
+        XCTAssertEqual(#"a{b:"something"}"#, results.css)
+    }
 }

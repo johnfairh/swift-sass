@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02440A1625765786008F0862 /* CompilerFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1525765786008F0862 /* CompilerFunction.swift */; };
+		02440A1925765C0C008F0862 /* TestFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1825765C0C008F0862 /* TestFunction.swift */; };
 		025C623D255C18D000AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
 		025C623E255C18D000AEA420 /* SwiftProtobuf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		025C6240255C18F700AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
@@ -88,6 +90,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		02440A1525765786008F0862 /* CompilerFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerFunction.swift; sourceTree = "<group>"; };
+		02440A1825765C0C008F0862 /* TestFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFunction.swift; sourceTree = "<group>"; };
 		025C623C255C18D000AEA420 /* SwiftProtobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftProtobuf.framework; path = Carthage/Build/Mac/SwiftProtobuf.framework; sourceTree = "<group>"; };
 		025C624E255D2C9300AEA420 /* BinaryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryProtocol.swift; sourceTree = "<group>"; };
 		025C6251255D54C000AEA420 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
@@ -175,6 +179,7 @@
 				0285E8452570363A00956F18 /* Number.swift */,
 				0285E84E257266D800956F18 /* Units.swift */,
 				0285E8522575109200956F18 /* Color.swift */,
+				02440A1525765786008F0862 /* CompilerFunction.swift */,
 			);
 			name = Sass;
 			path = Sources/Sass;
@@ -189,6 +194,7 @@
 				0285E833256EEE5300956F18 /* TestConstants.swift */,
 				0285E84B2571153900956F18 /* TestNumber.swift */,
 				0285E85525756B1400956F18 /* TestColor.swift */,
+				02440A1825765C0C008F0862 /* TestFunction.swift */,
 			);
 			name = SassTests;
 			path = Tests/SassTests;
@@ -376,6 +382,7 @@
 				0289BB3D256BD3BE0004544A /* Value.swift in Sources */,
 				0289BB3425669E610004544A /* Importer.swift in Sources */,
 				0285E84F257266D800956F18 /* Units.swift in Sources */,
+				02440A1625765786008F0862 /* CompilerFunction.swift in Sources */,
 				0285E831256EE56E00956F18 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -405,6 +412,7 @@
 				0289BB4A256BEE760004544A /* TestString.swift in Sources */,
 				0285E84C2571153900956F18 /* TestNumber.swift in Sources */,
 				0285E834256EEE5300956F18 /* TestConstants.swift in Sources */,
+				02440A1925765C0C008F0862 /* TestFunction.swift in Sources */,
 				OBJ_131 /* TestUtils.swift in Sources */,
 				0291E7CA2562E82F00F6BE14 /* TestErrors.swift in Sources */,
 				0289BB372566A62B0004544A /* TestImporters.swift in Sources */,
