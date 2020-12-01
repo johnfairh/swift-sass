@@ -247,7 +247,7 @@ public final class Compiler {
                 msg.input = input
                 msg.style = .init(outputStyle)
                 msg.sourceMap = createSourceMap
-                msg.importers = .init(currentImporters, startingID: Self.baseImporterID)
+                msg.importers = .init(currentImporters, startingID: Compiler.baseImporterID)
                 msg.globalFunctions = signatures
             })
         })
@@ -361,7 +361,7 @@ public final class Compiler {
 
     /// Helper
     private func getImporter(importerID: UInt32) throws -> Importer {
-        let minImporterID = Self.baseImporterID
+        let minImporterID = Compiler.baseImporterID
         let maxImporterID = minImporterID + UInt32(currentImporters.count) - 1
         guard importerID >= minImporterID, importerID <= maxImporterID else {
             throw ProtocolError("Bad importer ID \(importerID), out of range (\(minImporterID)-\(maxImporterID))")

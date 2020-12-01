@@ -20,38 +20,38 @@ extension String {
 
 extension Span {
     init(_ protobuf: Sass_EmbeddedProtocol_SourceSpan) {
-        self = Self(text: protobuf.text.nonEmptyString,
-                    url: protobuf.url.nonEmptyString,
-                    start: Location(protobuf.start),
-                    end: protobuf.hasEnd ? Location(protobuf.end) : nil,
-                    context: protobuf.context.nonEmptyString)
+        self = .init(text: protobuf.text.nonEmptyString,
+                     url: protobuf.url.nonEmptyString,
+                     start: Location(protobuf.start),
+                     end: protobuf.hasEnd ? Location(protobuf.end) : nil,
+                     context: protobuf.context.nonEmptyString)
     }
 }
 
 extension Span.Location {
     init(_ protobuf: Sass_EmbeddedProtocol_SourceSpan.SourceLocation) {
-        self = Self(offset: Int(protobuf.offset),
-                    line: Int(protobuf.line),
-                    column: Int(protobuf.column))
+        self = .init(offset: Int(protobuf.offset),
+                     line: Int(protobuf.line),
+                     column: Int(protobuf.column))
     }
 }
 
 extension CompilerResults {
     init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess,
          messages: [CompilerMessage]) {
-        self = Self(css: protobuf.css,
-                    sourceMap: protobuf.sourceMap.nonEmptyString,
-                    messages: messages)
+        self = .init(css: protobuf.css,
+                     sourceMap: protobuf.sourceMap.nonEmptyString,
+                     messages: messages)
     }
 }
 
 extension CompilerError {
     init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure,
          messages: [CompilerMessage]) {
-        self = Self(message: protobuf.message,
-                    span: protobuf.hasSpan ? .init(protobuf.span) : nil,
-                    stackTrace: protobuf.stackTrace.nonEmptyString,
-                    messages: messages)
+        self = .init(message: protobuf.message,
+                     span: protobuf.hasSpan ? .init(protobuf.span) : nil,
+                     stackTrace: protobuf.stackTrace.nonEmptyString,
+                     messages: messages)
     }
 }
 
@@ -69,10 +69,10 @@ extension CompilerMessage.Kind {
 
 extension CompilerMessage {
     init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) throws {
-        self = Self(kind: try Kind(protobuf.type),
-                    message: protobuf.message,
-                    span: protobuf.hasSpan ? .init(protobuf.span) : nil,
-                    stackTrace: protobuf.stackTrace.nonEmptyString)
+        self = .init(kind: try Kind(protobuf.type),
+                     message: protobuf.message,
+                     span: protobuf.hasSpan ? .init(protobuf.span) : nil,
+                     stackTrace: protobuf.stackTrace.nonEmptyString)
     }
 }
 
