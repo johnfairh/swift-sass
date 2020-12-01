@@ -9,15 +9,6 @@
           "revision": "2bae395344d41710dffab456265d534d7dc34ab8",
           "version": "2.25.0"
         }
-      },
-      {
-        "package": "SwiftProtobuf",
-        "repositoryURL": "https://github.com/apple/swift-protobuf.git",
-        "state": {
-          "branch": null,
-          "revision": "426bef0ddfdc6449b7bd1418baafad6bbc56110b",
-          "version": "1.13.0"
-        }
       }
     ]
   },

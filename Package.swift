@@ -17,6 +17,10 @@ let package = Package(
         name: "SwiftProtobuf",
         url: "https://github.com/apple/swift-protobuf.git",
         from: "1.13.0"),
+      .package(
+        name: "swift-nio",
+        url: "https://github.com/apple/swift-nio.git",
+        from: "2.25.0"),
     ],
     targets: [
       .target(
@@ -24,7 +28,11 @@ let package = Package(
         dependencies: []),
       .target(
         name: "EmbeddedSass",
-        dependencies: ["SwiftProtobuf", "Sass"]),
+        dependencies: [
+          "SwiftProtobuf",
+          "Sass",
+          .product(name: "NIO", package: "swift-nio")
+        ]),
       .testTarget(
         name: "EmbeddedSassTests",
         dependencies: ["EmbeddedSass"],
