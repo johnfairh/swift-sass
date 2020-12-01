@@ -12,6 +12,9 @@
 //
 // Give the concrete type names a `Sass` prefix to avoid tedious collisions
 // with stdlib types.
+//
+// Declared open so that DynamicFunction can be open which enables NIO-compatible
+// specializations (for example) in compiler adapters.
 
 /// Common behavior between values passed to or returned from Sass functions.
 ///
@@ -41,13 +44,13 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
     /// - parameter index: A Sass value intended to be used as an index into this value viewed as a list.
     ///   This must be an integer between 1 and the number of elements in this value viewed as a list,
     ///   or negative in the same range to index from the end.
-    /// - throws: `SassValueError` if `sassIndex` is not an integer or out of range.
+    /// - throws: `SassFunctionError` if `sassIndex` is not an integer or out of range.
     /// - returns: An integer suitable for subscripting the array created from this value, guaranteed
     ///   to be a valid subscript in the range [0..<count]
     public func arrayIndexFrom(sassIndex: SassValue) throws -> Int {
         let indexValue = try sassIndex.asNumber().asInt()
         guard indexValue.magnitude >= 1 && indexValue.magnitude <= listCount else {
-            throw SassValueError.badListIndex(max: listCount, actual: indexValue)
+            throw SassFunctionError.badListIndex(max: listCount, actual: indexValue)
         }
         return indexValue > 0 ? (indexValue - 1) : (listCount + indexValue)
     }
@@ -56,7 +59,8 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
     ///
     /// (Swift can't throw exceptions from `subscript`).
     /// - parameter sassIndex: A Sass value intended to be used as an index into this value viewed as a list.
-    ///   This must be an integer between 1 and `asArray.count` inclusive.
+    ///   This must be an integer between 1 and `asArray.count` inclusive, or a negative number with similar
+    ///   magnitude to index back from the end.
     /// - throws: `SassValueError` if `index` is not an integer or out of range.
     /// - returns: The value at the Sass Index.
     public func valueAt(sassIndex: SassValue) throws -> SassValue {
@@ -98,7 +102,7 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
         case let (lbool, rbool) as (SassBool, SassBool):
             return lbool == rbool
         case let (lnull, rnull) as (SassNull, SassNull):
-            return lnull == rnull // ...
+            return lnull == rnull
         case let (lcfunc, rcfunc) as (SassCompilerFunction, SassCompilerFunction):
             return lcfunc == rcfunc
         case let (ldfunc, rdfunc) as (SassDynamicFunction, SassDynamicFunction):
@@ -145,35 +149,3 @@ public protocol SassValueVisitor {
     /// The operation for `SassDynamicFunction`
     func visit(dynamicFunction: SassDynamicFunction) throws -> ReturnType
 }
-
-//protocol SassValueConvertible {a
-//    init(_ value: SassValue) throws
-//    var sassValue: SassValue { get }
-//}
-//
-//extension SassNumber {
-//    init<I: BinaryInteger>() throws {
-//    }
-//    func asBinaryInteger<I: BinaryInteger>() throws -> I {
-//        let weirdDoubleValue: Double = dblVal
-//        guard let myInt = I(exactly: intValue) else {
-//            throw "Int dont fit"
-//        }
-//        return myInt
-//    }
-//}
-//
-//extension BinaryInteger {
-//    init(_ value: SassValue) throws {
-//        guard let numValue = value as SassNumber else {
-//            throw SassValueError.wrongType(expected: "SassNumber", actual: value)
-//        }
-//        self = try numValue.toInt()
-//    }
-//
-//    var sassValue: SassValue {
-//        SassNumber(self)
-//    }
-//}
-//
-//extension UInt32: SassValueConvertible {}

@@ -71,7 +71,7 @@ class TestString: XCTestCase {
         do {
             let str3 = try list.asString()
             XCTFail("Made string out of list: \(str3)")
-        } catch let error as SassValueError {
+        } catch let error as SassFunctionError {
             print(error)
         } catch {
             XCTFail("Unexpected error: \(error)")

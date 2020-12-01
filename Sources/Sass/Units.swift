@@ -256,17 +256,17 @@ struct UnitProduct: CustomStringConvertible, Hashable {
         // over or we can't find a match then no converto.
         try units.forEach { unit in
             guard let index = otherUnits.firstIndex(where: { $0.isConvertibleTo(unit) }) else {
-                throw SassValueError.unconvertibleUnit1(from: self.description,
-                                                        to: other.description,
-                                                        specifically: unit.name)
+                throw SassFunctionError.unconvertibleUnit1(from: self.description,
+                                                           to: other.description,
+                                                           specifically: unit.name)
             }
             let otherUnit = otherUnits.remove(at: index)
             ratios.append(unit.ratio(to: otherUnit))
         }
         guard otherUnits.isEmpty else {
-            throw SassValueError.unconvertibleUnit2(from: self.description,
-                                                    to: other.description,
-                                                    leftovers: otherUnits.descriptionText)
+            throw SassFunctionError.unconvertibleUnit2(from: self.description,
+                                                       to: other.description,
+                                                       leftovers: otherUnits.descriptionText)
         }
         return Ratio(ratios)
     }
@@ -288,8 +288,8 @@ struct UnitQuotient: CustomStringConvertible, Hashable {
         let numCanon = Set(self.numerator.units.map { $0.canonicalUnitName })
         let denomCanon = Set(self.denominator.units.map { $0.canonicalUnitName })
         guard numCanon.intersection(denomCanon).isEmpty else {
-            throw SassValueError.uncancelledUnits(numerator: self.numerator.description,
-                                                  denominator: self.denominator.description)
+            throw SassFunctionError.uncancelledUnits(numerator: self.numerator.description,
+                                                    denominator: self.denominator.description)
         }
     }
 

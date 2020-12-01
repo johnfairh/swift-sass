@@ -47,10 +47,10 @@ public final class SassCompilerFunction: SassValue {
 
 extension SassValue {
     /// Reinterpret the value as a compiler function.
-    /// - throws: `SassTypeError` if it isn't a compiler function.
+    /// - throws: `SassFunctionError.wrongType(...)` if it isn't a compiler function.
     public func asCompilerFunction() throws -> SassCompilerFunction {
         guard let selfCompilerFunction = self as? SassCompilerFunction else {
-            throw SassValueError.wrongType(expected: "SassCompilerFunction", actual: self)
+            throw SassFunctionError.wrongType(expected: "SassCompilerFunction", actual: self)
         }
         return selfCompilerFunction
     }

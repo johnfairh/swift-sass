@@ -1,11 +1,12 @@
 //
-//  Importer.swift
+//  ImporterTypes.swift
 //  Sass
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 //  Much text here taken verbatim or only slightly editted from the embedded
+//  Sass compiler specification.
 //  Copyright (c) 2019, Google LLC
 //  Licensed under MIT (https://github.com/sass/embedded-protocol/blob/master/LICENSE)
 //

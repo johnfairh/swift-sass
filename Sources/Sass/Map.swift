@@ -81,7 +81,7 @@ public final class SassMap: SassValue {
 
 extension SassValue {
     /// Reinterpret the value as a map.  Empty lists are reinterpreted as the empty map.
-    /// - throws: `SassTypeError` if it isn't a map or empty list.
+    /// - throws: `SassFunctionError.wrongType(...)` if it isn't a map or empty list.
     public func asMap() throws -> SassMap {
         if let selfMap = self as? SassMap {
             return selfMap
@@ -90,6 +90,6 @@ extension SassValue {
            selfList.listCount == 0 {
             return SassMap([:])
         }
-        throw SassValueError.wrongType(expected: "SassMap", actual: self)
+        throw SassFunctionError.wrongType(expected: "SassMap", actual: self)
     }
 }

@@ -9,8 +9,6 @@
 import Foundation
 @_exported import Sass
 
-/// Xxx rewrite much later
-///
 /// An instance of the embedded Sass compiler hosted in Swift.
 ///
 /// It runs the compiler as a child process and lets you provide stylesheet importers and Sass functions
@@ -33,7 +31,7 @@ import Foundation
 ///
 /// To debug problems, start with the output from `Compiler.debugHandler`, all the source files
 /// being given to the compiler, and the description of any errors thrown.
-public final class Compiler {
+public final class Compiler: CompilerProtocol {
     private(set) var child: Exec.Child // internal getter for testing
     private let childRestart: () throws -> Exec.Child
 
@@ -47,7 +45,7 @@ public final class Compiler {
         /// Killed them because of error, won't restart
         case idle_broken
 
-        var compileRequestLegal: Bool {
+        var isCompileRequestLegal: Bool {
             switch self {
             case .idle, .idle_broken: return true
             case .active, .active_callback(_): return false
@@ -140,7 +138,7 @@ public final class Compiler {
     ///
     /// Don't use this to unstick a stuck `compile(...)` call, that will terminate eventually.
     public func reinit() throws {
-        precondition(state.compileRequestLegal)
+        precondition(state.isCompileRequestLegal)
         child.process.terminate()
         try restart()
     }
@@ -152,28 +150,12 @@ public final class Compiler {
         child.process.processIdentifier
     }
 
-    /// An optional callback to receive debug log messages from us and the compiler.
     public var debugHandler: DebugHandler?
 
     private func debug(_ msg: @autoclosure () -> String) {
         debugHandler?(DebugMessage("[compid=\(compilationID)] \(msg())"))
     }
 
-    /// Compile to CSS from a file.
-    ///
-    /// - parameters:
-    ///   - fileURL: The `file:` URL to compile.  The file extension determines the
-    ///     expected syntax of the contents, so it must be css/scss/sass.
-    ///   - outputStyle: How to format the produced CSS.
-    ///   - createSourceMap: Create a JSON source map for the CSS.
-    ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
-    ///     `sourceFileURL`'s directory and any set at the `Compiler` level.
-    ///   - functions: Functions for this compilation, overriding any with the same name set at the
-    ///     `Compiler` level.
-    /// - throws: `CompilerError()` if there is a critical error with the input, for example a syntax error.
-    ///           `ProtocolError()` if something goes wrong with the compiler infrastructure itself.
-    /// - returns: CSS and optional source map.
-    /// - precondition: no call to `compile(...)` outstanding on this instance.
     public func compile(fileURL: URL,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
@@ -186,24 +168,6 @@ public final class Compiler {
                     functions: functions)
     }
 
-    /// Compile to CSS from some text.
-    ///
-    /// - parameters:
-    ///   - text: The document to compile.
-    ///   - syntax: The syntax of `text`.
-    ///   - url: Optionally, the absolute URL whence came `text`.
-    ///   - outputStyle: How to format the produced CSS.
-    ///   - createSourceMap: Create a JSON source map for the CSS.
-    ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
-    ///     `sourceFileURL`'s directory and any set at the `Compiler` level.
-    ///   - functions: Functions for this compilation, overriding any with the same name set at the
-    ///     `Compiler` level.
-    /// - throws: `CompilerError()` if there is a critical error with the input, for example a syntax error.
-    ///           `ProtocolError()` if something goes wrong with the compiler infrastructure itself.
-    /// - returns: CSS and optional source map.
-    /// - precondition: no call to `compile(...)` outstanding on this instance.
-    /// - todo: Mebbe ought to have a special importer to go with `url` but compiler doesn't implement
-    ///         it so ....
     public func compile(text: String,
                         syntax: Syntax = .scss,
                         url: URL? = nil,
@@ -256,7 +220,7 @@ public final class Compiler {
     /// Top-level compiler protocol runner.  Handles erp, such as there is.
 
     private func compile(message: Sass_EmbeddedProtocol_InboundMessage) throws -> CompilerResults {
-        precondition(state.compileRequestLegal, "Call to `compile(...)` already active")
+        precondition(state.isCompileRequestLegal, "Call to `compile(...)` already active")
         if case .idle_broken = state {
             throw ProtocolError("Sass compiler failed to restart after previous errors.")
         }

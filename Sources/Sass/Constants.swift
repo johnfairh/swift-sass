@@ -46,10 +46,10 @@ public final class SassBool: SassValue {
 extension SassValue {
     /// Reinterpret the value as a boolean.  But see `isTruthy`: you almost always don't
     /// want to be using this.
-    /// - throws: `SassTypeError` if it isn't a boolean.
+    /// - throws: `SassFunctionError.wrongType(...)` if it isn't a boolean.
     public func asBool() throws -> SassBool {
         guard let selfBool = self as? SassBool else {
-            throw SassValueError.wrongType(expected: "SassBool", actual: self)
+            throw SassFunctionError.wrongType(expected: "SassBool", actual: self)
         }
         return selfBool
     }

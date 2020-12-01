@@ -10,14 +10,14 @@
 
 private func checkRgb(_ val: Int, channel: String) throws -> Int {
     if !(0...255).contains(val) {
-        throw SassValueError.channelNotInRange(channel, Double(val), "0...255")
+        throw SassFunctionError.channelNotInRange(channel, Double(val), "0...255")
     }
     return val
 }
 
 private func check(_ val: Double, range: ClosedRange<Double>, channel: String) throws -> Double {
     guard let clamped = SassDouble(val).clampTo(range: range) else {
-        throw SassValueError.channelNotInRange(channel, val, range.description)
+        throw SassFunctionError.channelNotInRange(channel, val, range.description)
     }
     return clamped
 }
@@ -320,10 +320,10 @@ public final class SassColor: SassValue {
 
 extension SassValue {
     /// Reinterpret the value as a color.
-    /// - throws: `SassTypeError` if it isn't a color.
+    /// - throws: `SassFunctionError.wrongType(...)` if it isn't a color.
     public func asColor() throws -> SassColor {
         guard let selfColor = self as? SassColor else {
-            throw SassValueError.wrongType(expected: "SassColor", actual: self)
+            throw SassFunctionError.wrongType(expected: "SassColor", actual: self)
         }
         return selfColor
     }

@@ -1,5 +1,5 @@
 //
-//  Function.swift
+//  FunctionTypes.swift
 //  Sass
 //
 //  Copyright 2020 swift-sass contributors
@@ -24,23 +24,25 @@
 ///
 /// All Sass functions return a value -- there is no `void` return type.  Create new `SassValue`
 /// objects using a subclass initializer such as `SassString(_:isQuoted:)`.
-///
 public typealias SassFunction = ([SassValue]) throws -> SassValue
 
-/// A set of `SassFunction`s and their signatures.
+/// A Sass function signature.
 ///
-/// The string in each pair must be a valid Sass function signature that could appear after
-/// `@function` in a Sass stylesheet, such as `mix($color1, $color2, $weight: 50%)`.
-public typealias SassFunctionMap = [String : SassFunction]
+/// This is text that can appear after `@function` in a Sass stylesheet, such as
+/// `mix($color1, $color2, $weight: 50%)`.
+public typealias SassFunctionSignature = String
 
-extension String {
+/// A set of `SassFunction`s and their signatures.
+public typealias SassFunctionMap = [SassFunctionSignature : SassFunction]
+
+extension SassFunctionSignature {
     /// Get the Sass function name (everything before the paren) from a signature. :nodoc:
     public var _sassFunctionName: String {
         String(prefix(while: { $0 != "("}))
     }
 }
 
-extension Dictionary where Key == String {
+extension Dictionary where Key == SassFunctionSignature {
     /// Remap a Sass function signature dictionary to be keyed by Sass function name with
     /// elements the (signature, callback) tuple.  :nodoc:
     public var _asSassFunctionNameElementMap: [String: Self.Element] {
@@ -50,13 +52,13 @@ extension Dictionary where Key == String {
 
 // MARK: Errors
 
-/// Errors thrown for common `SassValue` scenarios.
+/// Errors thrown for common `SassFunction` scenarios.
 ///
-/// Generally you throw these from your `SassFunction`.  Then the compilation
-/// fails, giving the description of the error as the failure reason.  Generally you don't
-/// need to construct them manually, rather they are thrown for you from various
-/// `SassValue` family methods.
-public enum SassValueError: Error, CustomStringConvertible {
+/// Generally these are thrown from your `SassFunction`s by `SassValue` family
+/// methods in response to error scenarios, for example a user passes a number where
+/// you expect a string, or a number in radians where you expected a length.  Then the
+/// compilation fails, giving the description of the error as the failure reason.
+public enum SassFunctionError: Error, CustomStringConvertible {
     /// A Sass value was not the expected type.
     case wrongType(expected: String, actual: SassValue)
     /// A Sass value used as a list index was out of range.

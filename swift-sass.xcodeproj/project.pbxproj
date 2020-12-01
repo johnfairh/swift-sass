@@ -10,6 +10,7 @@
 		02440A1625765786008F0862 /* CompilerFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1525765786008F0862 /* CompilerFunction.swift */; };
 		02440A1925765C0C008F0862 /* TestFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1825765C0C008F0862 /* TestFunction.swift */; };
 		02440A1C2576679E008F0862 /* DynamicFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1B2576679E008F0862 /* DynamicFunction.swift */; };
+		02440A1F2576B24B008F0862 /* ValueConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1E2576B24B008F0862 /* ValueConvertible.swift */; };
 		025C623D255C18D000AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
 		025C623E255C18D000AEA420 /* SwiftProtobuf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		025C6240255C18F700AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
@@ -21,7 +22,7 @@
 		0285E82E256EDB6700956F18 /* TestList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E82D256EDB6700956F18 /* TestList.swift */; };
 		0285E831256EE56E00956F18 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E830256EE56E00956F18 /* Constants.swift */; };
 		0285E834256EEE5300956F18 /* TestConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E833256EEE5300956F18 /* TestConstants.swift */; };
-		0285E837256FAD9200956F18 /* Function.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E836256FAD9200956F18 /* Function.swift */; };
+		0285E837256FAD9200956F18 /* FunctionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E836256FAD9200956F18 /* FunctionTypes.swift */; };
 		0285E83F256FBC2400956F18 /* Map.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E83E256FBC2400956F18 /* Map.swift */; };
 		0285E843256FCEDA00956F18 /* TestMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E842256FCEDA00956F18 /* TestMap.swift */; };
 		0285E8492570363E00956F18 /* Number.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E8452570363A00956F18 /* Number.swift */; };
@@ -31,8 +32,8 @@
 		0285E85625756B1500956F18 /* TestColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E85525756B1400956F18 /* TestColor.swift */; };
 		0289BB2225666BA70004544A /* Sass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0289BB1825666B060004544A /* Sass.framework */; };
 		0289BB2325666BA70004544A /* Sass.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0289BB1825666B060004544A /* Sass.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		0289BB2F25666C940004544A /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB2B25666C8F0004544A /* Types.swift */; };
-		0289BB3425669E610004544A /* Importer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB3325669E610004544A /* Importer.swift */; };
+		0289BB2F25666C940004544A /* CompilerTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB2B25666C8F0004544A /* CompilerTypes.swift */; };
+		0289BB3425669E610004544A /* ImporterTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB3325669E610004544A /* ImporterTypes.swift */; };
 		0289BB372566A62B0004544A /* TestImporters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB362566A62B0004544A /* TestImporters.swift */; };
 		0289BB3A2568471D0004544A /* ProtobufConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB392568471D0004544A /* ProtobufConversion.swift */; };
 		0289BB3D256BD3BE0004544A /* Value.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB3C256BD3BE0004544A /* Value.swift */; };
@@ -94,6 +95,7 @@
 		02440A1525765786008F0862 /* CompilerFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerFunction.swift; sourceTree = "<group>"; };
 		02440A1825765C0C008F0862 /* TestFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFunction.swift; sourceTree = "<group>"; };
 		02440A1B2576679E008F0862 /* DynamicFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicFunction.swift; sourceTree = "<group>"; };
+		02440A1E2576B24B008F0862 /* ValueConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueConvertible.swift; sourceTree = "<group>"; };
 		025C623C255C18D000AEA420 /* SwiftProtobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftProtobuf.framework; path = Carthage/Build/Mac/SwiftProtobuf.framework; sourceTree = "<group>"; };
 		025C624E255D2C9300AEA420 /* BinaryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryProtocol.swift; sourceTree = "<group>"; };
 		025C6251255D54C000AEA420 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
@@ -102,7 +104,7 @@
 		0285E82D256EDB6700956F18 /* TestList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestList.swift; sourceTree = "<group>"; };
 		0285E830256EE56E00956F18 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		0285E833256EEE5300956F18 /* TestConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestConstants.swift; sourceTree = "<group>"; };
-		0285E836256FAD9200956F18 /* Function.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Function.swift; sourceTree = "<group>"; };
+		0285E836256FAD9200956F18 /* FunctionTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionTypes.swift; sourceTree = "<group>"; };
 		0285E83E256FBC2400956F18 /* Map.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Map.swift; sourceTree = "<group>"; };
 		0285E842256FCEDA00956F18 /* TestMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestMap.swift; sourceTree = "<group>"; };
 		0285E8452570363A00956F18 /* Number.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Number.swift; sourceTree = "<group>"; };
@@ -111,8 +113,8 @@
 		0285E8522575109200956F18 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		0285E85525756B1400956F18 /* TestColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestColor.swift; sourceTree = "<group>"; };
 		0289BB1825666B060004544A /* Sass.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Sass.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		0289BB2B25666C8F0004544A /* Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
-		0289BB3325669E610004544A /* Importer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Importer.swift; sourceTree = "<group>"; };
+		0289BB2B25666C8F0004544A /* CompilerTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerTypes.swift; sourceTree = "<group>"; };
+		0289BB3325669E610004544A /* ImporterTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImporterTypes.swift; sourceTree = "<group>"; };
 		0289BB362566A62B0004544A /* TestImporters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestImporters.swift; sourceTree = "<group>"; };
 		0289BB392568471D0004544A /* ProtobufConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtobufConversion.swift; sourceTree = "<group>"; };
 		0289BB3C256BD3BE0004544A /* Value.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Value.swift; sourceTree = "<group>"; };
@@ -170,10 +172,11 @@
 		0289BB1925666B060004544A /* Sass */ = {
 			isa = PBXGroup;
 			children = (
-				0289BB2B25666C8F0004544A /* Types.swift */,
-				0289BB3325669E610004544A /* Importer.swift */,
-				0285E836256FAD9200956F18 /* Function.swift */,
+				0289BB2B25666C8F0004544A /* CompilerTypes.swift */,
+				0289BB3325669E610004544A /* ImporterTypes.swift */,
+				0285E836256FAD9200956F18 /* FunctionTypes.swift */,
 				0289BB3C256BD3BE0004544A /* Value.swift */,
+				02440A1E2576B24B008F0862 /* ValueConvertible.swift */,
 				0285E830256EE56E00956F18 /* Constants.swift */,
 				0285E82A256D9ABB00956F18 /* List.swift */,
 				0285E83E256FBC2400956F18 /* Map.swift */,
@@ -376,15 +379,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				0289BB40256BDE460004544A /* String.swift in Sources */,
-				0289BB2F25666C940004544A /* Types.swift in Sources */,
+				0289BB2F25666C940004544A /* CompilerTypes.swift in Sources */,
 				02440A1C2576679E008F0862 /* DynamicFunction.swift in Sources */,
 				0285E8532575109200956F18 /* Color.swift in Sources */,
 				0285E8492570363E00956F18 /* Number.swift in Sources */,
 				0285E83F256FBC2400956F18 /* Map.swift in Sources */,
-				0285E837256FAD9200956F18 /* Function.swift in Sources */,
+				0285E837256FAD9200956F18 /* FunctionTypes.swift in Sources */,
+				02440A1F2576B24B008F0862 /* ValueConvertible.swift in Sources */,
 				0285E82B256D9ABB00956F18 /* List.swift in Sources */,
 				0289BB3D256BD3BE0004544A /* Value.swift in Sources */,
-				0289BB3425669E610004544A /* Importer.swift in Sources */,
+				0289BB3425669E610004544A /* ImporterTypes.swift in Sources */,
 				0285E84F257266D800956F18 /* Units.swift in Sources */,
 				02440A1625765786008F0862 /* CompilerFunction.swift in Sources */,
 				0285E831256EE56E00956F18 /* Constants.swift in Sources */,

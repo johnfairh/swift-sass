@@ -203,11 +203,11 @@ public final class SassNumber: SassValue {
     /// This has the same role as `Int(exactly:)` but maps more floating point values to
     /// the same integer according to the Sass specification.
     /// - returns: The integer that this `SassNumber` exactly represents.
-    /// - throws: `SassValueError.notInteger()` if the number is not an integer
+    /// - throws: `SassFunctionError.notInteger()` if the number is not an integer
     ///   according to Sass's rounding rules.
     public func asInt() throws -> Int {
         guard let intVal = Int(sassDouble) else {
-            throw SassValueError.notInteger(self)
+            throw SassFunctionError.notInteger(self)
         }
         return intVal
     }
@@ -217,11 +217,11 @@ public final class SassNumber: SassValue {
     /// If you have an integer range than do `asInt()` first and work on that.
     ///
     /// - returns: The `Double` value corresponding to this `SassValue` in `range`.
-    /// - throws: `SassValueError.notInRange(...)` if the number is not in
+    /// - throws: `SassFunctionError.notInRange(...)` if the number is not in
     ///   the range, using Sass's rounding rules at the ends of the range.
     public func asIn(range: ClosedRange<Double>) throws -> Double {
         guard let clamped = sassDouble.clampTo(range: range) else {
-            throw SassValueError.notInRange(self, range.description)
+            throw SassFunctionError.notInRange(self, range.description)
         }
         return clamped
     }
@@ -231,11 +231,11 @@ public final class SassNumber: SassValue {
     /// If you have an integer range than do `asInt()` first and work on that.
     ///
     /// - returns: The `Double` value corresponding to this `SassValue` in `range`.
-    /// - throws: `SassValueError.notInRange(...)` if the number is not in
+    /// - throws: `SassFunctionError.notInRange(...)` if the number is not in
     ///   the range, using Sass's rounding rules at the ends of the range.
     public func asIn(range: Range<Double>) throws -> Double {
         guard let clamped = sassDouble.clampTo(range: range) else {
-            throw SassValueError.notInRange(self, range.description)
+            throw SassFunctionError.notInRange(self, range.description)
         }
         return clamped
     }
@@ -248,7 +248,7 @@ public final class SassNumber: SassValue {
     /// Throw an error if the number has any units.
     public func checkNoUnits() throws {
         guard hasNoUnits else {
-            throw SassValueError.unexpectedUnits(self)
+            throw SassFunctionError.unexpectedUnits(self)
         }
     }
 
@@ -260,7 +260,7 @@ public final class SassNumber: SassValue {
     /// Throw an error unless the number has exactly the single unit.
     public func checkHasUnit(name: String) throws {
         guard hasUnit(name: name) else {
-            throw SassValueError.missingUnit(self, name)
+            throw SassFunctionError.missingUnit(self, name)
         }
     }
 
@@ -340,10 +340,10 @@ public final class SassNumber: SassValue {
 
 extension SassValue {
     /// Reinterpret the value as a number.
-    /// - throws: `SassTypeError` if it isn't a number.
+    /// - throws: `SassFunctionError.wrongType(...)` if it isn't a number.
     public func asNumber() throws -> SassNumber {
         guard let selfString = self as? SassNumber else {
-            throw SassValueError.wrongType(expected: "SassNumber", actual: self)
+            throw SassFunctionError.wrongType(expected: "SassNumber", actual: self)
         }
         return selfString
     }

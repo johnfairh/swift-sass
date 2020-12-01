@@ -6,9 +6,9 @@ build:
 	swift build
 
 ifeq ($(shell uname), Linux)
-	platform ?= linux
+platform ?= linux
 else
-	platform ?= macos
+platform ?= macos
 endif
 
 test: Tests/EmbeddedSassTests/dart-sass-embedded/${platform}

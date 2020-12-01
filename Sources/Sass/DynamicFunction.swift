@@ -61,10 +61,9 @@ open class SassDynamicFunction: SassValue {
     public let id: UInt32
 
     /// Create a new dynamic function.
-    /// - parameter signature: The Sass function signature.  This is some text that can appear
-    ///   after `@function` in a Sass stylesheet, such as `mix($color1, $color2, $weight: 50%)`.
+    /// - parameter signature: The Sass function signature.
     /// - parameter function: The callback implementing the function.
-    public init(signature: String, function: @escaping SassFunction) {
+    public init(signature: SassFunctionSignature, function: @escaping SassFunction) {
         self.signature = signature
         self.function = function
         self.id = runtime.nextID
@@ -95,10 +94,10 @@ open class SassDynamicFunction: SassValue {
 
 extension SassValue {
     /// Reinterpret the value as a compiler function.
-    /// - throws: `SassTypeError` if it isn't a compiler function.
+    /// - throws: `SassFunctionError.wrongType(...)` if it isn't a compiler function.
     public func asDynamicFunction() throws -> SassDynamicFunction {
         guard let selfDynamicFunction = self as? SassDynamicFunction else {
-            throw SassValueError.wrongType(expected: "SassDynamicFunction", actual: self)
+            throw SassFunctionError.wrongType(expected: "SassDynamicFunction", actual: self)
         }
         return selfDynamicFunction
     }
