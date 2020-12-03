@@ -46,6 +46,13 @@ public final class Compiler: CompilerProtocol {
         case running(Exec.Child)
         /// Child is broken.  Fail new jobs with the error.
         case broken(Error)
+
+        var child: Exec.Child? {
+            if case let .running(c) = self {
+                return c
+            }
+            return nil
+        }
     }
 
     private(set) var state: State
@@ -102,9 +109,11 @@ public final class Compiler: CompilerProtocol {
             initThread.runIfActive(eventLoop: eventLoop) {
                 try Exec.spawn(embeddedCompilerURL, group: eventLoop)
             }.map { child in
-                // TODO set up pipelines
                 // TODO kick waiters
                 state = .running(child)
+            }.flatMap {
+                // TODO set up pipelines
+                state.child!.standardInput.pipeline.addHandler(MessageToByteHandler(ProtocolWriter2()))
             }.flatMapErrorThrowing { error in
                 // TODO kick waiters
                 state = .broken(error)
@@ -183,16 +192,49 @@ public final class Compiler: CompilerProtocol {
         debugHandler?(DebugMessage("[compid=\(compilationID)] \(msg())"))
     }
 
+    /// Asynchronous version of `compile(fileURL:outputStyle:createSourceMap:importers:functions:)`.
+    public func compileAsync(fileURL: URL,
+                             outputStyle: CssStyle = .expanded,
+                             createSourceMap: Bool = false,
+                             importers: [ImportResolver] = [],
+                             functions: SassFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
+        compile(input: .path(fileURL.path),
+                outputStyle: outputStyle,
+                createSourceMap: createSourceMap,
+                importers: importers,
+                functions: functions)
+    }
+
     public func compile(fileURL: URL,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
-        try compile(input: .path(fileURL.path),
-                    outputStyle: outputStyle,
-                    createSourceMap: createSourceMap,
-                    importers: importers,
-                    functions: functions)
+        try compileAsync(fileURL: fileURL,
+                         outputStyle: outputStyle,
+                         createSourceMap: createSourceMap,
+                         importers: importers,
+                         functions: functions).wait()
+    }
+
+
+    /// Asynchronous version of `compile(text:syntax:url:outputStyle:createSourceMap:importers:functions:)`.
+    public func compileAsync(text: String,
+                             syntax: Syntax = .scss,
+                             url: URL? = nil,
+                             outputStyle: CssStyle = .expanded,
+                             createSourceMap: Bool = false,
+                             importers: [ImportResolver] = [],
+                             functions: SassFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
+        compile(input: .string(.with { m in
+                   m.source = text
+                   m.syntax = .init(syntax)
+                   url.flatMap { m.url = $0.absoluteString }
+                }),
+                outputStyle: outputStyle,
+                createSourceMap: createSourceMap,
+                importers: importers,
+                functions: functions)
     }
 
     public func compile(text: String,
@@ -202,23 +244,22 @@ public final class Compiler: CompilerProtocol {
                         createSourceMap: Bool = false,
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
-        try compile(input: .string(.with { m in
-                        m.source = text
-                        m.syntax = .init(syntax)
-                        url.flatMap { m.url = $0.absoluteString }
-                    }),
-                    outputStyle: outputStyle,
-                    createSourceMap: createSourceMap,
-                    importers: importers,
-                    functions: functions)
+        try compileAsync(text: text,
+                         syntax: syntax,
+                         url: url,
+                         outputStyle: outputStyle,
+                         createSourceMap: createSourceMap,
+                         importers: importers,
+                         functions: functions).wait()
     }
+
 
     /// Helper to generate the compile request message
     private func compile(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
                          outputStyle: CssStyle,
                          createSourceMap: Bool,
                          importers: [ImportResolver],
-                         functions: SassFunctionMap) throws -> CompilerResults {
+                         functions: SassFunctionMap) -> EventLoopFuture<CompilerResults> {
         compilationID += 1
         messages = []
         currentImporters = globalImporters + importers
@@ -232,7 +273,7 @@ public final class Compiler: CompilerProtocol {
         let signatures = mergedFnsNameMap.values.map { $0.0 }
         currentFunctions = mergedFnsNameMap.mapValues { $0.value }
 
-        return try compile(message: .with {
+        return compile(message: .with {
             $0.message = .compileRequest(.with { msg in
                 msg.id = compilationID
                 msg.input = input
@@ -246,8 +287,24 @@ public final class Compiler: CompilerProtocol {
 
     /// Top-level compiler protocol runner.  Handles erp, such as there is.
 
-    private func compile(message: Sass_EmbeddedProtocol_InboundMessage) throws -> CompilerResults {
-        throw ProtocolError("TODO")
+    private func compile(message: Sass_EmbeddedProtocol_InboundMessage) -> EventLoopFuture<CompilerResults> {
+
+        let writePromise = eventLoop.makePromise(of: Void.self)
+        let resultsPromise = eventLoop.makePromise(of: CompilerResults.self)
+
+        state.child?.standardInput.writeAndFlush(message, promise: writePromise)
+
+        writePromise.futureResult.map {
+            CompilerResults(css: "", sourceMap: nil, messages: [])
+        }.cascade(to: resultsPromise)
+
+        _ = resultsPromise.futureResult.always {
+            print($0)
+        }
+
+        return resultsPromise.futureResult
+
+//        throw ProtocolError("TODO")
 //        precondition(state.isCompileRequestLegal, "Call to `compile(...)` already active")
 //        if case .idle_broken = state {
 //            throw ProtocolError("Sass compiler failed to restart after previous errors.")

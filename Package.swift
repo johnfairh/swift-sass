@@ -31,7 +31,8 @@ let package = Package(
         dependencies: [
           "SwiftProtobuf",
           "Sass",
-          .product(name: "NIO", package: "swift-nio")
+          .product(name: "NIO", package: "swift-nio"),
+          .product(name: "NIOFoundationCompat", package: "swift-nio")
         ]),
       .testTarget(
         name: "EmbeddedSassTests",

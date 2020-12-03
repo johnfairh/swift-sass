@@ -12,6 +12,7 @@
 		02440A1C2576679E008F0862 /* DynamicFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1B2576679E008F0862 /* DynamicFunction.swift */; };
 		02440A1F2576B24B008F0862 /* ValueConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1E2576B24B008F0862 /* ValueConvertible.swift */; };
 		02440A272576C7DA008F0862 /* NIO in Frameworks */ = {isa = PBXBuildFile; productRef = 02440A262576C7DA008F0862 /* NIO */; };
+		02440A2A257957B5008F0862 /* NIOFoundationCompat in Frameworks */ = {isa = PBXBuildFile; productRef = 02440A29257957B5008F0862 /* NIOFoundationCompat */; };
 		025C623D255C18D000AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
 		025C623E255C18D000AEA420 /* SwiftProtobuf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		025C6240255C18F700AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
@@ -145,6 +146,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 0;
 			files = (
+				02440A2A257957B5008F0862 /* NIOFoundationCompat in Frameworks */,
 				02440A272576C7DA008F0862 /* NIO in Frameworks */,
 				0289BB2225666BA70004544A /* Sass.framework in Frameworks */,
 				025C623D255C18D000AEA420 /* SwiftProtobuf.framework in Frameworks */,
@@ -311,6 +313,7 @@
 			name = EmbeddedSass;
 			packageProductDependencies = (
 				02440A262576C7DA008F0862 /* NIO */,
+				02440A29257957B5008F0862 /* NIOFoundationCompat */,
 			);
 			productName = EmbeddedSass;
 			productReference = "swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */;
@@ -838,6 +841,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */;
 			productName = NIO;
+		};
+		02440A29257957B5008F0862 /* NIOFoundationCompat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOFoundationCompat;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

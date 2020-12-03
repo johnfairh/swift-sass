@@ -48,9 +48,8 @@ class TestCompiler: EmbeddedSassTestCase {
     /// Does it work, goodpath, no imports, scss/sass/css inline input
     func testCoreInline() throws {
         let compiler = try newCompiler()
-        print(compiler)
-//
-//        let results1 = try compiler.compile(text: scssIn)
+
+        let results1 = try compiler.compile(text: scssIn)
 //        XCTAssertNil(results1.sourceMap)
 //        XCTAssertTrue(results1.messages.isEmpty)
 //        XCTAssertEqual(scssOutExpanded, results1.css)
