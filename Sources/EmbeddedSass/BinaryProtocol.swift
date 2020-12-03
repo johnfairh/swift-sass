@@ -35,7 +35,7 @@ import NIO
 import NIOFoundationCompat
 
 /// Serialize Sass protocol messages down to NIO.
-final class ProtocolWriter2: MessageToByteEncoder {
+final class ProtocolWriter: MessageToByteEncoder {
     typealias OutboundIn = Sass_EmbeddedProtocol_InboundMessage
 
     /// Send a message to the embedded Sass compiler.
@@ -47,6 +47,11 @@ final class ProtocolWriter2: MessageToByteEncoder {
         let buffer = try data.serializedData()
         out.writeInteger(UInt32(buffer.count), endianness: .little, as: UInt32.self)
         out.writeData(buffer)
+    }
+
+    /// Add a channel handler matching the protocol writer.
+    static func addHandler(to channel: Channel) -> EventLoopFuture<Void> {
+        channel.pipeline.addHandler(MessageToByteHandler(ProtocolWriter()))
     }
 }
 
@@ -89,5 +94,10 @@ final class ProtocolReader: ByteToMessageDecoder {
             context.fireChannelRead(wrapInboundOut(message))
             return .continue
         }
+    }
+
+    /// Add a channel handler matching the protocol reader.
+    static func addHandler(to channel: Channel) -> EventLoopFuture<Void> {
+        channel.pipeline.addHandler(ByteToMessageHandler(ProtocolReader()))
     }
 }

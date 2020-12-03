@@ -195,7 +195,13 @@ enum Exec {
         try stdoutPipe.writer.close()
         try stdinPipe.reader.close()
 
-        return Child(process: process, stdin: stdinChannel, stdout: stdoutChannel)
+        print("FDs all set up")
+        check(stdoutPipe.reader.fileDescriptor, "reader-init")
+        check(stdinPipe.writer.fileDescriptor, "writer-init")
+
+        let c = Child(process: process, stdin: stdinChannel, stdout: stdoutChannel)
+        c.fds = [stdoutPipe.reader.fileDescriptor, stdinPipe.writer.fileDescriptor]
+        return c
     }
 
     /// A running child process with NIO connections.
@@ -210,6 +216,13 @@ enum Exec {
         /// The child's `stdout`.  Read from it.
         let standardOutput: Channel
 
+        var fds: [Int32] = []
+
+        func reportFDs(_ str: String) {
+            check(fds[0], "reader-check \(str)")
+            check(fds[1], "writer-check \(str)")
+        }
+
         init(process: Process, stdin: Channel, stdout: Channel) {
             self.process = process
             self.standardInput = stdin
@@ -220,4 +233,11 @@ enum Exec {
             process.waitUntilExit()
         }
     }
+}
+
+
+func check(_ fd: Int32, _ str: String) {
+    var statbuf = stat()
+    let rc = fstat(fd, &statbuf)
+    print("stat \(fd) \(str) = \(rc)")
 }

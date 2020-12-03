@@ -40,37 +40,28 @@ public final class Compiler: CompilerProtocol {
     private let initThread: NIOThreadPool
 
     enum State {
-        /// No child, no error, wait for it to resolve.
-        case initializing([Compilation])
+        /// No child, new jobs wait.
+        case initializing
         /// Child is running and accepting compilation jobs.
         case running(Exec.Child)
         /// Child is broken.  Fail new jobs with the error.
         case broken(Error)
-
-        var child: Exec.Child? {
-            if case let .running(c) = self {
-                return c
-            }
-            return nil
-        }
     }
 
+    /// Compiler process state.  Internal for test access.
     private(set) var state: State
 
     private var childRestart: (() -> EventLoopFuture<Void>)!
-
-    struct Compilation {}
 
     // Configuration
     private let overallTimeout: Int
     private let globalImporters: [ImportResolver]
     private let globalFunctions: SassFunctionMap
 
-    // State of the current job
-    private var compilationID: UInt32
-    private var messages: [CompilerMessage]
-    private var currentImporters: [ImportResolver]
-    private var currentFunctions: SassFunctionMap
+    /// Unstarted compilation work
+    private var pendingCompilations: [Compilation]
+    /// Active compilation work
+    private var activeCompilations: [UInt32: Compilation]
 
     /// Initialize using the given program as the embedded Sass compiler.
     ///
@@ -97,26 +88,30 @@ public final class Compiler: CompilerProtocol {
         overallTimeout = overallTimeoutSeconds
         globalImporters = importers
         globalFunctions = functions
-        compilationID = 1000
-        messages = []
-        currentImporters = []
-        currentFunctions = [:]
         childRestart = nil // self-ref kludge
-        state = .initializing([])
+        state = .initializing
+        pendingCompilations = []
+        activeCompilations = [:]
 
         // Pull out the child setup stuff so that it can be called again later.
         childRestart = { [unowned self] in
-            initThread.runIfActive(eventLoop: eventLoop) {
+            var nextChild: Exec.Child!
+            return initThread.runIfActive(eventLoop: eventLoop) {
                 try Exec.spawn(embeddedCompilerURL, group: eventLoop)
             }.map { child in
-                // TODO kick waiters
-                state = .running(child)
+                nextChild = child
             }.flatMap {
-                // TODO set up pipelines
-                state.child!.standardInput.pipeline.addHandler(MessageToByteHandler(ProtocolWriter2()))
+                ProtocolWriter.addHandler(to: nextChild.standardInput)
+            }.flatMap {
+                ProtocolReader.addHandler(to: nextChild.standardOutput)
+            }.flatMap {
+                nextChild.standardOutput.pipeline.addHandler(InboundMsgHandler(compiler: self))
+            }.map {
+                state = .running(nextChild)
+                kickCompilations()
             }.flatMapErrorThrowing { error in
-                // TODO kick waiters
                 state = .broken(error)
+                kickCompilations()
                 throw error
             }
         }
@@ -153,14 +148,8 @@ public final class Compiler: CompilerProtocol {
 
     deinit {
         try? initThread.syncShutdownGracefully()
-        switch state {
-        case .initializing(let jobs):
-            // thread shutdown should flush out this state...
-            preconditionFailure("Bad init thread state, unpurged jobs: \(jobs).")
-        case .running(let child):
+        if case let .running(child) = state {
             child.process.terminate()
-        default:
-            break
         }
     }
 
@@ -182,14 +171,20 @@ public final class Compiler: CompilerProtocol {
     /// The process ID of the compiler process.
     ///
     /// Not normally needed; can be used to adjust resource usage or maybe send it a signal if stuck.
-//    public var compilerProcessIdentifier: Int32 {
-//        child.process.processIdentifier
-//    }
+    /// The process ID is reported as `nil` if there currently is no running child process.
+    public var compilerProcessIdentifier: EventLoopFuture<Int32?> {
+        eventLoop.submit { [unowned self] in
+            guard case let .running(child) = state else {
+                return nil
+            }
+            return child.process.processIdentifier
+        }
+    }
 
     public var debugHandler: DebugHandler?
 
     private func debug(_ msg: @autoclosure () -> String) {
-        debugHandler?(DebugMessage("[compid=\(compilationID)] \(msg())"))
+        debugHandler?(DebugMessage("[compid=\("???")] \(msg())"))
     }
 
     /// Asynchronous version of `compile(fileURL:outputStyle:createSourceMap:importers:functions:)`.
@@ -253,63 +248,134 @@ public final class Compiler: CompilerProtocol {
                          functions: functions).wait()
     }
 
-
     /// Helper to generate the compile request message
     private func compile(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
                          outputStyle: CssStyle,
                          createSourceMap: Bool,
                          importers: [ImportResolver],
                          functions: SassFunctionMap) -> EventLoopFuture<CompilerResults> {
-        compilationID += 1
-        messages = []
-        currentImporters = globalImporters + importers
-
-        // Discard any signatures in global with names matching local.
-        // Pass the resulting signatures to the compiler.
-        // Retain a map from function name (not signature) to callback.
+        // Figure out functions - semantic name does not include params so merge global
+        // and per-job based on name alone, then pass the whole lot to the job.
         let localFnsNameMap = functions._asSassFunctionNameElementMap
         let globalFnsNameMap = globalFunctions._asSassFunctionNameElementMap
         let mergedFnsNameMap = globalFnsNameMap.merging(localFnsNameMap) { g, l in l }
-        let signatures = mergedFnsNameMap.values.map { $0.0 }
-        currentFunctions = mergedFnsNameMap.mapValues { $0.value }
 
-        return compile(message: .with {
-            $0.message = .compileRequest(.with { msg in
-                msg.id = compilationID
-                msg.input = input
-                msg.style = .init(outputStyle)
-                msg.sourceMap = createSourceMap
-                msg.importers = .init(currentImporters, startingID: Compiler.baseImporterID)
-                msg.globalFunctions = signatures
-            })
-        })
-    }
+        let promise = eventLoop.makePromise(of: CompilerResults.self)
 
-    /// Top-level compiler protocol runner.  Handles erp, such as there is.
+        eventLoop.execute { [self] in
+            let compilation = Compilation(
+                promise: promise,
+                input: input,
+                outputStyle: outputStyle,
+                createSourceMap: createSourceMap,
+                importers: globalImporters + importers,
+                functionsMap: mergedFnsNameMap)
 
-    private func compile(message: Sass_EmbeddedProtocol_InboundMessage) -> EventLoopFuture<CompilerResults> {
-
-        let writePromise = eventLoop.makePromise(of: Void.self)
-        let resultsPromise = eventLoop.makePromise(of: CompilerResults.self)
-
-        state.child?.standardInput.writeAndFlush(message, promise: writePromise)
-
-        writePromise.futureResult.map {
-            CompilerResults(css: "", sourceMap: nil, messages: [])
-        }.cascade(to: resultsPromise)
-
-        _ = resultsPromise.futureResult.always {
-            print($0)
+            pendingCompilations.append(compilation)
+            kickCompilations()
         }
 
-        return resultsPromise.futureResult
+        return promise.futureResult
+    }
 
-//        throw ProtocolError("TODO")
-//        precondition(state.isCompileRequestLegal, "Call to `compile(...)` already active")
-//        if case .idle_broken = state {
-//            throw ProtocolError("Sass compiler failed to restart after previous errors.")
-//        }
-//
+    /// Consider the pending work queue.  When we change `state` or add to `pendingCompilations`.`
+    private func kickCompilations() {
+        eventLoop.preconditionInEventLoop()
+
+        switch state {
+        case .broken(let error):
+            // jobs submitted while restarting the compiler, restart failed: fail them.
+            pendingCompilations.forEach {
+                $0.promise.fail(ProtocolError("Sass compiler failed to restart after previous error: \(error)."))
+            }
+            pendingCompilations = []
+
+        case .initializing:
+            // jobs submitted while [re]starting the compiler: wait.
+            break
+
+        case .running(let child):
+            pendingCompilations.forEach { job in
+                activeCompilations[job.compilationID] = job
+                job.notifyStart()
+                job.promise.futureResult.whenComplete { _ in
+                    self.activeCompilations[job.compilationID] = nil
+                }
+                send(message: .with { $0.compileRequest = job.compileReq }, to: child)
+            }
+            pendingCompilations = []
+        }
+    }
+
+    /// Central message-sending and write-error detection.
+    private func send(message: Sass_EmbeddedProtocol_InboundMessage, to child: Exec.Child) {
+        eventLoop.preconditionInEventLoop()
+
+        let writePromise = eventLoop.makePromise(of: Void.self)
+        child.standardInput.writeAndFlush(message, promise: writePromise)
+        writePromise.futureResult.whenComplete { result in
+            if case let .failure(error) = result {
+                self.handle(error: ProtocolError("Write to Sass compiler failed: \(error)."))
+            }
+        }
+    }
+
+    /// Inbound message handler
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) {
+        eventLoop.preconditionInEventLoop()
+        debug("  rx \(message.logMessage)")
+
+        guard case let .running(child) = state else {
+            // TODO log
+            return // don't care, got no jobs left
+        }
+
+        do {
+            guard let compilationID = message.compilationID else {
+                try receiveGlobal(message: message)
+                return
+            }
+
+            guard let compilation = activeCompilations[compilationID] else {
+                throw ProtocolError("Received message for unknown compilation ID \(compilationID): \(message)")
+            }
+
+            if let response = try compilation.receive(message: message) {
+                send(message: response, to: child)
+            }
+        } catch {
+            handle(error: error)
+        }
+    }
+
+    /// Global message handler
+    /// ie. messages not associated with a compilation ID.
+    private func receiveGlobal(message: Sass_EmbeddedProtocol_OutboundMessage) throws {
+        eventLoop.preconditionInEventLoop()
+
+        switch message.message {
+        case .error(let error):
+            throw ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)")
+        default:
+            throw ProtocolError("Sass compiler sent something uninterpretable: \(message).")
+        }
+    }
+
+    /// Central transport/protocol error detection and 'recovery'.
+    ///
+    /// Errors come from:
+    /// 1. Write transport errors, reported by a promise from `send(message:to:)`
+    /// 2. Read transport errors, reported by the channel handler from `InboundMsgHandler.errorCaught(...)`
+    /// 3. Protocol errors reported by the Sass compiler, from `receieveGlobal(message:)`
+    /// 4. Protocol errors detected by us, from `receive(message)` and `Compilation.receive(message)`.
+    ///
+    /// In all cases we brutally restart the compiler and fail back all the jobs.  Need experience of how this
+    /// actually fails before doing anything more.
+    func handle(error: Error) {
+        eventLoop.preconditionInEventLoop()
+        preconditionFailure("Not implemented: \(error)")
+    }
+
 //        do {
 //            state = .active
 //            debug("start")
@@ -341,7 +407,7 @@ public final class Compiler: CompilerProtocol {
 //            // Propagate original error
 //            throw error
 //        }
-    }
+
 
     /// Inbound message dispatch, top-level validation
 //    private func receiveMessages() throws -> CompilerResults {
@@ -382,124 +448,119 @@ public final class Compiler: CompilerProtocol {
 //        }
 //    }
 
-    /// Inbound `CompileResponse` handler
-    private func receive(compileResponse: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) throws -> CompilerResults {
-        switch compileResponse.result {
-        case .success(let s):
-            return .init(s, messages: messages)
-        case .failure(let f):
-            throw CompilerError(f, messages: messages)
-        case nil:
-            throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
-        }
-    }
-
-    /// Inbound `Error` handler
-    private func receive(error: Sass_EmbeddedProtocol_ProtocolError) throws {
-        throw ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)")
-    }
-
-    /// Inbound `LogEvent` handler
-    private func receive(log: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) throws {
-        try messages.append(.init(log))
-    }
-
-    // MARK: Importers
-
-    static let baseImporterID = UInt32(4000)
-
-    /// Helper
-    private func getImporter(importerID: UInt32) throws -> Importer {
-        let minImporterID = Compiler.baseImporterID
-        let maxImporterID = minImporterID + UInt32(currentImporters.count) - 1
-        guard importerID >= minImporterID, importerID <= maxImporterID else {
-            throw ProtocolError("Bad importer ID \(importerID), out of range (\(minImporterID)-\(maxImporterID))")
-        }
-        guard let importer = currentImporters[Int(importerID - minImporterID)].importer else {
-            throw ProtocolError("Bad importer ID \(importerID), not an importer")
-        }
-        return importer
-    }
-
-    /// Inbound `CanonicalizeRequest` handler
-    private func receive(canonicalizeRequest req: Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest) throws {
-        let importer = try getImporter(importerID: req.importerID)
-        var rsp = Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse()
-        rsp.id = req.id
-        do {
-            if let canonicalURL = try importer.canonicalize(importURL: req.url) {
-                rsp.url = canonicalURL.absoluteString
-                debug("  tx canon-rsp-success reqid=\(req.id)")
-            } else {
-                // leave result nil -> can't deal with this request
-                debug("  tx canon-rsp-nil reqid=\(req.id)")
-            }
-        } catch {
-            rsp.error = String(describing: error)
-            debug("  tx canon-rsp-error reqid=\(req.id)")
-        }
-//        try child.send(message: .with { $0.message = .canonicalizeResponse(rsp) })
-    }
-
-    /// Inbound `ImportRequest` handler
-    private func receive(importRequest req: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest) throws {
-        let importer = try getImporter(importerID: req.importerID)
-        guard let url = URL(string: req.url) else {
-            throw ProtocolError("Malformed import URL \(req.url)")
-        }
-        var rsp = Sass_EmbeddedProtocol_InboundMessage.ImportResponse()
-        rsp.id = req.id
-        do {
-            let results = try importer.load(canonicalURL: url)
-            rsp.success = .with { msg in
-                msg.contents = results.contents
-                msg.syntax = .init(results.syntax)
-                results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
-            }
-            debug("  tx import-rsp-success reqid=\(req.id)")
-        } catch {
-            rsp.error = String(describing: error)
-            debug("  tx import-rsp-error reqid=\(req.id)")
-        }
-//        try child.send(message: .with { $0.message = .importResponse(rsp) })
-    }
-
-    // MARK: Functions
-
-    /// Inbound 'FunctionCallRequest' handler
-    private func receive(functionCallRequest req: Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest) throws {
-        /// Helper to run the callback after we locate it
-        func doSassFunction(_ fn: SassFunction) throws {
-            var rsp = Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse()
-            rsp.id = req.id
-            do {
-                let resultValue = try fn(req.arguments.map { try $0.asSassValue() })
-                rsp.success = .init(resultValue)
-                debug("  tx fncall-rsp-success reqid=\(req.id)")
-            } catch {
-                rsp.error = String(describing: error)
-                debug("  tx fncall-rsp-error reqid=\(req.id)")
-            }
-//            try child.send(message: .with { $0.message = .functionCallResponse(rsp) })
-        }
-
-        switch req.identifier {
-        case .functionID(let id):
-            guard let sassDynamicFunc = Sass._lookUpDynamicFunction(id: id) else {
-                throw ProtocolError("Host function id \(id) not registered.")
-            }
-            try doSassFunction(sassDynamicFunc.function)
-
-        case .name(let name):
-            guard let sassFunc = currentFunctions[name] else {
-                throw ProtocolError("Host function \(name) not registered.")
-            }
-            try doSassFunction(sassFunc)
-
-        case nil:
-            throw ProtocolError("Missing 'identifier' field in FunctionCallRequest")
-        }
-    }
+//    /// Inbound `CompileResponse` handler
+//    private func receive(compileResponse: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) throws -> CompilerResults {
+//        switch compileResponse.result {
+//        case .success(let s):
+//            return .init(s, messages: messages)
+//        case .failure(let f):
+//            throw CompilerError(f, messages: messages)
+//        case nil:
+//            throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
+//        }
+//    }
+//
+//    /// Inbound `LogEvent` handler
+//    private func receive(log: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) throws {
+//        try messages.append(.init(log))
+//    }
+//
+//    // MARK: Importers
+//
+//    static let baseImporterID = UInt32(4000)
+//
+//    /// Helper
+//    private func getImporter(importerID: UInt32) throws -> Importer {
+//        let minImporterID = Compiler.baseImporterID
+//        let maxImporterID = minImporterID + UInt32(currentImporters.count) - 1
+//        guard importerID >= minImporterID, importerID <= maxImporterID else {
+//            throw ProtocolError("Bad importer ID \(importerID), out of range (\(minImporterID)-\(maxImporterID))")
+//        }
+//        guard let importer = currentImporters[Int(importerID - minImporterID)].importer else {
+//            throw ProtocolError("Bad importer ID \(importerID), not an importer")
+//        }
+//        return importer
+//    }
+//
+//    /// Inbound `CanonicalizeRequest` handler
+//    private func receive(canonicalizeRequest req: Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest) throws {
+//        let importer = try getImporter(importerID: req.importerID)
+//        var rsp = Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse()
+//        rsp.id = req.id
+//        do {
+//            if let canonicalURL = try importer.canonicalize(importURL: req.url) {
+//                rsp.url = canonicalURL.absoluteString
+//                debug("  tx canon-rsp-success reqid=\(req.id)")
+//            } else {
+//                // leave result nil -> can't deal with this request
+//                debug("  tx canon-rsp-nil reqid=\(req.id)")
+//            }
+//        } catch {
+//            rsp.error = String(describing: error)
+//            debug("  tx canon-rsp-error reqid=\(req.id)")
+//        }
+////        try child.send(message: .with { $0.message = .canonicalizeResponse(rsp) })
+//    }
+//
+//    /// Inbound `ImportRequest` handler
+//    private func receive(importRequest req: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest) throws {
+//        let importer = try getImporter(importerID: req.importerID)
+//        guard let url = URL(string: req.url) else {
+//            throw ProtocolError("Malformed import URL \(req.url)")
+//        }
+//        var rsp = Sass_EmbeddedProtocol_InboundMessage.ImportResponse()
+//        rsp.id = req.id
+//        do {
+//            let results = try importer.load(canonicalURL: url)
+//            rsp.success = .with { msg in
+//                msg.contents = results.contents
+//                msg.syntax = .init(results.syntax)
+//                results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
+//            }
+//            debug("  tx import-rsp-success reqid=\(req.id)")
+//        } catch {
+//            rsp.error = String(describing: error)
+//            debug("  tx import-rsp-error reqid=\(req.id)")
+//        }
+////        try child.send(message: .with { $0.message = .importResponse(rsp) })
+//    }
+//
+//    // MARK: Functions
+//
+//    /// Inbound 'FunctionCallRequest' handler
+//    private func receive(functionCallRequest req: Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest) throws {
+//        /// Helper to run the callback after we locate it
+//        func doSassFunction(_ fn: SassFunction) throws {
+//            var rsp = Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse()
+//            rsp.id = req.id
+//            do {
+//                let resultValue = try fn(req.arguments.map { try $0.asSassValue() })
+//                rsp.success = .init(resultValue)
+//                debug("  tx fncall-rsp-success reqid=\(req.id)")
+//            } catch {
+//                rsp.error = String(describing: error)
+//                debug("  tx fncall-rsp-error reqid=\(req.id)")
+//            }
+////            try child.send(message: .with { $0.message = .functionCallResponse(rsp) })
+//        }
+//
+//        switch req.identifier {
+//        case .functionID(let id):
+//            guard let sassDynamicFunc = Sass._lookUpDynamicFunction(id: id) else {
+//                throw ProtocolError("Host function id \(id) not registered.")
+//            }
+//            try doSassFunction(sassDynamicFunc.function)
+//
+//        case .name(let name):
+//            guard let sassFunc = currentFunctions[name] else {
+//                throw ProtocolError("Host function \(name) not registered.")
+//            }
+//            try doSassFunction(sassFunc)
+//
+//        case nil:
+//            throw ProtocolError("Missing 'identifier' field in FunctionCallRequest")
+//        }
+//    }
 }
 
 private extension ImportResolver {
@@ -508,5 +569,109 @@ private extension ImportResolver {
         case .loadPath(_): return nil
         case .importer(let i): return i
         }
+    }
+}
+
+struct Compilation {
+    let promise: EventLoopPromise<CompilerResults>
+    private let importers: [ImportResolver]
+    private let functions: SassFunctionMap
+    let compileReq: Sass_EmbeddedProtocol_InboundMessage.CompileRequest
+    private var messages: [CompilerMessage]
+
+    private static var _nextCompilationID = UInt32(4000)
+    private static var nextCompilationID: UInt32 {
+        defer { _nextCompilationID += 1 }
+        return _nextCompilationID
+    }
+
+    var compilationID: UInt32 {
+        compileReq.id
+    }
+
+    var eventLoop: EventLoop {
+        promise.futureResult.eventLoop
+    }
+
+    /// Format and remember all the gorpy stuff we need to run a job.
+    init(promise: EventLoopPromise<CompilerResults>,
+         input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
+         outputStyle: CssStyle,
+         createSourceMap: Bool,
+         importers: [ImportResolver],
+         functionsMap: [SassFunctionSignature : (String, SassFunction)]) {
+        self.promise = promise
+        self.importers = importers
+        self.functions = functionsMap.mapValues { $0.1 }
+        self.compileReq = .with { msg in
+            msg.id = Self.nextCompilationID
+            msg.input = input
+            msg.style = .init(outputStyle)
+            msg.sourceMap = createSourceMap
+            msg.importers = .init(importers, startingID: Self.baseImporterID)
+            msg.globalFunctions = functionsMap.values.map { $0.0 }
+        }
+        self.messages = []
+    }
+
+    static let baseImporterID = UInt32(4000)
+
+    func notifyStart() {
+        // timer
+        // log
+    }
+
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) throws -> Sass_EmbeddedProtocol_InboundMessage? {
+        switch message.message {
+        case .compileResponse(let rsp):
+            try receive(compileResponse: rsp)
+
+//        case .logEvent(let rsp):
+//            try receive(log: rsp)
+//
+//        case .canonicalizeRequest(let req):
+//            try receive(canonicalizeRequest: req)
+//
+//        case .importRequest(let req):
+//            try receive(importRequest: req)
+//
+//        case .functionCallRequest(let req):
+//            try receive(functionCallRequest: req)
+
+        default:
+            throw ProtocolError("Unexpected message for compilationID \(compilationID): \(message)")
+        }
+        return nil
+    }
+
+    /// Inbound `CompileResponse` handler
+    private func receive(compileResponse: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) throws {
+        switch compileResponse.result {
+        case .success(let s):
+            promise.succeed(.init(s, messages: messages))
+        case .failure(let f):
+            promise.fail(CompilerError(f, messages: messages))
+        case nil:
+            throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
+        }
+    }
+}
+
+/// Shim final read channel handler, pass on to Compiler
+private final class InboundMsgHandler: ChannelInboundHandler {
+    typealias InboundIn = Sass_EmbeddedProtocol_OutboundMessage
+
+    private weak var compiler: Compiler?
+
+    init(compiler: Compiler) {
+        self.compiler = compiler
+    }
+
+    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+        compiler?.receive(message: unwrapInboundIn(data))
+    }
+
+    func errorCaught(context: ChannelHandlerContext, error: Error) {
+        compiler?.handle(error: ProtocolError("Read from Sass compiler failed: \(error)"))
     }
 }
