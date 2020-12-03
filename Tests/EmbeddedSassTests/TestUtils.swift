@@ -6,10 +6,25 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
+import NIO
+import XCTest
 import Foundation
 import EmbeddedSass
 
-enum TestUtils {
+class EmbeddedSassTestCase: XCTestCase {
+
+    var eventLoopGroup: EventLoopGroup! = nil
+
+    override func setUpWithError() throws {
+        XCTAssertNil(eventLoopGroup)
+        eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+    }
+
+    override func tearDownWithError() throws {
+        try eventLoopGroup.syncShutdownGracefully()
+        eventLoopGroup = nil
+    }
+
     static var unitTestDirURL: URL {
         URL(fileURLWithPath: #filePath).deletingLastPathComponent()
     }
@@ -28,8 +43,9 @@ enum TestUtils {
         dartSassEmbeddedDirURL.appendingPathComponent("dart-sass-embedded")
     }
 
-    static func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap = [:]) throws -> Compiler {
-        let c = try Compiler(embeddedCompilerURL: TestUtils.dartSassEmbeddedURL,
+    func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap = [:]) throws -> Compiler {
+        let c = try Compiler(eventLoopGroup: eventLoopGroup,
+                             embeddedCompilerURL: EmbeddedSassTestCase.dartSassEmbeddedURL,
                              importers: importers,
                              functions: functions)
         c.debugHandler = { m in print("debug: \(m)") }
@@ -42,8 +58,8 @@ extension String {
         try write(toFile: url.path, atomically: false, encoding: .utf8)
     }
 }
-extension FileManager {
 
+extension FileManager {
     func createTempFile(filename: String, contents: String) throws -> URL {
         let url = temporaryDirectory.appendingPathComponent(filename)
         try contents.write(to: url)

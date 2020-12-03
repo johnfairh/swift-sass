@@ -37,23 +37,23 @@ extension Exec.Child {
     /// - throws: `SassError.protocolError()` if we can't squeeze the bytes out.
     /// - note: Uses the embedded Sass binary delimiter protocol, not the regular protobuf one.
     func send(message: Sass_EmbeddedProtocol_InboundMessage) throws {
-        func doSend(_ bytes: UnsafeRawPointer!, _ count: Int) throws {
-            let rc = standardInput.sockSend(bytes, count: count)
-            if rc == -1 {
-                throw ProtocolError("Write of \(count) bytes failed, errno=\(errno)")
-            } else if rc != count {
-                throw ProtocolError("Write of \(count) bytes underran, only \(rc) bytes written")
-            }
-        }
-
-        let data = try message.serializedData()
-
-        var networkMessageLen = Int32(data.count).littleEndian
-        try doSend(&networkMessageLen, MemoryLayout<Int32>.size)
-
-        try data.withUnsafeBytes { bufferPointer in
-            try doSend(bufferPointer.baseAddress, data.count)
-        }
+//        func doSend(_ bytes: UnsafeRawPointer!, _ count: Int) throws {
+//            let rc = standardInput.sockSend(bytes, count: count)
+//            if rc == -1 {
+//                throw ProtocolError("Write of \(count) bytes failed, errno=\(errno)")
+//            } else if rc != count {
+//                throw ProtocolError("Write of \(count) bytes underran, only \(rc) bytes written")
+//            }
+//        }
+//
+//        let data = try message.serializedData()
+//
+//        var networkMessageLen = Int32(data.count).littleEndian
+//        try doSend(&networkMessageLen, MemoryLayout<Int32>.size)
+//
+//        try data.withUnsafeBytes { bufferPointer in
+//            try doSend(bufferPointer.baseAddress, data.count)
+//        }
     }
 
     /// Read and deserialize a message from the embedded sass compiler.
@@ -63,39 +63,40 @@ extension Exec.Child {
     ///           `SwiftProtobuf.BinaryDecodingError` if we can't make sense of the bytes.
     /// - note: Uses the embedded Sass binary delimiter protocol, not the regular protobuf one.
     func receive(timeout: Int) throws -> Sass_EmbeddedProtocol_OutboundMessage {
-        func doRecv(_ bytes: UnsafeMutableRawPointer!, _ count: Int) throws {
-            let rc = standardOutput.sockRecv(bytes, count: count)
-            if rc == -1 {
-                throw ProtocolError("Read of \(count) bytes failed, errno=\(errno)")
-            } else if rc != count {
-                throw ProtocolError("Read of \(count) bytes underran, only \(rc) bytes read")
-            }
-        }
-
-        // A grotty (but cross-platform!) timeout-to-readable to detect a stuck compiler
-        // process.  TODO-NIO.
-        var pfd = pollfd(fd: standardOutput.fileDescriptor,
-                         events: Int16(POLLIN),
-                         revents: 0)
-        let rc = poll(&pfd, 1, timeout == -1 ? -1 : Int32(timeout * 1000))
-        if rc == 0 {
-            throw ProtocolError("Timeout waiting for compiler to respond after \(timeout) seconds")
-        }
-        if rc == -1 {
-            throw ProtocolError("poll(2) failed, errno=\(errno)")
-        }
-
-        var networkMsgLen = Int32(0)
-        try doRecv(&networkMsgLen, MemoryLayout<Int32>.size)
-        let msgLen = Int(Int32(littleEndian: networkMsgLen))
-
-        var data = Data(count: msgLen)
-        try data.withUnsafeMutableBytes { bufferPointer in
-            try doRecv(bufferPointer.baseAddress, msgLen)
-        }
-
-        var message = Sass_EmbeddedProtocol_OutboundMessage()
-        try message.merge(serializedData: data)
-        return message
+//        func doRecv(_ bytes: UnsafeMutableRawPointer!, _ count: Int) throws {
+//            let rc = standardOutput.sockRecv(bytes, count: count)
+//            if rc == -1 {
+//                throw ProtocolError("Read of \(count) bytes failed, errno=\(errno)")
+//            } else if rc != count {
+//                throw ProtocolError("Read of \(count) bytes underran, only \(rc) bytes read")
+//            }
+//        }
+//
+//        // A grotty (but cross-platform!) timeout-to-readable to detect a stuck compiler
+//        // process.  TODO-NIO.
+//        var pfd = pollfd(fd: standardOutput.fileDescriptor,
+//                         events: Int16(POLLIN),
+//                         revents: 0)
+//        let rc = poll(&pfd, 1, timeout == -1 ? -1 : Int32(timeout * 1000))
+//        if rc == 0 {
+//            throw ProtocolError("Timeout waiting for compiler to respond after \(timeout) seconds")
+//        }
+//        if rc == -1 {
+//            throw ProtocolError("poll(2) failed, errno=\(errno)")
+//        }
+//
+//        var networkMsgLen = Int32(0)
+//        try doRecv(&networkMsgLen, MemoryLayout<Int32>.size)
+//        let msgLen = Int(Int32(littleEndian: networkMsgLen))
+//
+//        var data = Data(count: msgLen)
+//        try data.withUnsafeMutableBytes { bufferPointer in
+//            try doRecv(bufferPointer.baseAddress, msgLen)
+//        }
+//
+//        var message = Sass_EmbeddedProtocol_OutboundMessage()
+//        try message.merge(serializedData: data)
+//        return message
+        throw ProtocolError("no")
     }
 }
