@@ -326,10 +326,8 @@ public final class Compiler: CompilerProtocol {
 
         let writePromise = eventLoop.makePromise(of: Void.self)
         child.standardInput.writeAndFlush(message, promise: writePromise)
-        writePromise.futureResult.whenComplete { result in
-            if case let .failure(error) = result {
-                self.handle(error: ProtocolError("Write to Sass compiler failed: \(error)."))
-            }
+        writePromise.futureResult.whenFailure { error in
+            self.handle(error: ProtocolError("Write to Sass compiler failed: \(error)."))
         }
     }
 
@@ -450,10 +448,6 @@ public final class Compiler: CompilerProtocol {
 //            let timeout = overallTimeout < 0 ? -1 : max(1, overallTimeout - elapsedTime)
 //    }
 
-//    /// Inbound `LogEvent` handler
-//    private func receive(log: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) throws {
-//        try messages.append(.init(log))
-//    }
 //
 //    // MARK: Importers
 //
@@ -560,7 +554,7 @@ private extension ImportResolver {
     }
 }
 
-struct Compilation {
+final class Compilation {
     let promise: EventLoopPromise<CompilerResults>
     private let importers: [ImportResolver]
     private let functions: SassFunctionMap
@@ -614,9 +608,9 @@ struct Compilation {
         case .compileResponse(let rsp):
             try receive(compileResponse: rsp)
 
-//        case .logEvent(let rsp):
-//            try receive(log: rsp)
-//
+        case .logEvent(let rsp):
+            try receive(log: rsp)
+
 //        case .canonicalizeRequest(let req):
 //            try receive(canonicalizeRequest: req)
 //
@@ -642,6 +636,11 @@ struct Compilation {
         case nil:
             throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
         }
+    }
+
+    /// Inbound `LogEvent` handler
+    private func receive(log: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) throws {
+        try messages.append(.init(log))
     }
 }
 

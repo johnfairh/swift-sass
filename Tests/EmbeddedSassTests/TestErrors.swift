@@ -64,143 +64,143 @@ class TestErrors: EmbeddedSassTestCase {
             XCTFail("Unexpected error: \(error)")
         }
     }
-//
-//    let warnsomeSass = """
-//    $known-prefixes: webkit, moz, ms, o
-//    @mixin prefix($property, $value, $prefixes)
-//      @each $prefix in $prefixes
-//        @if not index($known-prefixes, $prefix)
-//          @warn "Unknown prefix #{$prefix}."
-//
-//        -#{$prefix}-#{$property}: $value
-//
-//      #{$property}: $value
-//
-//    .tilt
-//      @include prefix(transform, rotate(15deg), wekbit ms)
-//    """
-//
-//    // Compiler warnings - no span
-//    func testCompilerWarning() throws {
-//        let compiler = try TestUtils.newCompiler()
-//        let results = try compiler.compile(text: warnsomeSass, syntax: .sass)
-//        XCTAssertEqual(1, results.messages.count)
-//        XCTAssertTrue(results.messages[0].kind == .warning)
-//        XCTAssertTrue(results.messages[0].message.contains("Unknown prefix"))
-//        XCTAssertNil(results.messages[0].span)
-//    }
-//
-//    let multiWarningSass = """
-//    @warn "First warning"
-//    @warn "Second warning"
-//    @debug "Third debug"
-//    """
-//
-//    // Multiple warnings
-//    func testCompilerWarningMultiple() throws {
-//        let compiler = try TestUtils.newCompiler()
-//        let results = try compiler.compile(text: multiWarningSass, syntax: .sass)
-//        XCTAssertEqual(3, results.messages.count)
-//        print(results.messages)
-//        results.messages[0...1].forEach { w in
-//            XCTAssertEqual(.warning, w.kind)
-//            XCTAssertTrue(w.message.contains("warning"))
-//            XCTAssertNil(w.span)
-//        }
-//        XCTAssertEqual(.debug, results.messages[2].kind)
-//        XCTAssertTrue(results.messages[2].message.contains("debug"))
-//        XCTAssertNotNil(results.messages[2].span) // randomly...
-//    }
-//
-//    let deprecatedScss = """
-//    $my-list: () !default !global
-//    """
-//
-//    // Deprecation warning
-//    func testDeprecationWarning() throws {
-//        let compiler = try TestUtils.newCompiler()
-//        let results = try compiler.compile(text: deprecatedScss, syntax: .scss)
-//        XCTAssertEqual("", results.css)
-//        XCTAssertEqual(1, results.messages.count)
-//        XCTAssertEqual(.deprecation, results.messages[0].kind)
-//    }
-//
-//    let warningScssWithLocation = """
-//    .label {
-//      --#{blue}: 24;
-//    }
-//    """
-//
-//    // Warning with a span
-//    func testWarningSpan() throws {
-//        let compiler = try TestUtils.newCompiler()
-//        let results = try compiler.compile(text: warningScssWithLocation, syntax: .scss)
-//        XCTAssertEqual(1, results.messages.count)
-//        XCTAssertEqual(.warning, results.messages[0].kind)
-//        XCTAssertNotNil(results.messages[0].span)
-//    }
-//
-//    let badWarningScss = """
-//    .label {
-//      --#{blue}: 24;
-//    }
-//    @error "Stop";
-//    """
-//
-//    // Compiler error and a warning
-//    func testErrorAndWarning() throws {
-//        let compiler = try TestUtils.newCompiler()
-//        do {
-//            let results = try compiler.compile(text: badWarningScss, syntax: .scss)
-//            XCTFail("Managed to compile nonsense: \(results)")
-//        } catch let error as CompilerError {
-//            print(error)
-//        } catch {
-//            XCTFail("Unexpected error: \(error)")
-//        }
-//    }
-//
-//    // Helper to trigger & test a protocol error
-//    func checkProtocolError(_ compiler: Compiler, _ text: String? = nil) {
-//        do {
-//            let results = try compiler.compile(text: "")
-//            XCTFail("Managed to compile with compiler that should have failed: \(results)")
-//        } catch let error as ProtocolError {
-//            print(error)
-//            if let text = text {
-//                XCTAssertTrue(error.description.contains(text))
-//            }
-//        } catch {
-//            XCTFail("Unexpected error: \(error)")
-//        }
-//    }
-//
-//    // Deal with missing child & SIGPIPE-avoidance measures
-//    func testChildTermination() throws {
-//        let compiler = try TestUtils.newCompiler()
-//        kill(compiler.compilerProcessIdentifier, SIGTERM)
-//        checkProtocolError(compiler)
-//
-//        // check recovered
-//        let results = try compiler.compile(text: "")
-//        XCTAssertEqual("", results.css)
-//    }
-//
-//    // Deal with in-band reported protocol error
-//    func testProtocolError() throws {
-//        let compiler = try TestUtils.newCompiler()
-//        let msg = Sass_EmbeddedProtocol_InboundMessage.with { msg in
-//            msg.importResponse = .with { rsp in
-//                rsp.id = 108
-//            }
-//        }
-//        try compiler.child.send(message: msg)
-//        checkProtocolError(compiler, "108")
-//
-//        // check compiler is now working OK
-//        let results = try compiler.compile(text: "")
-//        XCTAssertEqual("", results.css)
-//    }
+
+    let warnsomeSass = """
+    $known-prefixes: webkit, moz, ms, o
+    @mixin prefix($property, $value, $prefixes)
+      @each $prefix in $prefixes
+        @if not index($known-prefixes, $prefix)
+          @warn "Unknown prefix #{$prefix}."
+
+        -#{$prefix}-#{$property}: $value
+
+      #{$property}: $value
+
+    .tilt
+      @include prefix(transform, rotate(15deg), wekbit ms)
+    """
+
+    // Compiler warnings - no span
+    func testCompilerWarning() throws {
+        let compiler = try newCompiler()
+        let results = try compiler.compile(text: warnsomeSass, syntax: .sass)
+        XCTAssertEqual(1, results.messages.count)
+        XCTAssertTrue(results.messages[0].kind == .warning)
+        XCTAssertTrue(results.messages[0].message.contains("Unknown prefix"))
+        XCTAssertNil(results.messages[0].span)
+    }
+
+    let multiWarningSass = """
+    @warn "First warning"
+    @warn "Second warning"
+    @debug "Third debug"
+    """
+
+    // Multiple warnings
+    func testCompilerWarningMultiple() throws {
+        let compiler = try newCompiler()
+        let results = try compiler.compile(text: multiWarningSass, syntax: .sass)
+        XCTAssertEqual(3, results.messages.count)
+        print(results.messages)
+        results.messages[0...1].forEach { w in
+            XCTAssertEqual(.warning, w.kind)
+            XCTAssertTrue(w.message.contains("warning"))
+            XCTAssertNil(w.span)
+        }
+        XCTAssertEqual(.debug, results.messages[2].kind)
+        XCTAssertTrue(results.messages[2].message.contains("debug"))
+        XCTAssertNotNil(results.messages[2].span) // randomly...
+    }
+
+    let deprecatedScss = """
+    $my-list: () !default !global
+    """
+
+    // Deprecation warning
+    func testDeprecationWarning() throws {
+        let compiler = try newCompiler()
+        let results = try compiler.compile(text: deprecatedScss, syntax: .scss)
+        XCTAssertEqual("", results.css)
+        XCTAssertEqual(1, results.messages.count)
+        XCTAssertEqual(.deprecation, results.messages[0].kind)
+    }
+
+    let warningScssWithLocation = """
+    .label {
+      --#{blue}: 24;
+    }
+    """
+
+    // Warning with a span
+    func testWarningSpan() throws {
+        let compiler = try newCompiler()
+        let results = try compiler.compile(text: warningScssWithLocation, syntax: .scss)
+        XCTAssertEqual(1, results.messages.count)
+        XCTAssertEqual(.warning, results.messages[0].kind)
+        XCTAssertNotNil(results.messages[0].span)
+    }
+
+    let badWarningScss = """
+    .label {
+      --#{blue}: 24;
+    }
+    @error "Stop";
+    """
+
+    // Compiler error and a warning
+    func testErrorAndWarning() throws {
+        let compiler = try newCompiler()
+        do {
+            let results = try compiler.compile(text: badWarningScss, syntax: .scss)
+            XCTFail("Managed to compile nonsense: \(results)")
+        } catch let error as CompilerError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    // Helper to trigger & test a protocol error
+    func checkProtocolError(_ compiler: Compiler, _ text: String? = nil) {
+        do {
+            let results = try compiler.compile(text: "")
+            XCTFail("Managed to compile with compiler that should have failed: \(results)")
+        } catch let error as ProtocolError {
+            print(error)
+            if let text = text {
+                XCTAssertTrue(error.description.contains(text))
+            }
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    // Deal with missing child & SIGPIPE-avoidance measures
+    func testChildTermination() throws {
+        let compiler = try newCompiler()
+        kill(try compiler.compilerProcessIdentifier.wait()!, SIGTERM)
+        checkProtocolError(compiler)
+
+        // check recovered
+        let results = try compiler.compile(text: "")
+        XCTAssertEqual("", results.css)
+    }
+
+    // Deal with in-band reported protocol error
+    func testProtocolError() throws {
+        let compiler = try newCompiler()
+        let msg = Sass_EmbeddedProtocol_InboundMessage.with { msg in
+            msg.importResponse = .with { rsp in
+                rsp.id = 108
+            }
+        }
+        try compiler.getChild().standardInput.writeAndFlush(msg).wait()
+        checkProtocolError(compiler, "108")
+
+        // check compiler is now working OK
+        let results = try compiler.compile(text: "")
+        XCTAssertEqual("", results.css)
+    }
 //
 //    // If this were a real/critical product I'd write a badly-behaved Sass
 //    // compiler to explore all the protocol errors, timeouts, etc.
@@ -263,4 +263,14 @@ class TestErrors: EmbeddedSassTestCase {
 //            XCTFail("Unexpected error: \(error)")
 //        }
 //    }
+}
+
+extension Compiler {
+    func getChild() throws -> Exec.Child {
+        switch state {
+        case .running(let child): return child
+        default:
+            throw ProtocolError("Compiler bad state for test_getChild \(state)")
+        }
+    }
 }

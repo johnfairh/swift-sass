@@ -106,23 +106,23 @@ class TestCompiler: EmbeddedSassTestCase {
     }
 
     /// Can we search PATH properly
-//    func testCompilerSearch() throws {
-//        do {
-//            let compiler = try Compiler(embeddedCompilerName: "not-a-compiler")
-//            XCTFail("Created a weird compiler \(compiler)")
-//        } catch let error as ProtocolError {
-//            print(error)
-//        } catch {
-//            XCTFail("Unexpected error: \(error)")
-//        }
-//        // omg don't @ me
-//        let oldPATH = strdup(getenv("PATH"))
-//        let oldPATHString = String(cString: oldPATH!)
-//        defer { setenv("PATH", oldPATH!, 1) }
-//        let newPATH = "\(EmbeddedSassTestCase.dartSassEmbeddedDirURL.path):\(oldPATHString)"
-//        setenv("PATH", strdup(newPATH), 1)
-//        let compiler = try Compiler(embeddedCompilerName: "dart-sass-embedded")
-//        let results = try compiler.compile(text: "")
-//        XCTAssertEqual("", results.css)
-//    }
+    func testCompilerSearch() throws {
+        do {
+            let compiler = try Compiler(eventLoopGroup: eventLoopGroup, embeddedCompilerName: "not-a-compiler")
+            XCTFail("Created a weird compiler \(compiler)")
+        } catch let error as ProtocolError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+        // omg don't @ me
+        let oldPATH = strdup(getenv("PATH"))
+        let oldPATHString = String(cString: oldPATH!)
+        defer { setenv("PATH", oldPATH!, 1) }
+        let newPATH = "\(EmbeddedSassTestCase.dartSassEmbeddedDirURL.path):\(oldPATHString)"
+        setenv("PATH", strdup(newPATH), 1)
+        let compiler = try Compiler(eventLoopGroup: eventLoopGroup, embeddedCompilerName: "dart-sass-embedded")
+        let results = try compiler.compile(text: "")
+        XCTAssertEqual("", results.css)
+    }
 }
