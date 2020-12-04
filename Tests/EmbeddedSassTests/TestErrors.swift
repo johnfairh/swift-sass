@@ -178,7 +178,9 @@ class TestErrors: EmbeddedSassTestCase {
     // Deal with missing child & SIGPIPE-avoidance measures
     func testChildTermination() throws {
         let compiler = try newCompiler()
-        kill(try compiler.compilerProcessIdentifier.wait()!, SIGTERM)
+        let rc = kill(try compiler.compilerProcessIdentifier.wait()!, SIGTERM)
+        XCTAssertEqual(0, rc)
+        print("XCKilled compiler process")
         checkProtocolError(compiler)
 
         // check recovered
@@ -195,6 +197,7 @@ class TestErrors: EmbeddedSassTestCase {
             }
         }
         try compiler.getChild().standardInput.writeAndFlush(msg).wait()
+
         checkProtocolError(compiler, "108")
 
         // check compiler is now working OK

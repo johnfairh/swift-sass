@@ -196,14 +196,13 @@ enum Exec {
         // Close our copy of the FDs that the child is using.
         close(stdoutPipe.writer)
         close(stdinPipe.reader)
-
         return Child(process: process, stdin: stdinChannel, stdout: stdoutChannel)
     }
 
     /// A running child process with NIO connections.
     ///
-    /// When the last reference to this object is released it blocks for process termination;
-    /// no action taken here to ensure this termination though.
+    /// Nothing happens at deinit - client needs to close the streams / kill the process
+    /// as required.
     final class Child {
         /// The `Process` object for the child
         let process: Process
@@ -218,8 +217,15 @@ enum Exec {
             self.standardOutput = stdout
         }
 
-        deinit {
-            process.waitUntilExit()
+        func close() -> EventLoopFuture<Void> {
+            let _ = standardInput.close()
+            let _ = standardOutput.close()
+            return standardInput.closeFuture
+                .flatMap { self.standardOutput.closeFuture }
+        }
+
+        func terminate() {
+            process.terminate()
         }
     }
 }

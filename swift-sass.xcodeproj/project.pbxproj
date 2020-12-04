@@ -43,6 +43,7 @@
 		0289BB4A256BEE760004544A /* TestString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB49256BEE760004544A /* TestString.swift */; };
 		0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C7256000A400F6BE14 /* TestInterface.swift */; };
 		0291E7CA2562E82F00F6BE14 /* TestErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C92562E82F00F6BE14 /* TestErrors.swift */; };
+		02A346E9257AAE3D00A14905 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 02A346E8257AAE3D00A14905 /* Logging */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
 		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
 		OBJ_120 /* embedded_sass.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* embedded_sass.pb.swift */; };
@@ -148,6 +149,7 @@
 				02440A272576C7DA008F0862 /* NIO in Frameworks */,
 				0289BB2225666BA70004544A /* Sass.framework in Frameworks */,
 				025C623D255C18D000AEA420 /* SwiftProtobuf.framework in Frameworks */,
+				02A346E9257AAE3D00A14905 /* Logging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -311,6 +313,7 @@
 			packageProductDependencies = (
 				02440A262576C7DA008F0862 /* NIO */,
 				02440A29257957B5008F0862 /* NIOFoundationCompat */,
+				02A346E8257AAE3D00A14905 /* Logging */,
 			);
 			productName = EmbeddedSass;
 			productReference = "swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */;
@@ -359,6 +362,7 @@
 			mainGroup = OBJ_5;
 			packageReferences = (
 				02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */,
+				02A346E7257AAE3D00A14905 /* XCRemoteSwiftPackageReference "swift-log" */,
 			);
 			productRefGroup = OBJ_105 /* Products */;
 			projectDirPath = "";
@@ -830,6 +834,14 @@
 				minimumVersion = 2.25.0;
 			};
 		};
+		02A346E7257AAE3D00A14905 /* XCRemoteSwiftPackageReference "swift-log" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-log.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -842,6 +854,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */;
 			productName = NIOFoundationCompat;
+		};
+		02A346E8257AAE3D00A14905 /* Logging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02A346E7257AAE3D00A14905 /* XCRemoteSwiftPackageReference "swift-log" */;
+			productName = Logging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

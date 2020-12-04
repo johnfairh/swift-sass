@@ -8,6 +8,7 @@
 
 import Foundation
 import NIO
+import Logging
 @_exported import Sass
 
 /// An instance of the embedded Sass compiler hosted in Swift.
@@ -156,9 +157,11 @@ public final class Compiler: CompilerProtocol {
         }.flatMap {
             nextChild.standardOutput.pipeline.addHandler(InboundMsgHandler(compiler: self))
         }.map {
+            self.debug("Compiler is started")
             self.state = .running(nextChild)
             self.kickCompilations()
         }.flatMapErrorThrowing { error in
+            self.debug("Can't start the compiler at all: \(error)")
             self.state = .broken(error)
             self.kickCompilations()
             throw error
@@ -194,10 +197,16 @@ public final class Compiler: CompilerProtocol {
         }
     }
 
-    public var debugHandler: DebugHandler?
+    /// Logger for the module.
+    ///
+    /// Produces goodpath protocol tracing at `.debug` log level, approx 500 bytes per compile request.
+    ///
+    /// Produces protocol error tracing at `.error` log level.  This is the same as the `description` of
+    /// thrown `ProtocolError`s.
+    public static var logger = Logger(label: "swift-sass")
 
     private func debug(_ msg: @autoclosure () -> String) {
-        debugHandler?(DebugMessage("[compid=\("???")] \(msg())"))
+        Compiler.logger.debug(.init(stringLiteral: msg()))
     }
 
     /// Asynchronous version of `compile(fileURL:outputStyle:createSourceMap:importers:functions:)`.
@@ -224,7 +233,6 @@ public final class Compiler: CompilerProtocol {
                          importers: importers,
                          functions: functions).wait()
     }
-
 
     /// Asynchronous version of `compile(text:syntax:url:outputStyle:createSourceMap:importers:functions:)`.
     public func compileAsync(text: String,
@@ -334,10 +342,10 @@ public final class Compiler: CompilerProtocol {
     /// Inbound message handler
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) {
         eventLoop.preconditionInEventLoop()
-        debug("  rx \(message.logMessage)")
+        debug("Rx: \(message.logMessage)")
 
         guard case let .running(child) = state else {
-            // TODO log
+            debug("    discarding, compiler is resetting.")
             return // don't care, got no jobs left
         }
 
@@ -394,51 +402,26 @@ public final class Compiler: CompilerProtocol {
             return restartFuture!
 
         case .running(let child):
-            child.process.terminate()
+            state = .initializing
             activeCompilations.values.forEach { compilation in
                 // TODO callbacks pending!
                 compilation.promise.fail(error)
             }
             activeCompilations = [:]
-            fallthrough
+
+            debug("Restarting compiler from running")
+            child.terminate()
+            return child.close()
+                .flatMap {
+                    self.startCompiler()
+                }
 
         case .broken(_):
+            debug("Restarting compiler from broken")
             state = .initializing
             return startCompiler()
         }
     }
-//        do {
-//            state = .active
-//            debug("start")
-//            try child.send(message: message)
-//            let results = try receiveMessages()
-//            state = .idle
-//            debug("end-success")
-//            return results
-//        }
-//        catch let error as CompilerError {
-//            state = .idle
-//            debug("end-compiler-error")
-//            throw error
-//        }
-//        catch {
-//            // error with some layer of the protocol.
-//            // the only erp we have to is to try and restart it into a known
-//            // clean state.  seems ott to retry the command here, see how we go.
-//            do {
-//                debug("end-protocol-error - restarting compiler...")
-//                child.process.terminate()
-//                try restart()
-//                debug("end-protocol-error - restart ok")
-//            } catch {
-//                // the system looks to be broken, sadface
-//                state = .idle_broken
-//                debug("end-protocol-error - restart failed: \(error)")
-//            }
-//            // Propagate original error
-//            throw error
-//        }
-
 
     /// Inbound message dispatch, top-level validation
 //    private func receiveMessages() throws -> CompilerResults {
@@ -575,6 +558,10 @@ final class Compilation {
         promise.futureResult.eventLoop
     }
 
+    func debug(_ message: String) {
+        Compiler.logger.debug("CompID \(compilationID): \(message)")
+    }
+
     /// Format and remember all the gorpy stuff we need to run a job.
     init(promise: EventLoopPromise<CompilerResults>,
          input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
@@ -594,13 +581,26 @@ final class Compilation {
             msg.globalFunctions = functionsMap.values.map { $0.0 }
         }
         self.messages = []
+
+        promise.futureResult.whenComplete { [self] in
+            switch $0 {
+            case .success(_):
+                debug("complete: success")
+            case .failure(let error):
+                if error is CompilerError {
+                    debug("complete: compiler error")
+                } else {
+                    debug("complete: protocol error")
+                }
+            }
+        }
     }
 
     static let baseImporterID = UInt32(4000)
 
     func notifyStart() {
+        debug("send Compile-Req")
         // timer
-        // log
     }
 
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) throws -> Sass_EmbeddedProtocol_InboundMessage? {

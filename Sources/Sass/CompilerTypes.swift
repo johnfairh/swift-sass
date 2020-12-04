@@ -192,17 +192,6 @@ public struct CompilerMessage {
     }
 }
 
-// MARK: Host debug
-
-/// A debug message from the Swift module wrapping the Sass compiler.
-/// Primarily for problem reporting, not for end users.
-///
-/// Sass `@debug` rules produce `CompilerMessage`s, not this.
-public typealias DebugMessage = String
-
-/// A routine to receive log events during compilation.
-public typealias DebugHandler = (DebugMessage) -> Void
-
 // MARK: Compiler interface
 
 /// The top-level interfaces to a Sass compiler implementation.
@@ -253,10 +242,6 @@ public protocol CompilerProtocol {
                  createSourceMap: Bool,
                  importers: [ImportResolver],
                  functions: SassFunctionMap) throws -> CompilerResults
-
-    /// An optional callback to receive debug log messages from the Swift library - not `@debug` Sass
-    /// rules, those messages appear in `CompilerResults` and `CompilerError` instead.
-    var debugHandler: DebugHandler? { get set }
 }
 
 // MARK: Message pretty-printers

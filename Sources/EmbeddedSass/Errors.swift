@@ -17,5 +17,6 @@ public struct ProtocolError: Error, CustomStringConvertible {
 
     init(_ text: String) {
         description = text
+        Compiler.logger.error(.init(stringLiteral: text))
     }
 }

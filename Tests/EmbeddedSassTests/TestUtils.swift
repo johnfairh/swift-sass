@@ -44,11 +44,11 @@ class EmbeddedSassTestCase: XCTestCase {
     }
 
     func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap = [:]) throws -> Compiler {
+        Compiler.logger.logLevel = .debug
         let c = try Compiler(eventLoopGroup: eventLoopGroup,
                              embeddedCompilerURL: EmbeddedSassTestCase.dartSassEmbeddedURL,
                              importers: importers,
                              functions: functions)
-        c.debugHandler = { m in print("debug: \(m)") }
         return c
     }
 }

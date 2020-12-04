@@ -166,42 +166,42 @@ extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message : Loggable {
 
 extension Sass_EmbeddedProtocol_ProtocolError : Loggable {
     var logMessage: String {
-        "protocol-error id=\(id)"
+        "Protocol-Error CompID=\(id)"
     }
 }
 extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse : Loggable {
     var logMessage: String {
-        "compile-response compid=\(id)"
+        "Compile-Rsp CompID=\(id)"
     }
 }
 
 extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent : Loggable {
     var logMessage: String {
-        "log-event compid=\(compilationID)"
+        "LogEvent CompID=\(compilationID)"
     }
 }
 
 extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest : Loggable {
     var logMessage: String {
-        "canon-req compid=\(compilationID) reqid=\(id) impid=\(importerID)"
+        "Canon-Req CompID=\(compilationID) ReqID=\(id) ImpID=\(importerID)"
     }
 }
 
 extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest : Loggable {
     var logMessage: String {
-        "import-req compid=\(compilationID) reqid=\(id) impid=\(importerID)"
+        "Import-Req CompID=\(compilationID) ReqID=\(id) ImpID=\(importerID)"
     }
 }
 
 //extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest : Loggable {
 //    var logMessage: String {
-//        "file-import-req compid=\(compilationID) reqid=\(id) impid=\(importerID)"
+//        "FileImport-Req CompID=\(compilationID) ReqID=\(id) ImpID=\(importerID)"
 //    }
 //}
 
 extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest : Loggable {
     var logMessage: String {
-        "fncall-req compid=\(compilationID) reqid=\(id) fnid=\(identifier?.logMessage ?? "[nil]")"
+        "FnCall-Req CompID=\(compilationID) ReqID=\(id) FnID=\(identifier?.logMessage ?? "[nil]")"
     }
 }
 
