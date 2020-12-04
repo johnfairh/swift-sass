@@ -13,8 +13,8 @@ import NIO
 
 /// Create a pair of connected sockets in PF_LOCAL.
 private struct SocketPipe {
-    let reader: FileHandle
-    let writer: FileHandle
+    let reader: Int32
+    let writer: Int32
 
     init() {
         var fds: [Int32] = [0, 0]
@@ -25,8 +25,8 @@ private struct SocketPipe {
         #endif // such anger
         let rc = socketpair(PF_LOCAL, sockStream, 0, &fds)
         precondition(rc == 0, "socketpair(2) failed errno=\(errno)")
-        reader = FileHandle(fileDescriptor: fds[0])
-        writer = FileHandle(fileDescriptor: fds[1])
+        reader = fds[0]
+        writer = fds[1]
     }
 }
 
@@ -171,12 +171,14 @@ enum Exec {
         // non-pipe FDs, even when closed it messes up on Linux.
         // Lesson 3: Don't think too hard about `withInputOutputDescriptor()`
         // dup-ing the FD, just don't use it for anything.
+        // Lesson 4: Don't let CoreFoundation's FileHandle implementation
+        // anywhere important, it is mad keen on closing FDs.
 
         let stdoutPipe = SocketPipe()
         let stdinPipe = SocketPipe()
 
-        process.standardOutput = stdoutPipe.writer
-        process.standardInput = stdinPipe.reader
+        process.standardOutput = FileHandle(fileDescriptor: stdoutPipe.writer)
+        process.standardInput = FileHandle(fileDescriptor: stdinPipe.reader)
         process.standardError = FileHandle(forWritingAtPath: "/dev/null")!
 
         process.executableURL = command
@@ -184,24 +186,18 @@ enum Exec {
         try process.run()
 
         let stdoutChannel = try NIOPipeBootstrap(group: group)
-            .withInputOutputDescriptor(stdoutPipe.reader.fileDescriptor)
+            .withInputOutputDescriptor(stdoutPipe.reader)
             .wait()
 
         let stdinChannel = try NIOPipeBootstrap(group: group)
-            .withInputOutputDescriptor(stdinPipe.writer.fileDescriptor)
+            .withInputOutputDescriptor(stdinPipe.writer)
             .wait()
 
         // Close our copy of the FDs that the child is using.
-        try stdoutPipe.writer.close()
-        try stdinPipe.reader.close()
+        close(stdoutPipe.writer)
+        close(stdinPipe.reader)
 
-        print("FDs all set up")
-        check(stdoutPipe.reader.fileDescriptor, "reader-init")
-        check(stdinPipe.writer.fileDescriptor, "writer-init")
-
-        let c = Child(process: process, stdin: stdinChannel, stdout: stdoutChannel)
-        c.fds = [stdoutPipe.reader.fileDescriptor, stdinPipe.writer.fileDescriptor]
-        return c
+        return Child(process: process, stdin: stdinChannel, stdout: stdoutChannel)
     }
 
     /// A running child process with NIO connections.
@@ -216,13 +212,6 @@ enum Exec {
         /// The child's `stdout`.  Read from it.
         let standardOutput: Channel
 
-        var fds: [Int32] = []
-
-        func reportFDs(_ str: String) {
-            check(fds[0], "reader-check \(str)")
-            check(fds[1], "writer-check \(str)")
-        }
-
         init(process: Process, stdin: Channel, stdout: Channel) {
             self.process = process
             self.standardInput = stdin
@@ -233,11 +222,4 @@ enum Exec {
             process.waitUntilExit()
         }
     }
-}
-
-
-func check(_ fd: Int32, _ str: String) {
-    var statbuf = stat()
-    let rc = fstat(fd, &statbuf)
-    print("stat \(fd) \(str) = \(rc)")
 }

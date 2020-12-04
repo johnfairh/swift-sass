@@ -96,7 +96,7 @@ public final class Compiler: CompilerProtocol {
         // Pull out the child setup stuff so that it can be called again later.
         childRestart = { [unowned self] in
             var nextChild: Exec.Child!
-            return initThread.runIfActive(eventLoop: eventLoop) {
+            return initThread.runIfActive(eventLoop: eventLoop) { () -> Exec.Child in
                 try Exec.spawn(embeddedCompilerURL, group: eventLoop)
             }.map { child in
                 nextChild = child
