@@ -188,6 +188,13 @@ class TestErrors: EmbeddedSassTestCase {
         XCTAssertEqual("", results.css)
     }
 
+    // make this an actual test
+//    func testColdReset() throws {
+//        let compiler = try newCompiler()
+//
+//        try compiler.reinit().wait()
+//    }
+
     // Deal with in-band reported protocol error
     func testProtocolError() throws {
         let compiler = try newCompiler()

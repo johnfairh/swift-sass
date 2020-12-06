@@ -213,13 +213,9 @@ enum Exec {
             self.channel = channel
         }
 
-        func close() -> EventLoopFuture<Void> {
-            _ = channel.close()
-            return channel.closeFuture
-        }
-
         func terminate() {
             process.terminate()
+            // this auto-closes the channel
         }
     }
 }
