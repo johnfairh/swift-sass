@@ -374,34 +374,38 @@ public final class Compiler: CompilerProtocol {
             return // don't care, got no jobs left
         }
 
-        do {
-            guard let compilationID = message.compilationID else {
-                try receiveGlobal(message: message)
+        let replyFuture: EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?>
+
+        if let compilationID = message.compilationID {
+            guard let compilation = activeCompilations[compilationID] else {
+                handle(error: ProtocolError("Received message for unknown compilation ID \(compilationID): \(message)"))
                 return
             }
+            replyFuture = compilation.receive(message: message)
+        } else {
+            replyFuture = receiveGlobal(message: message)
+        }
 
-            guard let compilation = activeCompilations[compilationID] else {
-                throw ProtocolError("Received message for unknown compilation ID \(compilationID): \(message)")
+        replyFuture.whenSuccess {
+            if let response = $0 {
+                self.send(message: response, to: child)
             }
-
-            if let response = try compilation.receive(message: message) {
-                send(message: response, to: child)
-            }
-        } catch {
-            handle(error: error)
+        }
+        replyFuture.whenFailure {
+            self.handle(error: $0)
         }
     }
 
     /// Global message handler
     /// ie. messages not associated with a compilation ID.
-    private func receiveGlobal(message: Sass_EmbeddedProtocol_OutboundMessage) throws {
+    private func receiveGlobal(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
         eventLoop.preconditionInEventLoop()
 
         switch message.message {
         case .error(let error):
-            throw ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)")
+            return eventLoop.makeFailedFuture(ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)"))
         default:
-            throw ProtocolError("Sass compiler sent something uninterpretable: \(message).")
+            return eventLoop.makeFailedFuture(ProtocolError("Sass compiler sent something uninterpretable: \(message)."))
         }
     }
 
@@ -697,27 +701,31 @@ final class Compilation {
 
     static let baseImporterID = UInt32(4000)
 
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) throws -> Sass_EmbeddedProtocol_InboundMessage? {
-        switch message.message {
-        case .compileResponse(let rsp):
-            try receive(compileResponse: rsp)
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+        do {
+            switch message.message {
+            case .compileResponse(let rsp):
+                try receive(compileResponse: rsp)
 
-        case .logEvent(let rsp):
-            try receive(log: rsp)
+            case .logEvent(let rsp):
+                try receive(log: rsp)
 
-//        case .canonicalizeRequest(let req):
-//            try receive(canonicalizeRequest: req)
-//
-//        case .importRequest(let req):
-//            try receive(importRequest: req)
-//
-//        case .functionCallRequest(let req):
-//            try receive(functionCallRequest: req)
+            //        case .canonicalizeRequest(let req):
+            //            try receive(canonicalizeRequest: req)
+            //
+            //        case .importRequest(let req):
+            //            try receive(importRequest: req)
+            //
+            //        case .functionCallRequest(let req):
+            //            try receive(functionCallRequest: req)
 
-        default:
-            throw ProtocolError("Unexpected message for compilationID \(compilationID): \(message)")
+            default:
+                throw ProtocolError("Unexpected message for compilationID \(compilationID): \(message)")
+            }
+        } catch {
+            return eventLoop.makeFailedFuture(error)
         }
-        return nil
+        return eventLoop.makeSucceededFuture(nil)
     }
 
     /// Inbound `CompileResponse` handler
