@@ -8,7 +8,8 @@
 
 // Errors thrown by this module
 
-/// There was an error communicating with the embedded sass compiler.
+/// There was an error communicating with the embedded Sass compiler: for example a badly formed
+/// or out-of-sequence message.
 /// The payload is english text describing the nature of the problem.  There is probably nothing that
 /// a user can do about this.
 public struct ProtocolError: Error, CustomStringConvertible {

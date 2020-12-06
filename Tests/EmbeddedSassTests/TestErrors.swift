@@ -204,21 +204,24 @@ class TestErrors: EmbeddedSassTestCase {
         let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
     }
-//
-//    // If this were a real/critical product I'd write a badly-behaved Sass
-//    // compiler to explore all the protocol errors, timeouts, etc.
-//    //
-//    // Instead, dumb timeout tests exercising the overall timeout path,
-//    // using tail(1) as a poor Sass compiler.
-//
-//    // Check we detect stuck requests
-//    func testTimeout() throws {
-//        let badCompiler = try Compiler(embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
-//                                       overallTimeoutSeconds: 1)
-//        badCompiler.debugHandler = { m in print("debug: \(m)") }
-//
-//        checkProtocolError(badCompiler, "Timeout")
-//    }
+
+    // If this were a real/critical product I'd write a badly-behaved Sass
+    // compiler to explore all the protocol errors, timeouts, etc.
+    //
+    // Instead, dumb timeout tests exercising the overall timeout path,
+    // using tail(1) as a poor Sass compiler.
+
+    // Check we detect stuck requests
+    func testTimeout() throws {
+        let badCompiler = try Compiler(eventLoopGroup: eventLoopGroup,
+                                       embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
+                                       overallTimeoutSeconds: 1)
+        Compiler.logger.logLevel = .trace
+
+        checkProtocolError(badCompiler, "Timeout")
+        try badCompiler.shutdownGracefully().wait()
+//        _ = try badCompiler.compilerProcessIdentifier.wait()
+    }
 //
 //    // Test disabling the timeout works
 //    func testTimeoutDisabled() throws {
@@ -235,37 +238,39 @@ class TestErrors: EmbeddedSassTestCase {
 //        checkProtocolError(badCompiler, "underran")
 //    }
 //
-//    // Test the 'compiler will not restart' corner
-//    func testUnrestartableCompiler() throws {
-//        let tmpDir = try FileManager.default.createTemporaryDirectory()
-//        let realHeadURL = URL(fileURLWithPath: "/usr/bin/tail")
-//        let tmpHeadURL = tmpDir.appendingPathComponent("tail")
-//        try FileManager.default.copyItem(at: realHeadURL, to: tmpHeadURL)
-//
-//        let badCompiler = try Compiler(embeddedCompilerURL: tmpHeadURL, overallTimeoutSeconds: 1)
-//        badCompiler.debugHandler = { m in print("debug: \(m)") }
-//
-//        // it's now running using the copied program
-//        try FileManager.default.removeItem(at: tmpHeadURL)
-//
-//        // Use the instance we have up, will timeout & be killed
-//        // ho hum, on GitHub Actions sometimes we get a pipe error instead
-//        // either is fine, as long as it fails somehow.
-//        checkProtocolError(badCompiler)
-//
-//        // Should be in idle_broken, restart not possible
-//        checkProtocolError(badCompiler, "failed to restart")
-//
-//        // Try to recover - no dice
-//        do {
-//            try badCompiler.reinit()
-//            XCTFail("Managed to reinit somehow")
-//        } catch let error as NSError {
-//            print(error)
-//        } catch {
-//            XCTFail("Unexpected error: \(error)")
-//        }
-//    }
+    // Test the 'compiler will not restart' corner
+    func testUnrestartableCompiler() throws {
+        let tmpDir = try FileManager.default.createTemporaryDirectory()
+        let realHeadURL = URL(fileURLWithPath: "/usr/bin/tail")
+        let tmpHeadURL = tmpDir.appendingPathComponent("tail")
+        try FileManager.default.copyItem(at: realHeadURL, to: tmpHeadURL)
+
+        let badCompiler = try Compiler(eventLoopGroup: eventLoopGroup,
+                                       embeddedCompilerURL: tmpHeadURL,
+                                       overallTimeoutSeconds: 1)
+        Compiler.logger.logLevel = .trace
+
+        // it's now running using the copied program
+        try FileManager.default.removeItem(at: tmpHeadURL)
+
+        // Use the instance we have up, will timeout & be killed
+        // ho hum, on GitHub Actions sometimes we get a pipe error instead
+        // either is fine, as long as it fails somehow.
+        checkProtocolError(badCompiler)
+
+        // Should be in idle_broken, restart not possible
+        checkProtocolError(badCompiler, "failed to restart")
+
+        // Try to recover - no dice
+        do {
+            try badCompiler.reinit().wait()
+            XCTFail("Managed to reinit somehow")
+        } catch let error as NSError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
 }
 
 extension Compiler {

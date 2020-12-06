@@ -169,8 +169,8 @@ enum Exec {
         // understand how they work.
         // Lesson 2: Don't let NIO anywhere near the 'child' ends of the
         // non-pipe FDs, even when closed it messes up on Linux.
-        // Lesson 3: Don't think too hard about `withInputOutputDescriptor()`
-        // dup-ing the FD, just don't use it for anything.
+        // Lesson 3: Avoid the version of PipeBootstrap that dup()s an FD,
+        // it's broken.
         // Lesson 4: Don't let CoreFoundation's FileHandle implementation
         // anywhere important, it is mad keen on closing FDs.
 
@@ -185,18 +185,14 @@ enum Exec {
         process.currentDirectoryURL = URL(fileURLWithPath: currentDirectory)
         try process.run()
 
-        let stdoutChannel = try NIOPipeBootstrap(group: group)
-            .withInputOutputDescriptor(stdoutPipe.reader)
-            .wait()
-
-        let stdinChannel = try NIOPipeBootstrap(group: group)
-            .withInputOutputDescriptor(stdinPipe.writer)
+        let channel = try NIOPipeBootstrap(group: group)
+            .withPipes(inputDescriptor: stdoutPipe.reader, outputDescriptor: stdinPipe.writer)
             .wait()
 
         // Close our copy of the FDs that the child is using.
         close(stdoutPipe.writer)
         close(stdinPipe.reader)
-        return Child(process: process, stdin: stdinChannel, stdout: stdoutChannel)
+        return Child(process: process, channel: channel)
     }
 
     /// A running child process with NIO connections.
@@ -206,22 +202,20 @@ enum Exec {
     final class Child {
         /// The `Process` object for the child
         let process: Process
+        private let channel: Channel
         /// The child's `stdin`.  Write to it.
-        let standardInput: Channel
+        var standardInput: Channel { channel }
         /// The child's `stdout`.  Read from it.
-        let standardOutput: Channel
+        var standardOutput: Channel { channel }
 
-        init(process: Process, stdin: Channel, stdout: Channel) {
+        init(process: Process, channel: Channel) {
             self.process = process
-            self.standardInput = stdin
-            self.standardOutput = stdout
+            self.channel = channel
         }
 
         func close() -> EventLoopFuture<Void> {
-            let _ = standardInput.close()
-            let _ = standardOutput.close()
-            return standardInput.closeFuture
-                .flatMap { self.standardOutput.closeFuture }
+            _ = channel.close()
+            return channel.closeFuture
         }
 
         func terminate() {

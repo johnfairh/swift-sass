@@ -42,16 +42,19 @@ public final class Compiler: CompilerProtocol {
 
     enum State {
         /// No child, new jobs wait.
-        case initializing
+        case initializing(EventLoopFuture<Void>)
         /// Child is running and accepting compilation jobs.
         case running(Exec.Child)
         /// Child is broken.  Fail new jobs with the error.
         case broken(Error)
+        /// System is shutting down.
+        case quiescing(Exec.Child, EventLoopFuture<Void>)
+        /// Compiler is shut down.  Fail new jobs.
+        case shutdown
     }
 
     /// Compiler process state.  Internal for test access.
     private(set) var state: State
-    private var restartFuture: EventLoopFuture<Void>?
 
     /// The URL of the compiler program
     private let embeddedCompilerURL: URL
@@ -93,13 +96,14 @@ public final class Compiler: CompilerProtocol {
         overallTimeout = overallTimeoutSeconds
         globalImporters = importers
         globalFunctions = functions
-        state = .initializing
-        restartFuture = nil
         self.embeddedCompilerURL = embeddedCompilerURL
         pendingCompilations = []
         activeCompilations = [:]
+        state = .shutdown
+        let initFuture = startCompiler()
+        state = .initializing(initFuture)
 
-        try startCompiler().wait()
+        try initFuture.wait()
     }
 
     /// Initialize using a program found on `PATH` as the embedded Sass compiler.
@@ -135,7 +139,7 @@ public final class Compiler: CompilerProtocol {
         precondition(activeCompilations.isEmpty)
         precondition(pendingCompilations.isEmpty) // TODO should be able to hit this
         if case let .running(child) = state {
-            child.process.terminate()
+            child.terminate()
         }
     }
 
@@ -148,7 +152,7 @@ public final class Compiler: CompilerProtocol {
     private func startCompiler() -> EventLoopFuture<Void> {
         precondition(activeCompilations.isEmpty)
         var nextChild: Exec.Child!
-        restartFuture = initThread.runIfActive(eventLoop: eventLoop) {
+        return initThread.runIfActive(eventLoop: eventLoop) {
             nextChild = try Exec.spawn(self.embeddedCompilerURL, group: self.eventLoop)
         }.flatMap {
             ProtocolWriter.addHandler(to: nextChild.standardInput)
@@ -166,7 +170,6 @@ public final class Compiler: CompilerProtocol {
             self.kickCompilations()
             throw error
         }
-        return restartFuture!
     }
 
     /// Restart the Sass compiler process.
@@ -181,6 +184,19 @@ public final class Compiler: CompilerProtocol {
     public func reinit() -> EventLoopFuture<Void> {
         eventLoop.flatSubmit {
             self.handle(error: ProtocolError("User requested Compiler reinit."))
+        }
+    }
+
+    /// Shut down the system.
+    ///
+    /// Wait for work to wind down and shuts down internal threads.  There's no way back from this
+    /// state, to do more compilation you need a new object.
+    ///
+    /// If you don't call this and wait for the result before shutting down the event loop then
+    /// there is a chance NIO will crash.
+    public func shutdownGracefully() -> EventLoopFuture<Void> {
+        eventLoop.flatSubmit {
+            self.shutdown()
         }
     }
 
@@ -290,7 +306,9 @@ public final class Compiler: CompilerProtocol {
                 outputStyle: outputStyle,
                 createSourceMap: createSourceMap,
                 importers: globalImporters + importers,
-                functionsMap: mergedFnsNameMap)
+                functionsMap: mergedFnsNameMap,
+                timeoutSeconds: overallTimeout,
+                resetRequest: { handle(error: $0) })
 
             pendingCompilations.append(compilation)
             kickCompilations()
@@ -303,13 +321,20 @@ public final class Compiler: CompilerProtocol {
     private func kickCompilations() {
         eventLoop.preconditionInEventLoop()
 
+        func cancelAllPending(with error: Error) {
+            pendingCompilations.forEach {
+                $0.cancel(with: error)
+            }
+            pendingCompilations = []
+        }
+
         switch state {
         case .broken(let error):
             // jobs submitted while restarting the compiler, restart failed: fail them.
-            pendingCompilations.forEach {
-                $0.promise.fail(ProtocolError("Sass compiler failed to restart after previous error: \(error)."))
-            }
-            pendingCompilations = []
+            cancelAllPending(with: ProtocolError("Sass compiler failed to restart after previous error: \(error)."))
+
+        case .shutdown, .quiescing(_, _):
+            cancelAllPending(with: ProtocolError("Compiler instance has been shutdown, not accepting further jobs."))
 
         case .initializing:
             // jobs submitted while [re]starting the compiler: wait.
@@ -319,7 +344,7 @@ public final class Compiler: CompilerProtocol {
             pendingCompilations.forEach { job in
                 activeCompilations[job.compilationID] = job
                 job.notifyStart()
-                job.promise.futureResult.whenComplete { _ in
+                job.futureResult.whenComplete { result in
                     self.activeCompilations[job.compilationID] = nil
                 }
                 send(message: .with { $0.compileRequest = job.compileReq }, to: child)
@@ -392,34 +417,80 @@ public final class Compiler: CompilerProtocol {
     /// In all cases we brutally restart the compiler and fail back all the jobs.  Need experience of how this
     /// actually fails before doing anything more.
     @discardableResult
-    func handle(error: Error) -> EventLoopFuture<Void>{
+    func handle(error: Error) -> EventLoopFuture<Void> {
         eventLoop.preconditionInEventLoop()
 
         switch state {
-        case .initializing:
-            // already waiting for the init thread
-            precondition(restartFuture != nil)
-            return restartFuture!
+        case .initializing(let future):
+            // already initializing
+            return future
 
         case .running(let child):
-            state = .initializing
-            activeCompilations.values.forEach { compilation in
-                // TODO callbacks pending!
-                compilation.promise.fail(error)
+            let initPromise = eventLoop.makePromise(of: Void.self)
+            state = .initializing(initPromise.futureResult)
+            activeCompilations.values.forEach {
+                $0.cancel(with: error)
             }
-            activeCompilations = [:]
+            // TODO: need to quiesce jobs active in client
+            precondition(activeCompilations.isEmpty, "Uncancelled compilations")
 
             debug("Restarting compiler from running")
             child.terminate()
-            return child.close()
+            child.close()
                 .flatMap {
                     self.startCompiler()
-                }
+                }.cascade(to: initPromise)
+            return initPromise.futureResult
 
         case .broken(_):
             debug("Restarting compiler from broken")
-            state = .initializing
-            return startCompiler()
+            let future = startCompiler()
+            state = .initializing(future)
+            return future
+
+        case .quiescing(_, _):
+            preconditionFailure("TODO - error vs. quiesce")
+
+        case .shutdown:
+            return eventLoop.makeFailedFuture(ProtocolError("Instance is shutdown, ignoring: \(error)"))
+        }
+    }
+
+    private func shutdown() -> EventLoopFuture<Void> {
+        eventLoop.preconditionInEventLoop()
+
+        switch state {
+        case .initializing(let initFuture):
+            let shutdownPromise = eventLoop.makePromise(of: Void.self)
+            initFuture.whenComplete { _ in
+                self.shutdown().cascade(to: shutdownPromise)
+            }
+            return shutdownPromise.futureResult
+
+        case .running(let child):
+            let shutdownPromise = eventLoop.makePromise(of: Void.self)
+            state = .shutdown
+
+            activeCompilations.values.forEach {
+                $0.cancel(with: ProtocolError("TODO: Shutdown vs. job-submission"))
+            }
+            // TODO: need to quiesce jobs
+            precondition(activeCompilations.isEmpty, "Uncancelled compilations")
+
+            child.terminate()
+            child.close().whenComplete { _ in
+                self.initThread.shutdownGracefully { _ in
+                    shutdownPromise.succeed(())
+                }
+            }
+            return shutdownPromise.futureResult
+
+        case .broken(_), .shutdown:
+            state = .shutdown
+            return eventLoop.makeSucceededFuture(())
+
+        case .quiescing(_, let future):
+            return future
         }
     }
 
@@ -538,11 +609,14 @@ private extension ImportResolver {
 }
 
 final class Compilation {
-    let promise: EventLoopPromise<CompilerResults>
+    let compileReq: Sass_EmbeddedProtocol_InboundMessage.CompileRequest
+    private let promise: EventLoopPromise<CompilerResults>
     private let importers: [ImportResolver]
     private let functions: SassFunctionMap
-    let compileReq: Sass_EmbeddedProtocol_InboundMessage.CompileRequest
     private var messages: [CompilerMessage]
+    private let timeoutSeconds: Int
+    private var timer: Scheduled<Void>?
+    private let resetRequest: (Error) -> Void
 
     private static var _nextCompilationID = UInt32(4000)
     private static var nextCompilationID: UInt32 {
@@ -554,11 +628,15 @@ final class Compilation {
         compileReq.id
     }
 
-    var eventLoop: EventLoop {
+    var futureResult: EventLoopFuture<CompilerResults> {
+        promise.futureResult
+    }
+
+    private var eventLoop: EventLoop {
         promise.futureResult.eventLoop
     }
 
-    func debug(_ message: String) {
+    private func debug(_ message: String) {
         Compiler.logger.debug("CompID \(compilationID): \(message)")
     }
 
@@ -568,10 +646,15 @@ final class Compilation {
          outputStyle: CssStyle,
          createSourceMap: Bool,
          importers: [ImportResolver],
-         functionsMap: [SassFunctionSignature : (String, SassFunction)]) {
+         functionsMap: [SassFunctionSignature : (String, SassFunction)],
+         timeoutSeconds: Int,
+         resetRequest: @escaping (Error) -> Void) {
         self.promise = promise
         self.importers = importers
         self.functions = functionsMap.mapValues { $0.1 }
+        self.timeoutSeconds = timeoutSeconds
+        self.timer = nil
+        self.resetRequest = resetRequest
         self.compileReq = .with { msg in
             msg.id = Self.nextCompilationID
             msg.input = input
@@ -582,7 +665,8 @@ final class Compilation {
         }
         self.messages = []
 
-        promise.futureResult.whenComplete { [self] in
+        futureResult.whenComplete { [self] in
+            timer?.cancel()
             switch $0 {
             case .success(_):
                 debug("complete: success")
@@ -596,12 +680,22 @@ final class Compilation {
         }
     }
 
-    static let baseImporterID = UInt32(4000)
-
+    /// Notify that the initial compile-req has been sent.
     func notifyStart() {
-        debug("send Compile-Req")
-        // timer
+        debug("send Compile-Req, starting \(timeoutSeconds)s timer")
+        timer = eventLoop.scheduleTask(in: .seconds(Int64(timeoutSeconds))) { [self] in
+            resetRequest(ProtocolError("Timeout: job \(compilationID) timed out after \(timeoutSeconds)"))
+        }
     }
+
+    /// Abandon the job with a given error - because it never gets a chance to start or as a result
+    /// of a timeout -> reset.
+    func cancel(with error: Error) {
+        timer?.cancel()
+        promise.fail(error)
+    }
+
+    static let baseImporterID = UInt32(4000)
 
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) throws -> Sass_EmbeddedProtocol_InboundMessage? {
         switch message.message {
