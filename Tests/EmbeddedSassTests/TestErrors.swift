@@ -203,7 +203,7 @@ class TestErrors: EmbeddedSassTestCase {
                 rsp.id = 108
             }
         }
-        try compiler.getChild().standardInput.writeAndFlush(msg).wait()
+        try compiler.state.child!.standardInput.writeAndFlush(msg).wait()
 
         checkProtocolError(compiler, "108")
 
@@ -276,16 +276,6 @@ class TestErrors: EmbeddedSassTestCase {
             print(error)
         } catch {
             XCTFail("Unexpected error: \(error)")
-        }
-    }
-}
-
-extension Compiler {
-    func getChild() throws -> Exec.Child {
-        switch state {
-        case .running(let child): return child
-        default:
-            throw ProtocolError("Compiler bad state for test_getChild \(state)")
         }
     }
 }

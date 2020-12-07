@@ -59,6 +59,13 @@ public final class Compiler: CompilerProtocol {
             case .initializing(_), .broken(_), .shutdown: return nil
             }
         }
+
+        var isQuiescing: Bool {
+            switch self {
+            case .initializing(_), .quiescing(_, _): return true
+            case .running(_), .broken(_), .shutdown: return false
+            }
+        }
     }
 
     /// Compiler process state.  Internal for test access.
@@ -107,7 +114,6 @@ public final class Compiler: CompilerProtocol {
         self.embeddedCompilerURL = embeddedCompilerURL
         pendingCompilations = []
         activeCompilations = [:]
-        state = .shutdown
         let startPromise = eventLoop.makePromise(of: Void.self)
         state = .initializing(startPromise)
         startCompiler().cascade(to: startPromise)
@@ -196,10 +202,10 @@ public final class Compiler: CompilerProtocol {
         }
     }
 
-    /// Shut down the system.
+    /// Shut down the compiler.
     ///
-    /// Wait for work to wind down and shuts down internal threads.  There's no way back from this
-    /// state, to do more compilation you need a new object.
+    /// Waits for work to wind down naturally and shuts down internal threads.  There's no way back
+    /// from this state: to do more compilation you will need a new object.
     ///
     /// If you don't call this and wait for the result before shutting down the event loop then
     /// there is a chance NIO will crash.
@@ -215,16 +221,14 @@ public final class Compiler: CompilerProtocol {
     /// The process ID is reported as `nil` if there currently is no running child process.
     public var compilerProcessIdentifier: EventLoopFuture<Int32?> {
         eventLoop.submit {
-            guard case let .running(child) = self.state else {
-                return nil
-            }
-            return child.process.processIdentifier
+            self.state.child?.process.processIdentifier
         }
     }
 
     /// Logger for the module.
     ///
-    /// Produces goodpath protocol tracing at `.debug` log level, approx 500 bytes per compile request.
+    /// Produces goodpath protocol and compiler lifecycle tracing at `.debug` log level, approx 500
+    /// bytes per compile request.
     ///
     /// Produces protocol error tracing at `.error` log level.  This is the same as the `description` of
     /// thrown `ProtocolError`s.
@@ -344,7 +348,7 @@ public final class Compiler: CompilerProtocol {
 
         case .shutdown, .quiescing(_, _):
             // jobs submitted after/during shutdown: fail them.
-            cancelAllPending(with: ProtocolError("Compiler instance has been shutdown, not accepting further work."))
+            cancelAllPending(with: ProtocolError("Compiler has been shutdown, not accepting further work."))
 
         case .initializing:
             // jobs submitted while [re]starting the compiler: wait.
@@ -382,7 +386,7 @@ public final class Compiler: CompilerProtocol {
         debug("Rx: \(message.logMessage)")
 
         guard let child = state.child else {
-            debug("    discarding, compiler is resetting.")
+            debug("    discarding, compiler is resetting")
             return // don't care, got no jobs left
         }
 
@@ -429,12 +433,19 @@ public final class Compiler: CompilerProtocol {
     /// 3. Protocol errors reported by the Sass compiler, from `receieveGlobal(message:)`
     /// 4. Protocol errors detected by us, from `receive(message)` and `Compilation.receive(message)`.
     /// 5. User-injected restarts, from `reinit()`.
+    /// 6. Timeouts, from `Compilation`.
     ///
     /// In all cases we brutally restart the compiler and fail back all the jobs.  Need experience of how this
     /// actually fails before doing anything more.
     @discardableResult
     func handle(error: Error) -> EventLoopFuture<Void> {
         eventLoop.preconditionInEventLoop()
+
+        func cancelAllActive(with error: Error) {
+            activeCompilations.values.forEach {
+                $0.cancel(with: error)
+            }
+        }
 
         switch state {
         case .initializing(let promise):
@@ -444,13 +455,10 @@ public final class Compiler: CompilerProtocol {
         case .running(let child):
             let initPromise = eventLoop.makePromise(of: Void.self)
             state = .initializing(initPromise)
-            activeCompilations.values.forEach {
-                $0.cancel(with: error)
-            }
-
             debug("Restarting compiler from running")
             child.terminate()
             kickQuiesce()
+            cancelAllActive(with: error)
             return initPromise.futureResult
 
         case .broken(_):
@@ -460,26 +468,40 @@ public final class Compiler: CompilerProtocol {
             startCompiler().cascade(to: promise)
             return promise.futureResult
 
-        case .quiescing(_, _):
-            preconditionFailure("TODO - error vs. quiesce")
+        case .quiescing(let child, let promise):
+            // Nasty corner - stay in this state but try to
+            // hurry things along.
+            debug("Error while quiescing, stopping compiler")
+            child.terminate()
+            // don't kick quiesce, not entering quiescing state...
+            cancelAllActive(with: error)
+            return promise.futureResult
 
         case .shutdown:
             return eventLoop.makeFailedFuture(ProtocolError("Instance is shutdown, ignoring: \(error)"))
         }
     }
 
+    /// Graceful shutdown.
+    ///
+    /// Let all work finish normally, then kill the child process and go to the terminal state.
     private func shutdown() -> EventLoopFuture<Void> {
         eventLoop.preconditionInEventLoop()
 
         switch state {
         case .initializing(let initPromise):
+            debug("Shutdown during restart, deferring")
+            // Nasty corner - wait for the init to resolve and then
+            // try again!
             let shutdownPromise = eventLoop.makePromise(of: Void.self)
             initPromise.futureResult.whenComplete { _ in
+                self.debug("Reissuing deferred shutdown")
                 self.shutdown().cascade(to: shutdownPromise)
             }
             return shutdownPromise.futureResult
 
         case .running(let child):
+            debug("Shutdown from running")
             let shutdownPromise = eventLoop.makePromise(of: Void.self)
             state = .quiescing(child, shutdownPromise)
             kickQuiesce()
@@ -494,20 +516,40 @@ public final class Compiler: CompilerProtocol {
         }
     }
 
+    /// Second half of restart/shutdown transitions.
+    ///
+    /// Both of those have to wait until all active work is cleared out:
+    /// - for restart, even though we kill the child there can be compilation
+    ///   jobs outstanding back in the client (custom functions etc) and we
+    ///   wait for them to wind down before restarting.
+    ///
+    /// - for shutdown, we wait for all jobs to flush out normally without
+    ///   killing the child.
+    ///
+    /// The initializing state is real fragile, edge-trigger to end the quiesce
+    /// part and start the actual shutdown.
     private func kickQuiesce() {
+        eventLoop.preconditionInEventLoop()
+
         guard activeCompilations.isEmpty else {
+            if state.isQuiescing {
+                debug("Waiting for outstanding compilations: \(activeCompilations.count)")
+            }
             return
         }
 
         switch state {
         case .initializing(let promise):
+            debug("No outstanding compilations, restarting compiler")
             startCompiler().cascade(to: promise)
             break
 
         case .quiescing(let child, let promise):
+            debug("No outstanding compilations, shutting down compiler")
             child.terminate()
             initThread.shutdownGracefully { _ in
                 self.eventLoop.execute {
+                    self.debug("Compiler is shutdown")
                     self.state = .shutdown
                     promise.succeed(())
                 }
@@ -662,7 +704,7 @@ final class Compilation {
     }
 
     private func debug(_ message: String) {
-        Compiler.logger.debug("CompID \(compilationID): \(message)")
+        Compiler.logger.debug("CompID=\(compilationID): \(message)")
     }
 
     /// Format and remember all the gorpy stuff we need to run a job.
