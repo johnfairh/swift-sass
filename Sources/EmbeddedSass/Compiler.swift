@@ -8,6 +8,7 @@
 
 import Foundation
 import NIO
+import NIOConcurrencyHelpers
 import Logging
 @_exported import Sass
 
@@ -682,12 +683,13 @@ final class Compilation {
     private var timer: Scheduled<Void>?
     private let resetRequest: (Error) -> Void
 
-    private static var _nextCompilationID = UInt32(4000)
+    private static var _nextCompilationID = NIOAtomic<UInt32>.makeAtomic(value: 4000)
     private static var nextCompilationID: UInt32 {
-        defer { _nextCompilationID += 1 }
-        return _nextCompilationID
+        _nextCompilationID.add(1)
     }
-    static var peekNextCompilationID: UInt32 { _nextCompilationID } // test
+    static var peekNextCompilationID: UInt32 {
+        _nextCompilationID.load()
+    }
 
     var compilationID: UInt32 {
         compileReq.id
