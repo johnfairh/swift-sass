@@ -78,17 +78,8 @@ public final class Compiler: CompilerProtocol {
     /// The URL of the compiler program
     private let embeddedCompilerURL: URL
 
-    /// Configured max timeout, seconds
-    private let timeout: Int
-    /// Configured global importer rules, for all compilations
-    private let globalImporters: [ImportResolver]
-    /// Configured functions, for all compilations
-    private let globalFunctions: SassFunctionMap
-
-    /// Unstarted compilation work
-    private var pendingCompilations: [Compilation]
-    /// Active compilation work
-    private var activeCompilations: [UInt32: Compilation]
+    /// The actual compilation work
+    private var work: CompilerWork!
 
     /// Use a program as the embedded Sass compiler.
     ///
@@ -115,15 +106,16 @@ public final class Compiler: CompilerProtocol {
         eventLoop = eventLoopGroup.next()
         initThread = NIOThreadPool(numberOfThreads: 1)
         initThread.start()
-        self.timeout = timeout
-        globalImporters = importers
-        globalFunctions = functions
+        work = nil
         self.embeddedCompilerURL = embeddedCompilerURL
-        pendingCompilations = []
-        activeCompilations = [:]
         let startPromise = eventLoop.makePromise(of: Void.self)
         startCount = 0
         state = .initializing(startPromise)
+        work = CompilerWork(eventLoop: eventLoop,
+                            resetRequest: { [unowned self] in handle(error: $0) },
+                            timeout: timeout,
+                            importers: importers,
+                            functions: functions)
         startCompiler().cascade(to: startPromise)
 
         try startPromise.futureResult.wait()
@@ -173,7 +165,7 @@ public final class Compiler: CompilerProtocol {
     ///
     /// When this future completes the system is either in running or broken.
     private func startCompiler() -> EventLoopFuture<Void> {
-        precondition(activeCompilations.isEmpty)
+        precondition(!work.hasActiveCompilations)
         var nextChild: Exec.Child!
         startCount += 1
         return initThread.runIfActive(eventLoop: eventLoop) {
@@ -253,11 +245,16 @@ public final class Compiler: CompilerProtocol {
                              createSourceMap: Bool = false,
                              importers: [ImportResolver] = [],
                              functions: SassFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
-        compile(input: .path(fileURL.path),
+        eventLoop.flatSubmit { [self] in
+            let r = work.addPendingCompilation(
+                input: .path(fileURL.path),
                 outputStyle: outputStyle,
                 createSourceMap: createSourceMap,
                 importers: importers,
                 functions: functions)
+            kickPendingCompilations()
+            return r
+        }
     }
 
     public func compile(fileURL: URL,
@@ -280,15 +277,20 @@ public final class Compiler: CompilerProtocol {
                              createSourceMap: Bool = false,
                              importers: [ImportResolver] = [],
                              functions: SassFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
-        compile(input: .string(.with { m in
-                   m.source = text
-                   m.syntax = .init(syntax)
-                   url.flatMap { m.url = $0.absoluteString }
+        eventLoop.flatSubmit { [self] in
+            let r = work.addPendingCompilation(
+                input: .string(.with { m in
+                    m.source = text
+                    m.syntax = .init(syntax)
+                    url.flatMap { m.url = $0.absoluteString }
                 }),
                 outputStyle: outputStyle,
                 createSourceMap: createSourceMap,
                 importers: importers,
                 functions: functions)
+            kickPendingCompilations()
+            return r
+        }
     }
 
     public func compile(text: String,
@@ -307,57 +309,18 @@ public final class Compiler: CompilerProtocol {
                          functions: functions).wait()
     }
 
-    /// Helper to generate the compile request message
-    private func compile(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
-                         outputStyle: CssStyle,
-                         createSourceMap: Bool,
-                         importers: [ImportResolver],
-                         functions: SassFunctionMap) -> EventLoopFuture<CompilerResults> {
-        // Figure out functions - semantic name does not include params so merge global
-        // and per-job based on name alone, then pass the whole lot to the job.
-        let localFnsNameMap = functions._asSassFunctionNameElementMap
-        let globalFnsNameMap = globalFunctions._asSassFunctionNameElementMap
-        let mergedFnsNameMap = globalFnsNameMap.merging(localFnsNameMap) { g, l in l }
-
-        let promise = eventLoop.makePromise(of: CompilerResults.self)
-
-        eventLoop.execute { [self] in
-            let compilation = Compilation(
-                promise: promise,
-                input: input,
-                outputStyle: outputStyle,
-                createSourceMap: createSourceMap,
-                importers: globalImporters + importers,
-                functionsMap: mergedFnsNameMap,
-                timeout: timeout,
-                resetRequest: { handle(error: $0) })
-
-            pendingCompilations.append(compilation)
-            kickPendingCompilations()
-        }
-
-        return promise.futureResult
-    }
-
     /// Consider the pending work queue.  When we change `state` or add to `pendingCompilations`.`
     private func kickPendingCompilations() {
         eventLoop.preconditionInEventLoop()
 
-        func cancelAllPending(with error: Error) {
-            pendingCompilations.forEach {
-                $0.cancel(with: error)
-            }
-            pendingCompilations = []
-        }
-
         switch state {
         case .broken(let error):
             // jobs submitted while restarting the compiler; restart failed: fail them.
-            cancelAllPending(with: ProtocolError("Sass compiler failed to restart after previous error: \(error)"))
+            work.cancelAllPending(with: ProtocolError("Sass compiler failed to restart after previous error: \(error)"))
 
-        case .shutdown, .quiescing(_, _):
+        case .shutdown, .quiescing:
             // jobs submitted after/during shutdown: fail them.
-            cancelAllPending(with: ProtocolError("Compiler has been shutdown, not accepting further work."))
+            work.cancelAllPending(with: ProtocolError("Compiler has been shutdown, not accepting further work."))
 
         case .initializing:
             // jobs submitted while [re]starting the compiler: wait.
@@ -365,16 +328,9 @@ public final class Compiler: CompilerProtocol {
 
         case .running(let child):
             // goodpath
-            pendingCompilations.forEach { job in
-                activeCompilations[job.compilationID] = job
-                job.notifyStart()
-                job.futureResult.whenComplete { result in
-                    self.activeCompilations[job.compilationID] = nil
-                    self.kickQuiesce()
-                }
-                send(message: .with { $0.compileRequest = job.compileReq }, to: child)
+            work.startAllPending().forEach {
+                send(message: $0, to: child)
             }
-            pendingCompilations = []
         }
     }
 
@@ -399,38 +355,12 @@ public final class Compiler: CompilerProtocol {
             return // don't care, got no jobs left
         }
 
-        let replyFuture: EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?>
-
-        if let compilationID = message.compilationID {
-            guard let compilation = activeCompilations[compilationID] else {
-                handle(error: ProtocolError("Received message for unknown compilation ID \(compilationID): \(message)"))
-                return
-            }
-            replyFuture = compilation.receive(message: message)
-        } else {
-            replyFuture = receiveGlobal(message: message)
-        }
-
-        replyFuture.whenSuccess {
+        work.receive(message: message).map {
             if let response = $0 {
                 self.send(message: response, to: child)
             }
-        }
-        replyFuture.whenFailure {
+        }.whenFailure {
             self.handle(error: $0)
-        }
-    }
-
-    /// Global message handler
-    /// ie. messages not associated with a compilation ID.
-    private func receiveGlobal(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
-        eventLoop.preconditionInEventLoop()
-
-        switch message.message {
-        case .error(let error):
-            return eventLoop.makeFailedFuture(ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)"))
-        default:
-            return eventLoop.makeFailedFuture(ProtocolError("Sass compiler sent something uninterpretable: \(message)"))
         }
     }
 
@@ -450,12 +380,6 @@ public final class Compiler: CompilerProtocol {
     func handle(error: Error) -> EventLoopFuture<Void> {
         eventLoop.preconditionInEventLoop()
 
-        func cancelAllActive(with error: Error) {
-            activeCompilations.values.forEach {
-                $0.cancel(with: error)
-            }
-        }
-
         switch state {
         case .initializing(let promise):
             // already initializing
@@ -466,11 +390,14 @@ public final class Compiler: CompilerProtocol {
             state = .initializing(initPromise)
             debug("Restarting compiler from running")
             child.terminate()
-            kickQuiesce()
-            cancelAllActive(with: error)
+            work.cancelAllActive(with: error)
+            work.quiesce().flatMap {
+                self.debug("No outstanding compilations, restarting compiler")
+                return self.startCompiler()
+            }.cascade(to: initPromise)
             return initPromise.futureResult
 
-        case .broken(_):
+        case .broken:
             debug("Restarting compiler from broken")
             let promise = eventLoop.makePromise(of: Void.self)
             state = .initializing(promise)
@@ -483,7 +410,7 @@ public final class Compiler: CompilerProtocol {
             debug("Error while quiescing, stopping compiler")
             child.terminate()
             // don't kick quiesce, not entering quiescing state...
-            cancelAllActive(with: error)
+            work.cancelAllActive(with: error)
             return promise.futureResult
 
         case .shutdown:
@@ -513,7 +440,17 @@ public final class Compiler: CompilerProtocol {
             debug("Shutdown from running")
             let shutdownPromise = eventLoop.makePromise(of: Void.self)
             state = .quiescing(child, shutdownPromise)
-            kickQuiesce()
+            work.quiesce().whenComplete { _ in
+                self.debug("No outstanding compilations, shutting down compiler")
+                child.terminate()
+                self.initThread.shutdownGracefully { _ in
+                    self.eventLoop.execute {
+                        self.debug("Compiler is shutdown")
+                        self.state = .shutdown
+                        shutdownPromise.succeed(())
+                    }
+                }
+            }
             return shutdownPromise.futureResult
 
         case .broken(_), .shutdown:
@@ -522,51 +459,6 @@ public final class Compiler: CompilerProtocol {
 
         case .quiescing(_, let promise):
             return promise.futureResult
-        }
-    }
-
-    /// Second half of restart/shutdown transitions.
-    ///
-    /// Both of those have to wait until all active work is cleared out:
-    /// - for restart, even though we kill the child there can be compilation
-    ///   jobs outstanding back in the client (custom functions etc) and we
-    ///   wait for them to wind down before restarting.
-    ///
-    /// - for shutdown, we wait for all jobs to flush out normally without
-    ///   killing the child.
-    ///
-    /// The initializing state is real fragile, edge-trigger to end the quiesce
-    /// part and start the actual shutdown.
-    private func kickQuiesce() {
-        eventLoop.preconditionInEventLoop()
-
-        guard activeCompilations.isEmpty else {
-            if state.isQuiescing {
-                debug("Waiting for outstanding compilations: \(activeCompilations.count)")
-            }
-            return
-        }
-
-        switch state {
-        case .initializing(let promise):
-            debug("No outstanding compilations, restarting compiler")
-            startCompiler().cascade(to: promise)
-            break
-
-        case .quiescing(let child, let promise):
-            debug("No outstanding compilations, shutting down compiler")
-            child.terminate()
-            initThread.shutdownGracefully { _ in
-                self.eventLoop.execute {
-                    self.debug("Compiler is shutdown")
-                    self.state = .shutdown
-                    promise.succeed(())
-                }
-            }
-            break
-
-        case .broken(_), .running(_), .shutdown:
-            break
         }
     }
 
@@ -837,5 +729,149 @@ private final class InboundMsgHandler: ChannelInboundHandler {
 
     func errorCaught(context: ChannelHandlerContext, error: Error) {
         compiler?.handle(error: ProtocolError("Read from Sass compiler failed: \(error)"))
+    }
+}
+
+final class CompilerWork {
+    /// Event loop we're all running on
+    private let eventLoop: EventLoop
+    /// Async callback to request the system be reset
+    private let resetRequest: (Error) -> Void
+    /// Configured max timeout, seconds
+    private let timeout: Int
+    /// Configured global importer rules, for all compilations
+    private let globalImporters: [ImportResolver]
+    /// Configured functions, for all compilations
+    private let globalFunctions: SassFunctionMap
+
+    /// Unstarted compilation work
+    private var pendingCompilations: [Compilation]
+    /// Active compilation work indexed by CompilationID
+    private var activeCompilations: [UInt32 : Compilation]
+    /// Promise tracking active work quiesce
+    private var quiescePromise: EventLoopPromise<Void>?
+
+    init(eventLoop: EventLoop,
+         resetRequest: @escaping (Error) -> Void,
+         timeout: Int,
+         importers: [ImportResolver],
+         functions: SassFunctionMap) {
+        self.eventLoop = eventLoop
+        self.resetRequest = resetRequest
+        self.timeout = timeout
+        globalImporters = importers
+        globalFunctions = functions
+        pendingCompilations = []
+        activeCompilations = [:]
+        quiescePromise = nil
+    }
+
+    deinit {
+        precondition(pendingCompilations.isEmpty)
+        precondition(!hasActiveCompilations)
+    }
+
+    var hasActiveCompilations: Bool {
+        !activeCompilations.isEmpty
+    }
+
+    func addPendingCompilation(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
+                               outputStyle: CssStyle,
+                               createSourceMap: Bool,
+                               importers: [ImportResolver],
+                               functions: SassFunctionMap) -> EventLoopFuture<CompilerResults> {
+        eventLoop.preconditionInEventLoop()
+
+        // Figure out functions - semantic name does not include params so merge global
+        // and per-job based on name alone, then pass the whole lot to the job.
+        let localFnsNameMap = functions._asSassFunctionNameElementMap
+        let globalFnsNameMap = globalFunctions._asSassFunctionNameElementMap
+        let mergedFnsNameMap = globalFnsNameMap.merging(localFnsNameMap) { g, l in l }
+
+        let promise = eventLoop.makePromise(of: CompilerResults.self)
+
+        let compilation = Compilation(
+                promise: promise,
+                input: input,
+                outputStyle: outputStyle,
+                createSourceMap: createSourceMap,
+                importers: globalImporters + importers,
+                functionsMap: mergedFnsNameMap,
+                timeout: timeout,
+                resetRequest: resetRequest)
+
+        pendingCompilations.append(compilation)
+
+        return promise.futureResult
+    }
+
+    func cancelAllPending(with error: Error) {
+        let copy = pendingCompilations
+        pendingCompilations = []
+        copy.forEach {
+            $0.cancel(with: error)
+        }
+    }
+
+    func cancelAllActive(with error: Error) {
+        activeCompilations.values.forEach {
+            $0.cancel(with: error)
+        }
+    }
+
+    func startAllPending() -> [Sass_EmbeddedProtocol_InboundMessage] {
+        pendingCompilations.forEach { job in
+            activeCompilations[job.compilationID] = job
+            job.notifyStart()
+            job.futureResult.whenComplete { result in
+                self.activeCompilations[job.compilationID] = nil
+                self.kickQuiesce()
+            }
+        }
+        defer { pendingCompilations = [] }
+        return pendingCompilations.map { job in .with { $0.compileRequest = job.compileReq } }
+    }
+
+    func quiesce() -> EventLoopFuture<Void> {
+        precondition(quiescePromise == nil, "Overlapping quiesce requests")
+        let promise = eventLoop.makePromise(of: Void.self)
+        quiescePromise = promise
+        kickQuiesce()
+        return promise.futureResult
+    }
+
+    func kickQuiesce() {
+        if let quiescePromise = quiescePromise {
+            if activeCompilations.isEmpty {
+                self.quiescePromise = nil
+                quiescePromise.succeed(())
+            } else {
+                Compiler.logger.debug("Waiting for outstanding compilations: \(activeCompilations.count)")
+            }
+        }
+    }
+
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+        if let compilationID = message.compilationID {
+            guard let compilation = activeCompilations[compilationID] else {
+                return eventLoop.makeFailedFuture(ProtocolError("Received message for unknown compilation ID \(compilationID): \(message)"))
+            }
+            return compilation.receive(message: message)
+        }
+
+        return receiveGlobal(message: message)
+    }
+
+    /// Global message handler
+    /// ie. messages not associated with a compilation ID.
+    private func receiveGlobal(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+        eventLoop.preconditionInEventLoop()
+
+        switch message.message {
+        case .error(let error):
+            return eventLoop.makeFailedFuture(ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)"))
+        default:
+            return eventLoop.makeFailedFuture(ProtocolError("Sass compiler sent something uninterpretable: \(message)"))
+        }
     }
 }
