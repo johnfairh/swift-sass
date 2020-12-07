@@ -90,7 +90,10 @@ public final class Compiler: CompilerProtocol {
     /// Active compilation work
     private var activeCompilations: [UInt32: Compilation]
 
-    /// Initialize using the given program as the embedded Sass compiler.
+    /// Use a program as the embedded Sass compiler.
+    ///
+    /// You must shut down the compiler with `Compiler.shutdownGracefully()`
+    /// before letting it go out of scope.
     ///
     /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use.
     /// - parameter embeddedCompilerURL: The file URL to `dart-sass-embedded`
@@ -126,7 +129,10 @@ public final class Compiler: CompilerProtocol {
         try startPromise.futureResult.wait()
     }
 
-    /// Initialize using a program found on `PATH` as the embedded Sass compiler.
+    /// Use a program found on `PATH` as the embedded Sass compiler.
+    ///
+    /// You must shut down the compiler with `Compiler.shutdownGracefully()`
+    /// before letting it go out of scope.
     ///
     /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use.
     /// - parameter embeddedCompilerName: Name of the program, default `dart-sass-embedded`.
@@ -155,11 +161,8 @@ public final class Compiler: CompilerProtocol {
     }
 
     deinit {
-        try? initThread.syncShutdownGracefully()
-        precondition(activeCompilations.isEmpty)
-        precondition(pendingCompilations.isEmpty) // TODO should be able to hit this
-        if case let .running(child) = state {
-            child.terminate()
+        guard case .shutdown = state else {
+            preconditionFailure("Compiler must be shutdown via `shutdownGracefully()`")
         }
     }
 

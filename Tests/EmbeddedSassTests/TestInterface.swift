@@ -122,6 +122,7 @@ class TestCompiler: EmbeddedSassTestCase {
         let newPATH = "\(EmbeddedSassTestCase.dartSassEmbeddedDirURL.path):\(oldPATHString)"
         setenv("PATH", strdup(newPATH), 1)
         let compiler = try Compiler(eventLoopGroup: eventLoopGroup, embeddedCompilerName: "dart-sass-embedded")
+        compilersToShutdown.append(compiler)
         let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
     }

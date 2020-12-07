@@ -15,12 +15,19 @@ class EmbeddedSassTestCase: XCTestCase {
 
     var eventLoopGroup: EventLoopGroup! = nil
 
+    var compilersToShutdown: [Compiler] = []
+
     override func setUpWithError() throws {
         XCTAssertNil(eventLoopGroup)
         eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+        Compiler.logger.logLevel = .debug
     }
 
     override func tearDownWithError() throws {
+        try compilersToShutdown.forEach {
+            try $0.shutdownGracefully().wait()
+        }
+        compilersToShutdown = []
         try eventLoopGroup.syncShutdownGracefully()
         eventLoopGroup = nil
     }
@@ -44,19 +51,19 @@ class EmbeddedSassTestCase: XCTestCase {
     }
 
     func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap = [:]) throws -> Compiler {
-        Compiler.logger.logLevel = .debug
         let c = try Compiler(eventLoopGroup: eventLoopGroup,
                              embeddedCompilerURL: EmbeddedSassTestCase.dartSassEmbeddedURL,
                              importers: importers,
                              functions: functions)
+        compilersToShutdown.append(c)
         return c
     }
 
     func newBadCompiler(timeout: Int = 1) throws -> Compiler {
-        Compiler.logger.logLevel = .debug
         let c = try Compiler(eventLoopGroup: eventLoopGroup,
                              embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
                              timeout: timeout)
+        compilersToShutdown.append(c)
         return c
     }
 

@@ -40,8 +40,6 @@ class TestResetShutdown: EmbeddedSassTestCase {
         let badCompiler = try newBadCompiler()
 
         checkProtocolError(badCompiler, "Timeout")
-
-        try badCompiler.shutdownGracefully().wait()
     }
 
     // Test disabling the timeout works
@@ -76,10 +74,10 @@ class TestResetShutdown: EmbeddedSassTestCase {
         let tmpHeadURL = tmpDir.appendingPathComponent("tail")
         try FileManager.default.copyItem(at: realHeadURL, to: tmpHeadURL)
 
-        Compiler.logger.logLevel = .debug
         let badCompiler = try Compiler(eventLoopGroup: eventLoopGroup,
                                        embeddedCompilerURL: tmpHeadURL,
                                        timeout: 1)
+        compilersToShutdown.append(badCompiler)
 
         // it's now running using the copied program
         try FileManager.default.removeItem(at: tmpHeadURL)
@@ -118,7 +116,6 @@ class TestResetShutdown: EmbeddedSassTestCase {
 
         // Compilation is not OK
         XCTAssertThrowsError(try checkCompilerWorking(compiler))
-
     }
 
     func testStuckShutdown() throws {
