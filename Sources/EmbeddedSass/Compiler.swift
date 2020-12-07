@@ -34,8 +34,8 @@ import Logging
 /// To debug problems, start with the output from `Compiler.debugHandler`, all the source files
 /// being given to the compiler, and the description of any errors thrown.
 public final class Compiler: CompilerProtocol {
-    /// NIO event loop we're bound to.
-    private let eventLoop: EventLoop
+    /// NIO event loop we're bound to.  Internal for test.
+    let eventLoop: EventLoop
 
     /// Child process initialization involves blocking steps and happens outside of NIO.
     private let initThread: NIOThreadPool
@@ -77,8 +77,8 @@ public final class Compiler: CompilerProtocol {
     /// The URL of the compiler program
     private let embeddedCompilerURL: URL
 
-    /// Configured max timeout
-    private let overallTimeout: Int
+    /// Configured max timeout, seconds
+    private let timeout: Int
     /// Configured global importer rules, for all compilations
     private let globalImporters: [ImportResolver]
     /// Configured functions, for all compilations
@@ -94,7 +94,7 @@ public final class Compiler: CompilerProtocol {
     /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use.
     /// - parameter embeddedCompilerURL: The file URL to `dart-sass-embedded`
     ///   or something else that speaks the embedded Sass protocol.
-    /// - parameter overallTimeoutSeconds: The maximum time allowed  for the embedded
+    /// - parameter timeout: The maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
@@ -104,14 +104,14 @@ public final class Compiler: CompilerProtocol {
     /// - throws: Something from Foundation if the program does not start.
     public init(eventLoopGroup: EventLoopGroup,
                 embeddedCompilerURL: URL,
-                overallTimeoutSeconds: Int = 60,
+                timeout: Int = 60,
                 importers: [ImportResolver] = [],
                 functions: SassFunctionMap = [:]) throws {
         precondition(embeddedCompilerURL.isFileURL, "Not a file: \(embeddedCompilerURL)")
         eventLoop = eventLoopGroup.next()
         initThread = NIOThreadPool(numberOfThreads: 1)
         initThread.start()
-        overallTimeout = overallTimeoutSeconds
+        self.timeout = timeout
         globalImporters = importers
         globalFunctions = functions
         self.embeddedCompilerURL = embeddedCompilerURL
@@ -129,7 +129,7 @@ public final class Compiler: CompilerProtocol {
     ///
     /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use.
     /// - parameter embeddedCompilerName: Name of the program, default `dart-sass-embedded`.
-    /// - parameter timeoutSeconds: The maximum time allowed  for the embedded
+    /// - parameter timeout: The maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
@@ -139,7 +139,7 @@ public final class Compiler: CompilerProtocol {
     ///           Everything from `init(embeddedCompilerURL:)`
     public convenience init(eventLoopGroup: EventLoopGroup,
                             embeddedCompilerName: String = "dart-sass-embedded",
-                            overallTimeoutSeconds: Int = 60,
+                            timeout: Int = 60,
                             importers: [ImportResolver] = [],
                             functions: SassFunctionMap = [:]) throws {
         let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName, stderr: .discard)
@@ -148,7 +148,7 @@ public final class Compiler: CompilerProtocol {
         }
         try self.init(eventLoopGroup: eventLoopGroup,
                       embeddedCompilerURL: URL(fileURLWithPath: path),
-                      overallTimeoutSeconds: overallTimeoutSeconds,
+                      timeout: timeout,
                       importers: importers,
                       functions: functions)
     }
@@ -325,7 +325,7 @@ public final class Compiler: CompilerProtocol {
                 createSourceMap: createSourceMap,
                 importers: globalImporters + importers,
                 functionsMap: mergedFnsNameMap,
-                timeoutSeconds: overallTimeout,
+                timeout: timeout,
                 resetRequest: { handle(error: $0) })
 
             pendingCompilations.append(compilation)
@@ -426,7 +426,7 @@ public final class Compiler: CompilerProtocol {
         case .error(let error):
             return eventLoop.makeFailedFuture(ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)"))
         default:
-            return eventLoop.makeFailedFuture(ProtocolError("Sass compiler sent something uninterpretable: \(message)."))
+            return eventLoop.makeFailedFuture(ProtocolError("Sass compiler sent something uninterpretable: \(message)"))
         }
     }
 
@@ -678,7 +678,7 @@ final class Compilation {
     private let importers: [ImportResolver]
     private let functions: SassFunctionMap
     private var messages: [CompilerMessage]
-    private let timeoutSeconds: Int
+    private let timeout: Int
     private var timer: Scheduled<Void>?
     private let resetRequest: (Error) -> Void
 
@@ -687,6 +687,7 @@ final class Compilation {
         defer { _nextCompilationID += 1 }
         return _nextCompilationID
     }
+    static var peekNextCompilationID: UInt32 { _nextCompilationID } // test
 
     var compilationID: UInt32 {
         compileReq.id
@@ -711,12 +712,12 @@ final class Compilation {
          createSourceMap: Bool,
          importers: [ImportResolver],
          functionsMap: [SassFunctionSignature : (String, SassFunction)],
-         timeoutSeconds: Int,
+         timeout: Int,
          resetRequest: @escaping (Error) -> Void) {
         self.promise = promise
         self.importers = importers
         self.functions = functionsMap.mapValues { $0.1 }
-        self.timeoutSeconds = timeoutSeconds
+        self.timeout = timeout
         self.timer = nil
         self.resetRequest = resetRequest
         self.compileReq = .with { msg in
@@ -746,10 +747,10 @@ final class Compilation {
 
     /// Notify that the initial compile-req has been sent.
     func notifyStart() {
-        if timeoutSeconds >= 0 {
-            debug("send Compile-Req, starting \(timeoutSeconds)s timer")
-            timer = eventLoop.scheduleTask(in: .seconds(Int64(timeoutSeconds))) { [self] in
-                resetRequest(ProtocolError("Timeout: job \(compilationID) timed out after \(timeoutSeconds)"))
+        if timeout >= 0 {
+            debug("send Compile-Req, starting \(timeout)s timer")
+            timer = eventLoop.scheduleTask(in: .seconds(Int64(timeout))) { [self] in
+                resetRequest(ProtocolError("Timeout: job \(compilationID) timed out after \(timeout)s"))
             }
         } else {
             debug("send Compile-Req, no timeout")
@@ -783,8 +784,13 @@ final class Compilation {
             //        case .functionCallRequest(let req):
             //            try receive(functionCallRequest: req)
 
-            default:
-                throw ProtocolError("Unexpected message for compilationID \(compilationID): \(message)")
+            case .canonicalizeRequest(_),
+                 .importRequest(_),
+                 .functionCallRequest(_):
+                throw ProtocolError("Unimplemented message for compilationID \(compilationID): \(message)")
+
+            case nil, .error(_), .fileImportRequest(_):
+                preconditionFailure("Unreachable: message type not associated with compilationID \(message)")
             }
         } catch {
             return eventLoop.makeFailedFuture(error)

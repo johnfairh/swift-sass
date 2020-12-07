@@ -52,6 +52,14 @@ class EmbeddedSassTestCase: XCTestCase {
         return c
     }
 
+    func newBadCompiler(timeout: Int = 1) throws -> Compiler {
+        Compiler.logger.logLevel = .debug
+        let c = try Compiler(eventLoopGroup: eventLoopGroup,
+                             embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
+                             timeout: timeout)
+        return c
+    }
+
     // Helper to trigger & validate a protocol error
     func checkProtocolError(_ compiler: Compiler, _ text: String? = nil) {
         do {
@@ -65,6 +73,12 @@ class EmbeddedSassTestCase: XCTestCase {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+    }
+
+    // Helper to check a compiler is working normally
+    func checkCompilerWorking(_ compiler: Compiler) throws {
+        let results = try compiler.compile(text: "")
+        XCTAssertEqual("", results.css)
     }
 }
 

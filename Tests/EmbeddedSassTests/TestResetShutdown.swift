@@ -32,27 +32,21 @@ class TestResetShutdown: EmbeddedSassTestCase {
         checkProtocolError(compiler)
 
         // check recovered
-        let results = try compiler.compile(text: "")
-        XCTAssertEqual("", results.css)
+        try checkCompilerWorking(compiler)
     }
 
     // Check we detect stuck requests
     func testTimeout() throws {
-        let badCompiler = try Compiler(eventLoopGroup: eventLoopGroup,
-                                       embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
-                                       overallTimeoutSeconds: 1)
-        Compiler.logger.logLevel = .trace
+        let badCompiler = try newBadCompiler()
 
         checkProtocolError(badCompiler, "Timeout")
+
         try badCompiler.shutdownGracefully().wait()
     }
 
     // Test disabling the timeout works
     func testTimeoutDisabled() throws {
-        let badCompiler = try Compiler(eventLoopGroup: eventLoopGroup,
-                                       embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
-                                       overallTimeoutSeconds: -1)
-        Compiler.logger.logLevel = .trace
+        let badCompiler = try newBadCompiler(timeout: -1)
 
         var compilationComplete = false
 
@@ -82,10 +76,10 @@ class TestResetShutdown: EmbeddedSassTestCase {
         let tmpHeadURL = tmpDir.appendingPathComponent("tail")
         try FileManager.default.copyItem(at: realHeadURL, to: tmpHeadURL)
 
+        Compiler.logger.logLevel = .debug
         let badCompiler = try Compiler(eventLoopGroup: eventLoopGroup,
                                        embeddedCompilerURL: tmpHeadURL,
-                                       overallTimeoutSeconds: 1)
-        Compiler.logger.logLevel = .trace
+                                       timeout: 1)
 
         // it's now running using the copied program
         try FileManager.default.removeItem(at: tmpHeadURL)
@@ -123,14 +117,12 @@ class TestResetShutdown: EmbeddedSassTestCase {
         XCTAssertThrowsError(try compiler.reinit().wait())
 
         // Compilation is not OK
-        XCTAssertThrowsError(try compiler.compile(text: ""))
+        XCTAssertThrowsError(try checkCompilerWorking(compiler))
+
     }
 
     func testStuckShutdown() throws {
-        let badCompiler = try Compiler(eventLoopGroup: eventLoopGroup,
-                                       embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
-                                       overallTimeoutSeconds: 1)
-        Compiler.logger.logLevel = .trace
+        let badCompiler = try newBadCompiler()
 
         // job hangs
         let compileResult = badCompiler.compileAsync(text: "")
