@@ -12,7 +12,7 @@ platform ?= macos
 endif
 
 test: Tests/EmbeddedSassTests/dart-sass-embedded/${platform}
-	swift test --parallel --enable-test-discovery --enable-code-coverage
+	swift test --enable-test-discovery --enable-code-coverage
 
 test_linux:
 	docker run -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:5.3 make test
