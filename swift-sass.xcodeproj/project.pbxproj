@@ -42,7 +42,9 @@
 		0289BB40256BDE460004544A /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB3F256BDE460004544A /* String.swift */; };
 		0289BB4A256BEE760004544A /* TestString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB49256BEE760004544A /* TestString.swift */; };
 		0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C7256000A400F6BE14 /* TestInterface.swift */; };
-		0291E7CA2562E82F00F6BE14 /* TestErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C92562E82F00F6BE14 /* TestErrors.swift */; };
+		0291E7CA2562E82F00F6BE14 /* TestCompilerErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C92562E82F00F6BE14 /* TestCompilerErrors.swift */; };
+		029B4F8E257E569D00A768D2 /* TestResetShutdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F8D257E569D00A768D2 /* TestResetShutdown.swift */; };
+		029B4F91257E578600A768D2 /* TestProtocolErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F90257E578600A768D2 /* TestProtocolErrors.swift */; };
 		02A346E9257AAE3D00A14905 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 02A346E8257AAE3D00A14905 /* Logging */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
 		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
@@ -123,7 +125,9 @@
 		0289BB3F256BDE460004544A /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		0289BB49256BEE760004544A /* TestString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestString.swift; sourceTree = "<group>"; };
 		0291E7C7256000A400F6BE14 /* TestInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestInterface.swift; sourceTree = "<group>"; };
-		0291E7C92562E82F00F6BE14 /* TestErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestErrors.swift; sourceTree = "<group>"; };
+		0291E7C92562E82F00F6BE14 /* TestCompilerErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCompilerErrors.swift; sourceTree = "<group>"; };
+		029B4F8D257E569D00A768D2 /* TestResetShutdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestResetShutdown.swift; sourceTree = "<group>"; };
+		029B4F90257E578600A768D2 /* TestProtocolErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolErrors.swift; sourceTree = "<group>"; };
 		OBJ_10 /* Compiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compiler.swift; sourceTree = "<group>"; };
 		OBJ_11 /* embedded_sass.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = embedded_sass.pb.swift; sourceTree = "<group>"; };
 		OBJ_15 /* TestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
@@ -233,7 +237,9 @@
 			isa = PBXGroup;
 			children = (
 				0291E7C7256000A400F6BE14 /* TestInterface.swift */,
-				0291E7C92562E82F00F6BE14 /* TestErrors.swift */,
+				0291E7C92562E82F00F6BE14 /* TestCompilerErrors.swift */,
+				029B4F8D257E569D00A768D2 /* TestResetShutdown.swift */,
+				029B4F90257E578600A768D2 /* TestProtocolErrors.swift */,
 				0289BB362566A62B0004544A /* TestImporters.swift */,
 				0285E827256C4C2900956F18 /* TestFunctions.swift */,
 				OBJ_15 /* TestUtils.swift */,
@@ -425,6 +431,7 @@
 			buildActionMask = 0;
 			files = (
 				0285E843256FCEDA00956F18 /* TestMap.swift in Sources */,
+				029B4F8E257E569D00A768D2 /* TestResetShutdown.swift in Sources */,
 				0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */,
 				0285E85625756B1500956F18 /* TestColor.swift in Sources */,
 				0285E828256C4C2900956F18 /* TestFunctions.swift in Sources */,
@@ -433,7 +440,8 @@
 				0285E834256EEE5300956F18 /* TestConstants.swift in Sources */,
 				02440A1925765C0C008F0862 /* TestFunction.swift in Sources */,
 				OBJ_131 /* TestUtils.swift in Sources */,
-				0291E7CA2562E82F00F6BE14 /* TestErrors.swift in Sources */,
+				029B4F91257E578600A768D2 /* TestProtocolErrors.swift in Sources */,
+				0291E7CA2562E82F00F6BE14 /* TestCompilerErrors.swift in Sources */,
 				0289BB372566A62B0004544A /* TestImporters.swift in Sources */,
 				0285E82E256EDB6700956F18 /* TestList.swift in Sources */,
 			);

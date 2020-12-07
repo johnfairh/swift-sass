@@ -45,7 +45,7 @@ public final class Compiler: CompilerProtocol {
         case initializing(EventLoopPromise<Void>)
         /// Child is running and accepting compilation jobs.
         case running(Exec.Child)
-        /// Child is broken.  Fail new jobs with the error.
+        /// Child is broken.  Fail new jobs with the error.  Reinit permitted.
         case broken(Error)
         /// System is shutting down, ongoing jobs will complete but no new.
         /// Shutdown will be done when promise completes.
@@ -70,6 +70,9 @@ public final class Compiler: CompilerProtocol {
 
     /// Compiler process state.  Internal for test access.
     private(set) var state: State
+
+    /// Number of times we've tried to start the embedded Sass compiler.
+    public private(set) var startCount: Int
 
     /// The URL of the compiler program
     private let embeddedCompilerURL: URL
@@ -115,6 +118,7 @@ public final class Compiler: CompilerProtocol {
         pendingCompilations = []
         activeCompilations = [:]
         let startPromise = eventLoop.makePromise(of: Void.self)
+        startCount = 0
         state = .initializing(startPromise)
         startCompiler().cascade(to: startPromise)
 
@@ -167,6 +171,7 @@ public final class Compiler: CompilerProtocol {
     private func startCompiler() -> EventLoopFuture<Void> {
         precondition(activeCompilations.isEmpty)
         var nextChild: Exec.Child!
+        startCount += 1
         return initThread.runIfActive(eventLoop: eventLoop) {
             nextChild = try Exec.spawn(self.embeddedCompilerURL, group: self.eventLoop)
         }.flatMap {
@@ -561,14 +566,6 @@ public final class Compiler: CompilerProtocol {
         }
     }
 
-    /// Inbound message dispatch, top-level validation
-//    private func receiveMessages() throws -> CompilerResults {
-//        let timer = Timer()
-//
-//            let elapsedTime = timer.elapsed
-//            let timeout = overallTimeout < 0 ? -1 : max(1, overallTimeout - elapsedTime)
-//    }
-
 //
 //    // MARK: Importers
 //
@@ -749,14 +746,18 @@ final class Compilation {
 
     /// Notify that the initial compile-req has been sent.
     func notifyStart() {
-        debug("send Compile-Req, starting \(timeoutSeconds)s timer")
-        timer = eventLoop.scheduleTask(in: .seconds(Int64(timeoutSeconds))) { [self] in
-            resetRequest(ProtocolError("Timeout: job \(compilationID) timed out after \(timeoutSeconds)"))
+        if timeoutSeconds >= 0 {
+            debug("send Compile-Req, starting \(timeoutSeconds)s timer")
+            timer = eventLoop.scheduleTask(in: .seconds(Int64(timeoutSeconds))) { [self] in
+                resetRequest(ProtocolError("Timeout: job \(compilationID) timed out after \(timeoutSeconds)"))
+            }
+        } else {
+            debug("send Compile-Req, no timeout")
         }
     }
 
     /// Abandon the job with a given error - because it never gets a chance to start or as a result
-    /// of a timeout -> reset.
+    /// of a timeout -> reset, or because of a protocol error on another job.
     func cancel(with error: Error) {
         timer?.cancel()
         promise.fail(error)

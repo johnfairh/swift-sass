@@ -1,5 +1,5 @@
 //
-//  TestErrors.swift
+//  TestCompilerErrors.swift
 //  EmbeddedSassTests
 //
 //  Copyright 2020 swift-sass contributors
@@ -7,13 +7,14 @@
 //
 
 import XCTest
+import NIO
 @testable import EmbeddedSass
 
 ///
 /// Tests for compiler error decoding and transmission.
-/// Plus warnings; plus protocol errors
+/// Plus warnings etc.
 ///
-class TestErrors: EmbeddedSassTestCase {
+class TestCompilerErrors: EmbeddedSassTestCase {
     let badSass = """
     @mixin reflexive-position($property, $value)
       @if $property != left and $property != right
@@ -154,125 +155,6 @@ class TestErrors: EmbeddedSassTestCase {
             let results = try compiler.compile(text: badWarningScss, syntax: .scss)
             XCTFail("Managed to compile nonsense: \(results)")
         } catch let error as CompilerError {
-            print(error)
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
-    }
-
-    // Helper to trigger & test a protocol error
-    func checkProtocolError(_ compiler: Compiler, _ text: String? = nil) {
-        do {
-            let results = try compiler.compile(text: "")
-            XCTFail("Managed to compile with compiler that should have failed: \(results)")
-        } catch let error as ProtocolError {
-            print(error)
-            if let text = text {
-                XCTAssertTrue(error.description.contains(text))
-            }
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
-    }
-
-    // Deal with missing child & SIGPIPE-avoidance measures
-    func testChildTermination() throws {
-        let compiler = try newCompiler()
-        let rc = kill(try compiler.compilerProcessIdentifier.wait()!, SIGTERM)
-        XCTAssertEqual(0, rc)
-        print("XCKilled compiler process")
-        checkProtocolError(compiler)
-
-        // check recovered
-        let results = try compiler.compile(text: "")
-        XCTAssertEqual("", results.css)
-    }
-
-    // make this an actual test
-//    func testColdReset() throws {
-//        let compiler = try newCompiler()
-//
-//        try compiler.reinit().wait()
-//    }
-
-    // Deal with in-band reported protocol error
-    func testProtocolError() throws {
-        let compiler = try newCompiler()
-        let msg = Sass_EmbeddedProtocol_InboundMessage.with { msg in
-            msg.importResponse = .with { rsp in
-                rsp.id = 108
-            }
-        }
-        try compiler.state.child!.standardInput.writeAndFlush(msg).wait()
-
-        checkProtocolError(compiler, "108")
-
-        // check compiler is now working OK
-        let results = try compiler.compile(text: "")
-        XCTAssertEqual("", results.css)
-    }
-
-    // If this were a real/critical product I'd write a badly-behaved Sass
-    // compiler to explore all the protocol errors, timeouts, etc.
-    //
-    // Instead, dumb timeout tests exercising the overall timeout path,
-    // using tail(1) as a poor Sass compiler.
-
-    // Check we detect stuck requests
-    func testTimeout() throws {
-        let badCompiler = try Compiler(eventLoopGroup: eventLoopGroup,
-                                       embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
-                                       overallTimeoutSeconds: 1)
-        Compiler.logger.logLevel = .trace
-
-        checkProtocolError(badCompiler, "Timeout")
-        try badCompiler.shutdownGracefully().wait()
-//        _ = try badCompiler.compilerProcessIdentifier.wait()
-    }
-//
-//    // Test disabling the timeout works
-//    func testTimeoutDisabled() throws {
-//        let badCompiler = try Compiler(embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
-//                                       overallTimeoutSeconds: -1)
-//        badCompiler.debugHandler = { m in print("debug: \(m)") }
-//
-//        // TODO-NIO: make this less disgusting and more likely to pass TSAN
-//
-//        Thread.detachNewThread {
-//            sleep(1)
-//            badCompiler.child.process.terminate()
-//        }
-//        checkProtocolError(badCompiler, "underran")
-//    }
-//
-    // Test the 'compiler will not restart' corner
-    func testUnrestartableCompiler() throws {
-        let tmpDir = try FileManager.default.createTemporaryDirectory()
-        let realHeadURL = URL(fileURLWithPath: "/usr/bin/tail")
-        let tmpHeadURL = tmpDir.appendingPathComponent("tail")
-        try FileManager.default.copyItem(at: realHeadURL, to: tmpHeadURL)
-
-        let badCompiler = try Compiler(eventLoopGroup: eventLoopGroup,
-                                       embeddedCompilerURL: tmpHeadURL,
-                                       overallTimeoutSeconds: 1)
-        Compiler.logger.logLevel = .trace
-
-        // it's now running using the copied program
-        try FileManager.default.removeItem(at: tmpHeadURL)
-
-        // Use the instance we have up, will timeout & be killed
-        // ho hum, on GitHub Actions sometimes we get a pipe error instead
-        // either is fine, as long as it fails somehow.
-        checkProtocolError(badCompiler)
-
-        // Should be in idle_broken, restart not possible
-        checkProtocolError(badCompiler, "failed to restart")
-
-        // Try to recover - no dice
-        do {
-            try badCompiler.reinit().wait()
-            XCTFail("Managed to reinit somehow")
-        } catch let error as NSError {
             print(error)
         } catch {
             XCTFail("Unexpected error: \(error)")

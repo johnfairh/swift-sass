@@ -51,6 +51,21 @@ class EmbeddedSassTestCase: XCTestCase {
                              functions: functions)
         return c
     }
+
+    // Helper to trigger & validate a protocol error
+    func checkProtocolError(_ compiler: Compiler, _ text: String? = nil) {
+        do {
+            let results = try compiler.compile(text: "")
+            XCTFail("Managed to compile with compiler that should have failed: \(results)")
+        } catch let error as ProtocolError {
+            print(error)
+            if let text = text {
+                XCTAssertTrue(error.description.contains(text))
+            }
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
 }
 
 extension String {
