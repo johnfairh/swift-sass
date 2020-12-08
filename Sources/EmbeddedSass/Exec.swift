@@ -197,16 +197,15 @@ enum Exec {
 
     /// A running child process with NIO connections.
     ///
-    /// Nothing happens at deinit - client needs to close the streams / kill the process
+    /// Nothing happens at deinit - client needs to close the stream / kill the process
     /// as required.
     final class Child {
         /// The `Process` object for the child
         let process: Process
-        private let channel: Channel
+        /// A NIO Channel representing both the child's stdin (write to it) and stdout (read from it)
+        let channel: Channel
         /// The child's `stdin`.  Write to it.
-        var standardInput: Channel { channel }
         /// The child's `stdout`.  Read from it.
-        var standardOutput: Channel { channel }
 
         init(process: Process, channel: Channel) {
             self.process = process

@@ -23,7 +23,7 @@ class TestProtocolErrors: EmbeddedSassTestCase {
                 rsp.id = 108
             }
         }
-        try compiler.child().standardInput.writeAndFlush(msg).wait()
+        try compiler.child().channel.writeAndFlush(msg).wait()
 
         checkProtocolError(compiler, "108")
 
@@ -102,7 +102,7 @@ class TestProtocolErrors: EmbeddedSassTestCase {
         // Peculiar error
         let compileResult2 = compiler.compileAsync(text: "")
         compiler.eventLoop.execute {
-            try! compiler.child().standardOutput.pipeline.fireErrorCaught(ProtocolError("Injected channel error"))
+            try! compiler.child().channel.pipeline.fireErrorCaught(ProtocolError("Injected channel error"))
         }
         do {
             let results = try compileResult2.wait()
