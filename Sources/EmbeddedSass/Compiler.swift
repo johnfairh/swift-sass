@@ -6,10 +6,15 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
-import Foundation
+import Foundation // for URL !
 import NIO
 import Logging
 @_exported import Sass
+
+// Compiler -- interface, control state machine
+// CompilerChild -- Child process, NIO reads and writes
+// CompilerWork -- Sass stuff, protocol, job management
+// Compilation -- job state, many, managed by CompilerWork
 
 /// An instance of the embedded Sass compiler hosted in Swift.
 ///
@@ -44,16 +49,16 @@ public final class Compiler: CompilerProtocol {
         /// No child, new jobs wait on promise with new state.
         case initializing(EventLoopFuture<Void>)
         /// Child is running and accepting compilation jobs.
-        case running(Exec.Child)
+        case running(CompilerChild)
         /// Child is broken.  Fail new jobs with the error.  Reinit permitted.
         case broken(Error)
         /// System is shutting down, ongoing jobs will complete but no new.
         /// Shutdown will be done when promise completes.
-        case quiescing(Exec.Child, EventLoopFuture<Void>)
+        case quiescing(CompilerChild, EventLoopFuture<Void>)
         /// Compiler is shut down.  Fail new jobs.
         case shutdown
 
-        var child: Exec.Child? {
+        var child: CompilerChild? {
             switch self {
             case .running(let c), .quiescing(let c, _): return c
             case .initializing(_), .broken(_), .shutdown: return nil
@@ -192,7 +197,7 @@ public final class Compiler: CompilerProtocol {
     /// The process ID is reported as `nil` if there currently is no running child process.
     public var compilerProcessIdentifier: EventLoopFuture<Int32?> {
         eventLoop.submit {
-            self.state.child?.process.processIdentifier
+            self.state.child?.processIdentifier
         }
     }
 
@@ -297,19 +302,8 @@ public final class Compiler: CompilerProtocol {
         case .running(let child):
             // goodpath
             work.startAllPending().forEach {
-                send(message: $0, to: child)
+                child.send(message: $0)
             }
-        }
-    }
-
-    /// Central message-sending and write-error detection.
-    private func send(message: Sass_EmbeddedProtocol_InboundMessage, to child: Exec.Child) {
-        eventLoop.preconditionInEventLoop()
-
-        let writePromise = eventLoop.makePromise(of: Void.self)
-        child.channel.writeAndFlush(message, promise: writePromise)
-        writePromise.futureResult.whenFailure { error in
-            self.handle(error: ProtocolError("Write to Sass compiler failed: \(error)."))
         }
     }
 
@@ -321,19 +315,17 @@ public final class Compiler: CompilerProtocol {
     /// When this future completes the system is either in running or broken.
     private func startCompiler() -> EventLoopFuture<Void> {
         precondition(!work.hasActiveCompilations)
-        var nextChild: Exec.Child!
         startCount += 1
-        return initThread.runIfActive(eventLoop: eventLoop) {
-            nextChild = try Exec.spawn(self.embeddedCompilerURL, group: self.eventLoop)
-        }.flatMap {
-            ProtocolWriter.addHandler(to: nextChild.channel)
-        }.flatMap {
-            ProtocolReader.addHandler(to: nextChild.channel)
-        }.flatMap {
-            nextChild.channel.pipeline.addHandler(InboundMsgHandler(compiler: self))
-        }.map {
+        return initThread.runIfActive(eventLoop: eventLoop) { [self] in
+            try CompilerChild(eventLoop: eventLoop,
+                              url: embeddedCompilerURL,
+                              work: work,
+                              errorHandler: { [unowned self] in self.handle(error: $0) })
+        }.flatMap { child in
+            child.addChannelHandlers()
+        }.map { child in
             self.debug("Compiler is started")
-            self.state = .running(nextChild)
+            self.state = .running(child)
             self.kickPendingCompilations()
         }.flatMapErrorThrowing { error in
             self.debug("Can't start the compiler at all: \(error)")
@@ -346,10 +338,10 @@ public final class Compiler: CompilerProtocol {
     /// Central transport/protocol error detection and 'recovery'.
     ///
     /// Errors come from:
-    /// 1. Write transport errors, reported by a promise from `send(message:to:)`
-    /// 2. Read transport errors, reported by the channel handler from `InboundMsgHandler.errorCaught(...)`
-    /// 3. Protocol errors reported by the Sass compiler, from `receieveGlobal(message:)`
-    /// 4. Protocol errors detected by us, from `receive(message)` and `Compilation.receive(message)`.
+    /// 1. Write transport errors, reported by a promise from `CompilerChild.send(message:to:)`
+    /// 2. Read transport errors, reported by the channel handler from `CompilerChild.errorCaught(...)`
+    /// 3. Protocol errors reported by the Sass compiler, from `CompilerWork.receieveGlobal(message:)`
+    /// 4. Protocol errors detected by us, from `Compilation.receive(message)`.
     /// 5. User-injected restarts, from `reinit()`.
     /// 6. Timeouts, from `CompilerWork`'s reset API.
     ///
@@ -359,18 +351,13 @@ public final class Compiler: CompilerProtocol {
     func handle(error: Error) -> EventLoopFuture<Void> {
         eventLoop.preconditionInEventLoop()
 
-        func cancelWork(child: Exec.Child, with error: Error) {
-            child.terminate()
-            work.cancelAllActive(with: error)
-        }
-
         switch state {
         case .initializing(let future):
             return future
 
         case .running(let child):
             debug("Restarting compiler from running")
-            cancelWork(child: child, with: error)
+            child.stopAndCancelWork(with: error)
             return state.toInitializing(
                 work.quiesce().flatMap {
                     self.debug("No outstanding compilations, restarting compiler")
@@ -385,7 +372,7 @@ public final class Compiler: CompilerProtocol {
             // Nasty corner - stay in this state but try to
             // hurry things along.
             debug("Error while quiescing, stopping compiler")
-            cancelWork(child: child, with: error)
+            child.stopAndCancelWork(with: error)
             return future
 
         case .shutdown:
@@ -414,7 +401,7 @@ public final class Compiler: CompilerProtocol {
             return state.toQuiescing(
                 work.quiesce().flatMap { () -> EventLoopFuture<Void> in
                     self.debug("No outstanding compilations, shutting down compiler")
-                    child.terminate()
+                    child.stopAndCancelWork()
                     return self.initThread.shutdownGracefully(eventLoop: self.eventLoop)
                 }.map {
                     self.debug("Compiler is shutdown")
@@ -429,42 +416,98 @@ public final class Compiler: CompilerProtocol {
             return future
         }
     }
+}
 
-    /// Inbound message handler
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) {
+/// NIO layer
+///
+/// Looks after the actual child process.
+/// Knows how to set up the channel pipeline.
+/// Routes inbound messages to CompilerWork.
+final class CompilerChild: ChannelInboundHandler {
+    typealias InboundIn = Sass_EmbeddedProtocol_OutboundMessage
+
+    /// Our event loop
+    private let eventLoop: EventLoop
+    /// The child process
+    private let child: Exec.Child
+    /// The work manager
+    private let work: CompilerWork
+    /// Error handling
+    private let errorHandler: (Error) -> Void
+
+    /// API
+    var processIdentifier: Int32 {
+        child.process.processIdentifier
+    }
+
+    /// Test
+    var channel: Channel {
+        child.channel
+    }
+
+    /// Create a new Sass compiler process.
+    ///
+    /// Must not be called in an event loop!  But I don't know how to check that.
+    init(eventLoop: EventLoop, url: URL, work: CompilerWork, errorHandler: @escaping (Error) -> Void) throws {
+        self.child = try Exec.spawn(url, group: eventLoop)
+        self.eventLoop = eventLoop
+        self.work = work
+        self.errorHandler = errorHandler
+    }
+
+    /// Connect Sass protocol handlers.
+    func addChannelHandlers() -> EventLoopFuture<CompilerChild> {
+        ProtocolWriter.addHandler(to: child.channel)
+            .flatMap {
+                ProtocolReader.addHandler(to: self.child.channel)
+            }.flatMap {
+                self.child.channel.pipeline.addHandler(self)
+            }.map {
+                self
+            }
+    }
+
+    /// Send a message to the Sass compiler with error detection.
+    @discardableResult
+    func send(message: Sass_EmbeddedProtocol_InboundMessage) -> EventLoopFuture<Void> {
         eventLoop.preconditionInEventLoop()
-        debug("Rx: \(message.logMessage)")
-
-        guard let child = state.child else {
-            debug("    discarding, compiler is resetting")
-            return // don't care, got no jobs left
+        return child.channel.writeAndFlush(message).flatMapError { error in
+            self.errorHandler(ProtocolError("Write to Sass compiler failed: \(error)."))
+            return self.eventLoop.makeFailedFuture(error)
         }
+    }
+
+    /// Called from the pipeline handler with a new message
+    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+        eventLoop.preconditionInEventLoop()
+        receive(message: unwrapInboundIn(data))
+    }
+
+    /// Split out for test access
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) {
+        Compiler.logger.debug("Rx: \(message.logMessage)")
 
         work.receive(message: message).map {
             if let response = $0 {
-                self.send(message: response, to: child)
+                self.send(message: response)
             }
         }.whenFailure {
-            self.handle(error: $0)
+            self.errorHandler($0)
         }
     }
-}
 
-/// Shim final read channel handler, pass on to Compiler
-private final class InboundMsgHandler: ChannelInboundHandler {
-    typealias InboundIn = Sass_EmbeddedProtocol_OutboundMessage
-
-    private weak var compiler: Compiler?
-
-    init(compiler: Compiler) {
-        self.compiler = compiler
-    }
-
-    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
-        compiler?.receive(message: unwrapInboundIn(data))
-    }
-
+    /// Called from NIO up the stack if something goes wrong with the inbound connection
     func errorCaught(context: ChannelHandlerContext, error: Error) {
-        compiler?.handle(error: ProtocolError("Read from Sass compiler failed: \(error)"))
+        errorHandler(ProtocolError("Read from Sass compiler failed: \(error)"))
+    }
+
+    /// Shutdown point - stop the child process to clean up the channel.
+    /// Cascade to `CompilerWork` so it stops waiting for responses -- this is a little bit spaghetti but it's helpful
+    /// to keep them tightly bound.
+    func stopAndCancelWork(with error: Error? = nil) {
+        child.terminate()
+        if let error = error {
+            work.cancelAllActive(with: error)
+        }
     }
 }

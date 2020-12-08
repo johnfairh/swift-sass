@@ -277,8 +277,8 @@
 			children = (
 				OBJ_10 /* Compiler.swift */,
 				02A3BC0025800D0600BBF99E /* CompilerWork.swift */,
-				025C6251255D54C000AEA420 /* Errors.swift */,
 				025C624E255D2C9300AEA420 /* BinaryProtocol.swift */,
+				025C6251255D54C000AEA420 /* Errors.swift */,
 				OBJ_9 /* Exec.swift */,
 				029B4F93258005C000A768D2 /* NIO+Extras.swift */,
 				0289BB392568471D0004544A /* ProtobufConversion.swift */,

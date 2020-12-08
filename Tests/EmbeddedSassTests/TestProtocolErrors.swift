@@ -23,7 +23,9 @@ class TestProtocolErrors: EmbeddedSassTestCase {
                 rsp.id = 108
             }
         }
-        try compiler.child().channel.writeAndFlush(msg).wait()
+        try compiler.eventLoop.submit {
+            try compiler.child().send(message: msg)
+        }.wait().wait() // !! what have I done
 
         checkProtocolError(compiler, "108")
 
@@ -57,13 +59,8 @@ class TestProtocolErrors: EmbeddedSassTestCase {
         try checkCompilerWorking(compiler)
         XCTAssertEqual(3, compiler.startCount)
 
-        // response to a job when we're not interested
+        // response to a job when we're not interested [legacy, refactored away!]
         try compiler.shutdownGracefully().wait()
-        compiler.eventLoop.execute {
-            let badMsg = Sass_EmbeddedProtocol_OutboundMessage()
-            compiler.receive(message: badMsg)
-        }
-
         XCTAssertNil(try compiler.compilerProcessIdentifier.wait())
         XCTAssertEqual(3, compiler.startCount) // no more resets
     }
@@ -120,10 +117,14 @@ class TestProtocolErrors: EmbeddedSassTestCase {
 }
 
 extension Compiler {
-    func child() throws -> Exec.Child {
+    func child() throws -> CompilerChild {
         guard let child = state.child else {
             throw ProtocolError("Wrong state for child")
         }
         return child
+    }
+
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) {
+        try! child().receive(message: message)
     }
 }
