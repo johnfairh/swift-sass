@@ -43,14 +43,14 @@ public final class Compiler: CompilerProtocol {
 
     enum State {
         /// No child, new jobs wait on promise with new state.
-        case initializing(EventLoopPromise<Void>)
+        case initializing(EventLoopFuture<Void>)
         /// Child is running and accepting compilation jobs.
         case running(Exec.Child)
         /// Child is broken.  Fail new jobs with the error.  Reinit permitted.
         case broken(Error)
         /// System is shutting down, ongoing jobs will complete but no new.
         /// Shutdown will be done when promise completes.
-        case quiescing(Exec.Child, EventLoopPromise<Void>)
+        case quiescing(Exec.Child, EventLoopFuture<Void>)
         /// Compiler is shut down.  Fail new jobs.
         case shutdown
 
@@ -61,11 +61,14 @@ public final class Compiler: CompilerProtocol {
             }
         }
 
-        var isQuiescing: Bool {
-            switch self {
-            case .initializing(_), .quiescing(_, _): return true
-            case .running(_), .broken(_), .shutdown: return false
-            }
+        mutating func toInitializing(_ future: EventLoopFuture<Void>) -> EventLoopFuture<Void> {
+            self = .initializing(future)
+            return future
+        }
+
+        mutating func toQuiescing(_ future: EventLoopFuture<Void>) -> EventLoopFuture<Void> {
+            self = .quiescing(child!, future) // ! -> must be running to start quiesce
+            return future
         }
     }
 
@@ -108,17 +111,15 @@ public final class Compiler: CompilerProtocol {
         initThread.start()
         work = nil
         self.embeddedCompilerURL = embeddedCompilerURL
-        let startPromise = eventLoop.makePromise(of: Void.self)
+        state = .shutdown
         startCount = 0
-        state = .initializing(startPromise)
+        // self init done
         work = CompilerWork(eventLoop: eventLoop,
                             resetRequest: { [unowned self] in handle(error: $0) },
                             timeout: timeout,
                             importers: importers,
                             functions: functions)
-        startCompiler().cascade(to: startPromise)
-
-        try startPromise.futureResult.wait()
+        try state.toInitializing(startCompiler()).wait()
     }
 
     /// Use a program found on `PATH` as the embedded Sass compiler.
@@ -246,14 +247,13 @@ public final class Compiler: CompilerProtocol {
                              importers: [ImportResolver] = [],
                              functions: SassFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
         eventLoop.flatSubmit { [self] in
-            let r = work.addPendingCompilation(
+            defer { kickPendingCompilations() }
+            return work.addPendingCompilation(
                 input: .path(fileURL.path),
                 outputStyle: outputStyle,
                 createSourceMap: createSourceMap,
                 importers: importers,
                 functions: functions)
-            kickPendingCompilations()
-            return r
         }
     }
 
@@ -278,7 +278,8 @@ public final class Compiler: CompilerProtocol {
                              importers: [ImportResolver] = [],
                              functions: SassFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
         eventLoop.flatSubmit { [self] in
-            let r = work.addPendingCompilation(
+            defer { kickPendingCompilations() }
+            return work.addPendingCompilation(
                 input: .string(.with { m in
                     m.source = text
                     m.syntax = .init(syntax)
@@ -288,8 +289,6 @@ public final class Compiler: CompilerProtocol {
                 createSourceMap: createSourceMap,
                 importers: importers,
                 functions: functions)
-            kickPendingCompilations()
-            return r
         }
     }
 
@@ -380,38 +379,34 @@ public final class Compiler: CompilerProtocol {
     func handle(error: Error) -> EventLoopFuture<Void> {
         eventLoop.preconditionInEventLoop()
 
-        switch state {
-        case .initializing(let promise):
-            // already initializing
-            return promise.futureResult
-
-        case .running(let child):
-            let initPromise = eventLoop.makePromise(of: Void.self)
-            state = .initializing(initPromise)
-            debug("Restarting compiler from running")
+        func cancelWork(child: Exec.Child, with error: Error) {
             child.terminate()
             work.cancelAllActive(with: error)
-            work.quiesce().flatMap {
-                self.debug("No outstanding compilations, restarting compiler")
-                return self.startCompiler()
-            }.cascade(to: initPromise)
-            return initPromise.futureResult
+        }
+
+        switch state {
+        case .initializing(let future):
+            return future
+
+        case .running(let child):
+            debug("Restarting compiler from running")
+            cancelWork(child: child, with: error)
+            return state.toInitializing(
+                work.quiesce().flatMap {
+                    self.debug("No outstanding compilations, restarting compiler")
+                    return self.startCompiler()
+                })
 
         case .broken:
             debug("Restarting compiler from broken")
-            let promise = eventLoop.makePromise(of: Void.self)
-            state = .initializing(promise)
-            startCompiler().cascade(to: promise)
-            return promise.futureResult
+            return state.toInitializing(startCompiler())
 
-        case .quiescing(let child, let promise):
+        case .quiescing(let child, let future):
             // Nasty corner - stay in this state but try to
             // hurry things along.
             debug("Error while quiescing, stopping compiler")
-            child.terminate()
-            // don't kick quiesce, not entering quiescing state...
-            work.cancelAllActive(with: error)
-            return promise.futureResult
+            cancelWork(child: child, with: error)
+            return future
 
         case .shutdown:
             return eventLoop.makeFailedFuture(ProtocolError("Instance is shutdown, ignoring: \(error)"))
@@ -425,40 +420,33 @@ public final class Compiler: CompilerProtocol {
         eventLoop.preconditionInEventLoop()
 
         switch state {
-        case .initializing(let initPromise):
+        case .initializing(let initFuture):
             debug("Shutdown during restart, deferring")
             // Nasty corner - wait for the init to resolve and then
             // try again!
-            let shutdownPromise = eventLoop.makePromise(of: Void.self)
-            initPromise.futureResult.whenComplete { _ in
+            return initFuture.flatMap { _ in
                 self.debug("Reissuing deferred shutdown")
-                self.shutdown().cascade(to: shutdownPromise)
+                return self.shutdown()
             }
-            return shutdownPromise.futureResult
 
         case .running(let child):
             debug("Shutdown from running")
-            let shutdownPromise = eventLoop.makePromise(of: Void.self)
-            state = .quiescing(child, shutdownPromise)
-            work.quiesce().whenComplete { _ in
-                self.debug("No outstanding compilations, shutting down compiler")
-                child.terminate()
-                self.initThread.shutdownGracefully { _ in
-                    self.eventLoop.execute {
-                        self.debug("Compiler is shutdown")
-                        self.state = .shutdown
-                        shutdownPromise.succeed(())
-                    }
-                }
-            }
-            return shutdownPromise.futureResult
+            return state.toQuiescing(
+                work.quiesce().flatMap { () -> EventLoopFuture<Void> in
+                    self.debug("No outstanding compilations, shutting down compiler")
+                    child.terminate()
+                    return self.initThread.shutdownGracefully(eventLoop: self.eventLoop)
+                }.map {
+                    self.debug("Compiler is shutdown")
+                    self.state = .shutdown
+                })
 
-        case .broken(_), .shutdown:
+        case .broken, .shutdown:
             state = .shutdown
             return eventLoop.makeSucceededFuture(())
 
-        case .quiescing(_, let promise):
-            return promise.futureResult
+        case .quiescing(_, let future):
+            return future
         }
     }
 
