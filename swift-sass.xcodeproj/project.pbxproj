@@ -48,6 +48,7 @@
 		029B4F94258005C000A768D2 /* NIO+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F93258005C000A768D2 /* NIO+Extras.swift */; };
 		02A346E9257AAE3D00A14905 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 02A346E8257AAE3D00A14905 /* Logging */; };
 		02A3BC0125800D0600BBF99E /* CompilerWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0025800D0600BBF99E /* CompilerWork.swift */; };
+		02A3BC052581600700BBF99E /* AsyncCompilerTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
 		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
 		OBJ_120 /* embedded_sass.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* embedded_sass.pb.swift */; };
@@ -132,6 +133,7 @@
 		029B4F90257E578600A768D2 /* TestProtocolErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolErrors.swift; sourceTree = "<group>"; };
 		029B4F93258005C000A768D2 /* NIO+Extras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NIO+Extras.swift"; sourceTree = "<group>"; };
 		02A3BC0025800D0600BBF99E /* CompilerWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerWork.swift; sourceTree = "<group>"; };
+		02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncCompilerTypes.swift; sourceTree = "<group>"; };
 		OBJ_10 /* Compiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compiler.swift; sourceTree = "<group>"; };
 		OBJ_11 /* embedded_sass.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = embedded_sass.pb.swift; sourceTree = "<group>"; };
 		OBJ_15 /* TestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
@@ -275,6 +277,7 @@
 		OBJ_8 /* EmbeddedSass */ = {
 			isa = PBXGroup;
 			children = (
+				02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */,
 				OBJ_10 /* Compiler.swift */,
 				02A3BC0025800D0600BBF99E /* CompilerWork.swift */,
 				025C624E255D2C9300AEA420 /* BinaryProtocol.swift */,
@@ -431,6 +434,7 @@
 				OBJ_119 /* Compiler.swift in Sources */,
 				029B4F94258005C000A768D2 /* NIO+Extras.swift in Sources */,
 				OBJ_120 /* embedded_sass.pb.swift in Sources */,
+				02A3BC052581600700BBF99E /* AsyncCompilerTypes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

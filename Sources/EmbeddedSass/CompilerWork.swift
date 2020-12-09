@@ -9,6 +9,7 @@
 import NIO
 import NIOConcurrencyHelpers
 import Sass
+import Foundation
 
 /// The part of the compiler that deals with actual Sass things rather than process management.
 /// It understands the contents of the Sass protocol messages.
@@ -24,7 +25,7 @@ final class CompilerWork {
     /// Configured max timeout, seconds
     private let timeout: Int
     /// Configured global importer rules, for all compilations
-    private let globalImporters: [ImportResolver]
+    private let globalImporters: [AsyncImportResolver]
     /// Configured functions, for all compilations
     private let globalFunctions: SassFunctionMap
 
@@ -38,7 +39,7 @@ final class CompilerWork {
     init(eventLoop: EventLoop,
          resetRequest: @escaping (Error) -> Void,
          timeout: Int,
-         importers: [ImportResolver],
+         importers: [AsyncImportResolver],
          functions: SassFunctionMap) {
         self.eventLoop = eventLoop
         self.resetRequest = resetRequest
@@ -64,7 +65,7 @@ final class CompilerWork {
     func addPendingCompilation(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
                                outputStyle: CssStyle,
                                createSourceMap: Bool,
-                               importers: [ImportResolver],
+                               importers: [AsyncImportResolver],
                                functions: SassFunctionMap) -> EventLoopFuture<CompilerResults> {
         eventLoop.preconditionInEventLoop()
 
@@ -174,64 +175,6 @@ final class CompilerWork {
 }
 
 //
-//    // MARK: Importers
-//
-//    /// Helper
-//    private func getImporter(importerID: UInt32) throws -> Importer {
-//        let minImporterID = Compiler.baseImporterID
-//        let maxImporterID = minImporterID + UInt32(currentImporters.count) - 1
-//        guard importerID >= minImporterID, importerID <= maxImporterID else {
-//            throw ProtocolError("Bad importer ID \(importerID), out of range (\(minImporterID)-\(maxImporterID))")
-//        }
-//        guard let importer = currentImporters[Int(importerID - minImporterID)].importer else {
-//            throw ProtocolError("Bad importer ID \(importerID), not an importer")
-//        }
-//        return importer
-//    }
-//
-//    /// Inbound `CanonicalizeRequest` handler
-//    private func receive(canonicalizeRequest req: Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest) throws {
-//        let importer = try getImporter(importerID: req.importerID)
-//        var rsp = Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse()
-//        rsp.id = req.id
-//        do {
-//            if let canonicalURL = try importer.canonicalize(importURL: req.url) {
-//                rsp.url = canonicalURL.absoluteString
-//                debug("  tx canon-rsp-success reqid=\(req.id)")
-//            } else {
-//                // leave result nil -> can't deal with this request
-//                debug("  tx canon-rsp-nil reqid=\(req.id)")
-//            }
-//        } catch {
-//            rsp.error = String(describing: error)
-//            debug("  tx canon-rsp-error reqid=\(req.id)")
-//        }
-////        try child.send(message: .with { $0.message = .canonicalizeResponse(rsp) })
-//    }
-//
-//    /// Inbound `ImportRequest` handler
-//    private func receive(importRequest req: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest) throws {
-//        let importer = try getImporter(importerID: req.importerID)
-//        guard let url = URL(string: req.url) else {
-//            throw ProtocolError("Malformed import URL \(req.url)")
-//        }
-//        var rsp = Sass_EmbeddedProtocol_InboundMessage.ImportResponse()
-//        rsp.id = req.id
-//        do {
-//            let results = try importer.load(canonicalURL: url)
-//            rsp.success = .with { msg in
-//                msg.contents = results.contents
-//                msg.syntax = .init(results.syntax)
-//                results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
-//            }
-//            debug("  tx import-rsp-success reqid=\(req.id)")
-//        } catch {
-//            rsp.error = String(describing: error)
-//            debug("  tx import-rsp-error reqid=\(req.id)")
-//        }
-////        try child.send(message: .with { $0.message = .importResponse(rsp) })
-//    }
-//
 //    // MARK: Functions
 //
 //    /// Inbound 'FunctionCallRequest' handler
@@ -269,8 +212,8 @@ final class CompilerWork {
 //        }
 //    }
 
-private extension ImportResolver {
-    var importer: Importer? {
+private extension AsyncImportResolver {
+    var importer: AsyncImporter? {
         switch self {
         case .loadPath(_): return nil
         case .importer(let i): return i
@@ -283,7 +226,7 @@ private extension ImportResolver {
 final class Compilation {
     let compileReq: Sass_EmbeddedProtocol_InboundMessage.CompileRequest
     private let promise: EventLoopPromise<CompilerResults>
-    private let importers: [ImportResolver]
+    private let importers: [AsyncImportResolver]
     private let functions: SassFunctionMap
     private var messages: [CompilerMessage]
     private var timer: Scheduled<Void>?
@@ -317,7 +260,7 @@ final class Compilation {
          input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
          outputStyle: CssStyle,
          createSourceMap: Bool,
-         importers: [ImportResolver],
+         importers: [AsyncImportResolver],
          functionsMap: [SassFunctionSignature : (String, SassFunction)]) {
         self.promise = promise
         self.importers = importers
@@ -328,7 +271,7 @@ final class Compilation {
             msg.input = input
             msg.style = .init(outputStyle)
             msg.sourceMap = createSourceMap
-            msg.importers = .init(importers, startingID: Self.baseImporterID)
+            msg.importers = .init(importers, startingID: Compilation.baseImporterID)
             msg.globalFunctions = functionsMap.values.map { $0.0 }
         }
         self.messages = []
@@ -367,8 +310,6 @@ final class Compilation {
         promise.fail(error)
     }
 
-    static let baseImporterID = UInt32(4000)
-
     /// Inbound messages.  Rework all this error handling stuff when complete.
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
         do {
@@ -379,18 +320,16 @@ final class Compilation {
             case .logEvent(let rsp):
                 try receive(log: rsp)
 
-            //        case .canonicalizeRequest(let req):
-            //            try receive(canonicalizeRequest: req)
-            //
-            //        case .importRequest(let req):
-            //            try receive(importRequest: req)
+            case .canonicalizeRequest(let req):
+                return try receive(canonicalizeRequest: req)
+
+            case .importRequest(let req):
+                return try receive(importRequest: req)
             //
             //        case .functionCallRequest(let req):
             //            try receive(functionCallRequest: req)
 
-            case .canonicalizeRequest(_),
-                 .importRequest(_),
-                 .functionCallRequest(_):
+            case .functionCallRequest(_):
                 throw ProtocolError("Unimplemented message for CompID=\(compilationID): \(message)")
 
             case nil, .error(_), .fileImportRequest(_):
@@ -417,5 +356,74 @@ final class Compilation {
     /// Inbound `LogEvent` handler
     private func receive(log: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) throws {
         try messages.append(.init(log))
+    }
+
+    // MARK: Importers
+
+    static let baseImporterID = UInt32(4000)
+
+    /// Helper
+    private func getImporter(importerID: UInt32) throws -> AsyncImporter {
+        let minImporterID = Compilation.baseImporterID
+        let maxImporterID = minImporterID + UInt32(importers.count) - 1
+        guard importerID >= minImporterID, importerID <= maxImporterID else {
+            throw ProtocolError("Bad importer ID \(importerID), out of range (\(minImporterID)-\(maxImporterID))")
+        }
+        guard let importer = importers[Int(importerID - minImporterID)].importer else {
+            throw ProtocolError("Bad importer ID \(importerID), not an importer")
+        }
+        return importer
+    }
+
+    /// Inbound `CanonicalizeRequest` handler
+    private func receive(canonicalizeRequest req: Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest) throws -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+        let importer = try getImporter(importerID: req.importerID)
+        var rsp = Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse()
+        rsp.id = req.id
+
+        return importer.canonicalize(eventLoop: eventLoop, importURL: req.url)
+            .map { canonURL in
+                if let canonURL = canonURL {
+                    rsp.url = canonURL.absoluteString
+                    self.debug("  tx canon-rsp-success reqid=\(req.id)")
+                } else {
+                    // leave result nil -> can't deal with this request
+                    self.debug("  tx canon-rsp-nil reqid=\(req.id)")
+                }
+                return rsp
+            }.recover { error in
+                rsp.error = String(describing: error)
+                self.debug("  tx canon-rsp-error reqid=\(req.id)")
+                return rsp
+            }.map { rsp in
+                .with { $0.message = .canonicalizeResponse(rsp) }
+            }
+    }
+
+    /// Inbound `ImportRequest` handler
+    private func receive(importRequest req: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest) throws -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+        let importer = try getImporter(importerID: req.importerID)
+        guard let url = URL(string: req.url) else {
+            throw ProtocolError("Malformed import URL \(req.url)")
+        }
+        var rsp = Sass_EmbeddedProtocol_InboundMessage.ImportResponse()
+        rsp.id = req.id
+
+        return importer.load(eventLoop: eventLoop, canonicalURL: url)
+            .map { results in
+                rsp.success = .with { msg in
+                    msg.contents = results.contents
+                    msg.syntax = .init(results.syntax)
+                    results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
+                }
+                self.debug("  tx import-rsp-success reqid=\(req.id)")
+                return rsp
+            }.recover { error in
+                rsp.error = String(describing: error)
+                self.debug("  tx import-rsp-error reqid=\(req.id)")
+                return rsp
+            }.map { rsp in
+                .with { $0.message = .importResponse(rsp) }
+            }
     }
 }

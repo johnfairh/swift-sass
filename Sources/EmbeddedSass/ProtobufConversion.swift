@@ -100,19 +100,19 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OutputStyle {
 }
 
 extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer {
-    init(_ importer: ImportResolver, id: UInt32) {
+    init(_ importer: AsyncImportResolver, id: UInt32) {
         self.init()
         switch importer {
         case .loadPath(let url):
             path = url.path
-        case .importer(_):
+        case .importer:
             importerID = id
         }
     }
 }
 
 extension Array where Element == Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer {
-    init(_ importers: [ImportResolver], startingID: UInt32) {
+    init(_ importers: [AsyncImportResolver], startingID: UInt32) {
         self = importers.enumerated().map {
             .init($0.1, id: UInt32($0.0) + startingID)
         }
@@ -154,7 +154,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message : Loggable {
         switch self {
         case .canonicalizeRequest(let m): return m.compilationID
         case .compileResponse(let m): return UInt32(m.id) // XXX oops bad protobuf
-        case .error(_): return nil
+        case .error: return nil
 //      case .fileImportRequest(let m): return m.compilationID
         case .functionCallRequest(let m): return m.compilationID
         case .importRequest(let m): return m.compilationID

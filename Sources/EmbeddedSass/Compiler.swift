@@ -121,7 +121,7 @@ public final class Compiler: CompilerProtocol {
         work = CompilerWork(eventLoop: eventLoop,
                             resetRequest: { [unowned self] in handle(error: $0) },
                             timeout: timeout,
-                            importers: importers,
+                            importers: .init(importers),
                             functions: functions)
         try state.toInitializing(startCompiler()).wait()
     }
@@ -226,7 +226,7 @@ public final class Compiler: CompilerProtocol {
                 input: .path(fileURL.path),
                 outputStyle: outputStyle,
                 createSourceMap: createSourceMap,
-                importers: importers,
+                importers: .init(importers),
                 functions: functions)
         }
     }
@@ -261,7 +261,7 @@ public final class Compiler: CompilerProtocol {
                 }),
                 outputStyle: outputStyle,
                 createSourceMap: createSourceMap,
-                importers: importers,
+                importers: .init(importers),
                 functions: functions)
         }
     }
