@@ -111,3 +111,30 @@ extension FileManager {
         return directoryURL
     }
 }
+
+/// An async importer that can be stopped in `load`.
+/// Accepts all `import` URLs and returns empty documents.
+final class HangingAsyncImporter: AsyncImporter {
+    func canonicalize(eventLoop: EventLoop, importURL: String) -> EventLoopFuture<URL?> {
+        return eventLoop.makeSucceededFuture(URL(string: "custom://\(importURL)"))
+    }
+
+    var hangNextLoad = false
+    var loadPromise: EventLoopPromise<ImporterResults>?
+
+    func resumeLoad() throws {
+        let promise = try XCTUnwrap(loadPromise)
+        promise.succeed(.init(""))
+        loadPromise = nil
+    }
+
+    func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
+        let promise = eventLoop.makePromise(of: ImporterResults.self)
+        if hangNextLoad {
+            loadPromise = promise
+        } else {
+            promise.succeed(.init(""))
+        }
+        return promise.futureResult
+    }
+}

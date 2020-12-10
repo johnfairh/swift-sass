@@ -297,10 +297,9 @@ final class Compilation {
             debug("send Compile-Req, starting \(timeout)s timer")
             timer = eventLoop.scheduleTask(in: .seconds(Int64(timeout))) { }
             return timer?.futureResult
-        } else {
-            debug("send Compile-Req, no timeout")
-            return nil
         }
+        debug("send Compile-Req, no timeout")
+        return nil
     }
 
     /// Abandon the job with a given error - because it never gets a chance to start or as a result

@@ -171,6 +171,15 @@ class TestImporters: EmbeddedSassTestCase {
     }
 
     // Async importer
+    func testAsyncImporter() throws {
+        let importer = HangingAsyncImporter()
+        let compiler = try newCompiler(importers: [.importer(importer)])
+        let results = try compiler.compile(text: "@import 'something';")
+        XCTAssertEqual("", results.css)
+    }
+
+    // Async importer goodpath - hangable.  In utils.
+    // Async importer stuck path, in TestResetShutdown, quiesce and reset.
     // malformed messages (over in TestProtocolErrors I suppose)
     // some missing good-path thing?
 }

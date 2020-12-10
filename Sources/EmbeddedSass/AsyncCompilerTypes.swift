@@ -23,7 +23,7 @@ public protocol AsyncImporter: Importer {
     func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults>
 }
 
-extension AsyncImporter {
+public extension AsyncImporter {
     /// Default no-op implementation of the sync version so clients don't have to write it.
     func canonicalize(importURL: String) throws -> URL? {
         preconditionFailure("Use canonicalize(eventLoop:importURL:) instead")
