@@ -119,7 +119,7 @@ class TestImporters: EmbeddedSassTestCase {
                 failedImportCount += 1
                 throw Error(message: failNextImport)
             }
-            return ImporterResults(css, syntax: .css)
+            return ImporterResults(css, syntax: .css, sourceMapURL: canonicalURL)
         }
     }
 

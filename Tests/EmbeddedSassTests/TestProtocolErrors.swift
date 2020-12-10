@@ -11,7 +11,7 @@ import NIO
 @testable import EmbeddedSass
 
 ///
-/// Tests around resets, timeouts, and shutdown.
+/// Tests around duff message content to & from the compiler
 ///
 class TestProtocolErrors: EmbeddedSassTestCase {
 
@@ -23,9 +23,9 @@ class TestProtocolErrors: EmbeddedSassTestCase {
                 rsp.id = 108
             }
         }
-        try compiler.eventLoop.submit {
-            try compiler.child().send(message: msg)
-        }.wait().wait() // !! what have I done
+        try compiler.eventLoop.flatSubmit {
+            try! compiler.child().send(message: msg)
+        }.wait()
 
         checkProtocolError(compiler, "108")
 
@@ -38,23 +38,19 @@ class TestProtocolErrors: EmbeddedSassTestCase {
         let compiler = try newCompiler()
 
         // no message at all
-        compiler.eventLoop.execute {
-            let badMsg = Sass_EmbeddedProtocol_OutboundMessage()
-            compiler.receive(message: badMsg)
-        }
+        let badMsg = Sass_EmbeddedProtocol_OutboundMessage()
+        compiler.receive(message: badMsg)
 
         try checkCompilerWorking(compiler)
         XCTAssertEqual(2, compiler.startCount)
 
         // reponse to a job we don't have active
-        compiler.eventLoop.execute {
-            let badMsg = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
-                msg.compileResponse = .with { rsp in
-                    rsp.id = 42
-                }
+        let badMsg1 = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
+            msg.compileResponse = .with { rsp in
+                rsp.id = 42
             }
-            compiler.receive(message: badMsg)
         }
+        compiler.receive(message: badMsg1)
 
         try checkCompilerWorking(compiler)
         XCTAssertEqual(3, compiler.startCount)
@@ -80,9 +76,8 @@ class TestProtocolErrors: EmbeddedSassTestCase {
 
         let compileResult = compiler.compileAsync(text: "")
 
-        compiler.eventLoop.execute {
-            compiler.receive(message: msg)
-        }
+        compiler.receive(message: msg)
+
         do {
             let results = try compileResult.wait()
             XCTFail("Managed to compile: \(results)")
@@ -114,6 +109,63 @@ class TestProtocolErrors: EmbeddedSassTestCase {
         XCTAssertNoThrow(try compiler.reinit().wait()) // sync with event loop
         XCTAssertEqual(3, compiler.startCount)
     }
+
+    // Importer request tests.  A bit grim:
+    // Get us into the state of allowing one by starting up and hanging a custom importer.
+    // Then inject a second import request -- probably impossible in practice but close
+    // enough, protocol under-specified!
+    // The error will start cancellation, but that won't be possible until the hung custom
+    // import completes.
+    func checkBadImportMessage(_ msg: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest, _ errStr: String) throws {
+        let importer = HangingAsyncImporter()
+        let compiler = try newCompiler(importers: [
+            .importer(importer),
+            .loadPath(URL(fileURLWithPath: "/tmp"))
+        ])
+        let hangDone = importer.hangLoad(eventLoop: compiler.eventLoop)
+
+        let compilerResults = compiler.compileAsync(text: "@import 'something';")
+        _ = try hangDone.wait()
+
+        compiler.receive(message: .with { $0.importRequest = msg })
+        try importer.resumeLoad()
+        do {
+            let results = try compilerResults.wait()
+            XCTFail("Managed to compile: \(results)")
+        } catch let error as ProtocolError {
+            print(error)
+            XCTAssertTrue(error.description.contains(errStr))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    /// importer ID is completely wrong
+    func testImporterBadID() throws {
+        try checkBadImportMessage(.with {
+            $0.compilationID = Compilation.peekNextCompilationID
+            $0.id = 42
+            $0.importerID = 12
+        }, "Bad importer ID")
+    }
+
+    /// Importer ID picks out a loadpath not an importer
+    func testImporterBadImporterType() throws {
+        try checkBadImportMessage(.with {
+            $0.compilationID = Compilation.peekNextCompilationID
+            $0.id = 42
+            $0.importerID = 4001
+        }, "not an importer")
+    }
+
+    /// URL has gotten messed up
+    func testImporterBadURL() throws {
+        try checkBadImportMessage(.with {
+            $0.compilationID = Compilation.peekNextCompilationID
+            $0.id = 42
+            $0.importerID = 4000
+        }, "Malformed import URL")
+    }
 }
 
 extension Compiler {
@@ -125,6 +177,8 @@ extension Compiler {
     }
 
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) {
-        try! child().receive(message: message)
+        eventLoop.execute {
+            try! self.child().receive(message: message)
+        }
     }
 }

@@ -449,7 +449,7 @@ final class Compilation {
     private func receive(importRequest req: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest) throws -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
         let importer = try getImporter(importerID: req.importerID)
         guard let url = URL(string: req.url) else {
-            throw ProtocolError("Malformed import URL \(req.url)")
+            throw ProtocolError("Malformed import URL: \(req.url)")
         }
         var rsp = Sass_EmbeddedProtocol_InboundMessage.ImportResponse()
         rsp.id = req.id
