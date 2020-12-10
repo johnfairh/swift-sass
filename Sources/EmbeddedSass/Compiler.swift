@@ -108,7 +108,7 @@ public final class Compiler: CompilerProtocol {
                 embeddedCompilerURL: URL,
                 timeout: Int = 60,
                 importers: [ImportResolver] = [],
-                functions: SassFunctionMap = [:]) throws {
+                functions: AsyncSassFunctionMap = [:]) throws {
         precondition(embeddedCompilerURL.isFileURL, "Not a file: \(embeddedCompilerURL)")
         eventLoop = eventLoopGroup.next()
         initThread = NIOThreadPool(numberOfThreads: 1)
@@ -145,7 +145,7 @@ public final class Compiler: CompilerProtocol {
                             embeddedCompilerName: String = "dart-sass-embedded",
                             timeout: Int = 60,
                             importers: [ImportResolver] = [],
-                            functions: SassFunctionMap = [:]) throws {
+                            functions: AsyncSassFunctionMap = [:]) throws {
         let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName, stderr: .discard)
         guard let path = results.successString else {
             throw ProtocolError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
@@ -219,7 +219,7 @@ public final class Compiler: CompilerProtocol {
                              outputStyle: CssStyle = .expanded,
                              createSourceMap: Bool = false,
                              importers: [ImportResolver] = [],
-                             functions: SassFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
+                             functions: AsyncSassFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
         eventLoop.flatSubmit { [self] in
             defer { kickPendingCompilations() }
             return work.addPendingCompilation(
@@ -240,7 +240,7 @@ public final class Compiler: CompilerProtocol {
                          outputStyle: outputStyle,
                          createSourceMap: createSourceMap,
                          importers: importers,
-                         functions: functions).wait()
+                         functions: .init(functions)).wait()
     }
 
     /// Asynchronous version of `compile(text:syntax:url:outputStyle:createSourceMap:importers:functions:)`.
@@ -250,7 +250,7 @@ public final class Compiler: CompilerProtocol {
                              outputStyle: CssStyle = .expanded,
                              createSourceMap: Bool = false,
                              importers: [ImportResolver] = [],
-                             functions: SassFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
+                             functions: AsyncSassFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
         eventLoop.flatSubmit { [self] in
             defer { kickPendingCompilations() }
             return work.addPendingCompilation(
@@ -279,7 +279,7 @@ public final class Compiler: CompilerProtocol {
                          outputStyle: outputStyle,
                          createSourceMap: createSourceMap,
                          importers: importers,
-                         functions: functions).wait()
+                         functions: .init(functions)).wait()
     }
 
     /// Consider the pending work queue.  When we change `state` or add to `pendingCompilations`.`

@@ -9,7 +9,7 @@
 import NIO
 import XCTest
 import Foundation
-import EmbeddedSass
+@testable import EmbeddedSass
 
 class EmbeddedSassTestCase: XCTestCase {
 
@@ -51,10 +51,14 @@ class EmbeddedSassTestCase: XCTestCase {
     }
 
     func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap = [:]) throws -> Compiler {
+        return try newCompiler(importers: importers, asyncFunctions: AsyncSassFunctionMap(functions))
+    }
+
+    func newCompiler(importers: [ImportResolver] = [], asyncFunctions: AsyncSassFunctionMap) throws -> Compiler {
         let c = try Compiler(eventLoopGroup: eventLoopGroup,
                              embeddedCompilerURL: EmbeddedSassTestCase.dartSassEmbeddedURL,
                              importers: importers,
-                             functions: functions)
+                             functions: asyncFunctions)
         compilersToShutdown.append(c)
         return c
     }

@@ -261,4 +261,19 @@ class TestFunctions: EmbeddedSassTestCase {
 
         // what a monstrosity
     }
+
+    let slowEchoFunction: AsyncSassFunctionMap = [
+        "slowEcho($param)" : { eventLoop, args in
+            eventLoop.scheduleTask(in: .seconds(1)) { () -> SassValue in
+                let str = try args[0].asString()
+                return str
+            }.futureResult
+        }
+    ]
+
+    func testAsyncHostFunction() throws {
+        let compiler = try newCompiler(asyncFunctions: slowEchoFunction)
+        let results = try compiler.compile(text: "a { a: slowEcho('fish') }", outputStyle: .compressed)
+        XCTAssertEqual(#"a{a:"fish"}"#, results.css)
+    }
 }
