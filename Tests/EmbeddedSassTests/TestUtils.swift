@@ -119,8 +119,14 @@ final class HangingAsyncImporter: AsyncImporter {
         return eventLoop.makeSucceededFuture(URL(string: "custom://\(importURL)"))
     }
 
-    var hangNextLoad = false
-    var loadPromise: EventLoopPromise<ImporterResults>?
+    var hangNextLoad: Bool { hangPromise != nil }
+    private var hangPromise: EventLoopPromise<Void>? = nil
+    var loadPromise: EventLoopPromise<ImporterResults>? = nil
+
+    func hangLoad(eventLoop: EventLoop) -> EventLoopFuture<Void> {
+        hangPromise = eventLoop.makePromise(of: Void.self)
+        return hangPromise!.futureResult
+    }
 
     func resumeLoad() throws {
         let promise = try XCTUnwrap(loadPromise)
@@ -132,6 +138,8 @@ final class HangingAsyncImporter: AsyncImporter {
         let promise = eventLoop.makePromise(of: ImporterResults.self)
         if hangNextLoad {
             loadPromise = promise
+            hangPromise?.succeed(())
+            hangPromise = nil
         } else {
             promise.succeed(.init(""))
         }

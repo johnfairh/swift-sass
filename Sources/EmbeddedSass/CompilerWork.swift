@@ -231,6 +231,24 @@ final class Compilation {
     private var messages: [CompilerMessage]
     private var timer: Scheduled<Void>?
 
+    enum State {
+        // waiting on computation or the compiler
+        case normal
+        // waiting on a future from a custom importer/hostfn
+        case client
+        // waiting on custom, error pending
+        case client_error(Error)
+
+        var isInClient: Bool {
+            switch self {
+            case .normal: return false
+            case .client, .client_error: return true
+            }
+        }
+    }
+
+    private var state: State
+
     private static var _nextCompilationID = NIOAtomic<UInt32>.makeAtomic(value: 4000)
     private static var nextCompilationID: UInt32 {
         _nextCompilationID.add(1)
@@ -275,8 +293,10 @@ final class Compilation {
             msg.globalFunctions = functionsMap.values.map { $0.0 }
         }
         self.messages = []
+        self.state = .normal
 
         futureResult.whenComplete { [self] in
+            precondition(!state.isInClient)
             timer?.cancel()
             switch $0 {
             case .success(_):
@@ -306,7 +326,30 @@ final class Compilation {
     /// of a timeout -> reset, or because of a protocol error on another job.
     func cancel(with error: Error) {
         timer?.cancel()
-        promise.fail(error)
+        if !state.isInClient {
+            promise.fail(error)
+        } else {
+            debug("waiting to cancel while hostfn/importer runs")
+            state = .client_error(error)
+        }
+    }
+
+    /// Wrapper to match the exit version
+    private func clientStarting() {
+        precondition(!state.isInClient)
+        state = .client
+    }
+
+    /// Deferred cancellation at the end of client activity
+    private func clientStopped() {
+        let oldState = state
+        state = .normal
+
+        precondition(oldState.isInClient)
+        if case let .client_error(error) = oldState {
+            debug("hostfn/importer done, cancelling")
+            promise.fail(error)
+        }
     }
 
     /// Inbound messages.  Rework all this error handling stuff when complete.
@@ -380,22 +423,25 @@ final class Compilation {
         var rsp = Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse()
         rsp.id = req.id
 
+        clientStarting()
+
         return importer.canonicalize(eventLoop: eventLoop, importURL: req.url)
-            .map { canonURL in
+            .map { canonURL -> Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse in
                 if let canonURL = canonURL {
                     rsp.url = canonURL.absoluteString
-                    self.debug("  tx canon-rsp-success reqid=\(req.id)")
+                    self.debug("Tx Canon-Rsp-Success ReqID=\(req.id)")
                 } else {
                     // leave result nil -> can't deal with this request
-                    self.debug("  tx canon-rsp-nil reqid=\(req.id)")
+                    self.debug("Tx Canon-Rsp-Nil ReqID=\(req.id)")
                 }
                 return rsp
             }.recover { error in
                 rsp.error = String(describing: error)
-                self.debug("  tx canon-rsp-error reqid=\(req.id)")
+                self.debug("Tx Canon-Rsp-Error ReqID=\(req.id)")
                 return rsp
             }.map { rsp in
-                .with { $0.message = .canonicalizeResponse(rsp) }
+                self.clientStopped()
+                return .with { $0.message = .canonicalizeResponse(rsp) }
             }
     }
 
@@ -408,21 +454,24 @@ final class Compilation {
         var rsp = Sass_EmbeddedProtocol_InboundMessage.ImportResponse()
         rsp.id = req.id
 
+        clientStarting()
+
         return importer.load(eventLoop: eventLoop, canonicalURL: url)
-            .map { results in
+            .map { results -> Sass_EmbeddedProtocol_InboundMessage.ImportResponse in
                 rsp.success = .with { msg in
                     msg.contents = results.contents
                     msg.syntax = .init(results.syntax)
                     results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
                 }
-                self.debug("  tx import-rsp-success reqid=\(req.id)")
+                self.debug("Tx Import-Rsp-Success ReqID=\(req.id)")
                 return rsp
             }.recover { error in
                 rsp.error = String(describing: error)
-                self.debug("  tx import-rsp-error reqid=\(req.id)")
+                self.debug("Tx Import-Rsp-Error ReqID=\(req.id)")
                 return rsp
             }.map { rsp in
-                .with { $0.message = .importResponse(rsp) }
+                self.clientStopped()
+                return .with { $0.message = .importResponse(rsp) }
             }
     }
 }

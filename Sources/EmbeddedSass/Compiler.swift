@@ -434,6 +434,8 @@ final class CompilerChild: ChannelInboundHandler {
     private let work: CompilerWork
     /// Error handling
     private let errorHandler: (Error) -> Void
+    /// Cancellation protocol
+    private var stopping: Bool
 
     /// API
     var processIdentifier: Int32 {
@@ -453,6 +455,7 @@ final class CompilerChild: ChannelInboundHandler {
         self.eventLoop = eventLoop
         self.work = work
         self.errorHandler = errorHandler
+        self.stopping = false
     }
 
     /// Connect Sass protocol handlers.
@@ -471,6 +474,11 @@ final class CompilerChild: ChannelInboundHandler {
     @discardableResult
     func send(message: Sass_EmbeddedProtocol_InboundMessage) -> EventLoopFuture<Void> {
         eventLoop.preconditionInEventLoop()
+        guard !stopping else {
+            // Race condition of compiler reset vs. async host function
+            return eventLoop.makeSucceededFuture(())
+        }
+
         return child.channel.writeAndFlush(message).flatMapError { error in
             self.errorHandler(ProtocolError("Write to Sass compiler failed: \(error)."))
             return self.eventLoop.makeFailedFuture(error)
@@ -505,6 +513,7 @@ final class CompilerChild: ChannelInboundHandler {
     /// Cascade to `CompilerWork` so it stops waiting for responses -- this is a little bit spaghetti but it's helpful
     /// to keep them tightly bound.
     func stopAndCancelWork(with error: Error? = nil) {
+        stopping = true
         child.terminate()
         if let error = error {
             work.cancelAllActive(with: error)

@@ -135,6 +135,19 @@ class TestResetShutdown: EmbeddedSassTestCase {
         XCTAssertThrowsError(try compileResult.wait())
     }
 
-    // TODO: restart delayed by client-side quiesce
-    //       restart delayed by client-side quiesce, further error occurs
+    // Quiesce delayed by client-side activity
+    func testClientStuckReset() throws {
+        let importer = HangingAsyncImporter()
+        let compiler = try newCompiler(importers: [.importer(importer)])
+        let hangDone = importer.hangLoad(eventLoop: compiler.eventLoop)
+        let compilerResults = compiler.compileAsync(text: "@import 'something';")
+        _ = try hangDone.wait()
+        XCTAssertNotNil(importer.loadPromise)
+        // now we're all stuck waiting for the client
+        let resetDone = compiler.reinit()
+        XCTAssertNil(try compiler.compilerProcessIdentifier.wait())
+        try importer.resumeLoad()
+        try resetDone.wait()
+        XCTAssertThrowsError(try compilerResults.wait())
+    }
 }

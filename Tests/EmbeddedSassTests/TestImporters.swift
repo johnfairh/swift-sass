@@ -178,8 +178,6 @@ class TestImporters: EmbeddedSassTestCase {
         XCTAssertEqual("", results.css)
     }
 
-    // Async importer goodpath - hangable.  In utils.
-    // Async importer stuck path, in TestResetShutdown, quiesce and reset.
     // malformed messages (over in TestProtocolErrors I suppose)
     // some missing good-path thing?
 }
