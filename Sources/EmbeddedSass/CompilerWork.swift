@@ -174,44 +174,6 @@ final class CompilerWork {
     }
 }
 
-//
-//    // MARK: Functions
-//
-//    /// Inbound 'FunctionCallRequest' handler
-//    private func receive(functionCallRequest req: Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest) throws {
-//        /// Helper to run the callback after we locate it
-//        func doSassFunction(_ fn: SassFunction) throws {
-//            var rsp = Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse()
-//            rsp.id = req.id
-//            do {
-//                let resultValue = try fn(req.arguments.map { try $0.asSassValue() })
-//                rsp.success = .init(resultValue)
-//                debug("  tx fncall-rsp-success reqid=\(req.id)")
-//            } catch {
-//                rsp.error = String(describing: error)
-//                debug("  tx fncall-rsp-error reqid=\(req.id)")
-//            }
-////            try child.send(message: .with { $0.message = .functionCallResponse(rsp) })
-//        }
-//
-//        switch req.identifier {
-//        case .functionID(let id):
-//            guard let sassDynamicFunc = Sass._lookUpDynamicFunction(id: id) else {
-//                throw ProtocolError("Host function id \(id) not registered.")
-//            }
-//            try doSassFunction(sassDynamicFunc.function)
-//
-//        case .name(let name):
-//            guard let sassFunc = currentFunctions[name] else {
-//                throw ProtocolError("Host function \(name) not registered.")
-//            }
-//            try doSassFunction(sassFunc)
-//
-//        case nil:
-//            throw ProtocolError("Missing 'identifier' field in FunctionCallRequest")
-//        }
-//    }
-
 private extension AsyncImportResolver {
     var importer: AsyncImporter? {
         switch self {
@@ -367,12 +329,9 @@ final class Compilation {
 
             case .importRequest(let req):
                 return try receive(importRequest: req)
-            //
-            //        case .functionCallRequest(let req):
-            //            try receive(functionCallRequest: req)
 
-            case .functionCallRequest(_):
-                throw ProtocolError("Unimplemented message for CompID=\(compilationID): \(message)")
+            case .functionCallRequest(let req):
+                return try receive(functionCallRequest: req)
 
             case nil, .error(_), .fileImportRequest(_):
                 preconditionFailure("Unreachable: message type not associated with CompID: \(message)")
@@ -473,5 +432,42 @@ final class Compilation {
                 self.clientStopped()
                 return .with { $0.message = .importResponse(rsp) }
             }
+    }
+
+    // MARK: Functions
+
+    /// Inbound 'FunctionCallRequest' handler
+    private func receive(functionCallRequest req: Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest) throws -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+        /// Helper to run the callback after we locate it
+        func doSassFunction(_ fn: SassFunction) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+            var rsp = Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse()
+            rsp.id = req.id
+            do {
+                let resultValue = try fn(req.arguments.map { try $0.asSassValue() })
+                rsp.success = .init(resultValue)
+                debug("  tx fncall-rsp-success reqid=\(req.id)")
+            } catch {
+                rsp.error = String(describing: error)
+                debug("  tx fncall-rsp-error reqid=\(req.id)")
+            }
+            return eventLoop.makeSucceededFuture(.with { $0.functionCallResponse = rsp })
+        }
+
+        switch req.identifier {
+        case .functionID(let id):
+            guard let sassDynamicFunc = Sass._lookUpDynamicFunction(id: id) else {
+                throw ProtocolError("Host function id \(id) not registered.")
+            }
+            return doSassFunction(sassDynamicFunc.function)
+
+        case .name(let name):
+            guard let sassFunc = functions[name] else {
+                throw ProtocolError("Host function \(name) not registered.")
+            }
+            return doSassFunction(sassFunc)
+
+        case nil:
+            throw ProtocolError("Missing 'identifier' field in FunctionCallRequest")
+        }
     }
 }
