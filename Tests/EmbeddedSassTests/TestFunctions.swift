@@ -276,4 +276,29 @@ class TestFunctions: EmbeddedSassTestCase {
         let results = try compiler.compile(text: "a { a: slowEcho('fish') }", outputStyle: .compressed)
         XCTAssertEqual(#"a{a:"fish"}"#, results.css)
     }
+
+    func testAsyncDynamicFunction() throws {
+        let fishMakerMaker: SassFunction = { args in
+            return SassAsyncDynamicFunction(signature: "myFish()") { eventLoop, args in
+                eventLoop.submit {
+                    SassString("plaice")
+                }
+            }
+        }
+
+        let scss = """
+        @use "sass:meta";
+
+        a {
+          b: meta.call(getFishMaker());
+        }
+        """
+
+        let compiler = try newCompiler(functions: [
+            "getFishMaker()" : fishMakerMaker
+        ])
+        let results = try compiler.compile(text: scss, outputStyle: .compressed)
+        XCTAssertEqual(#"a{b:"plaice"}"#, results.css)
+
+    }
 }

@@ -466,6 +466,9 @@ final class Compilation {
             guard let sassDynamicFunc = Sass._lookUpDynamicFunction(id: id) else {
                 throw ProtocolError("Host function id \(id) not registered.")
             }
+            if let asyncDynamicFunc = sassDynamicFunc as? SassAsyncDynamicFunction {
+                return try doSassFunction(asyncDynamicFunc.asyncFunction)
+            }
             return try doSassFunction(SyncFunctionAdapter(sassDynamicFunc.function))
 
         case .name(let name):

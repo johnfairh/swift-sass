@@ -40,6 +40,23 @@ public typealias AsyncSassFunction = (EventLoop, [SassValue]) -> EventLoopFuture
 /// A set of `AsyncSassFunction`s and their signatures.
 public typealias AsyncSassFunctionMap = [SassFunctionSignature : AsyncSassFunction]
 
+/// A  dynamic Sass function that can run asynchronously.
+///
+/// Use instead of `SassDynamicFunction` if your dynamic function needs to block or
+/// be asynchronous.
+public class SassAsyncDynamicFunction: SassDynamicFunction {
+    /// The actual function.
+    public let asyncFunction: AsyncSassFunction
+
+    /// Create a new asynchronous dynamic function.
+    /// - parameter signature: The Sass function signature.
+    /// - parameter function: The callback implementing the function.
+    public init(signature: SassFunctionSignature, function: @escaping AsyncSassFunction) {
+        self.asyncFunction = function
+        super.init(signature: signature) { $0[0] }
+    }
+}
+
 // MARK: Importer conversion
 
 private struct SyncImporterAdapter: AsyncImporter {
