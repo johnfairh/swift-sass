@@ -342,7 +342,10 @@ final class Compilation {
             case .functionCallRequest(let req):
                 return try receive(functionCallRequest: req)
 
-            case nil, .error, .fileImportRequest:
+            case .fileImportRequest(let req):
+                return eventLoop.makeProtocolError("Unexpected FileImportReq: \(req)")
+
+            case nil, .error:
                 preconditionFailure("Unreachable: message type not associated with CompID: \(message)")
             }
         } catch {

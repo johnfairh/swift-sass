@@ -142,11 +142,10 @@ extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message : Loggable {
         case .canonicalizeRequest(let m): return m.logMessage
         case .compileResponse(let m): return m.logMessage
         case .error(let m): return m.logMessage
-//      case .fileImportRequest(let m): return m.logMessage
+        case .fileImportRequest(let m): return m.logMessage
         case .functionCallRequest(let m): return m.logMessage
         case .importRequest(let m): return m.logMessage
         case .logEvent(let m): return m.logMessage
-        default: return "unknown-2"
         }
     }
 
@@ -155,11 +154,10 @@ extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message : Loggable {
         case .canonicalizeRequest(let m): return m.compilationID
         case .compileResponse(let m): return UInt32(m.id) // XXX oops bad protobuf
         case .error: return nil
-//      case .fileImportRequest(let m): return m.compilationID
+        case .fileImportRequest(let m): return m.compilationID
         case .functionCallRequest(let m): return m.compilationID
         case .importRequest(let m): return m.compilationID
         case .logEvent(let m): return m.compilationID
-        default: return nil
         }
     }
 }
@@ -193,11 +191,11 @@ extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest : Loggable {
     }
 }
 
-//extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest : Loggable {
-//    var logMessage: String {
-//        "FileImport-Req CompID=\(compilationID) ReqID=\(id) ImpID=\(importerID)"
-//    }
-//}
+extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest : Loggable {
+    var logMessage: String {
+        "FileImport-Req CompID=\(compilationID) ReqID=\(id) ImpID=\(importerID)"
+    }
+}
 
 extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest : Loggable {
     var logMessage: String {

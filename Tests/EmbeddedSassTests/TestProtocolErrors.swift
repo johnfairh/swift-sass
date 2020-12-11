@@ -124,6 +124,10 @@ class TestProtocolErrors: EmbeddedSassTestCase {
         try checkBadMessage(.with { $0.functionCallRequest = msg }, errStr)
     }
 
+    func checkBadFileImport(_ msg: Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest, _ errStr: String) throws {
+        try checkBadMessage(.with { $0.fileImportRequest = msg }, errStr)
+    }
+
     func checkBadMessage(_ msg: Sass_EmbeddedProtocol_OutboundMessage, _ errStr: String) throws {
         let importer = HangingAsyncImporter()
         let compiler = try newCompiler(importers: [
@@ -202,6 +206,22 @@ class TestProtocolErrors: EmbeddedSassTestCase {
             $0.id = 42
             $0.name = "mysterious"
         }, "Host function name")
+    }
+
+    /// File import is in the API but not implemented anywhere...
+    func testUnexpectedFileImport() throws {
+        try checkBadFileImport(.with {
+            $0.compilationID = Compilation.peekNextCompilationID
+            $0.id = 108
+            $0.importerID = 22
+        }, "Unexpected FileImportReq")
+    }
+
+    // Misc bits of unconvertible API
+
+    func testBadLogEventKind() throws {
+        let kind = Sass_EmbeddedProtocol_OutboundMessage.LogEvent.TypeEnum.UNRECOGNIZED(100)
+        XCTAssertThrowsError(_ = try CompilerMessage.Kind(kind))
     }
 }
 
