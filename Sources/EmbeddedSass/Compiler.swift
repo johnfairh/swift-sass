@@ -108,7 +108,7 @@ public final class Compiler: CompilerProtocol {
                 embeddedCompilerURL: URL,
                 timeout: Int = 60,
                 importers: [ImportResolver] = [],
-                functions: AsyncSassFunctionMap = [:]) throws {
+                functions: SassAsyncFunctionMap = [:]) throws {
         precondition(embeddedCompilerURL.isFileURL, "Not a file: \(embeddedCompilerURL)")
         eventLoop = eventLoopGroup.next()
         initThread = NIOThreadPool(numberOfThreads: 1)
@@ -145,7 +145,7 @@ public final class Compiler: CompilerProtocol {
                             embeddedCompilerName: String = "dart-sass-embedded",
                             timeout: Int = 60,
                             importers: [ImportResolver] = [],
-                            functions: AsyncSassFunctionMap = [:]) throws {
+                            functions: SassAsyncFunctionMap = [:]) throws {
         let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName, stderr: .discard)
         guard let path = results.successString else {
             throw ProtocolError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
@@ -219,7 +219,7 @@ public final class Compiler: CompilerProtocol {
                              outputStyle: CssStyle = .expanded,
                              createSourceMap: Bool = false,
                              importers: [ImportResolver] = [],
-                             functions: AsyncSassFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
+                             functions: SassAsyncFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
         eventLoop.flatSubmit { [self] in
             defer { kickPendingCompilations() }
             return work.addPendingCompilation(
@@ -250,7 +250,7 @@ public final class Compiler: CompilerProtocol {
                              outputStyle: CssStyle = .expanded,
                              createSourceMap: Bool = false,
                              importers: [ImportResolver] = [],
-                             functions: AsyncSassFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
+                             functions: SassAsyncFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
         eventLoop.flatSubmit { [self] in
             defer { kickPendingCompilations() }
             return work.addPendingCompilation(
@@ -376,7 +376,7 @@ public final class Compiler: CompilerProtocol {
             return future
 
         case .shutdown:
-            return eventLoop.makeFailedFuture(ProtocolError("Instance is shutdown, ignoring: \(error)"))
+            return eventLoop.makeProtocolError("Instance is shutdown, ignoring: \(error)")
         }
     }
 

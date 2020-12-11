@@ -27,7 +27,7 @@ final class CompilerWork {
     /// Configured global importer rules, for all compilations
     private let globalImporters: [AsyncImportResolver]
     /// Configured functions, for all compilations
-    private let globalFunctions: AsyncSassFunctionMap
+    private let globalFunctions: SassAsyncFunctionMap
 
     /// Unstarted compilation work
     private var pendingCompilations: [Compilation]
@@ -40,7 +40,7 @@ final class CompilerWork {
          resetRequest: @escaping (Error) -> Void,
          timeout: Int,
          importers: [AsyncImportResolver],
-         functions: AsyncSassFunctionMap) {
+         functions: SassAsyncFunctionMap) {
         self.eventLoop = eventLoop
         self.resetRequest = resetRequest
         self.timeout = timeout
@@ -66,7 +66,7 @@ final class CompilerWork {
                                outputStyle: CssStyle,
                                createSourceMap: Bool,
                                importers: [AsyncImportResolver],
-                               functions: AsyncSassFunctionMap) -> EventLoopFuture<CompilerResults> {
+                               functions: SassAsyncFunctionMap) -> EventLoopFuture<CompilerResults> {
         eventLoop.preconditionInEventLoop()
 
         // Figure out functions - semantic name does not include params so merge global
@@ -152,7 +152,7 @@ final class CompilerWork {
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
         if let compilationID = message.compilationID {
             guard let compilation = activeCompilations[compilationID] else {
-                return eventLoop.makeFailedFuture(ProtocolError("Received message for unknown compilation ID \(compilationID): \(message)"))
+                return eventLoop.makeProtocolError("Received message for unknown compilation ID \(compilationID): \(message)")
             }
             return compilation.receive(message: message)
         }
@@ -167,9 +167,9 @@ final class CompilerWork {
 
         switch message.message {
         case .error(let error):
-            return eventLoop.makeFailedFuture(ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)"))
+            return eventLoop.makeProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)")
         default:
-            return eventLoop.makeFailedFuture(ProtocolError("Sass compiler sent something uninterpretable: \(message)"))
+            return eventLoop.makeProtocolError("Sass compiler sent something uninterpretable: \(message)")
         }
     }
 }
@@ -189,7 +189,7 @@ final class Compilation {
     let compileReq: Sass_EmbeddedProtocol_InboundMessage.CompileRequest
     private let promise: EventLoopPromise<CompilerResults>
     private let importers: [AsyncImportResolver]
-    private let functions: AsyncSassFunctionMap
+    private let functions: SassAsyncFunctionMap
     private var messages: [CompilerMessage]
     private var timer: Scheduled<Void>?
 
@@ -241,7 +241,7 @@ final class Compilation {
          outputStyle: CssStyle,
          createSourceMap: Bool,
          importers: [AsyncImportResolver],
-         functionsMap: [SassFunctionSignature : (String, AsyncSassFunction)]) {
+         functionsMap: [SassFunctionSignature : (String, SassAsyncFunction)]) {
         self.promise = promise
         self.importers = importers
         self.functions = functionsMap.mapValues { $0.1 }
@@ -296,7 +296,7 @@ final class Compilation {
         }
     }
 
-    /// Wrapper to match the exit version
+    /// Wrapper to match the 'stopped' version
     private func clientStarting() {
         precondition(!state.isInClient)
         state = .client
@@ -314,15 +314,24 @@ final class Compilation {
         }
     }
 
+    // Receive empire.
+    // This is structurally very gorpy: everything can report errors indicating
+    // some nonsense in the message, and some messages go async to generate a
+    // reply.
+    //
+    // Do some renaming to increase readability.
+    private typealias OBM = Sass_EmbeddedProtocol_OutboundMessage
+    private typealias IBM = Sass_EmbeddedProtocol_InboundMessage
+
     /// Inbound messages.  Rework all this error handling stuff when complete.
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
         do {
             switch message.message {
             case .compileResponse(let rsp):
-                try receive(compileResponse: rsp)
+                return try receive(compileResponse: rsp)
 
             case .logEvent(let rsp):
-                try receive(log: rsp)
+                return try receive(log: rsp)
 
             case .canonicalizeRequest(let req):
                 return try receive(canonicalizeRequest: req)
@@ -339,11 +348,10 @@ final class Compilation {
         } catch {
             return eventLoop.makeFailedFuture(error)
         }
-        return eventLoop.makeSucceededFuture(nil)
     }
 
     /// Inbound `CompileResponse` handler
-    private func receive(compileResponse: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) throws {
+    private func receive(compileResponse: OBM.CompileResponse) throws -> EventLoopFuture<IBM?> {
         switch compileResponse.result {
         case .success(let s):
             promise.succeed(.init(s, messages: messages))
@@ -352,11 +360,13 @@ final class Compilation {
         case nil:
             throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
         }
+        return eventLoop.makeSucceededFuture(nil)
     }
 
     /// Inbound `LogEvent` handler
-    private func receive(log: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) throws {
+    private func receive(log: OBM.LogEvent) throws -> EventLoopFuture<IBM?> {
         try messages.append(.init(log))
+        return eventLoop.makeSucceededFuture(nil)
     }
 
     // MARK: Importers
@@ -377,15 +387,14 @@ final class Compilation {
     }
 
     /// Inbound `CanonicalizeRequest` handler
-    private func receive(canonicalizeRequest req: Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest) throws -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+    private func receive(canonicalizeRequest req: OBM.CanonicalizeRequest) throws -> EventLoopFuture<IBM?> {
         let importer = try getImporter(importerID: req.importerID)
-        var rsp = Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse()
-        rsp.id = req.id
+        var rsp = IBM.CanonicalizeResponse.with { $0.id = req.id }
 
         clientStarting()
 
         return importer.canonicalize(eventLoop: eventLoop, importURL: req.url)
-            .map { canonURL -> Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse in
+            .map { canonURL -> IBM.CanonicalizeResponse in
                 if let canonURL = canonURL {
                     rsp.url = canonURL.absoluteString
                     self.debug("Tx Canon-Rsp-Success ReqID=\(req.id)")
@@ -405,18 +414,17 @@ final class Compilation {
     }
 
     /// Inbound `ImportRequest` handler
-    private func receive(importRequest req: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest) throws -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+    private func receive(importRequest req: OBM.ImportRequest) throws -> EventLoopFuture<IBM?> {
         let importer = try getImporter(importerID: req.importerID)
         guard let url = URL(string: req.url) else {
             throw ProtocolError("Malformed import URL: \(req.url)")
         }
-        var rsp = Sass_EmbeddedProtocol_InboundMessage.ImportResponse()
-        rsp.id = req.id
+        var rsp = IBM.ImportResponse.with { $0.id = req.id }
 
         clientStarting()
 
         return importer.load(eventLoop: eventLoop, canonicalURL: url)
-            .map { results -> Sass_EmbeddedProtocol_InboundMessage.ImportResponse in
+            .map { results -> IBM.ImportResponse in
                 rsp.success = .with { msg in
                     msg.contents = results.contents
                     msg.syntax = .init(results.syntax)
@@ -437,17 +445,16 @@ final class Compilation {
     // MARK: Functions
 
     /// Inbound 'FunctionCallRequest' handler
-    private func receive(functionCallRequest req: Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest) throws -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+    private func receive(functionCallRequest req: OBM.FunctionCallRequest) throws -> EventLoopFuture<IBM?> {
         /// Helper to run the callback after we locate it
-        func doSassFunction(_ fn: @escaping AsyncSassFunction) throws -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
-            var rsp = Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse()
-            rsp.id = req.id
+        func doSassFunction(_ fn: @escaping SassAsyncFunction) throws -> EventLoopFuture<IBM?> {
+            var rsp = IBM.FunctionCallResponse.with { $0.id = req.id }
 
             let args = try req.arguments.map { try $0.asSassValue() }
 
             clientStarting()
 
-            return fn(self.eventLoop, args).map { resultValue -> Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse in
+            return fn(self.eventLoop, args).map { resultValue -> IBM.FunctionCallResponse in
                 rsp.success = .init(resultValue)
                 self.debug("Tx FnCall-Rsp-Success ReqID=\(req.id)")
                 return rsp

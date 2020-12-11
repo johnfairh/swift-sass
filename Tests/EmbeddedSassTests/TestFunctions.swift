@@ -262,7 +262,7 @@ class TestFunctions: EmbeddedSassTestCase {
         // what a monstrosity
     }
 
-    let slowEchoFunction: AsyncSassFunctionMap = [
+    let slowEchoFunction: SassAsyncFunctionMap = [
         "slowEcho($param)" : { eventLoop, args in
             eventLoop.scheduleTask(in: .seconds(1)) { () -> SassValue in
                 let str = try args[0].asString()

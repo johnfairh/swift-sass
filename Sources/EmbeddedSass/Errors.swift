@@ -21,3 +21,10 @@ public struct ProtocolError: Error, CustomStringConvertible {
         Compiler.logger.error(.init(stringLiteral: text))
     }
 }
+
+import NIO
+extension EventLoop {
+    func makeProtocolError<T>(_ text: String) -> EventLoopFuture<T> {
+        makeFailedFuture(ProtocolError(text))
+    }
+}

@@ -51,10 +51,10 @@ class EmbeddedSassTestCase: XCTestCase {
     }
 
     func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap = [:]) throws -> Compiler {
-        return try newCompiler(importers: importers, asyncFunctions: AsyncSassFunctionMap(functions))
+        return try newCompiler(importers: importers, asyncFunctions: SassAsyncFunctionMap(functions))
     }
 
-    func newCompiler(importers: [ImportResolver] = [], asyncFunctions: AsyncSassFunctionMap) throws -> Compiler {
+    func newCompiler(importers: [ImportResolver] = [], asyncFunctions: SassAsyncFunctionMap) throws -> Compiler {
         let c = try Compiler(eventLoopGroup: eventLoopGroup,
                              embeddedCompilerURL: EmbeddedSassTestCase.dartSassEmbeddedURL,
                              importers: importers,

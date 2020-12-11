@@ -35,10 +35,10 @@ public extension AsyncImporter {
 }
 
 /// A version of the`SassFunction` type that allows async behavior.
-public typealias AsyncSassFunction = (EventLoop, [SassValue]) -> EventLoopFuture<SassValue>
+public typealias SassAsyncFunction = (EventLoop, [SassValue]) -> EventLoopFuture<SassValue>
 
-/// A set of `AsyncSassFunction`s and their signatures.
-public typealias AsyncSassFunctionMap = [SassFunctionSignature : AsyncSassFunction]
+/// A set of `SassAsyncFunction`s and their signatures.
+public typealias SassAsyncFunctionMap = [SassFunctionSignature : SassAsyncFunction]
 
 /// A  dynamic Sass function that can run asynchronously.
 ///
@@ -46,12 +46,12 @@ public typealias AsyncSassFunctionMap = [SassFunctionSignature : AsyncSassFuncti
 /// be asynchronous.
 public class SassAsyncDynamicFunction: SassDynamicFunction {
     /// The actual function.
-    public let asyncFunction: AsyncSassFunction
+    public let asyncFunction: SassAsyncFunction
 
     /// Create a new asynchronous dynamic function.
     /// - parameter signature: The Sass function signature.
     /// - parameter function: The callback implementing the function.
-    public init(signature: SassFunctionSignature, function: @escaping AsyncSassFunction) {
+    public init(signature: SassFunctionSignature, function: @escaping SassAsyncFunction) {
         self.asyncFunction = function
         super.init(signature: signature) { $0[0] }
     }
@@ -101,13 +101,13 @@ extension Array where Element == AsyncImportResolver {
 
 // MARK: Function conversion
 
-func SyncFunctionAdapter(_ fn: @escaping SassFunction) -> AsyncSassFunction {
+func SyncFunctionAdapter(_ fn: @escaping SassFunction) -> SassAsyncFunction {
     { eventLoop, args in
         eventLoop.submit { try fn(args) }
     }
 }
 
-extension AsyncSassFunctionMap {
+extension SassAsyncFunctionMap {
     init(_ sync: SassFunctionMap) {
         self.init()
         sync.forEach { kv in
