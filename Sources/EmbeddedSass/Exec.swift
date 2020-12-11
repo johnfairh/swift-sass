@@ -32,16 +32,6 @@ private struct SocketPipe {
 
 /// Namespace for utilities to execute a child process.
 enum Exec {
-    /// How to handle stderr output from the child process.
-    enum Stderr {
-        /// Treat stderr same as parent process.
-        case inherit
-        /// Send stderr to /dev/null.
-        case discard
-        /// Merge stderr with stdout.
-        case merge
-    }
-
     /// The result of running the child process.
     struct Results {
         /// The command that was run
@@ -86,14 +76,11 @@ enum Exec {
     - parameter arguments: Arguments to pass to the command.
     - parameter currentDirectory: Current directory for the command.  By default
                                   the parent process's current directory.
-    - parameter stderr: What to do with stderr output from the command.  By default
-                        whatever the parent process does.
     */
     static func run(_ command: String,
                     _ arguments: String...,
-                    currentDirectory: String = FileManager.default.currentDirectoryPath,
-                    stderr: Stderr = .inherit) -> Results {
-        return run(command, arguments, currentDirectory: currentDirectory, stderr: stderr)
+                    currentDirectory: String = FileManager.default.currentDirectoryPath) -> Results {
+        return run(command, arguments, currentDirectory: currentDirectory)
     }
 
     /**
@@ -103,34 +90,24 @@ enum Exec {
      - parameter arguments: Arguments to pass to the command.
      - parameter currentDirectory: Current directory for the command.  By default
                                    the parent process's current directory.
-     - parameter stderr: What to do with stderr output from the command.  By default
-                         whatever the parent process does.
      */
      static func run(_ command: String,
                      _ arguments: [String] = [],
-                     currentDirectory: String = FileManager.default.currentDirectoryPath,
-                     stderr: Stderr = .inherit) -> Results {
+                     currentDirectory: String = FileManager.default.currentDirectoryPath) -> Results {
         let process = Process()
         process.arguments = arguments
 
         let pipe = Pipe()
         process.standardOutput = pipe
 
-        switch stderr {
-        case .discard:
-            // FileHandle.nullDevice does not work here, as it consists of an invalid file descriptor,
-            // causing process.launch() to abort with an EBADF.
-            process.standardError = FileHandle(forWritingAtPath: "/dev/null")!
-        case .merge:
-            process.standardError = pipe
-        case .inherit:
-            break
-        }
+        // FileHandle.nullDevice does not work here, as it consists of an invalid file descriptor,
+        // causing process.launch() to abort with an EBADF.
+        process.standardError = FileHandle(forWritingAtPath: "/dev/null")!
 
         do {
-          process.executableURL = URL(fileURLWithPath: command)
-          process.currentDirectoryURL = URL(fileURLWithPath: currentDirectory)
-          try process.run()
+            process.executableURL = URL(fileURLWithPath: command)
+            process.currentDirectoryURL = URL(fileURLWithPath: currentDirectory)
+            try process.run()
         } catch {
             return Results(command: command, arguments: arguments, terminationStatus: -1, data: Data())
         }
@@ -204,8 +181,6 @@ enum Exec {
         let process: Process
         /// A NIO Channel representing both the child's stdin (write to it) and stdout (read from it)
         let channel: Channel
-        /// The child's `stdin`.  Write to it.
-        /// The child's `stdout`.  Read from it.
 
         init(process: Process, channel: Channel) {
             self.process = process
@@ -214,7 +189,7 @@ enum Exec {
 
         func terminate() {
             process.terminate()
-            // this auto-closes the channel
+            // this cascades closes to the channel
         }
     }
 }

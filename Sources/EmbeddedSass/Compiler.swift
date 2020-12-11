@@ -146,7 +146,7 @@ public final class Compiler: CompilerProtocol {
                             timeout: Int = 60,
                             importers: [ImportResolver] = [],
                             functions: SassAsyncFunctionMap = [:]) throws {
-        let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName, stderr: .discard)
+        let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName)
         guard let path = results.successString else {
             throw ProtocolError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
         }

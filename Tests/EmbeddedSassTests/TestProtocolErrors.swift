@@ -117,6 +117,14 @@ class TestProtocolErrors: EmbeddedSassTestCase {
     // The error will start cancellation, but that won't be possible until the hung custom
     // import completes.
     func checkBadImportMessage(_ msg: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest, _ errStr: String) throws {
+        try checkBadMessage(.with { $0.importRequest = msg }, errStr)
+    }
+
+    func checkBadFnCallMessage(_ msg: Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest, _ errStr: String) throws {
+        try checkBadMessage(.with { $0.functionCallRequest = msg }, errStr)
+    }
+
+    func checkBadMessage(_ msg: Sass_EmbeddedProtocol_OutboundMessage, _ errStr: String) throws {
         let importer = HangingAsyncImporter()
         let compiler = try newCompiler(importers: [
             .importer(importer),
@@ -127,7 +135,7 @@ class TestProtocolErrors: EmbeddedSassTestCase {
         let compilerResults = compiler.compileAsync(text: "@import 'something';")
         _ = try hangDone.wait()
 
-        compiler.receive(message: .with { $0.importRequest = msg })
+        compiler.receive(message: msg)
         try importer.resumeLoad()
         do {
             let results = try compilerResults.wait()
@@ -165,6 +173,35 @@ class TestProtocolErrors: EmbeddedSassTestCase {
             $0.id = 42
             $0.importerID = 4000
         }, "Malformed import URL")
+    }
+
+    // FnCall requests
+    // Reuse the importer stuff, same scenario really just different error.
+
+    /// Missing fn identifier
+    func testImporterNoIdentifier() throws {
+        try checkBadFnCallMessage(.with {
+            $0.compilationID = Compilation.peekNextCompilationID
+            $0.id = 42
+        }, "Missing 'identifier'")
+    }
+
+    /// Bad ID
+    func testImporterBadNumericID() throws {
+        try checkBadFnCallMessage(.with {
+            $0.compilationID = Compilation.peekNextCompilationID
+            $0.id = 42
+            $0.functionID = 108
+        }, "Host function ID")
+    }
+
+    /// Bad name
+    func testImporterBadName() throws {
+        try checkBadFnCallMessage(.with {
+            $0.compilationID = Compilation.peekNextCompilationID
+            $0.id = 42
+            $0.name = "mysterious"
+        }, "Host function name")
     }
 }
 

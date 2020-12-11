@@ -471,7 +471,7 @@ final class Compilation {
         switch req.identifier {
         case .functionID(let id):
             guard let sassDynamicFunc = Sass._lookUpDynamicFunction(id: id) else {
-                throw ProtocolError("Host function id \(id) not registered.")
+                throw ProtocolError("Host function ID \(id) not registered.")
             }
             if let asyncDynamicFunc = sassDynamicFunc as? SassAsyncDynamicFunction {
                 return try doSassFunction(asyncDynamicFunc.asyncFunction)
@@ -480,7 +480,7 @@ final class Compilation {
 
         case .name(let name):
             guard let sassFunc = functions[name] else {
-                throw ProtocolError("Host function \(name) not registered.")
+                throw ProtocolError("Host function name '\(name)' not registered.")
             }
             return try doSassFunction(sassFunc)
 
