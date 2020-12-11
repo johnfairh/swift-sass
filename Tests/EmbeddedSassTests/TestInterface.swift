@@ -81,7 +81,7 @@ class TestCompiler: EmbeddedSassTestCase {
     func testSourceMap() throws {
         let compiler = try newCompiler()
 
-        let results = try compiler.compile(text: scssIn, createSourceMap: true)
+        let results = try compiler.compile(text: scssIn, url: URL(string: "custom://bar"), createSourceMap: true)
         XCTAssertEqual(scssOutExpanded, results.css)
 
         let json = try XCTUnwrap(results.sourceMap)
@@ -89,6 +89,8 @@ class TestCompiler: EmbeddedSassTestCase {
         let map = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!) as! [String:Any]
         XCTAssertEqual(3, map["version"] as? Int)
         XCTAssertEqual("AACI;EACI", map["mappings"] as? String)
+        let sources = try XCTUnwrap(map["sources"] as? Array<String>)
+        XCTAssertEqual("custom://bar", sources[0])
     }
 
     /// Is outputstyle enum translated OK
