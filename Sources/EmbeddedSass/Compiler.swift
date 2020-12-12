@@ -39,6 +39,8 @@ import Logging
 /// To debug problems, start with the output from `Compiler.debugHandler`, all the source files
 /// being given to the compiler, and the description of any errors thrown.
 public final class Compiler: CompilerProtocol {
+    private let eventLoopGroup: EventLoopGroup
+
     /// NIO event loop we're bound to.  Internal for test.
     let eventLoop: EventLoop
 
@@ -93,7 +95,8 @@ public final class Compiler: CompilerProtocol {
     /// You must shut down the compiler with `Compiler.shutdownGracefully()`
     /// before letting it go out of scope.
     ///
-    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use.
+    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
+    ///   an existing group or `.createNew` to create and manage a new event loop.
     /// - parameter embeddedCompilerURL: The file URL to `dart-sass-embedded`
     ///   or something else that speaks the embedded Sass protocol.
     /// - parameter timeout: The maximum time in seconds allowed for the embedded
@@ -104,13 +107,14 @@ public final class Compiler: CompilerProtocol {
     /// - parameter functions: Sass functions available to all compile requests made of this instance.
     ///
     /// - throws: Something from Foundation if the program does not start.
-    public init(eventLoopGroup: EventLoopGroup,
+    public init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
                 embeddedCompilerURL: URL,
                 timeout: Int = 60,
                 importers: [ImportResolver] = [],
                 functions: SassAsyncFunctionMap = [:]) throws {
         precondition(embeddedCompilerURL.isFileURL, "Not a file: \(embeddedCompilerURL)")
-        eventLoop = eventLoopGroup.next()
+        self.eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider)
+        eventLoop = self.eventLoopGroup.next()
         initThread = NIOThreadPool(numberOfThreads: 1)
         initThread.start()
         work = nil
@@ -131,7 +135,8 @@ public final class Compiler: CompilerProtocol {
     /// You must shut down the compiler with `Compiler.shutdownGracefully()`
     /// before letting it go out of scope.
     ///
-    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use.
+    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
+    ///   an existing group or `.createNew` to create and manage a new event loop.
     /// - parameter embeddedCompilerName: Name of the program, default `dart-sass-embedded`.
     /// - parameter timeout: The maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
@@ -141,7 +146,7 @@ public final class Compiler: CompilerProtocol {
     /// - parameter functions: Sass functions available to all compile requests made of this instance.    ///
     /// - throws: `ProtocolError()` if the program can't be found.
     ///           Everything from `init(embeddedCompilerURL:)`
-    public convenience init(eventLoopGroup: EventLoopGroup,
+    public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
                             embeddedCompilerName: String = "dart-sass-embedded",
                             timeout: Int = 60,
                             importers: [ImportResolver] = [],
@@ -150,7 +155,7 @@ public final class Compiler: CompilerProtocol {
         guard let path = results.successString else {
             throw ProtocolError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
         }
-        try self.init(eventLoopGroup: eventLoopGroup,
+        try self.init(eventLoopGroupProvider: eventLoopGroupProvider,
                       embeddedCompilerURL: URL(fileURLWithPath: path),
                       timeout: timeout,
                       importers: importers,

@@ -110,7 +110,7 @@ class TestCompiler: EmbeddedSassTestCase {
     /// Can we search PATH properly
     func testCompilerSearch() throws {
         do {
-            let compiler = try Compiler(eventLoopGroup: eventLoopGroup, embeddedCompilerName: "not-a-compiler")
+            let compiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup), embeddedCompilerName: "not-a-compiler")
             XCTFail("Created a weird compiler \(compiler)")
         } catch let error as ProtocolError {
             print(error)
@@ -123,7 +123,7 @@ class TestCompiler: EmbeddedSassTestCase {
         defer { setenv("PATH", oldPATH!, 1) }
         let newPATH = "\(EmbeddedSassTestCase.dartSassEmbeddedDirURL.path):\(oldPATHString)"
         setenv("PATH", strdup(newPATH), 1)
-        let compiler = try Compiler(eventLoopGroup: eventLoopGroup, embeddedCompilerName: "dart-sass-embedded")
+        let compiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup), embeddedCompilerName: "dart-sass-embedded")
         compilersToShutdown.append(compiler)
         let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)

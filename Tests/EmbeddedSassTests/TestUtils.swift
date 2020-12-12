@@ -55,7 +55,7 @@ class EmbeddedSassTestCase: XCTestCase {
     }
 
     func newCompiler(importers: [ImportResolver] = [], asyncFunctions: SassAsyncFunctionMap) throws -> Compiler {
-        let c = try Compiler(eventLoopGroup: eventLoopGroup,
+        let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
                              embeddedCompilerURL: EmbeddedSassTestCase.dartSassEmbeddedURL,
                              importers: importers,
                              functions: asyncFunctions)
@@ -64,7 +64,7 @@ class EmbeddedSassTestCase: XCTestCase {
     }
 
     func newBadCompiler(timeout: Int = 1) throws -> Compiler {
-        let c = try Compiler(eventLoopGroup: eventLoopGroup,
+        let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
                              embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
                              timeout: timeout)
         compilersToShutdown.append(c)

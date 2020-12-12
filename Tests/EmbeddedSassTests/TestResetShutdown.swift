@@ -74,7 +74,7 @@ class TestResetShutdown: EmbeddedSassTestCase {
         let tmpHeadURL = tmpDir.appendingPathComponent("tail")
         try FileManager.default.copyItem(at: realHeadURL, to: tmpHeadURL)
 
-        let badCompiler = try Compiler(eventLoopGroup: eventLoopGroup,
+        let badCompiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
                                        embeddedCompilerURL: tmpHeadURL,
                                        timeout: 1)
         compilersToShutdown.append(badCompiler)
