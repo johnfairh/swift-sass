@@ -56,7 +56,7 @@ class TestProtocolErrors: EmbeddedSassTestCase {
         XCTAssertEqual(3, compiler.startCount)
 
         // response to a job when we're not interested [legacy, refactored away!]
-        try compiler.shutdownGracefully().wait()
+        try compiler.syncShutdownGracefully()
         XCTAssertNil(try compiler.compilerProcessIdentifier.wait())
         XCTAssertEqual(3, compiler.startCount) // no more resets
     }

@@ -25,7 +25,7 @@ class EmbeddedSassTestCase: XCTestCase {
 
     override func tearDownWithError() throws {
         try compilersToShutdown.forEach {
-            try $0.shutdownGracefully().wait()
+            try $0.syncShutdownGracefully()//shutdownGracefully().wait()
         }
         compilersToShutdown = []
         try eventLoopGroup.syncShutdownGracefully()

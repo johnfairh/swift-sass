@@ -39,7 +39,7 @@ import Logging
 /// To debug problems, start with the output from `Compiler.debugHandler`, all the source files
 /// being given to the compiler, and the description of any errors thrown.
 public final class Compiler: CompilerProtocol {
-    private let eventLoopGroup: EventLoopGroup
+    private let eventLoopGroup: ProvidedEventLoopGroup
 
     /// NIO event loop we're bound to.  Internal for test.
     let eventLoop: EventLoop
@@ -188,12 +188,27 @@ public final class Compiler: CompilerProtocol {
     /// Waits for work to wind down naturally and shuts down internal threads.  There's no way back
     /// from this state: to do more compilation you will need a new object.
     ///
-    /// If you don't call this and wait for the result before shutting down the event loop then
+    /// If you don't call this and wait for the result before shutting down your event loop then
     /// there is a chance NIO will crash.
-    public func shutdownGracefully() -> EventLoopFuture<Void> {
+    ///
+    /// This resolves on a dispatch queue because of internal event queue shutdown; make sure the
+    /// queue is being run.
+    public func shutdownGracefully(queue: DispatchQueue = .global(), _ callback: @escaping (Error?) -> Void) {
         eventLoop.flatSubmit {
             self.shutdown()
+        }.whenCompleteBlocking(onto: queue) { result in
+            self.eventLoopGroup.shutdownGracefully(queue: queue) { elgError in
+                callback(result.error ?? elgError)
+            }
         }
+    }
+
+    public func syncShutdownGracefully() throws {
+        try eventLoop.flatSubmit {
+            self.shutdown()
+        }.wait()
+
+        try eventLoopGroup.syncShutdownGracefully()
     }
 
     /// The process ID of the compiler process.

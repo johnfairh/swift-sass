@@ -101,15 +101,44 @@ class TestResetShutdown: EmbeddedSassTestCase {
         }
     }
 
+    final class CompilerShutdowner {
+        let compiler: Compiler
+        var callbackMade: Bool
+        let sem: DispatchSemaphore
+
+        init(_ compiler: Compiler) {
+            self.compiler = compiler
+            self.callbackMade = false
+            self.sem = DispatchSemaphore(value: 0)
+        }
+
+        @discardableResult
+        func start() -> Self {
+            compiler.shutdownGracefully() { error in
+                XCTAssertNil(error)
+                self.callbackMade = true
+                self.sem.signal()
+            }
+            return self
+        }
+
+        func wait() {
+            sem.wait()
+            XCTAssertTrue(callbackMade)
+        }
+    }
+
     func testGracefulShutdown() throws {
         let compiler = try newCompiler()
-        XCTAssertNoThrow(try compiler.shutdownGracefully().wait())
+
+        // Regular async shutdown
+        CompilerShutdowner(compiler).start().wait()
 
         // No child process
         XCTAssertNil(try compiler.compilerProcessIdentifier.wait())
 
         // Shutdown again is OK
-        XCTAssertNoThrow(try compiler.shutdownGracefully().wait())
+        CompilerShutdowner(compiler).start().wait()
 
         // Reinit is not OK
         XCTAssertThrowsError(try compiler.reinit().wait())
@@ -124,13 +153,15 @@ class TestResetShutdown: EmbeddedSassTestCase {
         // job hangs
         let compileResult = badCompiler.compileAsync(text: "")
         // shutdown hangs waiting for job
-        let shutdownResult1 = badCompiler.shutdownGracefully()
+        let shutdowner1 = CompilerShutdowner(badCompiler)
+        shutdowner1.start()
         // second chaser shutdown doesn't mess anything up
-        let shutdownResult2 = badCompiler.shutdownGracefully()
+        let shutdowner2 = CompilerShutdowner(badCompiler)
+        shutdowner2.start()
 
         // shutdowns both complete OK after the timeout
-        XCTAssertNoThrow(try shutdownResult1.wait())
-        XCTAssertNoThrow(try shutdownResult2.wait())
+        shutdowner1.wait()
+        shutdowner2.wait()
         // job fails with timeout
         XCTAssertThrowsError(try compileResult.wait())
     }

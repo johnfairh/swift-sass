@@ -16,7 +16,7 @@ extension NIOThreadPool {
         let promise = eventLoop.makePromise(of: Void.self)
         shutdownGracefully { error in
             if let error = error {
-                promise.fail(error)
+                promise.fail(error) // this is in fact unreachable in current NIO...
             } else {
                 promise.succeed(())
             }
@@ -27,7 +27,7 @@ extension NIOThreadPool {
 
 /// This eventloopgroupprovide thing is like, a hint at a reasonable API ... why does it have NIO in the name ...
 /// Try to wrap it up into something less unwieldy.
-final class ProvidedEventLoopGroup: EventLoopGroup {
+final class ProvidedEventLoopGroup {
     private let provider: NIOEventLoopGroupProvider
     let eventLoopGroup: EventLoopGroup
 
@@ -52,20 +52,25 @@ final class ProvidedEventLoopGroup: EventLoopGroup {
         }
     }
 
-    func syncShutdownGracefully(_ group: EventLoopGroup) throws {
+    func syncShutdownGracefully() throws {
         switch provider {
         case .shared:
             break
         case .createNew:
-            try group.syncShutdownGracefully()
+            try eventLoopGroup.syncShutdownGracefully()
         }
     }
 
     func next() -> EventLoop {
         eventLoopGroup.next()
     }
+}
 
-    func makeIterator() -> EventLoopIterator {
-        eventLoopGroup.makeIterator()
+extension Result {
+    var error: Error? {
+        switch self {
+        case .failure(let e): return e
+        case .success: return nil
+        }
     }
 }
