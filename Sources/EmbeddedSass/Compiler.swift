@@ -183,13 +183,13 @@ public final class Compiler: CompilerProtocol {
         }
     }
 
-    /// Shut down the compiler.
+    /// Shut down the compiler asynchronously.
+    ///
+    /// You must call this (or `syncShutdownGracefully()` before the last reference to the
+    /// `Compiler` is released.
     ///
     /// Waits for work to wind down naturally and shuts down internal threads.  There's no way back
     /// from this state: to do more compilation you will need a new object.
-    ///
-    /// If you don't call this and wait for the result before shutting down your event loop then
-    /// there is a chance NIO will crash.
     ///
     /// This resolves on a dispatch queue because of internal event queue shutdown; make sure the
     /// queue is being run.
@@ -203,6 +203,11 @@ public final class Compiler: CompilerProtocol {
         }
     }
 
+    /// Shut down the compiler synchronously.
+    ///
+    /// See `shutdownGracefully(queue:_:)`.
+    ///
+    /// Do not call this from an event loop thread.
     public func syncShutdownGracefully() throws {
         try eventLoop.flatSubmit {
             self.shutdown()
