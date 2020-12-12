@@ -11,6 +11,9 @@ let package = Package(
         .library(
             name: "EmbeddedSass",
             targets: ["EmbeddedSass"]),
+        .executable(
+          name: "ssassc",
+          targets: ["Cli"])
     ],
     dependencies: [
       .package(
@@ -45,6 +48,9 @@ let package = Package(
         exclude: ["dart-sass-embedded"]),
       .testTarget(
         name: "SassTests",
-        dependencies: ["Sass"])
+        dependencies: ["Sass"]),
+      .target(
+          name: "Cli",
+          dependencies: ["EmbeddedSass"])
     ]
 )

@@ -162,12 +162,6 @@ public final class Compiler: CompilerProtocol {
                       functions: functions)
     }
 
-    deinit {
-        guard case .shutdown = state else {
-            preconditionFailure("Compiler must be shutdown via `shutdownGracefully()`")
-        }
-    }
-
     /// Restart the Sass compiler process.
     ///
     /// Normally a single instance of the compiler process persists across all invocations to
