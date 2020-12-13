@@ -12,7 +12,7 @@ import XCTest
 ///
 /// Tests for importers.
 ///
-class TestImporters: XCTestCase {
+class TestImporters: EmbeddedSassTestCase {
 
     // MARK: Load Paths
 
@@ -41,7 +41,7 @@ class TestImporters: XCTestCase {
     // compiler loadpath works
     func testCompilerLoadPath() throws {
         let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
-        let compiler = try TestUtils.newCompiler(importers: [.loadPath(tmpDir)])
+        let compiler = try newCompiler(importers: [.loadPath(tmpDir)])
         let results = try compiler.compile(text: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssBlue, results.css)
     }
@@ -49,7 +49,7 @@ class TestImporters: XCTestCase {
     // job loadpath works
     func testJobLoadPath() throws {
         let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
-        let compiler = try TestUtils.newCompiler()
+        let compiler = try newCompiler()
         let results = try compiler.compile(text: usingSass, syntax: .sass,
                                            outputStyle: .compressed,
                                            importers: [.loadPath(tmpDir)])
@@ -60,7 +60,7 @@ class TestImporters: XCTestCase {
     func testLoadPathOrder() throws {
         let tmpDirBlue = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
         let tmpDirRed = try createFileInNewDir(secondaryCssRed, filename: secondaryCssFilename)
-        let compiler = try TestUtils.newCompiler(importers: [.loadPath(tmpDirRed)])
+        let compiler = try newCompiler(importers: [.loadPath(tmpDirRed)])
         let results = try compiler.compile(text: usingSass, syntax: .sass,
                                            outputStyle: .compressed,
                                            importers: [.loadPath(tmpDirBlue)])
@@ -71,7 +71,7 @@ class TestImporters: XCTestCase {
     func testNonsenseLoadPath() throws {
         let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
         let nonsenseDir = URL(fileURLWithPath: "/not/a/directory")
-        let compiler = try TestUtils.newCompiler(importers: [.loadPath(nonsenseDir), .loadPath(tmpDir)])
+        let compiler = try newCompiler(importers: [.loadPath(nonsenseDir), .loadPath(tmpDir)])
         let results = try compiler.compile(text: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssBlue, results.css)
     }
@@ -119,14 +119,14 @@ class TestImporters: XCTestCase {
                 failedImportCount += 1
                 throw Error(message: failNextImport)
             }
-            return ImporterResults(css, syntax: .css)
+            return ImporterResults(css, syntax: .css, sourceMapURL: canonicalURL)
         }
     }
 
     // Goodpath.
     func testCustomImporter() throws {
         let importer = TestImporter(css: secondaryCssRed)
-        let compiler = try TestUtils.newCompiler(importers: [.importer(importer)])
+        let compiler = try newCompiler(importers: [.importer(importer)])
         let results = try compiler.compile(text: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssRed, results.css)
     }
@@ -135,7 +135,7 @@ class TestImporters: XCTestCase {
     func checkFaultyImporter(customize: (TestImporter) -> Void, check: (TestImporter, CompilerError) -> Void) throws {
         let importer = TestImporter(css: secondaryCssRed)
         customize(importer)
-        let compiler = try TestUtils.newCompiler(importers: [.importer(importer)])
+        let compiler = try newCompiler(importers: [.importer(importer)])
         do {
             let results = try compiler.compile(text: usingSass, syntax: .sass)
             XCTFail("Compiled something: \(results)")
@@ -169,4 +169,15 @@ class TestImporters: XCTestCase {
             XCTAssertEqual(1, i.failedImportCount)
         }
     }
+
+    // Async importer
+    func testAsyncImporter() throws {
+        let importer = HangingAsyncImporter()
+        let compiler = try newCompiler(importers: [.importer(importer)])
+        let results = try compiler.compile(text: "@import 'something';")
+        XCTAssertEqual("", results.css)
+    }
+
+    // malformed messages (over in TestProtocolErrors I suppose)
+    // some missing good-path thing?
 }

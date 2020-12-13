@@ -13,7 +13,7 @@ import XCTest
 /// Tests for custom functions.
 ///  - SassTests covers the base `SassValue` hierarchy.
 ///  - We don't need to test the compiler's implementation of this flow, just our side.
-class TestFunctions: XCTestCase {
+class TestFunctions: EmbeddedSassTestCase {
 
     // (String) values go back and forth
 
@@ -25,7 +25,7 @@ class TestFunctions: XCTestCase {
     ]
 
     func testEcho() throws {
-        let compiler = try TestUtils.newCompiler(functions: quoteStringFunction)
+        let compiler = try newCompiler(functions: quoteStringFunction)
 
         try [#"fish"#, #""fish""#].forEach {
             let results = try compiler.compile(text: "a { a: myQuoteString(\($0)) }", outputStyle: .compressed)
@@ -44,7 +44,7 @@ class TestFunctions: XCTestCase {
     ]
 
     func testError() throws {
-        let compiler = try TestUtils.newCompiler(functions: errorFunction)
+        let compiler = try newCompiler(functions: errorFunction)
 
         do {
             let results = try compiler.compile(text: "$data: badFunction('22');")
@@ -71,7 +71,7 @@ class TestFunctions: XCTestCase {
     ]
 
     func testOverride() throws {
-        let compiler = try TestUtils.newCompiler(functions: globalOverrideFunction)
+        let compiler = try newCompiler(functions: globalOverrideFunction)
 
         let results = try compiler.compile(text: "a { a: ofunc() }", outputStyle: .compressed, functions: localOverrideFunction)
         XCTAssertEqual(#"a{a:"goat"}"#, results.css)
@@ -213,7 +213,7 @@ class TestFunctions: XCTestCase {
         }
         """
 
-        let compiler = try TestUtils.newCompiler(functions: [
+        let compiler = try newCompiler(functions: [
             "hostEcho($param)" : echoFunc
         ])
         let results = try compiler.compile(text: scss, outputStyle: .compressed)
@@ -253,12 +253,52 @@ class TestFunctions: XCTestCase {
         }
         """
 
-        let compiler = try TestUtils.newCompiler(functions: [
+        let compiler = try newCompiler(functions: [
             "makeAdder($op1)" : adderMaker
         ])
         let results = try compiler.compile(text: scss, outputStyle: .compressed)
         XCTAssertEqual(#"a{b:9}"#, results.css)
 
         // what a monstrosity
+    }
+
+    let slowEchoFunction: SassAsyncFunctionMap = [
+        "slowEcho($param)" : { eventLoop, args in
+            eventLoop.scheduleTask(in: .seconds(1)) { () -> SassValue in
+                let str = try args[0].asString()
+                return str
+            }.futureResult
+        }
+    ]
+
+    func testAsyncHostFunction() throws {
+        let compiler = try newCompiler(asyncFunctions: slowEchoFunction)
+        let results = try compiler.compile(text: "a { a: slowEcho('fish') }", outputStyle: .compressed)
+        XCTAssertEqual(#"a{a:"fish"}"#, results.css)
+    }
+
+    func testAsyncDynamicFunction() throws {
+        let fishMakerMaker: SassFunction = { args in
+            return SassAsyncDynamicFunction(signature: "myFish()") { eventLoop, args in
+                eventLoop.submit {
+                    SassString("plaice")
+                }
+            }
+        }
+
+        let scss = """
+        @use "sass:meta";
+
+        a {
+          b: meta.call(getFishMaker());
+        }
+        """
+
+        let compiler = try newCompiler(functions: [
+            "getFishMaker()" : fishMakerMaker
+        ])
+        let results = try compiler.compile(text: scss, outputStyle: .compressed)
+        XCTAssertEqual(#"a{b:"plaice"}"#, results.css)
+
     }
 }

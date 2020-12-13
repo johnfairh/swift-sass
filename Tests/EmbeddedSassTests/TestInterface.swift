@@ -13,7 +13,7 @@ import EmbeddedSass
 /// Tests to check the normal operation of the sass compiler -- not testing the compiler itself,
 /// just that we can talk to it honestly and translate enums etc. properly.
 ///
-class TestCompiler: XCTestCase {
+class TestCompiler: EmbeddedSassTestCase {
     let scssIn = """
     div {
         a {
@@ -47,8 +47,7 @@ class TestCompiler: XCTestCase {
 
     /// Does it work, goodpath, no imports, scss/sass/css inline input
     func testCoreInline() throws {
-        let compiler = try TestUtils.newCompiler()
-
+        let compiler = try newCompiler()
         let results1 = try compiler.compile(text: scssIn)
         XCTAssertNil(results1.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
@@ -73,16 +72,16 @@ class TestCompiler: XCTestCase {
 
     /// Does it work, from a file
     func testCoreFile() throws {
-        let compiler = try TestUtils.newCompiler()
+        let compiler = try newCompiler()
         try checkCompileFromFile(compiler, extnsion: "scss", content: scssIn, expected: scssOutExpanded)
         try checkCompileFromFile(compiler, extnsion: "sass", content: sassIn, expected: sassOutExpanded)
     }
 
     /// Is source map transmitted OK
     func testSourceMap() throws {
-        let compiler = try TestUtils.newCompiler()
+        let compiler = try newCompiler()
 
-        let results = try compiler.compile(text: scssIn, createSourceMap: true)
+        let results = try compiler.compile(text: scssIn, url: URL(string: "custom://bar"), createSourceMap: true)
         XCTAssertEqual(scssOutExpanded, results.css)
 
         let json = try XCTUnwrap(results.sourceMap)
@@ -90,11 +89,13 @@ class TestCompiler: XCTestCase {
         let map = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!) as! [String:Any]
         XCTAssertEqual(3, map["version"] as? Int)
         XCTAssertEqual("AACI;EACI", map["mappings"] as? String)
+        let sources = try XCTUnwrap(map["sources"] as? Array<String>)
+        XCTAssertEqual("custom://bar", sources[0])
     }
 
     /// Is outputstyle enum translated OK
     func testOutputStyle() throws {
-        let compiler = try TestUtils.newCompiler()
+        let compiler = try newCompiler()
 
         // Current dart-sass-embedded maps everything !compressed down to nested
         // so this is a bit scuffed...
@@ -109,7 +110,7 @@ class TestCompiler: XCTestCase {
     /// Can we search PATH properly
     func testCompilerSearch() throws {
         do {
-            let compiler = try Compiler(embeddedCompilerName: "not-a-compiler")
+            let compiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup), embeddedCompilerName: "not-a-compiler")
             XCTFail("Created a weird compiler \(compiler)")
         } catch let error as ProtocolError {
             print(error)
@@ -120,9 +121,10 @@ class TestCompiler: XCTestCase {
         let oldPATH = strdup(getenv("PATH"))
         let oldPATHString = String(cString: oldPATH!)
         defer { setenv("PATH", oldPATH!, 1) }
-        let newPATH = "\(TestUtils.dartSassEmbeddedDirURL.path):\(oldPATHString)"
+        let newPATH = "\(EmbeddedSassTestCase.dartSassEmbeddedDirURL.path):\(oldPATHString)"
         setenv("PATH", strdup(newPATH), 1)
-        let compiler = try Compiler(embeddedCompilerName: "dart-sass-embedded")
+        let compiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup), embeddedCompilerName: "dart-sass-embedded")
+        compilersToShutdown.append(compiler)
         let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
     }

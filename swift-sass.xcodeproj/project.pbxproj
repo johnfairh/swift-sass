@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -11,10 +11,8 @@
 		02440A1925765C0C008F0862 /* TestFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1825765C0C008F0862 /* TestFunction.swift */; };
 		02440A1C2576679E008F0862 /* DynamicFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1B2576679E008F0862 /* DynamicFunction.swift */; };
 		02440A1F2576B24B008F0862 /* ValueConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1E2576B24B008F0862 /* ValueConvertible.swift */; };
-		025C623D255C18D000AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
-		025C623E255C18D000AEA420 /* SwiftProtobuf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		025C6240255C18F700AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
-		025C6243255C19F400AEA420 /* SwiftProtobuf.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		02440A272576C7DA008F0862 /* NIO in Frameworks */ = {isa = PBXBuildFile; productRef = 02440A262576C7DA008F0862 /* NIO */; };
+		02440A2A257957B5008F0862 /* NIOFoundationCompat in Frameworks */ = {isa = PBXBuildFile; productRef = 02440A29257957B5008F0862 /* NIOFoundationCompat */; };
 		025C624F255D2C9300AEA420 /* BinaryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C624E255D2C9300AEA420 /* BinaryProtocol.swift */; };
 		025C6252255D54C000AEA420 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6251255D54C000AEA420 /* Errors.swift */; };
 		0285E828256C4C2900956F18 /* TestFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E827256C4C2900956F18 /* TestFunctions.swift */; };
@@ -40,8 +38,16 @@
 		0289BB40256BDE460004544A /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB3F256BDE460004544A /* String.swift */; };
 		0289BB4A256BEE760004544A /* TestString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB49256BEE760004544A /* TestString.swift */; };
 		0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C7256000A400F6BE14 /* TestInterface.swift */; };
-		0291E7CA2562E82F00F6BE14 /* TestErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C92562E82F00F6BE14 /* TestErrors.swift */; };
-		0291E7CC2565416400F6BE14 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7CB2565416400F6BE14 /* Timer.swift */; };
+		0291E7CA2562E82F00F6BE14 /* TestCompilerErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C92562E82F00F6BE14 /* TestCompilerErrors.swift */; };
+		029B4F8E257E569D00A768D2 /* TestResetShutdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F8D257E569D00A768D2 /* TestResetShutdown.swift */; };
+		029B4F91257E578600A768D2 /* TestProtocolErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F90257E578600A768D2 /* TestProtocolErrors.swift */; };
+		029B4F94258005C000A768D2 /* NIO+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F93258005C000A768D2 /* NIO+Extras.swift */; };
+		02A346E9257AAE3D00A14905 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 02A346E8257AAE3D00A14905 /* Logging */; };
+		02A3BC0125800D0600BBF99E /* CompilerWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0025800D0600BBF99E /* CompilerWork.swift */; };
+		02A3BC052581600700BBF99E /* AsyncCompilerTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */; };
+		02A3BC0F2585314200BBF99E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0E2585314200BBF99E /* main.swift */; };
+		02A3BC172585329C00BBF99E /* EmbeddedSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */; };
+		02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 02E0ED7E2586172C0080E954 /* SwiftProtobuf */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
 		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
 		OBJ_120 /* embedded_sass.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* embedded_sass.pb.swift */; };
@@ -74,7 +80,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				0289BB2325666BA70004544A /* Sass.framework in Embed Frameworks */,
-				025C623E255C18D000AEA420 /* SwiftProtobuf.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -85,9 +90,17 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				025C6243255C19F400AEA420 /* SwiftProtobuf.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
+		};
+		02A3BC0A2585314200BBF99E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -96,7 +109,6 @@
 		02440A1825765C0C008F0862 /* TestFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFunction.swift; sourceTree = "<group>"; };
 		02440A1B2576679E008F0862 /* DynamicFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicFunction.swift; sourceTree = "<group>"; };
 		02440A1E2576B24B008F0862 /* ValueConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueConvertible.swift; sourceTree = "<group>"; };
-		025C623C255C18D000AEA420 /* SwiftProtobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftProtobuf.framework; path = Carthage/Build/Mac/SwiftProtobuf.framework; sourceTree = "<group>"; };
 		025C624E255D2C9300AEA420 /* BinaryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryProtocol.swift; sourceTree = "<group>"; };
 		025C6251255D54C000AEA420 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		0285E827256C4C2900956F18 /* TestFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFunctions.swift; sourceTree = "<group>"; };
@@ -121,8 +133,14 @@
 		0289BB3F256BDE460004544A /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		0289BB49256BEE760004544A /* TestString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestString.swift; sourceTree = "<group>"; };
 		0291E7C7256000A400F6BE14 /* TestInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestInterface.swift; sourceTree = "<group>"; };
-		0291E7C92562E82F00F6BE14 /* TestErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestErrors.swift; sourceTree = "<group>"; };
-		0291E7CB2565416400F6BE14 /* Timer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
+		0291E7C92562E82F00F6BE14 /* TestCompilerErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCompilerErrors.swift; sourceTree = "<group>"; };
+		029B4F8D257E569D00A768D2 /* TestResetShutdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestResetShutdown.swift; sourceTree = "<group>"; };
+		029B4F90257E578600A768D2 /* TestProtocolErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolErrors.swift; sourceTree = "<group>"; };
+		029B4F93258005C000A768D2 /* NIO+Extras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NIO+Extras.swift"; sourceTree = "<group>"; };
+		02A3BC0025800D0600BBF99E /* CompilerWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerWork.swift; sourceTree = "<group>"; };
+		02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncCompilerTypes.swift; sourceTree = "<group>"; };
+		02A3BC0C2585314200BBF99E /* Cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Cli; sourceTree = BUILT_PRODUCTS_DIR; };
+		02A3BC0E2585314200BBF99E /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		OBJ_10 /* Compiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compiler.swift; sourceTree = "<group>"; };
 		OBJ_11 /* embedded_sass.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = embedded_sass.pb.swift; sourceTree = "<group>"; };
 		OBJ_15 /* TestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
@@ -140,12 +158,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		02A3BC092585314200BBF99E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				02A3BC172585329C00BBF99E /* EmbeddedSass.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		OBJ_121 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 0;
 			files = (
+				02440A2A257957B5008F0862 /* NIOFoundationCompat in Frameworks */,
+				02440A272576C7DA008F0862 /* NIO in Frameworks */,
 				0289BB2225666BA70004544A /* Sass.framework in Frameworks */,
-				025C623D255C18D000AEA420 /* SwiftProtobuf.framework in Frameworks */,
+				02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */,
+				02A346E9257AAE3D00A14905 /* Logging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -154,7 +183,6 @@
 			buildActionMask = 0;
 			files = (
 				OBJ_133 /* EmbeddedSass.framework in Frameworks */,
-				025C6240255C18F700AEA420 /* SwiftProtobuf.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -164,7 +192,6 @@
 		025C622E255C16FD00AEA420 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				025C623C255C18D000AEA420 /* SwiftProtobuf.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -206,12 +233,22 @@
 			path = Tests/SassTests;
 			sourceTree = "<group>";
 		};
+		02A3BC0D2585314200BBF99E /* Cli */ = {
+			isa = PBXGroup;
+			children = (
+				02A3BC0E2585314200BBF99E /* main.swift */,
+			);
+			name = Cli;
+			path = Sources/Cli;
+			sourceTree = "<group>";
+		};
 		OBJ_105 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				"swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */,
 				"swift-sass::EmbeddedSassTests::Product" /* EmbeddedSassTests.xctest */,
 				0289BB1825666B060004544A /* Sass.framework */,
+				02A3BC0C2585314200BBF99E /* Cli */,
 			);
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -229,7 +266,9 @@
 			isa = PBXGroup;
 			children = (
 				0291E7C7256000A400F6BE14 /* TestInterface.swift */,
-				0291E7C92562E82F00F6BE14 /* TestErrors.swift */,
+				0291E7C92562E82F00F6BE14 /* TestCompilerErrors.swift */,
+				029B4F8D257E569D00A768D2 /* TestResetShutdown.swift */,
+				029B4F90257E578600A768D2 /* TestProtocolErrors.swift */,
 				0289BB362566A62B0004544A /* TestImporters.swift */,
 				0285E827256C4C2900956F18 /* TestFunctions.swift */,
 				OBJ_15 /* TestUtils.swift */,
@@ -244,6 +283,7 @@
 				OBJ_6 /* Package.swift */,
 				OBJ_7 /* Sources */,
 				OBJ_12 /* Tests */,
+				02A3BC0D2585314200BBF99E /* Cli */,
 				OBJ_105 /* Products */,
 				025C622E255C16FD00AEA420 /* Frameworks */,
 			);
@@ -261,11 +301,13 @@
 		OBJ_8 /* EmbeddedSass */ = {
 			isa = PBXGroup;
 			children = (
+				02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */,
 				OBJ_10 /* Compiler.swift */,
-				025C6251255D54C000AEA420 /* Errors.swift */,
+				02A3BC0025800D0600BBF99E /* CompilerWork.swift */,
 				025C624E255D2C9300AEA420 /* BinaryProtocol.swift */,
+				025C6251255D54C000AEA420 /* Errors.swift */,
 				OBJ_9 /* Exec.swift */,
-				0291E7CB2565416400F6BE14 /* Timer.swift */,
+				029B4F93258005C000A768D2 /* NIO+Extras.swift */,
 				0289BB392568471D0004544A /* ProtobufConversion.swift */,
 				OBJ_11 /* embedded_sass.pb.swift */,
 			);
@@ -289,9 +331,28 @@
 			dependencies = (
 			);
 			name = Sass;
+			packageProductDependencies = (
+			);
 			productName = Sass;
 			productReference = 0289BB1825666B060004544A /* Sass.framework */;
 			productType = "com.apple.product-type.framework";
+		};
+		02A3BC0B2585314200BBF99E /* Cli */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 02A3BC102585314200BBF99E /* Build configuration list for PBXNativeTarget "Cli" */;
+			buildPhases = (
+				02A3BC082585314200BBF99E /* Sources */,
+				02A3BC092585314200BBF99E /* Frameworks */,
+				02A3BC0A2585314200BBF99E /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Cli;
+			productName = Cli;
+			productReference = 02A3BC0C2585314200BBF99E /* Cli */;
+			productType = "com.apple.product-type.tool";
 		};
 		"swift-sass::EmbeddedSass" /* EmbeddedSass */ = {
 			isa = PBXNativeTarget;
@@ -307,6 +368,12 @@
 				0289BB2525666BA70004544A /* PBXTargetDependency */,
 			);
 			name = EmbeddedSass;
+			packageProductDependencies = (
+				02440A262576C7DA008F0862 /* NIO */,
+				02440A29257957B5008F0862 /* NIOFoundationCompat */,
+				02A346E8257AAE3D00A14905 /* Logging */,
+				02E0ED7E2586172C0080E954 /* SwiftProtobuf */,
+			);
 			productName = EmbeddedSass;
 			productReference = "swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */;
 			productType = "com.apple.product-type.framework";
@@ -336,11 +403,15 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftMigration = 9999;
+				LastSwiftUpdateCheck = 1220;
 				LastUpgradeCheck = 9999;
 				TargetAttributes = {
 					0289BB1725666B060004544A = {
 						CreatedOnToolsVersion = 12.2;
 						ProvisioningStyle = Manual;
+					};
+					02A3BC0B2585314200BBF99E = {
+						CreatedOnToolsVersion = 12.2;
 					};
 				};
 			};
@@ -352,6 +423,11 @@
 				en,
 			);
 			mainGroup = OBJ_5;
+			packageReferences = (
+				02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */,
+				02A346E7257AAE3D00A14905 /* XCRemoteSwiftPackageReference "swift-log" */,
+				02E0ED79258617180080E954 /* XCRemoteSwiftPackageReference "swift-protobuf" */,
+			);
 			productRefGroup = OBJ_105 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -359,6 +435,7 @@
 				0289BB1725666B060004544A /* Sass */,
 				"swift-sass::EmbeddedSass" /* EmbeddedSass */,
 				"swift-sass::EmbeddedSassTests" /* EmbeddedSassTests */,
+				02A3BC0B2585314200BBF99E /* Cli */,
 			);
 		};
 /* End PBXProject section */
@@ -395,17 +472,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		02A3BC082585314200BBF99E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				02A3BC0F2585314200BBF99E /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		OBJ_117 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
 				OBJ_118 /* Exec.swift in Sources */,
 				025C6252255D54C000AEA420 /* Errors.swift in Sources */,
-				0291E7CC2565416400F6BE14 /* Timer.swift in Sources */,
 				0289BB3A2568471D0004544A /* ProtobufConversion.swift in Sources */,
+				02A3BC0125800D0600BBF99E /* CompilerWork.swift in Sources */,
 				025C624F255D2C9300AEA420 /* BinaryProtocol.swift in Sources */,
 				OBJ_119 /* Compiler.swift in Sources */,
+				029B4F94258005C000A768D2 /* NIO+Extras.swift in Sources */,
 				OBJ_120 /* embedded_sass.pb.swift in Sources */,
+				02A3BC052581600700BBF99E /* AsyncCompilerTypes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -414,6 +501,7 @@
 			buildActionMask = 0;
 			files = (
 				0285E843256FCEDA00956F18 /* TestMap.swift in Sources */,
+				029B4F8E257E569D00A768D2 /* TestResetShutdown.swift in Sources */,
 				0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */,
 				0285E85625756B1500956F18 /* TestColor.swift in Sources */,
 				0285E828256C4C2900956F18 /* TestFunctions.swift in Sources */,
@@ -422,7 +510,8 @@
 				0285E834256EEE5300956F18 /* TestConstants.swift in Sources */,
 				02440A1925765C0C008F0862 /* TestFunction.swift in Sources */,
 				OBJ_131 /* TestUtils.swift in Sources */,
-				0291E7CA2562E82F00F6BE14 /* TestErrors.swift in Sources */,
+				029B4F91257E578600A768D2 /* TestProtocolErrors.swift in Sources */,
+				0291E7CA2562E82F00F6BE14 /* TestCompilerErrors.swift in Sources */,
 				0289BB372566A62B0004544A /* TestImporters.swift in Sources */,
 				0285E82E256EDB6700956F18 /* TestList.swift in Sources */,
 			);
@@ -500,7 +589,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "swift-sass.xcodeproj/Sass_Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -569,7 +662,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "swift-sass.xcodeproj/Sass_Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -585,6 +682,113 @@
 			};
 			name = Release;
 		};
+		02A3BC112585314200BBF99E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		02A3BC122585314200BBF99E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		OBJ_115 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -592,12 +796,14 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "swift-sass.xcodeproj/EmbeddedSass_Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -622,12 +828,14 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "swift-sass.xcodeproj/EmbeddedSass_Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -653,12 +861,15 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "swift-sass.xcodeproj/EmbeddedSassTests_Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -680,12 +891,15 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "swift-sass.xcodeproj/EmbeddedSassTests_Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -745,7 +959,8 @@
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) SWIFT_PACKAGE";
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				USE_HEADERMAP = NO;
 			};
 			name = Release;
@@ -758,6 +973,15 @@
 			buildConfigurations = (
 				0289BB1E25666B060004544A /* Debug */,
 				0289BB1F25666B060004544A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		02A3BC102585314200BBF99E /* Build configuration list for PBXNativeTarget "Cli" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				02A3BC112585314200BBF99E /* Debug */,
+				02A3BC122585314200BBF99E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -790,6 +1014,56 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-nio.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.25.0;
+			};
+		};
+		02A346E7257AAE3D00A14905 /* XCRemoteSwiftPackageReference "swift-log" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-log.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.0;
+			};
+		};
+		02E0ED79258617180080E954 /* XCRemoteSwiftPackageReference "swift-protobuf" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-protobuf.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.14.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		02440A262576C7DA008F0862 /* NIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIO;
+		};
+		02440A29257957B5008F0862 /* NIOFoundationCompat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOFoundationCompat;
+		};
+		02A346E8257AAE3D00A14905 /* Logging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02A346E7257AAE3D00A14905 /* XCRemoteSwiftPackageReference "swift-log" */;
+			productName = Logging;
+		};
+		02E0ED7E2586172C0080E954 /* SwiftProtobuf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02E0ED79258617180080E954 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobuf;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = OBJ_1 /* Project object */;
 }

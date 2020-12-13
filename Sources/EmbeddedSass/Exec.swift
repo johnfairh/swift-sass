@@ -8,37 +8,13 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
-//
-// Firstly some 'orrible gubbins to deal with SIGPIPE, which
-// happens if the child process dies.
-//
-// We're a library so can't just mask it off globally.
-//
-// So available techniques are pthread_sigmask(3) and FD-centric options.
-// I'm more confident about getting the FD approach working solidly on
-// Darwin so we do that.
-//
-// Darwin: has SO_NOSIGPIPE on setsockopt(2)
-// Linux: has MSG_NOSIGNAL on send(2)
-//        Actually Darwin has MSG_NOSIGNAL in the header file under a weird
-//        ifdef, but it's not in the man page: leave it out.
-//
-// Include socket FD reader and writer APIs -- the official ones that look
-// like they might be safe require a Big Sur deployment target.  And probably
-// won't understand MSG_NOSIGNAL.
-//
-
 import Foundation
+import NIO
 
 /// Create a pair of connected sockets in PF_LOCAL.
-///
-/// Set `NO_SIGPIPE` on supported platforms.
-///
-/// The connection is bidirectional but the sockets are named `reader` and `writer` to
-/// make it easier to reason about their use.
-struct SocketPipe {
-    let reader: FileHandle
-    let writer: FileHandle
+private struct SocketPipe {
+    let reader: Int32
+    let writer: Int32
 
     init() {
         var fds: [Int32] = [0, 0]
@@ -49,47 +25,13 @@ struct SocketPipe {
         #endif // such anger
         let rc = socketpair(PF_LOCAL, sockStream, 0, &fds)
         precondition(rc == 0, "socketpair(2) failed errno=\(errno)")
-        #if os(macOS)
-        fds.forEach { fd in
-            var opt = UInt32(1)
-            let rc = setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &opt, UInt32(MemoryLayout<Int32>.size))
-            precondition(rc == 0, "setsockopt(2) failed errno=\(errno)")
-        }
-        #endif
-        reader = FileHandle(fileDescriptor: fds[0], closeOnDealloc: true)
-        writer = FileHandle(fileDescriptor: fds[1], closeOnDealloc: true)
-        // Not obvious this `closeOnDealloc` works - see `Exec.spawn(...)`.
-    }
-}
-
-extension FileHandle {
-    /// Send data to a socket.  Set `MSG_NOSIGNAL` on supported platforms.
-    func sockSend(_ bytes: UnsafeRawPointer, count: Int) -> Int {
-        #if os(macOS)
-        return send(fileDescriptor, bytes, count, 0)
-        #elseif os(Linux)
-        return send(fileDescriptor, bytes, count, Int32(MSG_NOSIGNAL))
-        #endif
-    }
-
-    /// Read data from a socket.
-    func sockRecv(_ bytes: UnsafeMutableRawPointer, count: Int) -> Int {
-        recv(fileDescriptor, bytes, count, Int32(MSG_WAITALL))
+        reader = fds[0]
+        writer = fds[1]
     }
 }
 
 /// Namespace for utilities to execute a child process.
 enum Exec {
-    /// How to handle stderr output from the child process.
-    enum Stderr {
-        /// Treat stderr same as parent process.
-        case inherit
-        /// Send stderr to /dev/null.
-        case discard
-        /// Merge stderr with stdout.
-        case merge
-    }
-
     /// The result of running the child process.
     struct Results {
         /// The command that was run
@@ -134,14 +76,11 @@ enum Exec {
     - parameter arguments: Arguments to pass to the command.
     - parameter currentDirectory: Current directory for the command.  By default
                                   the parent process's current directory.
-    - parameter stderr: What to do with stderr output from the command.  By default
-                        whatever the parent process does.
     */
     static func run(_ command: String,
                     _ arguments: String...,
-                    currentDirectory: String = FileManager.default.currentDirectoryPath,
-                    stderr: Stderr = .inherit) -> Results {
-        return run(command, arguments, currentDirectory: currentDirectory, stderr: stderr)
+                    currentDirectory: String = FileManager.default.currentDirectoryPath) -> Results {
+        return run(command, arguments, currentDirectory: currentDirectory)
     }
 
     /**
@@ -151,43 +90,40 @@ enum Exec {
      - parameter arguments: Arguments to pass to the command.
      - parameter currentDirectory: Current directory for the command.  By default
                                    the parent process's current directory.
-     - parameter stderr: What to do with stderr output from the command.  By default
-                         whatever the parent process does.
      */
      static func run(_ command: String,
                      _ arguments: [String] = [],
-                     currentDirectory: String = FileManager.default.currentDirectoryPath,
-                     stderr: Stderr = .inherit) -> Results {
+                     currentDirectory: String = FileManager.default.currentDirectoryPath) -> Results {
         let process = Process()
         process.arguments = arguments
 
         let pipe = Pipe()
         process.standardOutput = pipe
 
-        switch stderr {
-        case .discard:
-            // FileHandle.nullDevice does not work here, as it consists of an invalid file descriptor,
-            // causing process.launch() to abort with an EBADF.
-            process.standardError = FileHandle(forWritingAtPath: "/dev/null")!
-        case .merge:
-            process.standardError = pipe
-        case .inherit:
-            break
-        }
+        // FileHandle.nullDevice does not work here, as it consists of an invalid file descriptor,
+        // causing process.launch() to abort with an EBADF.
+        process.standardError = FileHandle(forWritingAtPath: "/dev/null")!
 
         do {
-          process.executableURL = URL(fileURLWithPath: command)
-          process.currentDirectoryURL = URL(fileURLWithPath: currentDirectory)
-          try process.run()
+            process.executableURL = URL(fileURLWithPath: command)
+            process.currentDirectoryURL = URL(fileURLWithPath: currentDirectory)
+            try process.run()
         } catch {
             return Results(command: command, arguments: arguments, terminationStatus: -1, data: Data())
         }
 
-        let fd = pipe.fileHandleForReading
-        return Child(process: process, stdin: fd, stdout: fd).await()
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        return Results(command: process.executableURL?.path ?? "",
+                       arguments: process.arguments ?? [],
+                       terminationStatus: process.terminationStatus,
+                       data: data)
     }
 
-    /// Start an asynchrous child process.
+    /// Start an asynchrous child process with NIO connections.
+    ///
+    /// Doesn't work on an event loop -- a weird underlying NIO design point we lean into: this
+    /// blocks a little as the process starts.
     ///
     /// - parameter command: Absolute path of the command to run
     /// - parameter arguments: Arguments to pass to the command
@@ -200,59 +136,60 @@ enum Exec {
     /// Stderr of the child process is discarded because I don't want it rn.
     static func spawn(_ command: URL,
                       _ arguments: [String] = [],
-                      currentDirectory: String = FileManager.default.currentDirectoryPath) throws -> Child {
+                      currentDirectory: String = FileManager.default.currentDirectoryPath,
+                      group: EventLoopGroup) throws -> Child {
         let process = Process()
         process.arguments = arguments
+
+        // Some pain in getting this working with NIO.
+        // Lesson 1: Don't let NIO anywhere near a pipe(2) fd, it doesn't
+        // understand how they work.
+        // Lesson 2: Don't let NIO anywhere near the 'child' ends of the
+        // non-pipe FDs, even when closed it messes up on Linux.
+        // Lesson 3: Avoid the version of PipeBootstrap that dup()s an FD,
+        // it's broken.
+        // Lesson 4: Don't let CoreFoundation's FileHandle implementation
+        // anywhere important, it is mad keen on closing FDs.
 
         let stdoutPipe = SocketPipe()
         let stdinPipe = SocketPipe()
 
-        process.standardOutput = stdoutPipe.writer
-        process.standardInput = stdinPipe.reader
+        process.standardOutput = FileHandle(fileDescriptor: stdoutPipe.writer)
+        process.standardInput = FileHandle(fileDescriptor: stdinPipe.reader)
         process.standardError = FileHandle(forWritingAtPath: "/dev/null")!
 
         process.executableURL = command
         process.currentDirectoryURL = URL(fileURLWithPath: currentDirectory)
         try process.run()
-        // Close our copy of the child's FDs.
-        // `FileHandle` claims to do this for us but it either doesn't work or is
-        // too clever to be useful.
-        try stdoutPipe.writer.close()
-        try stdinPipe.reader.close()
 
-        return Child(process: process, stdin: stdinPipe.writer, stdout: stdoutPipe.reader)
+        let channel = try NIOPipeBootstrap(group: group)
+            .withPipes(inputDescriptor: stdoutPipe.reader, outputDescriptor: stdinPipe.writer)
+            .wait()
+
+        // Close our copy of the FDs that the child is using.
+        close(stdoutPipe.writer)
+        close(stdinPipe.reader)
+        return Child(process: process, channel: channel)
     }
 
-    /// A running child process.
+    /// A running child process with NIO connections.
     ///
-    /// When the last reference to this object is released the `await()` method is called
-    /// to block for termination -- we take no action to ensure this termination though.
+    /// Nothing happens at deinit - client needs to close the stream / kill the process
+    /// as required.
     final class Child {
         /// The `Process` object for the child
         let process: Process
-        /// The child's `stdin`.  Write to it.
-        let standardInput: FileHandle
-        /// The child's `stdout`.  Read from it.
-        let standardOutput: FileHandle
+        /// A NIO Channel representing both the child's stdin (write to it) and stdout (read from it)
+        let channel: Channel
 
-        init(process: Process, stdin: FileHandle, stdout: FileHandle) {
+        init(process: Process, channel: Channel) {
             self.process = process
-            self.standardInput = stdin
-            self.standardOutput = stdout
+            self.channel = channel
         }
 
-        /// Block until the process terminates and report status.
-        func await() -> Results {
-            let data = standardOutput.readDataToEndOfFile()
-            process.waitUntilExit()
-            return Results(command: process.executableURL?.path ?? "",
-                           arguments: process.arguments ?? [],
-                           terminationStatus: process.terminationStatus,
-                           data: data)
-        }
-
-        deinit {
-            _ = await()
+        func terminate() {
+            process.terminate()
+            // this cascades closes to the channel
         }
     }
 }

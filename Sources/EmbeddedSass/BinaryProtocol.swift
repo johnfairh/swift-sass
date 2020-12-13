@@ -12,9 +12,8 @@
 // Two horror stories in standards compliance and interop here:
 //
 // 1) SwiftProtobuf has `BinaryDelimited` helpers to make this stuff trivial.
-//    Unfortunately they require `InputStream`/`OutputStream` whereas we have
-//    `FileHandle`s and I'm too dumb to find a standard gadget for matching
-//    these up, never mind with the requisite anti-SIGPIPE measures.
+//    Unfortunately they require `InputStream`/`OutputStream` which doesn't match
+//    anything in the Posix-y FD world let alone NIO.
 //
 // 2) Protobuf's written docs are vague about how binary delimiters should work.
 //    The code is unambiguous though: use a varint32 to hold the length.
@@ -26,76 +25,79 @@
 // we can manually do its fixed-header format, bypassing `BinaryDelimited`
 // entirely.
 //
+// Switching to NIO means it gets to think about SIGPIPE -- amusingly on Linux
+// it cops out and masks it off for the entire process.
+//
 
 import Foundation
 import SwiftProtobuf
+import NIO
+import NIOFoundationCompat
 
-extension Exec.Child {
-    /// Send a message to the embedded sass compiler.
+/// Serialize Sass protocol messages down to NIO.
+final class ProtocolWriter: MessageToByteEncoder {
+    typealias OutboundIn = Sass_EmbeddedProtocol_InboundMessage
+
+    /// Send a message to the embedded Sass compiler.
     ///
     /// - parameter message: The message to send to the compiler ('inbound' from their perspective...).
-    /// - throws: `SassError.protocolError()` if we can't squeeze the bytes out.
+    /// - throws: Something from protobuf if it can't understand its own types.
     /// - note: Uses the embedded Sass binary delimiter protocol, not the regular protobuf one.
-    func send(message: Sass_EmbeddedProtocol_InboundMessage) throws {
-        func doSend(_ bytes: UnsafeRawPointer!, _ count: Int) throws {
-            let rc = standardInput.sockSend(bytes, count: count)
-            if rc == -1 {
-                throw ProtocolError("Write of \(count) bytes failed, errno=\(errno)")
-            } else if rc != count {
-                throw ProtocolError("Write of \(count) bytes underran, only \(rc) bytes written")
-            }
-        }
-
-        let data = try message.serializedData()
-
-        var networkMessageLen = Int32(data.count).littleEndian
-        try doSend(&networkMessageLen, MemoryLayout<Int32>.size)
-
-        try data.withUnsafeBytes { bufferPointer in
-            try doSend(bufferPointer.baseAddress, data.count)
-        }
+    func encode(data: Sass_EmbeddedProtocol_InboundMessage, out: inout ByteBuffer) throws {
+        let buffer = try data.serializedData()
+        out.writeInteger(UInt32(buffer.count), endianness: .little, as: UInt32.self)
+        out.writeData(buffer)
     }
+
+    /// Add a channel handler matching the protocol writer.
+    static func addHandler(to channel: Channel) -> EventLoopFuture<Void> {
+        channel.pipeline.addHandler(MessageToByteHandler(ProtocolWriter()))
+    }
+}
+
+/// Logic to parse and decode Sass protocol messages
+final class ProtocolReader: ByteToMessageDecoder {
+    typealias InboundOut = Sass_EmbeddedProtocol_OutboundMessage
+
+    enum State {
+        /// Waiting for a new message
+        case idle
+        /// Read the length header, waiting for the body
+        case reading(Int)
+    }
+    var state = State.idle
 
     /// Read and deserialize a message from the embedded sass compiler.
     ///
-    /// - parameter timeout: Max seconds to wait for a reply, -1 to disable.
-    /// - throws: `ProtocolError()` if we can't get the bytes out of the compiler.
-    ///           `SwiftProtobuf.BinaryDecodingError` if we can't make sense of the bytes.
+    /// - throws: `SwiftProtobuf.BinaryDecodingError` if it can't make sense of the bytes.
     /// - note: Uses the embedded Sass binary delimiter protocol, not the regular protobuf one.
-    func receive(timeout: Int) throws -> Sass_EmbeddedProtocol_OutboundMessage {
-        func doRecv(_ bytes: UnsafeMutableRawPointer!, _ count: Int) throws {
-            let rc = standardOutput.sockRecv(bytes, count: count)
-            if rc == -1 {
-                throw ProtocolError("Read of \(count) bytes failed, errno=\(errno)")
-            } else if rc != count {
-                throw ProtocolError("Read of \(count) bytes underran, only \(rc) bytes read")
+    func decode(context: ChannelHandlerContext, buffer: inout ByteBuffer) throws -> DecodingState {
+        switch state {
+        case .idle:
+            guard buffer.readableBytes >= MemoryLayout<UInt32>.size else {
+                return .needMoreData
             }
-        }
+            let msgLen = buffer.readInteger(endianness: .little, as: UInt32.self)!
+            state = .reading(Int(msgLen))
 
-        // A grotty (but cross-platform!) timeout-to-readable to detect a stuck compiler
-        // process.  TODO-NIO.
-        var pfd = pollfd(fd: standardOutput.fileDescriptor,
-                         events: Int16(POLLIN),
-                         revents: 0)
-        let rc = poll(&pfd, 1, timeout == -1 ? -1 : Int32(timeout * 1000))
-        if rc == 0 {
-            throw ProtocolError("Timeout waiting for compiler to respond after \(timeout) seconds")
-        }
-        if rc == -1 {
-            throw ProtocolError("poll(2) failed, errno=\(errno)")
-        }
+            return .continue
 
-        var networkMsgLen = Int32(0)
-        try doRecv(&networkMsgLen, MemoryLayout<Int32>.size)
-        let msgLen = Int(Int32(littleEndian: networkMsgLen))
+        case .reading(let msgLen):
+            guard buffer.readableBytes >= msgLen else {
+                return .needMoreData
+            }
 
-        var data = Data(count: msgLen)
-        try data.withUnsafeMutableBytes { bufferPointer in
-            try doRecv(bufferPointer.baseAddress, msgLen)
+            var message = Sass_EmbeddedProtocol_OutboundMessage()
+            try message.merge(serializedData: buffer.readData(length: msgLen)!)
+            state = .idle
+
+            context.fireChannelRead(wrapInboundOut(message))
+            return .continue
         }
+    }
 
-        var message = Sass_EmbeddedProtocol_OutboundMessage()
-        try message.merge(serializedData: data)
-        return message
+    /// Add a channel handler matching the protocol reader.
+    static func addHandler(to channel: Channel) -> EventLoopFuture<Void> {
+        channel.pipeline.addHandler(ByteToMessageHandler(ProtocolReader()))
     }
 }

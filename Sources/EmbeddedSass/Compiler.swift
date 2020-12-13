@@ -6,8 +6,15 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
-import Foundation
+import Foundation // for URL !
+import NIO
+import Logging
 @_exported import Sass
+
+// Compiler -- interface, control state machine
+// CompilerChild -- Child process, NIO reads and writes
+// CompilerWork -- Sass stuff, protocol, job management
+// Compilation -- job state, many, managed by CompilerWork
 
 /// An instance of the embedded Sass compiler hosted in Swift.
 ///
@@ -32,44 +39,67 @@ import Foundation
 /// To debug problems, start with the output from `Compiler.debugHandler`, all the source files
 /// being given to the compiler, and the description of any errors thrown.
 public final class Compiler: CompilerProtocol {
-    private(set) var child: Exec.Child // internal getter for testing
-    private let childRestart: () throws -> Exec.Child
+    private let eventLoopGroup: ProvidedEventLoopGroup
 
-    private enum State {
-        /// Nothing happening
-        case idle
-        /// CompileRequest outstanding, it has initiative
-        case active
-        /// CompileRequest outstanding, InboundAckedRequest outstanding, user closure active, we have initiative
-        case active_callback(String)
-        /// Killed them because of error, won't restart
-        case idle_broken
+    /// NIO event loop we're bound to.  Internal for test.
+    let eventLoop: EventLoop
 
-        var isCompileRequestLegal: Bool {
+    /// Child process initialization involves blocking steps and happens outside of NIO.
+    private let initThread: NIOThreadPool
+
+    enum State {
+        /// No child, new jobs wait on promise with new state.
+        case initializing(EventLoopFuture<Void>)
+        /// Child is running and accepting compilation jobs.
+        case running(CompilerChild)
+        /// Child is broken.  Fail new jobs with the error.  Reinit permitted.
+        case broken(Error)
+        /// System is shutting down, ongoing jobs will complete but no new.
+        /// Shutdown will be done when promise completes.
+        case quiescing(CompilerChild, EventLoopFuture<Void>)
+        /// Compiler is shut down.  Fail new jobs.
+        case shutdown
+
+        var child: CompilerChild? {
             switch self {
-            case .idle, .idle_broken: return true
-            case .active, .active_callback(_): return false
+            case .running(let c), .quiescing(let c, _): return c
+            case .initializing(_), .broken(_), .shutdown: return nil
             }
         }
+
+        mutating func toInitializing(_ future: EventLoopFuture<Void>) -> EventLoopFuture<Void> {
+            self = .initializing(future)
+            return future
+        }
+
+        mutating func toQuiescing(_ future: EventLoopFuture<Void>) -> EventLoopFuture<Void> {
+            self = .quiescing(child!, future) // ! -> must be running to start quiesce
+            return future
+        }
     }
-    private var state: State
 
-    // Configuration
-    private let overallTimeout: Int
-    private let globalImporters: [ImportResolver]
-    private let globalFunctions: SassFunctionMap
+    /// Compiler process state.  Internal for test access.
+    private(set) var state: State
 
-    // State of the current job
-    private var compilationID: UInt32
-    private var messages: [CompilerMessage]
-    private var currentImporters: [ImportResolver]
-    private var currentFunctions: SassFunctionMap
+    /// Number of times we've tried to start the embedded Sass compiler.
+    public private(set) var startCount: Int
 
-    /// Initialize using the given program as the embedded Sass compiler.
+    /// The URL of the compiler program
+    private let embeddedCompilerURL: URL
+
+    /// The actual compilation work
+    private var work: CompilerWork!
+
+    /// Use a program as the embedded Sass compiler.
     ///
+    /// You must shut down the compiler with `Compiler.shutdownGracefully()`
+    /// before letting it go out of scope.
+    ///
+    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
+    ///   an existing group or `.createNew` to create and manage a new event loop.
     /// - parameter embeddedCompilerURL: The file URL to `dart-sass-embedded`
     ///   or something else that speaks the embedded Sass protocol.
-    /// - parameter overallTimeoutSeconds: The maximum time allowed  for the embedded
+    /// - parameter timeout: The maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
@@ -77,32 +107,38 @@ public final class Compiler: CompilerProtocol {
     /// - parameter functions: Sass functions available to all compile requests made of this instance.
     ///
     /// - throws: Something from Foundation if the program does not start.
-    public init(embeddedCompilerURL: URL,
-                overallTimeoutSeconds: Int = 60,
+    public init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
+                embeddedCompilerURL: URL,
+                timeout: Int = 60,
                 importers: [ImportResolver] = [],
-                functions: SassFunctionMap = [:]) throws {
+                functions: SassAsyncFunctionMap = [:]) throws {
         precondition(embeddedCompilerURL.isFileURL, "Not a file: \(embeddedCompilerURL)")
-        childRestart = { try Exec.spawn(embeddedCompilerURL) }
-        child = try childRestart()
-        state = .idle
-        overallTimeout = overallTimeoutSeconds
-        globalImporters = importers
-        globalFunctions = functions
-        compilationID = 1000
-        messages = []
-        currentImporters = []
-        currentFunctions = [:]
+        self.eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider)
+        eventLoop = self.eventLoopGroup.next()
+        initThread = NIOThreadPool(numberOfThreads: 1)
+        initThread.start()
+        work = nil
+        self.embeddedCompilerURL = embeddedCompilerURL
+        state = .shutdown
+        startCount = 0
+        // self init done
+        work = CompilerWork(eventLoop: eventLoop,
+                            resetRequest: { [unowned self] in handle(error: $0) },
+                            timeout: timeout,
+                            importers: .init(importers),
+                            functions: functions)
+        try state.toInitializing(startCompiler()).wait()
     }
 
-    private func restart() throws {
-        child = try childRestart()
-        state = .idle
-    }
-
-    /// Initialize using a program found on `PATH` as the embedded Sass compiler.
+    /// Use a program found on `PATH` as the embedded Sass compiler.
     ///
+    /// You must shut down the compiler with `Compiler.shutdownGracefully()`
+    /// before letting it go out of scope.
+    ///
+    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
+    ///   an existing group or `.createNew` to create and manage a new event loop.
     /// - parameter embeddedCompilerName: Name of the program, default `dart-sass-embedded`.
-    /// - parameter timeoutSeconds: The maximum time allowed  for the embedded
+    /// - parameter timeout: The maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
@@ -110,22 +146,20 @@ public final class Compiler: CompilerProtocol {
     /// - parameter functions: Sass functions available to all compile requests made of this instance.    ///
     /// - throws: `ProtocolError()` if the program can't be found.
     ///           Everything from `init(embeddedCompilerURL:)`
-    public convenience init(embeddedCompilerName: String = "dart-sass-embedded",
-                            overallTimeoutSeconds: Int = 60,
+    public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
+                            embeddedCompilerName: String = "dart-sass-embedded",
+                            timeout: Int = 60,
                             importers: [ImportResolver] = [],
-                            functions: SassFunctionMap = [:]) throws {
-        let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName, stderr: .discard)
+                            functions: SassAsyncFunctionMap = [:]) throws {
+        let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName)
         guard let path = results.successString else {
             throw ProtocolError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
         }
-        try self.init(embeddedCompilerURL: URL(fileURLWithPath: path),
-                      overallTimeoutSeconds: overallTimeoutSeconds,
+        try self.init(eventLoopGroupProvider: eventLoopGroupProvider,
+                      embeddedCompilerURL: URL(fileURLWithPath: path),
+                      timeout: timeout,
                       importers: importers,
                       functions: functions)
-    }
-
-    deinit {
-        child.process.terminate()
     }
 
     /// Restart the Sass compiler process.
@@ -136,24 +170,84 @@ public final class Compiler: CompilerProtocol {
     /// resource usage escalates over time and need calming down.  You probably don't need to
     /// call it.
     ///
-    /// Don't use this to unstick a stuck `compile(...)` call, that will terminate eventually.
-    public func reinit() throws {
-        precondition(state.isCompileRequestLegal)
-        child.process.terminate()
-        try restart()
+    /// Any outstanding compile jobs are failed.
+    public func reinit() -> EventLoopFuture<Void> {
+        eventLoop.flatSubmit {
+            self.handle(error: ProtocolError("User requested Compiler reinit."))
+        }
+    }
+
+    /// Shut down the compiler asynchronously.
+    ///
+    /// You must call this (or `syncShutdownGracefully()` before the last reference to the
+    /// `Compiler` is released.
+    ///
+    /// Waits for work to wind down naturally and shuts down internal threads.  There's no way back
+    /// from this state: to do more compilation you will need a new object.
+    ///
+    /// This resolves on a dispatch queue because of internal event queue shutdown; make sure the
+    /// queue is being run.
+    public func shutdownGracefully(queue: DispatchQueue = .global(), _ callback: @escaping (Error?) -> Void) {
+        eventLoop.flatSubmit {
+            self.shutdown()
+        }.whenCompleteBlocking(onto: queue) { result in
+            self.eventLoopGroup.shutdownGracefully(queue: queue) { elgError in
+                callback(result.error ?? elgError)
+            }
+        }
+    }
+
+    /// Shut down the compiler synchronously.
+    ///
+    /// See `shutdownGracefully(queue:_:)`.
+    ///
+    /// Do not call this from an event loop thread.
+    public func syncShutdownGracefully() throws {
+        try eventLoop.flatSubmit {
+            self.shutdown()
+        }.wait()
+
+        try eventLoopGroup.syncShutdownGracefully()
     }
 
     /// The process ID of the compiler process.
     ///
     /// Not normally needed; can be used to adjust resource usage or maybe send it a signal if stuck.
-    public var compilerProcessIdentifier: Int32 {
-        child.process.processIdentifier
+    /// The process ID is reported as `nil` if there currently is no running child process.
+    public var compilerProcessIdentifier: EventLoopFuture<Int32?> {
+        eventLoop.submit {
+            self.state.child?.processIdentifier
+        }
     }
 
-    public var debugHandler: DebugHandler?
+    /// Logger for the module.
+    ///
+    /// Produces goodpath protocol and compiler lifecycle tracing at `.debug` log level, approx 500
+    /// bytes per compile request.
+    ///
+    /// Produces protocol error tracing at `.error` log level.  This is the same as the `description` of
+    /// thrown `ProtocolError`s.
+    public static var logger = Logger(label: "swift-sass")
 
     private func debug(_ msg: @autoclosure () -> String) {
-        debugHandler?(DebugMessage("[compid=\(compilationID)] \(msg())"))
+        Compiler.logger.debug(.init(stringLiteral: msg()))
+    }
+
+    /// Asynchronous version of `compile(fileURL:outputStyle:createSourceMap:importers:functions:)`.
+    public func compileAsync(fileURL: URL,
+                             outputStyle: CssStyle = .expanded,
+                             createSourceMap: Bool = false,
+                             importers: [ImportResolver] = [],
+                             functions: SassAsyncFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
+        eventLoop.flatSubmit { [self] in
+            defer { kickPendingCompilations() }
+            return work.addPendingCompilation(
+                input: .path(fileURL.path),
+                outputStyle: outputStyle,
+                createSourceMap: createSourceMap,
+                importers: .init(importers),
+                functions: functions)
+        }
     }
 
     public func compile(fileURL: URL,
@@ -161,11 +255,34 @@ public final class Compiler: CompilerProtocol {
                         createSourceMap: Bool = false,
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
-        try compile(input: .path(fileURL.path),
-                    outputStyle: outputStyle,
-                    createSourceMap: createSourceMap,
-                    importers: importers,
-                    functions: functions)
+        try compileAsync(fileURL: fileURL,
+                         outputStyle: outputStyle,
+                         createSourceMap: createSourceMap,
+                         importers: importers,
+                         functions: .init(functions)).wait()
+    }
+
+    /// Asynchronous version of `compile(text:syntax:url:outputStyle:createSourceMap:importers:functions:)`.
+    public func compileAsync(text: String,
+                             syntax: Syntax = .scss,
+                             url: URL? = nil,
+                             outputStyle: CssStyle = .expanded,
+                             createSourceMap: Bool = false,
+                             importers: [ImportResolver] = [],
+                             functions: SassAsyncFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
+        eventLoop.flatSubmit { [self] in
+            defer { kickPendingCompilations() }
+            return work.addPendingCompilation(
+                input: .string(.with { m in
+                    m.source = text
+                    m.syntax = .init(syntax)
+                    url.flatMap { m.url = $0.absoluteString }
+                }),
+                outputStyle: outputStyle,
+                createSourceMap: createSourceMap,
+                importers: .init(importers),
+                functions: functions)
+        }
     }
 
     public func compile(text: String,
@@ -175,253 +292,250 @@ public final class Compiler: CompilerProtocol {
                         createSourceMap: Bool = false,
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
-        try compile(input: .string(.with { m in
-                        m.source = text
-                        m.syntax = .init(syntax)
-                        url.flatMap { m.url = $0.absoluteString }
-                    }),
-                    outputStyle: outputStyle,
-                    createSourceMap: createSourceMap,
-                    importers: importers,
-                    functions: functions)
+        try compileAsync(text: text,
+                         syntax: syntax,
+                         url: url,
+                         outputStyle: outputStyle,
+                         createSourceMap: createSourceMap,
+                         importers: importers,
+                         functions: .init(functions)).wait()
     }
 
-    /// Helper to generate the compile request message
-    private func compile(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
-                         outputStyle: CssStyle,
-                         createSourceMap: Bool,
-                         importers: [ImportResolver],
-                         functions: SassFunctionMap) throws -> CompilerResults {
-        compilationID += 1
-        messages = []
-        currentImporters = globalImporters + importers
+    /// Consider the pending work queue.  When we change `state` or add to `pendingCompilations`.`
+    private func kickPendingCompilations() {
+        eventLoop.preconditionInEventLoop()
 
-        // Discard any signatures in global with names matching local.
-        // Pass the resulting signatures to the compiler.
-        // Retain a map from function name (not signature) to callback.
-        let localFnsNameMap = functions._asSassFunctionNameElementMap
-        let globalFnsNameMap = globalFunctions._asSassFunctionNameElementMap
-        let mergedFnsNameMap = globalFnsNameMap.merging(localFnsNameMap) { g, l in l }
-        let signatures = mergedFnsNameMap.values.map { $0.0 }
-        currentFunctions = mergedFnsNameMap.mapValues { $0.value }
+        switch state {
+        case .broken(let error):
+            // jobs submitted while restarting the compiler; restart failed: fail them.
+            work.cancelAllPending(with: ProtocolError("Sass compiler failed to restart after previous error: \(error)"))
 
-        return try compile(message: .with {
-            $0.message = .compileRequest(.with { msg in
-                msg.id = compilationID
-                msg.input = input
-                msg.style = .init(outputStyle)
-                msg.sourceMap = createSourceMap
-                msg.importers = .init(currentImporters, startingID: Compiler.baseImporterID)
-                msg.globalFunctions = signatures
-            })
-        })
-    }
+        case .shutdown, .quiescing:
+            // jobs submitted after/during shutdown: fail them.
+            work.cancelAllPending(with: ProtocolError("Compiler has been shutdown, not accepting further work."))
 
-    /// Top-level compiler protocol runner.  Handles erp, such as there is.
+        case .initializing:
+            // jobs submitted while [re]starting the compiler: wait.
+            break
 
-    private func compile(message: Sass_EmbeddedProtocol_InboundMessage) throws -> CompilerResults {
-        precondition(state.isCompileRequestLegal, "Call to `compile(...)` already active")
-        if case .idle_broken = state {
-            throw ProtocolError("Sass compiler failed to restart after previous errors.")
-        }
-
-        do {
-            state = .active
-            debug("start")
-            try child.send(message: message)
-            let results = try receiveMessages()
-            state = .idle
-            debug("end-success")
-            return results
-        }
-        catch let error as CompilerError {
-            state = .idle
-            debug("end-compiler-error")
-            throw error
-        }
-        catch {
-            // error with some layer of the protocol.
-            // the only erp we have to is to try and restart it into a known
-            // clean state.  seems ott to retry the command here, see how we go.
-            do {
-                debug("end-protocol-error - restarting compiler...")
-                child.process.terminate()
-                try restart()
-                debug("end-protocol-error - restart ok")
-            } catch {
-                // the system looks to be broken, sadface
-                state = .idle_broken
-                debug("end-protocol-error - restart failed: \(error)")
+        case .running(let child):
+            // goodpath
+            work.startAllPending().forEach {
+                child.send(message: $0)
             }
-            // Propagate original error
+        }
+    }
+
+    /// Startup ceremony
+    ///
+    /// Get onto the thread to start the child and bootstrap the NIO connections.
+    /// Then back to the event loop to add handlers and kick the state machine.
+    ///
+    /// When this future completes the system is either in running or broken.
+    private func startCompiler() -> EventLoopFuture<Void> {
+        precondition(!work.hasActiveCompilations)
+        startCount += 1
+        return initThread.runIfActive(eventLoop: eventLoop) { [self] in
+            try CompilerChild(eventLoop: eventLoop,
+                              url: embeddedCompilerURL,
+                              work: work,
+                              errorHandler: { [unowned self] in self.handle(error: $0) })
+        }.flatMap { child in
+            child.addChannelHandlers()
+        }.map { child in
+            self.debug("Compiler is started")
+            self.state = .running(child)
+            self.kickPendingCompilations()
+        }.flatMapErrorThrowing { error in
+            self.debug("Can't start the compiler at all: \(error)")
+            self.state = .broken(error)
+            self.kickPendingCompilations()
             throw error
         }
     }
 
-    /// Inbound message dispatch, top-level validation
-    private func receiveMessages() throws -> CompilerResults {
-        let timer = Timer()
+    /// Central transport/protocol error detection and 'recovery'.
+    ///
+    /// Errors come from:
+    /// 1. Write transport errors, reported by a promise from `CompilerChild.send(message:to:)`
+    /// 2. Read transport errors, reported by the channel handler from `CompilerChild.errorCaught(...)`
+    /// 3. Protocol errors reported by the Sass compiler, from `CompilerWork.receieveGlobal(message:)`
+    /// 4. Protocol errors detected by us, from `Compilation.receive(message)`.
+    /// 5. User-injected restarts, from `reinit()`.
+    /// 6. Timeouts, from `CompilerWork`'s reset API.
+    ///
+    /// In all cases we brutally restart the compiler and fail back all the jobs.  Need experience of how this
+    /// actually fails before doing anything more.
+    @discardableResult
+    func handle(error: Error) -> EventLoopFuture<Void> {
+        eventLoop.preconditionInEventLoop()
 
-        while true {
-            let elapsedTime = timer.elapsed
-            let timeout = overallTimeout < 0 ? -1 : max(1, overallTimeout - elapsedTime)
-            let response = try child.receive(timeout: timeout)
-            debug("  rx \(response.logMessage)")
-            if let rspCompilationID = response.compilationID,
-               rspCompilationID != compilationID {
-                throw ProtocolError("Bad compilation ID, expected \(compilationID) got \(rspCompilationID)")
-            }
+        switch state {
+        case .initializing(let future):
+            return future
 
-            switch response.message {
-            case .compileResponse(let rsp):
-                return try receive(compileResponse: rsp)
+        case .running(let child):
+            debug("Restarting compiler from running")
+            child.stopAndCancelWork(with: error)
+            return state.toInitializing(
+                work.quiesce().flatMap {
+                    self.debug("No outstanding compilations, restarting compiler")
+                    return self.startCompiler()
+                })
 
-            case .error(let rsp):
-                try receive(error: rsp)
+        case .broken:
+            debug("Restarting compiler from broken")
+            return state.toInitializing(startCompiler())
 
-            case .logEvent(let rsp):
-                try receive(log: rsp)
+        case .quiescing(let child, let future):
+            // Nasty corner - stay in this state but try to
+            // hurry things along.
+            debug("Error while quiescing, stopping compiler")
+            child.stopAndCancelWork(with: error)
+            return future
 
-            case .canonicalizeRequest(let req):
-                try receive(canonicalizeRequest: req)
-
-            case .importRequest(let req):
-                try receive(importRequest: req)
-
-            case .functionCallRequest(let req):
-                try receive(functionCallRequest: req)
-
-            default:
-                throw ProtocolError("Unexpected response: \(response)")
-            }
+        case .shutdown:
+            return eventLoop.makeProtocolError("Instance is shutdown, ignoring: \(error)")
         }
     }
 
-    /// Inbound `CompileResponse` handler
-    private func receive(compileResponse: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) throws -> CompilerResults {
-        switch compileResponse.result {
-        case .success(let s):
-            return .init(s, messages: messages)
-        case .failure(let f):
-            throw CompilerError(f, messages: messages)
-        case nil:
-            throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
-        }
-    }
+    /// Graceful shutdown.
+    ///
+    /// Let all work finish normally, then kill the child process and go to the terminal state.
+    private func shutdown() -> EventLoopFuture<Void> {
+        eventLoop.preconditionInEventLoop()
 
-    /// Inbound `Error` handler
-    private func receive(error: Sass_EmbeddedProtocol_ProtocolError) throws {
-        throw ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)")
-    }
-
-    /// Inbound `LogEvent` handler
-    private func receive(log: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) throws {
-        try messages.append(.init(log))
-    }
-
-    // MARK: Importers
-
-    static let baseImporterID = UInt32(4000)
-
-    /// Helper
-    private func getImporter(importerID: UInt32) throws -> Importer {
-        let minImporterID = Compiler.baseImporterID
-        let maxImporterID = minImporterID + UInt32(currentImporters.count) - 1
-        guard importerID >= minImporterID, importerID <= maxImporterID else {
-            throw ProtocolError("Bad importer ID \(importerID), out of range (\(minImporterID)-\(maxImporterID))")
-        }
-        guard let importer = currentImporters[Int(importerID - minImporterID)].importer else {
-            throw ProtocolError("Bad importer ID \(importerID), not an importer")
-        }
-        return importer
-    }
-
-    /// Inbound `CanonicalizeRequest` handler
-    private func receive(canonicalizeRequest req: Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest) throws {
-        let importer = try getImporter(importerID: req.importerID)
-        var rsp = Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse()
-        rsp.id = req.id
-        do {
-            if let canonicalURL = try importer.canonicalize(importURL: req.url) {
-                rsp.url = canonicalURL.absoluteString
-                debug("  tx canon-rsp-success reqid=\(req.id)")
-            } else {
-                // leave result nil -> can't deal with this request
-                debug("  tx canon-rsp-nil reqid=\(req.id)")
+        switch state {
+        case .initializing(let initFuture):
+            debug("Shutdown during restart, deferring")
+            // Nasty corner - wait for the init to resolve and then
+            // try again!
+            return initFuture.flatMap { _ in
+                self.debug("Reissuing deferred shutdown")
+                return self.shutdown()
             }
-        } catch {
-            rsp.error = String(describing: error)
-            debug("  tx canon-rsp-error reqid=\(req.id)")
-        }
-        try child.send(message: .with { $0.message = .canonicalizeResponse(rsp) })
-    }
 
-    /// Inbound `ImportRequest` handler
-    private func receive(importRequest req: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest) throws {
-        let importer = try getImporter(importerID: req.importerID)
-        guard let url = URL(string: req.url) else {
-            throw ProtocolError("Malformed import URL \(req.url)")
-        }
-        var rsp = Sass_EmbeddedProtocol_InboundMessage.ImportResponse()
-        rsp.id = req.id
-        do {
-            let results = try importer.load(canonicalURL: url)
-            rsp.success = .with { msg in
-                msg.contents = results.contents
-                msg.syntax = .init(results.syntax)
-                results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
-            }
-            debug("  tx import-rsp-success reqid=\(req.id)")
-        } catch {
-            rsp.error = String(describing: error)
-            debug("  tx import-rsp-error reqid=\(req.id)")
-        }
-        try child.send(message: .with { $0.message = .importResponse(rsp) })
-    }
+        case .running(let child):
+            debug("Shutdown from running")
+            return state.toQuiescing(
+                work.quiesce().flatMap { () -> EventLoopFuture<Void> in
+                    self.debug("No outstanding compilations, shutting down compiler")
+                    child.stopAndCancelWork()
+                    return self.initThread.shutdownGracefully(eventLoop: self.eventLoop)
+                }.map {
+                    self.debug("Compiler is shutdown")
+                    self.state = .shutdown
+                })
 
-    // MARK: Functions
+        case .broken, .shutdown:
+            state = .shutdown
+            return eventLoop.makeSucceededFuture(())
 
-    /// Inbound 'FunctionCallRequest' handler
-    private func receive(functionCallRequest req: Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest) throws {
-        /// Helper to run the callback after we locate it
-        func doSassFunction(_ fn: SassFunction) throws {
-            var rsp = Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse()
-            rsp.id = req.id
-            do {
-                let resultValue = try fn(req.arguments.map { try $0.asSassValue() })
-                rsp.success = .init(resultValue)
-                debug("  tx fncall-rsp-success reqid=\(req.id)")
-            } catch {
-                rsp.error = String(describing: error)
-                debug("  tx fncall-rsp-error reqid=\(req.id)")
-            }
-            try child.send(message: .with { $0.message = .functionCallResponse(rsp) })
-        }
-
-        switch req.identifier {
-        case .functionID(let id):
-            guard let sassDynamicFunc = Sass._lookUpDynamicFunction(id: id) else {
-                throw ProtocolError("Host function id \(id) not registered.")
-            }
-            try doSassFunction(sassDynamicFunc.function)
-
-        case .name(let name):
-            guard let sassFunc = currentFunctions[name] else {
-                throw ProtocolError("Host function \(name) not registered.")
-            }
-            try doSassFunction(sassFunc)
-
-        case nil:
-            throw ProtocolError("Missing 'identifier' field in FunctionCallRequest")
+        case .quiescing(_, let future):
+            return future
         }
     }
 }
 
-private extension ImportResolver {
-    var importer: Importer? {
-        switch self {
-        case .loadPath(_): return nil
-        case .importer(let i): return i
+/// NIO layer
+///
+/// Looks after the actual child process.
+/// Knows how to set up the channel pipeline.
+/// Routes inbound messages to CompilerWork.
+final class CompilerChild: ChannelInboundHandler {
+    typealias InboundIn = Sass_EmbeddedProtocol_OutboundMessage
+
+    /// Our event loop
+    private let eventLoop: EventLoop
+    /// The child process
+    private let child: Exec.Child
+    /// The work manager
+    private let work: CompilerWork
+    /// Error handling
+    private let errorHandler: (Error) -> Void
+    /// Cancellation protocol
+    private var stopping: Bool
+
+    /// API
+    var processIdentifier: Int32 {
+        child.process.processIdentifier
+    }
+
+    /// Test
+    var channel: Channel {
+        child.channel
+    }
+
+    /// Create a new Sass compiler process.
+    ///
+    /// Must not be called in an event loop!  But I don't know how to check that.
+    init(eventLoop: EventLoop, url: URL, work: CompilerWork, errorHandler: @escaping (Error) -> Void) throws {
+        self.child = try Exec.spawn(url, group: eventLoop)
+        self.eventLoop = eventLoop
+        self.work = work
+        self.errorHandler = errorHandler
+        self.stopping = false
+    }
+
+    /// Connect Sass protocol handlers.
+    func addChannelHandlers() -> EventLoopFuture<CompilerChild> {
+        ProtocolWriter.addHandler(to: child.channel)
+            .flatMap {
+                ProtocolReader.addHandler(to: self.child.channel)
+            }.flatMap {
+                self.child.channel.pipeline.addHandler(self)
+            }.map {
+                self
+            }
+    }
+
+    /// Send a message to the Sass compiler with error detection.
+    @discardableResult
+    func send(message: Sass_EmbeddedProtocol_InboundMessage) -> EventLoopFuture<Void> {
+        eventLoop.preconditionInEventLoop()
+        guard !stopping else {
+            // Race condition of compiler reset vs. async host function
+            return eventLoop.makeSucceededFuture(())
+        }
+
+        return child.channel.writeAndFlush(message).flatMapError { error in
+            self.errorHandler(ProtocolError("Write to Sass compiler failed: \(error)."))
+            return self.eventLoop.makeFailedFuture(error)
+        }
+    }
+
+    /// Called from the pipeline handler with a new message
+    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+        eventLoop.preconditionInEventLoop()
+        receive(message: unwrapInboundIn(data))
+    }
+
+    /// Split out for test access
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) {
+        Compiler.logger.debug("Rx: \(message.logMessage)")
+
+        work.receive(message: message).map {
+            if let response = $0 {
+                self.send(message: response)
+            }
+        }.whenFailure {
+            self.errorHandler($0)
+        }
+    }
+
+    /// Called from NIO up the stack if something goes wrong with the inbound connection
+    func errorCaught(context: ChannelHandlerContext, error: Error) {
+        errorHandler(ProtocolError("Read from Sass compiler failed: \(error)"))
+    }
+
+    /// Shutdown point - stop the child process to clean up the channel.
+    /// Cascade to `CompilerWork` so it stops waiting for responses -- this is a little bit spaghetti but it's helpful
+    /// to keep them tightly bound.
+    func stopAndCancelWork(with error: Error? = nil) {
+        stopping = true
+        child.terminate()
+        if let error = error {
+            work.cancelAllActive(with: error)
         }
     }
 }

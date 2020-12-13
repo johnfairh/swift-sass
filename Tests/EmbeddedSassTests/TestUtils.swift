@@ -6,10 +6,32 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
+import NIO
+import XCTest
 import Foundation
-import EmbeddedSass
+@testable import EmbeddedSass
 
-enum TestUtils {
+class EmbeddedSassTestCase: XCTestCase {
+
+    var eventLoopGroup: EventLoopGroup! = nil
+
+    var compilersToShutdown: [Compiler] = []
+
+    override func setUpWithError() throws {
+        XCTAssertNil(eventLoopGroup)
+        eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+        Compiler.logger.logLevel = .debug
+    }
+
+    override func tearDownWithError() throws {
+        try compilersToShutdown.forEach {
+            try $0.syncShutdownGracefully()
+        }
+        compilersToShutdown = []
+        try eventLoopGroup.syncShutdownGracefully()
+        eventLoopGroup = nil
+    }
+
     static var unitTestDirURL: URL {
         URL(fileURLWithPath: #filePath).deletingLastPathComponent()
     }
@@ -28,12 +50,46 @@ enum TestUtils {
         dartSassEmbeddedDirURL.appendingPathComponent("dart-sass-embedded")
     }
 
-    static func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap = [:]) throws -> Compiler {
-        let c = try Compiler(embeddedCompilerURL: TestUtils.dartSassEmbeddedURL,
+    func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap = [:]) throws -> Compiler {
+        return try newCompiler(importers: importers, asyncFunctions: SassAsyncFunctionMap(functions))
+    }
+
+    func newCompiler(importers: [ImportResolver] = [], asyncFunctions: SassAsyncFunctionMap) throws -> Compiler {
+        let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+                             embeddedCompilerURL: EmbeddedSassTestCase.dartSassEmbeddedURL,
                              importers: importers,
-                             functions: functions)
-        c.debugHandler = { m in print("debug: \(m)") }
+                             functions: asyncFunctions)
+        compilersToShutdown.append(c)
         return c
+    }
+
+    func newBadCompiler(timeout: Int = 1) throws -> Compiler {
+        let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+                             embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
+                             timeout: timeout)
+        compilersToShutdown.append(c)
+        return c
+    }
+
+    // Helper to trigger & validate a protocol error
+    func checkProtocolError(_ compiler: Compiler, _ text: String? = nil) {
+        do {
+            let results = try compiler.compile(text: "")
+            XCTFail("Managed to compile with compiler that should have failed: \(results)")
+        } catch let error as ProtocolError {
+            print(error)
+            if let text = text {
+                XCTAssertTrue(error.description.contains(text))
+            }
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    // Helper to check a compiler is working normally
+    func checkCompilerWorking(_ compiler: Compiler) throws {
+        let results = try compiler.compile(text: "")
+        XCTAssertEqual("", results.css)
     }
 }
 
@@ -42,8 +98,8 @@ extension String {
         try write(toFile: url.path, atomically: false, encoding: .utf8)
     }
 }
-extension FileManager {
 
+extension FileManager {
     func createTempFile(filename: String, contents: String) throws -> URL {
         let url = temporaryDirectory.appendingPathComponent(filename)
         try contents.write(to: url)
@@ -57,5 +113,40 @@ extension FileManager {
         let directoryURL = parentDirectoryURL.appendingPathComponent(directoryName)
         try createDirectory(at: directoryURL, withIntermediateDirectories: false)
         return directoryURL
+    }
+}
+
+/// An async importer that can be stopped in `load`.
+/// Accepts all `import` URLs and returns empty documents.
+final class HangingAsyncImporter: AsyncImporter {
+    func canonicalize(eventLoop: EventLoop, importURL: String) -> EventLoopFuture<URL?> {
+        return eventLoop.makeSucceededFuture(URL(string: "custom://\(importURL)"))
+    }
+
+    var hangNextLoad: Bool { hangPromise != nil }
+    private var hangPromise: EventLoopPromise<Void>? = nil
+    var loadPromise: EventLoopPromise<ImporterResults>? = nil
+
+    func hangLoad(eventLoop: EventLoop) -> EventLoopFuture<Void> {
+        hangPromise = eventLoop.makePromise(of: Void.self)
+        return hangPromise!.futureResult
+    }
+
+    func resumeLoad() throws {
+        let promise = try XCTUnwrap(loadPromise)
+        promise.succeed(.init(""))
+        loadPromise = nil
+    }
+
+    func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
+        let promise = eventLoop.makePromise(of: ImporterResults.self)
+        if hangNextLoad {
+            loadPromise = promise
+            hangPromise?.succeed(())
+            hangPromise = nil
+        } else {
+            promise.succeed(.init(""))
+        }
+        return promise.futureResult
     }
 }

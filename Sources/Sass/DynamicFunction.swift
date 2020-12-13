@@ -6,7 +6,7 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import Foundation
+import Dispatch
 
 /// Dynamic function IDs have to be unique across all compilations, wrap that  up here.
 /// Paranoid about multithreading especially in a NIO world so lock things.
@@ -16,25 +16,25 @@ import Foundation
 ///
 /// Bit thorny that refs here stay around forever but unclear what is safe.
 private struct DynamicFunctionRuntime {
-    let mutex = NSLock()
+    let semaphore = DispatchSemaphore(value: 1)
     var idCounter = UInt32(2000)
     var functions = [UInt32 : SassDynamicFunction]()
 
     var nextID: UInt32 {
-        mutex.lock()
-        defer { mutex.unlock() }
+        semaphore.wait()
+        defer { semaphore.signal() }
         return idCounter + 1
     }
 
     mutating func register(_ fn: SassDynamicFunction) {
-        mutex.lock()
-        defer { mutex.unlock() }
+        semaphore.wait()
+        defer { semaphore.signal() }
         functions[fn.id] = fn
     }
 
     func lookUp(id: UInt32) -> SassDynamicFunction? {
-        mutex.lock()
-        defer { mutex.unlock() }
+        semaphore.wait()
+        defer { semaphore.signal() }
         return functions[id]
     }
 }
