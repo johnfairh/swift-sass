@@ -13,10 +13,6 @@
 		02440A1F2576B24B008F0862 /* ValueConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1E2576B24B008F0862 /* ValueConvertible.swift */; };
 		02440A272576C7DA008F0862 /* NIO in Frameworks */ = {isa = PBXBuildFile; productRef = 02440A262576C7DA008F0862 /* NIO */; };
 		02440A2A257957B5008F0862 /* NIOFoundationCompat in Frameworks */ = {isa = PBXBuildFile; productRef = 02440A29257957B5008F0862 /* NIOFoundationCompat */; };
-		025C623D255C18D000AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
-		025C623E255C18D000AEA420 /* SwiftProtobuf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		025C6240255C18F700AEA420 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; };
-		025C6243255C19F400AEA420 /* SwiftProtobuf.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 025C623C255C18D000AEA420 /* SwiftProtobuf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		025C624F255D2C9300AEA420 /* BinaryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C624E255D2C9300AEA420 /* BinaryProtocol.swift */; };
 		025C6252255D54C000AEA420 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6251255D54C000AEA420 /* Errors.swift */; };
 		0285E828256C4C2900956F18 /* TestFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E827256C4C2900956F18 /* TestFunctions.swift */; };
@@ -51,6 +47,7 @@
 		02A3BC052581600700BBF99E /* AsyncCompilerTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */; };
 		02A3BC0F2585314200BBF99E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0E2585314200BBF99E /* main.swift */; };
 		02A3BC172585329C00BBF99E /* EmbeddedSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */; };
+		02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 02E0ED7E2586172C0080E954 /* SwiftProtobuf */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
 		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
 		OBJ_120 /* embedded_sass.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* embedded_sass.pb.swift */; };
@@ -83,7 +80,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				0289BB2325666BA70004544A /* Sass.framework in Embed Frameworks */,
-				025C623E255C18D000AEA420 /* SwiftProtobuf.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -94,7 +90,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				025C6243255C19F400AEA420 /* SwiftProtobuf.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,7 +109,6 @@
 		02440A1825765C0C008F0862 /* TestFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFunction.swift; sourceTree = "<group>"; };
 		02440A1B2576679E008F0862 /* DynamicFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicFunction.swift; sourceTree = "<group>"; };
 		02440A1E2576B24B008F0862 /* ValueConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueConvertible.swift; sourceTree = "<group>"; };
-		025C623C255C18D000AEA420 /* SwiftProtobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftProtobuf.framework; path = Carthage/Build/Mac/SwiftProtobuf.framework; sourceTree = "<group>"; };
 		025C624E255D2C9300AEA420 /* BinaryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryProtocol.swift; sourceTree = "<group>"; };
 		025C6251255D54C000AEA420 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		0285E827256C4C2900956F18 /* TestFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFunctions.swift; sourceTree = "<group>"; };
@@ -179,7 +173,7 @@
 				02440A2A257957B5008F0862 /* NIOFoundationCompat in Frameworks */,
 				02440A272576C7DA008F0862 /* NIO in Frameworks */,
 				0289BB2225666BA70004544A /* Sass.framework in Frameworks */,
-				025C623D255C18D000AEA420 /* SwiftProtobuf.framework in Frameworks */,
+				02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */,
 				02A346E9257AAE3D00A14905 /* Logging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -189,7 +183,6 @@
 			buildActionMask = 0;
 			files = (
 				OBJ_133 /* EmbeddedSass.framework in Frameworks */,
-				025C6240255C18F700AEA420 /* SwiftProtobuf.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -199,7 +192,6 @@
 		025C622E255C16FD00AEA420 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				025C623C255C18D000AEA420 /* SwiftProtobuf.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -339,6 +331,8 @@
 			dependencies = (
 			);
 			name = Sass;
+			packageProductDependencies = (
+			);
 			productName = Sass;
 			productReference = 0289BB1825666B060004544A /* Sass.framework */;
 			productType = "com.apple.product-type.framework";
@@ -378,6 +372,7 @@
 				02440A262576C7DA008F0862 /* NIO */,
 				02440A29257957B5008F0862 /* NIOFoundationCompat */,
 				02A346E8257AAE3D00A14905 /* Logging */,
+				02E0ED7E2586172C0080E954 /* SwiftProtobuf */,
 			);
 			productName = EmbeddedSass;
 			productReference = "swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */;
@@ -431,6 +426,7 @@
 			packageReferences = (
 				02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */,
 				02A346E7257AAE3D00A14905 /* XCRemoteSwiftPackageReference "swift-log" */,
+				02E0ED79258617180080E954 /* XCRemoteSwiftPackageReference "swift-protobuf" */,
 			);
 			productRefGroup = OBJ_105 /* Products */;
 			projectDirPath = "";
@@ -800,7 +796,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "swift-sass.xcodeproj/EmbeddedSass_Info.plist";
@@ -833,7 +828,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "swift-sass.xcodeproj/EmbeddedSass_Info.plist";
@@ -867,7 +861,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "swift-sass.xcodeproj/EmbeddedSassTests_Info.plist";
@@ -898,7 +891,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "swift-sass.xcodeproj/EmbeddedSassTests_Info.plist";
@@ -1040,6 +1032,14 @@
 				minimumVersion = 1.4.0;
 			};
 		};
+		02E0ED79258617180080E954 /* XCRemoteSwiftPackageReference "swift-protobuf" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-protobuf.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.14.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1057,6 +1057,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 02A346E7257AAE3D00A14905 /* XCRemoteSwiftPackageReference "swift-log" */;
 			productName = Logging;
+		};
+		02E0ED7E2586172C0080E954 /* SwiftProtobuf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02E0ED79258617180080E954 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobuf;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

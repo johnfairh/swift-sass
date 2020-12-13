@@ -19,7 +19,7 @@ let package = Package(
       .package(
         name: "SwiftProtobuf",
         url: "https://github.com/apple/swift-protobuf.git",
-        from: "1.13.0"),
+        from: "1.14.0"),
       .package(
         name: "swift-nio",
         url: "https://github.com/apple/swift-nio.git",
