@@ -88,7 +88,5 @@ class TestString: XCTestCase {
         XCTAssertEqual(1, listView.count)
         XCTAssertEqual(str, listView[0])
         XCTAssertTrue(str === listView[0])
-
-        // TODO list indexes when we understand numbers
     }
 }

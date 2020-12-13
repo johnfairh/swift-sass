@@ -21,7 +21,7 @@ extension String {
 extension Span {
     init(_ protobuf: Sass_EmbeddedProtocol_SourceSpan) {
         self = .init(text: protobuf.text.nonEmptyString,
-                     url: protobuf.url.nonEmptyString,
+                     url: protobuf.url.nonEmptyString.flatMap { URL(string: $0) },
                      start: Location(protobuf.start),
                      end: protobuf.hasEnd ? Location(protobuf.end) : nil,
                      context: protobuf.context.nonEmptyString)
@@ -121,12 +121,7 @@ extension Array where Element == Sass_EmbeddedProtocol_InboundMessage.CompileReq
 
 // MARK: Inbound message polymorphism
 
-// Not sure this needs to be a protocol, TODO-NIO
-protocol Loggable {
-    var logMessage: String { get }
-}
-
-extension Sass_EmbeddedProtocol_OutboundMessage : Loggable {
+extension Sass_EmbeddedProtocol_OutboundMessage {
     var logMessage: String {
         message?.logMessage ?? "unknown-1"
     }
@@ -136,7 +131,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage : Loggable {
     }
 }
 
-extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message : Loggable {
+extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message {
     var logMessage: String {
         switch self {
         case .canonicalizeRequest(let m): return m.logMessage
@@ -162,48 +157,48 @@ extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message : Loggable {
     }
 }
 
-extension Sass_EmbeddedProtocol_ProtocolError : Loggable {
+extension Sass_EmbeddedProtocol_ProtocolError {
     var logMessage: String {
         "Protocol-Error CompID=\(id)"
     }
 }
-extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse : Loggable {
+extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse {
     var logMessage: String {
         "Compile-Rsp CompID=\(id)"
     }
 }
 
-extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent : Loggable {
+extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent {
     var logMessage: String {
         "LogEvent CompID=\(compilationID)"
     }
 }
 
-extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest : Loggable {
+extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest {
     var logMessage: String {
         "Canon-Req CompID=\(compilationID) ReqID=\(id) ImpID=\(importerID)"
     }
 }
 
-extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest : Loggable {
+extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest {
     var logMessage: String {
         "Import-Req CompID=\(compilationID) ReqID=\(id) ImpID=\(importerID)"
     }
 }
 
-extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest : Loggable {
+extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest {
     var logMessage: String {
         "FileImport-Req CompID=\(compilationID) ReqID=\(id) ImpID=\(importerID)"
     }
 }
 
-extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest : Loggable {
+extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest {
     var logMessage: String {
         "FnCall-Req CompID=\(compilationID) ReqID=\(id) FnID=\(identifier?.logMessage ?? "[nil]")"
     }
 }
 
-extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest.OneOf_Identifier : Loggable {
+extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest.OneOf_Identifier {
     var logMessage: String {
         switch self {
         case .functionID(let id): return String(id)

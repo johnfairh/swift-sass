@@ -93,8 +93,7 @@ public struct Span: CustomStringConvertible {
 
     /// The URL of the file to which this span refers, or `nil` if it refers to
     /// an inline compilation that doesn't specify a URL.
-    /// XXX use `URL` ?
-    public let url: String?
+    public let url: URL?
 
     /// A single point in s source file.
     public struct Location: CustomStringConvertible {
@@ -135,7 +134,7 @@ public struct Span: CustomStringConvertible {
 
     /// A short human-readable description of the span.
     public var description: String {
-        var desc = url.flatMap { URL(string: $0)?.lastPathComponent } ?? "[input]"
+        var desc = url?.lastPathComponent ?? "[input]"
         desc.append(" \(start)")
         if let end = end {
             desc.append("-\(end)")
@@ -144,7 +143,7 @@ public struct Span: CustomStringConvertible {
     }
 
     /// :nodoc:
-    public init(text: String?, url: String?, start: Location, end: Location?, context: String?) {
+    public init(text: String?, url: URL?, start: Location, end: Location?, context: String?) {
         self.text = text
         self.url = url
         self.start = start
