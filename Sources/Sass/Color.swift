@@ -89,7 +89,7 @@ struct RgbColor: Hashable, CustomStringConvertible {
     }
 }
 
-/// HSL + A
+/// HSL
 struct HslColor: Equatable, CustomStringConvertible {
     let hue: Double
     let saturation: Double
@@ -170,8 +170,8 @@ enum ColorValue: CustomStringConvertible {
 
     var prefersRgb: Bool {
         switch self {
-        case .rgb(_, _), .rgb_hsl(_, _, _): return true
-        case .hsl(_, _): return false
+        case .rgb, .rgb_hsl: return true
+        case .hsl: return false
         }
     }
 
