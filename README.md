@@ -13,9 +13,16 @@ Distributed under the MIT license, see LICENSE.
 Embed a [Sass](https://sass-lang.com) compiler in your Swift program.  Write
 custom importers and SassScript functions in Swift.
 
+This package provides a Swift language interface to a separate Sass implementation.
+The `EmbeddedSass` module lets you access Dart Sass, the most up to date implementation
+of the Sass language.  It runs the Dart Sass compiler as a separate process and
+communicates with it using the Embedded Sass protocol.  If you come across another
+implementation of the 'compiler' end of that protocol then that should work fine too.
 
-(what dart sass is, primary reference implementation, embedding strat.  point libsass)
-(alpha)
+The Embedded Sass technology is pretty new.  Right now the embedded compiler releases
+are all tagged as alphas.
+
+This package doesn't support libsass right now.  [More info](#on-libsass).
 
 # Example
 
@@ -30,10 +37,10 @@ let results = try compiler.compile(fileURL: scssFileURL)
 
 print(results.css)
 ```
-This is a fairly pointless example: although the output is more structured,
-you'd probably be just as well off running the compiler directly.  The reason to
-use this package is so you can provide custom implementations of `@use` rules to
-load content, and custom functions to provide application-specific behavior:
+Although the compiler output is more structured, you'd probably be just as well
+off running the binary directly.  The reason to use this package is to provide
+custom implementations of `@use` rules to load content, and custom functions to
+provide application-specific behavior:
 ```swift
 
 struct ExtrasImporter: Importer {
@@ -64,6 +71,16 @@ let results = try compiler.compile(
     ],
     functions: customFunctions
 )
+```
+
+```scss
+// stylesheet
+
+@use "extras";
+
+.score-mid {
+  color: userColorForScore(50);
+}
 ```
 
 These example are written in a synchronous style for simplicity.
@@ -102,4 +119,4 @@ of language support as Dart Sass.
 
 This may eventually be a more convenient integration path for Swift programs and
 this `swift-sass` package should support it as an alternative, sharing all of
-the SassScript support in the `Sass` module.
+the SassScript types in the `Sass` module.
