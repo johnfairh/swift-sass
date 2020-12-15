@@ -323,7 +323,7 @@ final class Compilation {
     private typealias OBM = Sass_EmbeddedProtocol_OutboundMessage
     private typealias IBM = Sass_EmbeddedProtocol_InboundMessage
 
-    /// Inbound messages.  Rework all this error handling stuff when complete.
+    /// Inbound messages.
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
         do {
             switch message.message {
