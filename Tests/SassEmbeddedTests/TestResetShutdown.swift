@@ -1,6 +1,6 @@
 //
 //  TestResetShutdown.swift
-//  EmbeddedSassTests
+//  SassEmbeddedTests
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
@@ -8,12 +8,12 @@
 
 import XCTest
 import NIO
-@testable import EmbeddedSass
+@testable import SassEmbedded
 
 ///
 /// Tests around resets, timeouts, and shutdown.
 ///
-class TestResetShutdown: EmbeddedSassTestCase {
+class TestResetShutdown: SassEmbeddedTestCase {
     // Clean restart case
     func testCleanRestart() throws {
         let compiler = try newCompiler()
@@ -185,7 +185,7 @@ class TestResetShutdown: EmbeddedSassTestCase {
     // Internal eventloopgroup
     func testInternalEventLoopGroup() throws {
         let compiler = try Compiler(eventLoopGroupProvider: .createNew,
-                                    embeddedCompilerURL: EmbeddedSassTestCase.dartSassEmbeddedURL)
+                                    embeddedCompilerURL: SassEmbeddedTestCase.dartSassEmbeddedURL)
         let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
         try compiler.syncShutdownGracefully()
@@ -194,7 +194,7 @@ class TestResetShutdown: EmbeddedSassTestCase {
     // Internal eventloopgroup, async shutdown
     func testInternalEventLoopGroupAsync() throws {
         let compiler = try Compiler(eventLoopGroupProvider: .createNew,
-                                    embeddedCompilerURL: EmbeddedSassTestCase.dartSassEmbeddedURL)
+                                    embeddedCompilerURL: SassEmbeddedTestCase.dartSassEmbeddedURL)
         let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
         CompilerShutdowner(compiler).start().wait()

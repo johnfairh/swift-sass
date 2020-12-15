@@ -1,19 +1,19 @@
 //
 //  TestCompiler.swift
-//  EmbeddedSassTests
+//  SassEmbeddedTests
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
 import XCTest
-import EmbeddedSass
+import SassEmbedded
 
 ///
 /// Tests to check the normal operation of the sass compiler -- not testing the compiler itself,
 /// just that we can talk to it honestly and translate enums etc. properly.
 ///
-class TestCompiler: EmbeddedSassTestCase {
+class TestCompiler: SassEmbeddedTestCase {
     let scssIn = """
     div {
         a {
@@ -121,7 +121,7 @@ class TestCompiler: EmbeddedSassTestCase {
         let oldPATH = strdup(getenv("PATH"))
         let oldPATHString = String(cString: oldPATH!)
         defer { setenv("PATH", oldPATH!, 1) }
-        let newPATH = "\(EmbeddedSassTestCase.dartSassEmbeddedDirURL.path):\(oldPATHString)"
+        let newPATH = "\(SassEmbeddedTestCase.dartSassEmbeddedDirURL.path):\(oldPATHString)"
         setenv("PATH", strdup(newPATH), 1)
         let compiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup), embeddedCompilerName: "dart-sass-embedded")
         compilersToShutdown.append(compiler)

@@ -1,6 +1,6 @@
 //
 //  TestUtils.swift
-//  EmbeddedSassTests
+//  SassEmbeddedTests
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
@@ -9,9 +9,9 @@
 import NIO
 import XCTest
 import Foundation
-@testable import EmbeddedSass
+@testable import SassEmbedded
 
-class EmbeddedSassTestCase: XCTestCase {
+class SassEmbeddedTestCase: XCTestCase {
 
     var eventLoopGroup: EventLoopGroup! = nil
 
@@ -56,7 +56,7 @@ class EmbeddedSassTestCase: XCTestCase {
 
     func newCompiler(importers: [ImportResolver] = [], asyncFunctions: SassAsyncFunctionMap) throws -> Compiler {
         let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                             embeddedCompilerURL: EmbeddedSassTestCase.dartSassEmbeddedURL,
+                             embeddedCompilerURL: SassEmbeddedTestCase.dartSassEmbeddedURL,
                              importers: importers,
                              functions: asyncFunctions)
         compilersToShutdown.append(c)

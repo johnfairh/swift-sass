@@ -9,8 +9,8 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "EmbeddedSass",
-            targets: ["EmbeddedSass"]),
+            name: "SassEmbedded",
+            targets: ["SassEmbedded"]),
         .executable(
           name: "ssassc",
           targets: ["Cli"])
@@ -34,7 +34,7 @@ let package = Package(
         name: "Sass",
         dependencies: []),
       .target(
-        name: "EmbeddedSass",
+        name: "SassEmbedded",
         dependencies: [
           "SwiftProtobuf",
           "Sass",
@@ -43,14 +43,14 @@ let package = Package(
           .product(name: "Logging", package: "swift-log")
         ]),
       .testTarget(
-        name: "EmbeddedSassTests",
-        dependencies: ["EmbeddedSass"],
+        name: "SassEmbeddedTests",
+        dependencies: ["SassEmbedded"],
         exclude: ["dart-sass-embedded"]),
       .testTarget(
         name: "SassTests",
         dependencies: ["Sass"]),
       .target(
           name: "Cli",
-          dependencies: ["EmbeddedSass"])
+          dependencies: ["SassEmbedded"])
     ]
 )

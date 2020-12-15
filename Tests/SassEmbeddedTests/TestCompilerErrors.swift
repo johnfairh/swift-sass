@@ -1,6 +1,6 @@
 //
 //  TestCompilerErrors.swift
-//  EmbeddedSassTests
+//  SassEmbeddedTests
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
@@ -8,13 +8,13 @@
 
 import XCTest
 import NIO
-@testable import EmbeddedSass
+@testable import SassEmbedded
 
 ///
 /// Tests for compiler error decoding and transmission.
 /// Plus warnings etc.
 ///
-class TestCompilerErrors: EmbeddedSassTestCase {
+class TestCompilerErrors: SassEmbeddedTestCase {
     let badSass = """
     @mixin reflexive-position($property, $value)
       @if $property != left and $property != right

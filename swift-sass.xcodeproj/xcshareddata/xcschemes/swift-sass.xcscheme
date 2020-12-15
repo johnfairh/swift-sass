@@ -28,9 +28,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "swift-sass::EmbeddedSass"
-               BuildableName = "EmbeddedSass.framework"
-               BlueprintName = "EmbeddedSass"
+               BlueprintIdentifier = "swift-sass::SassEmbedded"
+               BuildableName = "SassEmbedded.framework"
+               BlueprintName = "SassEmbedded"
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -61,9 +61,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "swift-sass::EmbeddedSassTests"
-               BuildableName = "EmbeddedSassTests.xctest"
-               BlueprintName = "EmbeddedSassTests"
+               BlueprintIdentifier = "swift-sass::SassEmbeddedTests"
+               BuildableName = "SassEmbeddedTests.xctest"
+               BlueprintName = "SassEmbeddedTests"
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -89,9 +89,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "swift-sass::EmbeddedSass"
-            BuildableName = "EmbeddedSass.framework"
-            BlueprintName = "EmbeddedSass"
+            BlueprintIdentifier = "swift-sass::SassEmbedded"
+            BuildableName = "SassEmbedded.framework"
+            BlueprintName = "SassEmbedded"
             ReferencedContainer = "container:swift-sass.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

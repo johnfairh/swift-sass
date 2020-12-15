@@ -21,7 +21,7 @@ jobs:
           path: |
             .build
             Tests/EmbeddedSassTests/dart-sass-embedded
-          key: ${{ runner.os }}-spm2-${{ hashFiles('Package.resolved', 'Makefile') }}
+          key: ${{ runner.os }}-spm3-${{ hashFiles('Package.resolved', 'Makefile') }}
 
       - name: SPM tests
         run: make test platform=macos
@@ -42,7 +42,7 @@ jobs:
           path: |
             .build
             Tests/EmbeddedSassTests/dart-sass-embedded
-          key: ${{ runner.os }}-spm2-${{ hashFiles('Package.resolved', 'Makefile') }}
+          key: ${{ runner.os }}-spm3-${{ hashFiles('Package.resolved', 'Makefile') }}
 
       - name: Run tests
         run: make test platform=linux
@@ -59,7 +59,7 @@ jobs:
           path: |
             .build
             Tests/EmbeddedSassTests/dart-sass-embedded
-          key: ${{ runner.os }}-spm2-${{ hashFiles('Package.resolved', 'Makefile') }}
+          key: ${{ runner.os }}-spm3-${{ hashFiles('Package.resolved', 'Makefile') }}
 
       - name: Xcode
         run: sudo xcode-select -s /Applications/Xcode_12.2.app/Contents/Developer

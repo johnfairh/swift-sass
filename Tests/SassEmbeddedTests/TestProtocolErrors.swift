@@ -1,6 +1,6 @@
 //
 //  TestProtocolErrors.swift
-//  EmbeddedSassTests
+//  SassEmbeddedTests
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
@@ -8,12 +8,12 @@
 
 import XCTest
 import NIO
-@testable import EmbeddedSass
+@testable import SassEmbedded
 
 ///
 /// Tests around duff message content to & from the compiler
 ///
-class TestProtocolErrors: EmbeddedSassTestCase {
+class TestProtocolErrors: SassEmbeddedTestCase {
 
     // Deal with in-band reported protocol error, compiler reports it to us.
     func testOutboundProtocolError() throws {
@@ -214,7 +214,7 @@ class TestProtocolErrors: EmbeddedSassTestCase {
             $0.compilationID = Compilation.peekNextCompilationID
             $0.id = 108
             $0.importerID = 22
-        }, "Unexpected FileImportReq")
+        }, "Unexpected FileImport-Req")
     }
 
     // Misc bits of unconvertible API

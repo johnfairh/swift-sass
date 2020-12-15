@@ -1,6 +1,6 @@
 //
 //  Errors.swift
-//  EmbeddedSass
+//  SassEmbedded
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)

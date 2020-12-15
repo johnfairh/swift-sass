@@ -1,19 +1,19 @@
 //
 //  TestFunctions.swift
-//  EmbeddedSassTests
+//  SassEmbeddedTests
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
 import XCTest
-@testable import EmbeddedSass
+@testable import SassEmbedded
 
 ///
 /// Tests for custom functions.
 ///  - SassTests covers the base `SassValue` hierarchy.
 ///  - We don't need to test the compiler's implementation of this flow, just our side.
-class TestFunctions: EmbeddedSassTestCase {
+class TestFunctions: SassEmbeddedTestCase {
 
     // (String) values go back and forth
 

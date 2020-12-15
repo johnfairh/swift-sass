@@ -1,18 +1,18 @@
 //
 //  TestImporters.swift
-//  EmbeddedSassTests
+//  SassEmbeddedTests
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
 import XCTest
-@testable import EmbeddedSass
+@testable import SassEmbedded
 
 ///
 /// Tests for importers.
 ///
-class TestImporters: EmbeddedSassTestCase {
+class TestImporters: SassEmbeddedTestCase {
 
     // MARK: Load Paths
 
