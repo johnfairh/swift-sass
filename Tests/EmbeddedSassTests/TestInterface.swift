@@ -112,7 +112,7 @@ class TestCompiler: EmbeddedSassTestCase {
         do {
             let compiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup), embeddedCompilerName: "not-a-compiler")
             XCTFail("Created a weird compiler \(compiler)")
-        } catch let error as ProtocolError {
+        } catch let error as LifecycleError {
             print(error)
         } catch {
             XCTFail("Unexpected error: \(error)")

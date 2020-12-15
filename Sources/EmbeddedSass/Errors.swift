@@ -22,9 +22,25 @@ public struct ProtocolError: Error, CustomStringConvertible {
     }
 }
 
+/// There was an error using the compiler interface, for example trying to use the compiler
+/// after shutting it down.
+public struct LifecycleError: Error, CustomStringConvertible {
+    /// English text explaining the lifecycle error.
+    public let description: String
+
+    init(_ text: String) {
+        description = text
+        Compiler.logger.error(.init(stringLiteral: text))
+    }
+}
+
 import NIO
 extension EventLoop {
     func makeProtocolError<T>(_ text: String) -> EventLoopFuture<T> {
+        makeFailedFuture(ProtocolError(text))
+    }
+
+    func makeLifecycleError<T>(_ text: String) -> EventLoopFuture<T> {
         makeFailedFuture(ProtocolError(text))
     }
 }

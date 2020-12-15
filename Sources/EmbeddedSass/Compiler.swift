@@ -144,7 +144,7 @@ public final class Compiler: CompilerProtocol {
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
     ///   the source file's URL, used for all compile requests to this instance.
     /// - parameter functions: Sass functions available to all compile requests made of this instance.    ///
-    /// - throws: `ProtocolError()` if the program can't be found.
+    /// - throws: `LifecycleError()` if the program can't be found.
     ///           Everything from `init(embeddedCompilerURL:)`
     public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
                             embeddedCompilerName: String = "dart-sass-embedded",
@@ -153,7 +153,7 @@ public final class Compiler: CompilerProtocol {
                             functions: SassAsyncFunctionMap = [:]) throws {
         let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName)
         guard let path = results.successString else {
-            throw ProtocolError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
+            throw LifecycleError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
         }
         try self.init(eventLoopGroupProvider: eventLoopGroupProvider,
                       embeddedCompilerURL: URL(fileURLWithPath: path),
@@ -173,7 +173,7 @@ public final class Compiler: CompilerProtocol {
     /// Any outstanding compile jobs are failed.
     public func reinit() -> EventLoopFuture<Void> {
         eventLoop.flatSubmit {
-            self.handle(error: ProtocolError("User requested Compiler reinit."))
+            self.handle(error: LifecycleError("User requested Sass compiler be reinitialized"))
         }
     }
 
@@ -308,11 +308,11 @@ public final class Compiler: CompilerProtocol {
         switch state {
         case .broken(let error):
             // jobs submitted while restarting the compiler; restart failed: fail them.
-            work.cancelAllPending(with: ProtocolError("Sass compiler failed to restart after previous error: \(error)"))
+            work.cancelAllPending(with: LifecycleError("Sass compiler failed to restart after previous error: \(error)"))
 
         case .shutdown, .quiescing:
             // jobs submitted after/during shutdown: fail them.
-            work.cancelAllPending(with: ProtocolError("Compiler has been shutdown, not accepting further work."))
+            work.cancelAllPending(with: LifecycleError("Compiler has been shutdown, not accepting further work"))
 
         case .initializing:
             // jobs submitted while [re]starting the compiler: wait.
@@ -395,7 +395,7 @@ public final class Compiler: CompilerProtocol {
             return future
 
         case .shutdown:
-            return eventLoop.makeProtocolError("Instance is shutdown, ignoring: \(error)")
+            return eventLoop.makeLifecycleError("Compiler has been shutdown, ignoring: \(error)")
         }
     }
 

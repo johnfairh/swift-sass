@@ -60,7 +60,7 @@ class TestResetShutdown: EmbeddedSassTestCase {
         do {
             let results = try compileResult.wait()
             XCTFail("Shouldn't have compiled! \(results)")
-        } catch let error as ProtocolError {
+        } catch let error as LifecycleError {
             XCTAssertTrue(error.description.contains("User requested"))
         } catch {
             XCTFail("Unexpected error: \(error)")
@@ -88,7 +88,7 @@ class TestResetShutdown: EmbeddedSassTestCase {
         checkProtocolError(badCompiler)
 
         // Should be in idle_broken, restart not possible
-        checkProtocolError(badCompiler, "failed to restart")
+        checkProtocolError(badCompiler, "failed to restart", protocolNotLifecycle: false)
 
         // Try to recover - no dice
         do {

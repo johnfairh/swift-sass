@@ -107,7 +107,7 @@ final class CompilerWork {
             activeCompilations[job.compilationID] = job
             job.start(timeout: timeout)?.whenSuccess { [self] in
                 resetRequest(
-                    ProtocolError("Timeout: job \(job.compilationID) timed out after \(timeout)s"))
+                    ProtocolError("Timeout: CompID=\(job.compilationID) timed out after \(timeout)s"))
             }
             job.futureResult.whenComplete { result in
                 self.activeCompilations[job.compilationID] = nil
@@ -152,7 +152,7 @@ final class CompilerWork {
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
         if let compilationID = message.compilationID {
             guard let compilation = activeCompilations[compilationID] else {
-                return eventLoop.makeProtocolError("Received message for unknown compilation ID \(compilationID): \(message)")
+                return eventLoop.makeProtocolError("Received message for unknown CompID=\(compilationID): \(message)")
             }
             return compilation.receive(message: message)
         }
@@ -167,7 +167,7 @@ final class CompilerWork {
 
         switch message.message {
         case .error(let error):
-            return eventLoop.makeProtocolError("Sass compiler signalled a protocol error, type=\(error.type), id=\(error.id): \(error.message)")
+            return eventLoop.makeProtocolError("Sass compiler signalled a protocol error, type=\(error.type), ID=\(error.id): \(error.message)")
         default:
             return eventLoop.makeProtocolError("Sass compiler sent something uninterpretable: \(message)")
         }
@@ -228,7 +228,7 @@ final class Compilation {
     }
 
     private var eventLoop: EventLoop {
-        promise.futureResult.eventLoop
+        futureResult.eventLoop
     }
 
     private func debug(_ message: String) {
@@ -343,7 +343,7 @@ final class Compilation {
                 return try receive(functionCallRequest: req)
 
             case .fileImportRequest(let req):
-                return eventLoop.makeProtocolError("Unexpected FileImportReq: \(req)")
+                return eventLoop.makeProtocolError("Unexpected FileImport-Req: \(req)")
 
             case nil, .error:
                 preconditionFailure("Unreachable: message type not associated with CompID: \(message)")
@@ -361,7 +361,7 @@ final class Compilation {
         case .failure(let f):
             promise.fail(CompilerError(f, messages: messages))
         case nil:
-            throw ProtocolError("Malformed CompileResponse, missing `result`: \(compileResponse)")
+            throw ProtocolError("Malformed Compile-Rsp, missing `result`: \(compileResponse)")
         }
         return eventLoop.makeSucceededFuture(nil)
     }
@@ -474,7 +474,7 @@ final class Compilation {
         switch req.identifier {
         case .functionID(let id):
             guard let sassDynamicFunc = Sass._lookUpDynamicFunction(id: id) else {
-                throw ProtocolError("Host function ID \(id) not registered.")
+                throw ProtocolError("Host function ID=\(id) not registered.")
             }
             if let asyncDynamicFunc = sassDynamicFunc as? SassAsyncDynamicFunction {
                 return try doSassFunction(asyncDynamicFunc.asyncFunction)
