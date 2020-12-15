@@ -8,7 +8,7 @@
 
 /// A Sass string value.
 ///
-/// Strings are immutable and may be quoted.
+/// Strings may be quoted.
 ///
 /// ## SassString indexes
 ///
@@ -16,14 +16,14 @@
 /// of extended grapheme clusters.  So any string index you receive through Sass applies to the unicode
 /// scalar view of the string.
 ///
-/// Further, Sass models 1 as the first element and `count` as the last.  This class offers
-/// a `scalarIndexFrom(sassIndex:)`  method to wrap up both parts of this conversion, but offers
-/// only sympathy to users having to deal with the results.
+/// Further, Sass models 1 as the index of the first scalar in the string, and `count` as the index of the last.
+/// This class offers a `scalarIndexFrom(sassIndex:)`  method to wrap up both parts of this
+/// conversion, but offers only sympathy to users having to deal with the results.
+///
+/// `SassString` conforms to `Sequence` via `SassValue`.  This sequence is a singleton sequence
+/// containing the string value, not a sequence of scalars.
 public final class SassString: SassValue {
-    /// The value of the string.  Does not include any quotes.
-    public let string: String
-    /// Whether the string is quoted " or raw.
-    public let isQuoted: Bool
+    // MARK: Initializers
 
     /// Initialize a new string.  You should quote strings unless there's a good reason not to.
     public init(_ string: String, isQuoted: Bool = true) {
@@ -31,12 +31,21 @@ public final class SassString: SassValue {
         self.isQuoted = isQuoted
     }
 
+    // MARK: Properties
+
+    /// The value of the string.  Does not include any quotes.
+    public let string: String
+    /// Whether the string is quoted " or raw.
+    public let isQuoted: Bool
+
     /// The length of the string according to Sass.
     ///
     /// The number of unicode scalars in the string.
     public var sassLength: Int {
         string.unicodeScalars.count
     }
+
+    // MARK: Methods
 
     /// Interpret a Sass string index.
     /// - parameter index: A Sass value intended to be used as a string index.  This must be an
@@ -52,6 +61,13 @@ public final class SassString: SassValue {
         return string.unicodeScalars.index(string.unicodeScalars.startIndex, offsetBy: offset)
     }
 
+    // MARK: Misc
+
+    /// Two `SassString`s are equal if they have the same text, whether or not either is quoted.
+    public static func == (lhs: SassString, rhs: SassString) -> Bool {
+        lhs.string == rhs.string
+    }
+
     /// Take part in the `SassValueVisitor` protocol.
     public override func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
         try visitor.visit(string: self)
@@ -60,11 +76,6 @@ public final class SassString: SassValue {
     public override var description: String {
         let quote = isQuoted ? "\"" : ""
         return "String(\(quote)\(string)\(quote))"
-    }
-
-    /// Two `SassString`s are equal if they have the same text, whether or not either is quoted.
-    public static func == (lhs: SassString, rhs: SassString) -> Bool {
-        lhs.string == rhs.string
     }
 
     /// Hash the string's text.

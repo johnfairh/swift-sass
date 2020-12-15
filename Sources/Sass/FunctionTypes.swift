@@ -14,16 +14,14 @@
 /// `SassValue` is used to transmit function parameters and return values: any parameters with
 /// default values are instantiated before the function is called.  All `SassValue`s are immutable.
 ///
-/// Usually the first job of a function is to downcast each parameter to the expected type.  You can
-/// convert directly to Swift native types using initializers like `String(_:)`,  but this loses any
-/// additional metadata such as units and list punctuation that is tracked by the Sass type: if you need
-/// this metadata then downcast to the specific Sass type using methods like `SassValue.asString(...)`.
+/// Usually the first job of a function is to downcast each parameter to the expected type using
+/// throwing methods such as `SassValue.asString()`.
 ///
 /// Any error thrown from the function ends up cancelling the compilation job and returning an
 /// error message back to the user that contains the text of the error thrown.
 ///
 /// All Sass functions return a value -- there is no `void` return type.  Create new `SassValue`
-/// objects using a subclass initializer such as `SassString(_:isQuoted:)`.
+/// objects using a subclass initializer such as `SassString.init(_:isQuoted:)`.
 public typealias SassFunction = ([SassValue]) throws -> SassValue
 
 /// A Sass function signature.

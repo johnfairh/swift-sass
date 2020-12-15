@@ -219,7 +219,7 @@ enum ColorValue: CustomStringConvertible {
 
 /// A Sass color value.
 ///
-/// Colors are immutable and represent a point in the sRGB color space.  They are defined using
+/// Color values represent a point in the sRGB color space.  They are defined using
 /// either RGB-A or HSL-A parameters but can be accessed as either.
 ///
 /// - note: Parameter values follow web standards rather the Apple SDK standards,
@@ -231,12 +231,14 @@ public final class SassColor: SassValue {
         self.colorValue = value
     }
 
+    // MARK: Initializers
+
     /// Create a `SassColor` from RGB and alpha components.
     /// - parameter red: Red channel, must be between 0 and 255.
     /// - parameter green: Green channel, must be between 0 and 255.
     /// - parameter blue: Blue channel, must be between 0 and 255.
     /// - parameter alpha: Alpha channel, between 0.0 and 1.0.
-    /// - throws: `SassValueError.channelNotInRange(...)` if any parameter is out of range.
+    /// - throws: `SassFunctionError.channelNotInRange(...)` if any parameter is out of range.
     public init(red: Int, green: Int, blue: Int, alpha: Double = 1.0) throws {
         colorValue = try ColorValue(RgbColor(red: red, green: green, blue: blue), alpha: alpha)
     }
@@ -246,10 +248,12 @@ public final class SassColor: SassValue {
     /// - parameter saturation: Saturation, from 0 to 100.
     /// - parameter lightness: Lightness, from 0 to 100.
     /// - parameter alpha: Alpha channel, between 0.0 and 1.0.
-    /// - throws: `SassValueError.channelNotInRange(...)` if any parameter is out of range.
+    /// - throws: `SassFunctionError.channelNotInRange(...)` if any parameter is out of range.
     public init(hue: Double, saturation: Double, lightness: Double, alpha: Double = 1.0) throws {
         colorValue = try ColorValue(HslColor(hue: hue, saturation: saturation, lightness: lightness), alpha: alpha)
     }
+
+    // MARK: Properties
 
     /// The red channel, between 0 and 255.
     public var red: Int { colorValue.rgb().red }
@@ -265,6 +269,8 @@ public final class SassColor: SassValue {
     public var lightness: Double { colorValue.hsl().lightness }
     /// The alpha channel between 0 and 1.
     public var alpha: Double { colorValue.alpha }
+
+    // MARK: Channel Modification
 
     /// Create a new `SassColor` by changing some of the RGB-A channels of this color.
     public func change(red: Int? = nil, green: Int? = nil, blue: Int? = nil, alpha: Double? = nil) throws -> SassColor {
@@ -291,14 +297,7 @@ public final class SassColor: SassValue {
         SassColor(try ColorValue(colorValue, alpha: alpha))
     }
 
-    /// Take part in the `SassValueVisitor` protocol.
-    public override func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
-        try visitor.visit(color: self)
-    }
-
-    public override var description: String {
-        "Color(\(colorValue))"
-    }
+    // MARK: Misc
 
     /// Colors are compared in their RGB-A forms, using  only 11 DP for the alpha.
     public static func == (lhs: SassColor, rhs: SassColor) -> Bool {
@@ -310,6 +309,15 @@ public final class SassColor: SassValue {
     public override func hash(into hasher: inout Hasher) {
         hasher.combine(colorValue.rgb())
         hasher.combine(SassDouble.hashEquivalent(colorValue.alpha))
+    }
+
+    /// Take part in the `SassValueVisitor` protocol.
+    public override func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
+        try visitor.visit(color: self)
+    }
+
+    public override var description: String {
+        "Color(\(colorValue))"
     }
 
     /// :nodoc: helper for embedded protocol serialization

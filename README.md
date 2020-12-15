@@ -111,7 +111,7 @@ asynchronous / non-blocking APIs.
 
 ## Installation
 
-Only with Swift Package Manager via Xcode or directly:
+Only with Swift Package Manager, via Xcode or directly:
 ```swift
 .package(name: "swift-sass",
          url: "https://github.com/johnfairh/swift-sass.git",

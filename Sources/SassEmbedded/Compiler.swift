@@ -16,29 +16,17 @@ import Logging
 // CompilerWork -- Sass stuff, protocol, job management
 // Compilation -- job state, many, managed by CompilerWork
 
-/// An instance of the embedded Sass compiler hosted in Swift.
+/// A Sass compiler interface that uses the Sass embedded protocol.
 ///
-/// It runs the compiler as a child process and lets you provide stylesheet importers and Sass functions
-/// that are part of your Swift code.
+/// It runs the actual Sass compiler as a child process: you need to supply this separately, see
+/// [the readme](../../index.html).
 ///
-/// Most simple usage looks like:
-/// ```swift
-/// do {
-///    let compiler = try Compiler()
-///    let results = try compiler.compile(sourceFileURL: sassFileURL)
-///    print(results.css)
-/// } catch {
-/// }
-/// ```
+/// Some debug logging is available via `Compiler.logger`.
 ///
-/// Separately to this package you need to supply the `dart-sass-embedded` program or some
-/// other thing supporting the Embedded Sass protocol that this class runs under the hood.
-///
-/// Use `Compiler.warningHandler` to get sight of warnings from the compiler.
-///
-/// To debug problems, start with the output from `Compiler.debugHandler`, all the source files
-/// being given to the compiler, and the description of any errors thrown.
-public final class Compiler: CompilerProtocol {
+/// Be sure to manually shut down the compiler using `Compiler.shutdownGracefully(...)`
+/// or `Compiler.syncShutdownGracefully()`:  you will often get away with not doing this, but
+/// there are edge cases that will lead to crashes inside NIO
+public final class Compiler {
     private let eventLoopGroup: ProvidedEventLoopGroup
 
     /// NIO event loop we're bound to.  Internal for test.
@@ -82,7 +70,7 @@ public final class Compiler: CompilerProtocol {
     private(set) var state: State
 
     /// Number of times we've tried to start the embedded Sass compiler.
-    public private(set) var startCount: Int
+    private(set) var startCount: Int
 
     /// The URL of the compiler program
     private let embeddedCompilerURL: URL
@@ -90,22 +78,21 @@ public final class Compiler: CompilerProtocol {
     /// The actual compilation work
     private var work: CompilerWork!
 
-    /// Use a program as the embedded Sass compiler.
+    /// Use a program as the Sass embedded compiler.
     ///
-    /// You must shut down the compiler with `Compiler.shutdownGracefully()`
-    /// before letting it go out of scope.
+    /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
+    /// `syncShutdownGracefully()` before letting it go out of scope.
     ///
     /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.
     /// - parameter embeddedCompilerURL: The file URL to `dart-sass-embedded`
-    ///   or something else that speaks the embedded Sass protocol.
+    ///   or something else that speaks the Sass embedded protocol.
     /// - parameter timeout: The maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
-    ///   the source file's URL, used for all compile requests made of this instance.
-    /// - parameter functions: Sass functions available to all compile requests made of this instance.
-    ///
+    ///   the source file's URL, used for all this compiler's compilations.
+    /// - parameter functions: Sass functions available to all this compiler's compilations.
     /// - throws: Something from Foundation if the program does not start.
     public init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
                 embeddedCompilerURL: URL,
@@ -130,10 +117,10 @@ public final class Compiler: CompilerProtocol {
         try state.toInitializing(startCompiler()).wait()
     }
 
-    /// Use a program found on `PATH` as the embedded Sass compiler.
+    /// Use a program found on `PATH` as the Sass embedded compiler.
     ///
-    /// You must shut down the compiler with `Compiler.shutdownGracefully()`
-    /// before letting it go out of scope.
+    /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
+    /// `syncShutdownGracefully()` before letting it go out of scope.
     ///
     /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.
@@ -142,10 +129,10 @@ public final class Compiler: CompilerProtocol {
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
-    ///   the source file's URL, used for all compile requests to this instance.
-    /// - parameter functions: Sass functions available to all compile requests made of this instance.    ///
-    /// - throws: `LifecycleError()` if the program can't be found.
-    ///           Everything from `init(embeddedCompilerURL:)`
+    ///   the source file's URL, used for all this compiler's compilations.
+    /// - parameter functions: Sass functions available to all this compiler's compilations.
+    /// - throws: `LifecycleError` if the program can't be found.
+    ///   Something from Foundation if the embedded compiler does not start.
     public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
                             embeddedCompilerName: String = "dart-sass-embedded",
                             timeout: Int = 60,
@@ -162,15 +149,15 @@ public final class Compiler: CompilerProtocol {
                       functions: functions)
     }
 
-    /// Restart the Sass compiler process.
+    /// Restart the Sass embedded compiler.
     ///
-    /// Normally a single instance of the compiler process persists across all invocations to
+    /// Normally a single instance of the compiler's process persists across all invocations to
     /// `compile(...)` on this `Compiler` instance.   This method stops the current
     /// compiler process and starts a new one: the intended use is for compilers whose
     /// resource usage escalates over time and need calming down.  You probably don't need to
     /// call it.
     ///
-    /// Any outstanding compile jobs are failed.
+    /// Any outstanding compilations are failed.
     public func reinit() -> EventLoopFuture<Void> {
         eventLoop.flatSubmit {
             self.handle(error: LifecycleError("User requested Sass compiler be reinitialized"))
@@ -212,7 +199,7 @@ public final class Compiler: CompilerProtocol {
 
     /// The process ID of the compiler process.
     ///
-    /// Not normally needed; can be used to adjust resource usage or maybe send it a signal if stuck.
+    /// Not normally needed; could be used to adjust resource usage or maybe send it a signal if stuck.
     /// The process ID is reported as `nil` if there currently is no running child process.
     public var compilerProcessIdentifier: EventLoopFuture<Int32?> {
         eventLoop.submit {
@@ -222,12 +209,13 @@ public final class Compiler: CompilerProtocol {
 
     /// Logger for the module.
     ///
-    /// Produces goodpath protocol and compiler lifecycle tracing at `.debug` log level, approx 500
-    /// bytes per compile request.
+    /// A [swift-log](https://github.com/apple/swift-log) `Logger`.
     ///
-    /// Produces protocol error tracing at `.error` log level.  This is the same as the `description` of
-    /// thrown `ProtocolError`s.
-    public static var logger = Logger(label: "swift-sass")
+    /// Produces goodpath protocol and compiler lifecycle tracing at `Logger.Level.debug` log level,
+    /// approx 300 bytes per compile request.
+    ///
+    /// Produces protocol and lifecycle error reporting at `Logger.Level.error` log level.
+    public static var logger = Logger(label: "sass-embedded")
 
     private func debug(_ msg: @autoclosure () -> String) {
         Compiler.logger.debug(.init(stringLiteral: msg()))
@@ -436,6 +424,10 @@ public final class Compiler: CompilerProtocol {
         }
     }
 }
+
+/// :nodoc:
+extension Compiler: CompilerProtocol {}
+
 
 /// NIO layer
 ///

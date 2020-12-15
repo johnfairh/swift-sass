@@ -22,19 +22,21 @@ public protocol AsyncImporter: Importer {
     func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults>
 }
 
+// MARK: Default Implementations
+
 public extension AsyncImporter {
-    /// Default no-op implementation of the sync version so clients don't have to write it.
+    /// Default implementation - is never called.
     func canonicalize(importURL: String) throws -> URL? {
         preconditionFailure("Use canonicalize(eventLoop:importURL:) instead")
     }
 
-    /// Default no-op implementation of the sync version so clients don't have to write it.
+    /// Default implementation - is never called.
     func load(canonicalURL: URL) throws -> ImporterResults {
         preconditionFailure("Use load(eventLoop:canonicalURL:) instead")
     }
 }
 
-/// A version of the`SassFunction` type that allows async behavior.
+/// A version of the `SassFunction` type that allows async behavior.
 public typealias SassAsyncFunction = (EventLoop, [SassValue]) -> EventLoopFuture<SassValue>
 
 /// A set of `SassAsyncFunction`s and their signatures.
@@ -45,8 +47,7 @@ public typealias SassAsyncFunctionMap = [SassFunctionSignature : SassAsyncFuncti
 /// Use instead of `SassDynamicFunction` if your dynamic function needs to block or
 /// be asynchronous.
 public class SassAsyncDynamicFunction: SassDynamicFunction {
-    /// The actual function.
-    public let asyncFunction: SassAsyncFunction
+    // MARK: Initializers
 
     /// Create a new asynchronous dynamic function.
     /// - parameter signature: The Sass function signature.
@@ -55,6 +56,11 @@ public class SassAsyncDynamicFunction: SassDynamicFunction {
         self.asyncFunction = function
         super.init(signature: signature) { $0[0] }
     }
+
+    // MARK: Properties
+
+    /// The actual function.
+    public let asyncFunction: SassAsyncFunction
 }
 
 // MARK: Importer conversion

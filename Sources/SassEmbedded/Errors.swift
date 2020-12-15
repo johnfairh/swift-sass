@@ -8,12 +8,13 @@
 
 // Errors thrown by this module
 
-/// There was an error communicating with the embedded Sass compiler: for example a badly formed
-/// or out-of-sequence message.
-/// The payload is english text describing the nature of the problem.  There is probably nothing that
+/// Thrown on detecting an error communicating with the Sass embedded compiler: for example a badly
+/// formed or out-of-sequence message.
+///
+/// The payload is text describing the nature of the problem.  There is probably nothing that
 /// a user can do about this.
 public struct ProtocolError: Error, CustomStringConvertible {
-    /// English text explaining the protocol error.
+    /// Text explaining the protocol error.
     public let description: String
 
     init(_ text: String) {
@@ -22,10 +23,9 @@ public struct ProtocolError: Error, CustomStringConvertible {
     }
 }
 
-/// There was an error using the compiler interface, for example trying to use the compiler
-/// after shutting it down.
+/// Thrown on detecting a usage error of the `Compiler` API, for example trying to use it after shutdown.
 public struct LifecycleError: Error, CustomStringConvertible {
-    /// English text explaining the lifecycle error.
+    /// Text explaining the lifecycle error.
     public let description: String
 
     init(_ text: String) {

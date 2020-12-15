@@ -8,21 +8,13 @@
 
 /// A Sass map value.
 ///
-/// Sass maps -- dictionaries --  are immutable.
+/// Sass maps are `Dictionary`-like collections.  The keys can be any kind of
+/// `SassValue`.
 ///
 /// When a map is viewed as a Sass list then the list is of two-element lists, one
 /// for each key-value pair in the map.  The pairs are in no particular order.
-///
-/// Sass requires that the empty map is equal to all empty arrays.  Be careful
-/// using them as dictionary keys.
 public final class SassMap: SassValue {
-    public override var separator: SassList.Separator {
-        // Following dart-sass...
-        dictionary.count == 0 ? .undecided : .comma
-    }
-
-    /// The dictionary of values.
-    public let dictionary: [SassValue : SassValue]
+    // MARK: Initializers
 
     /// Create a `SassMap` from an existing `Dictionary`.
     public init(_ dictionary: [SassValue: SassValue]) {
@@ -31,13 +23,30 @@ public final class SassMap: SassValue {
 
     /// Create a  `SassMap` from a sequence of (`SassValue`, `SassValue`) pairs.
     ///
-    /// The program crashes if the keys are not unique.
+    /// The program terminates if the keys are not unique.
     public init<S>(uniqueKeysWithValues keysAndValues: S)
     where S : Sequence, S.Element == (SassValue, SassValue) {
         self.dictionary = .init(uniqueKeysWithValues: keysAndValues)
     }
 
+    // MARK: Properties
+
+    /// The dictionary of values.
+    public let dictionary: [SassValue : SassValue]
+
+    public override var separator: SassList.Separator {
+        // Following dart-sass...
+        dictionary.count == 0 ? .undecided : .comma
+    }
+
     override var listCount: Int { dictionary.count }
+
+    // MARK: Access
+
+    /// Return the value corresponding to the given key, or `nil` if the map does not have the key.
+    public subscript(_ key: SassValue) -> SassValue? {
+        dictionary[key]
+    }
 
     /// - warning: this method uses `sassIndex` to numerically index into the list representation of
     ///   this map.  To access the map via its keys use `subscript(_:)` or `dictionary` directly.
@@ -47,9 +56,17 @@ public final class SassMap: SassValue {
         return Array(self)[arrayIndex]
     }
 
-    /// Return the value corresponding to the given key, or `nil` if the map does not have the key.
-    public subscript(_ key: SassValue) -> SassValue? {
-        dictionary[key]
+    // MARK: Misc
+
+    /// List equality: two `SassMap`s are equal if their dictionaries are equivalent.
+    public static func == (lhs: SassMap, rhs: SassMap) -> Bool {
+        lhs.dictionary == rhs.dictionary
+    }
+
+    /// Hashes the map's contents
+    public override func hash(into hasher: inout Hasher) {
+        hasher.combine(dictionary)
+        // see `SassList.hash(into:)` for list-map equiv issues
     }
 
     /// An iterator for contents of the map.  Each element of the iteration is a `SassList`
@@ -65,17 +82,6 @@ public final class SassMap: SassValue {
 
     public override var description: String {
         "Map(\(Array(self)))"
-    }
-
-    /// List equality: two `SassMap`s are equal if their maps are equivalent.
-    public static func == (lhs: SassMap, rhs: SassMap) -> Bool {
-        lhs.dictionary == rhs.dictionary
-    }
-
-    /// Hashes the map's contents
-    public override func hash(into hasher: inout Hasher) {
-        hasher.combine(dictionary)
-        // see `SassList.hash(into:)` for list-map equiv issues
     }
 }
 
