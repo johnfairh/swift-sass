@@ -301,4 +301,27 @@ class TestFunctions: SassEmbeddedTestCase {
         XCTAssertEqual(#"a{b:"plaice"}"#, results.css)
 
     }
+
+    func testVarargs() throws {
+
+        let varArgsFunction: SassFunctionMap = [
+            "varFn($first, $args...)" : { args in
+                XCTAssertEqual(2, args.count)
+                try XCTAssertNoThrow(args[0].asNumber().asInt())
+                let lst = Array(args[1])
+                XCTAssertEqual(2, lst.count)
+                return SassNumber(1)
+            }
+        ]
+
+        let scss = """
+        a {
+          b: varFn(1, 2, "fish")
+        }
+        """
+
+        let compiler = try newCompiler(functions: varArgsFunction)
+        let results = try compiler.compile(text: scss, outputStyle: .compressed)
+        XCTAssertEqual("a{b:1}", results.css)
+    }
 }

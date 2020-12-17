@@ -12,7 +12,10 @@
 /// are compiled.
 ///
 /// `SassValue` is used to transmit function parameters and return values: any parameters with
-/// default values are instantiated before the function is called.  All `SassValue`s are immutable.
+/// default values are instantiated before the function is called.  If your function signature includes an
+/// argument list such as `funcName($arg1, $others...)` then the args list is passed as a
+/// list value, so in the example the function receives two arguments: one for `$arg1` and one for
+/// whatever else is passed.
 ///
 /// Usually the first job of a function is to downcast each parameter to the expected type using
 /// throwing methods such as `SassValue.asString()`.
