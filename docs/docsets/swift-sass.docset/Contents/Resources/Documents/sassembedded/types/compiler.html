@@ -634,7 +634,7 @@ there are edge cases that will lead to crashes inside NIO</p>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public init(
-    eventLoopGroupProvider: NIOEventLoopGroupProvider,
+    eventLoopGroupProvider: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Enums/NIOEventLoopGroupProvider.html">NIOEventLoopGroupProvider</a>,
     embeddedCompilerURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>,
     timeout: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> = 60,
     importers: [<a href="../../sass/types/importresolver.html?swift">ImportResolver</a>] = [],
@@ -651,7 +651,7 @@ there are edge cases that will lead to crashes inside NIO</p>
       
       <tr>
         <td><code>eventLoopGroup</code></td>
-        <td><p>The NIO <code>EventLoopGroup</code> to use: either <code>.shared</code> to use
+        <td><p>The NIO <a href="https://apple.github.io/swift-nio/docs/current/NIO/Protocols/EventLoopGroup.html">EventLoopGroup</a> to use: either <code>.shared</code> to use
 an existing group or <code>.createNew</code> to create and manage a new event loop.</p></td>
       </tr>
       
@@ -741,8 +741,8 @@ Something from Foundation if the embedded compiler does not start.</p>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public convenience init(
-    eventLoopGroupProvider: NIOEventLoopGroupProvider,
-    embeddedCompilerName: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a> = &quot;dart-sass-embedded&quot;,
+    eventLoopGroupProvider: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Enums/NIOEventLoopGroupProvider.html">NIOEventLoopGroupProvider</a>,
+    embeddedCompilerName: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a> = &quot;dart-sass-embedded&quot;,
     timeout: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> = 60,
     importers: [<a href="../../sass/types/importresolver.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:]) throws</code></pre>
@@ -758,7 +758,7 @@ Something from Foundation if the embedded compiler does not start.</p>
       
       <tr>
         <td><code>eventLoopGroup</code></td>
-        <td><p>The NIO <code>EventLoopGroup</code> to use: either <code>.shared</code> to use
+        <td><p>The NIO <a href="https://apple.github.io/swift-nio/docs/current/NIO/Protocols/EventLoopGroup.html">EventLoopGroup</a> to use: either <code>.shared</code> to use
 an existing group or <code>.createNew</code> to create and manage a new event loop.</p></td>
       </tr>
       
@@ -853,7 +853,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public func compile(
-    text: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>,
+    text: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>,
     syntax: <a href="../../sass/types/syntax.html?swift">Syntax</a> = .scss,
     url: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>? = nil,
     outputStyle: <a href="../../sass/types/cssstyle.html?swift">CssStyle</a> = .expanded,
@@ -1065,14 +1065,14 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public func compileAsync(
-    text: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>,
+    text: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>,
     syntax: <a href="../../sass/types/syntax.html?swift">Syntax</a> = .scss,
     url: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>? = nil,
     outputStyle: <a href="../../sass/types/cssstyle.html?swift">CssStyle</a> = .expanded,
     createSourceMap: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
     importers: [<a href="../../sass/types/importresolver.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:]
-) -&gt; EventLoopFuture&lt;<a href="../../sass/types/compilerresults.html?swift">CompilerResults</a>&gt;</code></pre>
+) -&gt; <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;<a href="../../sass/types/compilerresults.html?swift">CompilerResults</a>&gt;</code></pre>
   </div>
 
 
@@ -1137,7 +1137,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
     createSourceMap: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
     importers: [<a href="../../sass/types/importresolver.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:]
-) -&gt; EventLoopFuture&lt;<a href="../../sass/types/compilerresults.html?swift">CompilerResults</a>&gt;</code></pre>
+) -&gt; <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;<a href="../../sass/types/compilerresults.html?swift">CompilerResults</a>&gt;</code></pre>
   </div>
 
 
@@ -1209,7 +1209,7 @@ The process ID is reported as <code>nil</code> if there currently is no running 
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var compilerProcessIdentifier: EventLoopFuture&lt;<a href="https://developer.apple.com/documentation/swift/int32?language=swift">Int32</a>?&gt; { get }</code></pre>
+    <pre><code class="language-swift">public var compilerProcessIdentifier: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;<a href="https://developer.apple.com/documentation/swift/int32?language=swift">Int32</a>?&gt; { get }</code></pre>
   </div>
 
 
@@ -1273,7 +1273,7 @@ call it.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public func reinit() -&gt; EventLoopFuture&lt;<a href="https://developer.apple.com/documentation/swift/void?language=swift">Void</a>&gt;</code></pre>
+    <pre><code class="language-swift">public func reinit() -&gt; <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;<a href="https://developer.apple.com/documentation/swift/void?language=swift">Void</a>&gt;</code></pre>
   </div>
 
 
@@ -1338,7 +1338,7 @@ queue is being run.</p>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public func shutdownGracefully(
-    queue: <a href="https://developer.apple.com/documentation/dispatch/dispatchqueue?language=swift">DispatchQueue</a> = .global(), _ callback: @escaping (<a href="https://developer.apple.com/documentation/swift/error?language=swift">Error</a>?) -&gt; <a href="https://developer.apple.com/documentation/swift/void?language=swift">Void</a>)</code></pre>
+    queue: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/DispatchQueue.html">DispatchQueue</a> = .global(), _ callback: @escaping (<a href="https://developer.apple.com/documentation/swift/error?language=swift">Error</a>?) -&gt; <a href="https://developer.apple.com/documentation/swift/void?language=swift">Void</a>)</code></pre>
   </div>
 
 
@@ -1459,10 +1459,10 @@ queue is being run.</p>
 
 
 <p>Logger for the module.</p>
-<p>A <a href="https://github.com/apple/swift-log">swift-log</a> <a href="https://developer.apple.com/documentation/os/logger?language=swift" class="j2-swift"><code>Logger</code></a>.</p>
-<p>Produces goodpath protocol and compiler lifecycle tracing at <code>Logger.Level.debug</code> log level,
+<p>A <a href="https://github.com/apple/swift-log">swift-log</a> <a href="https://apple.github.io/swift-log/docs/current/Logging/Structs/Logger.html">Logger</a>.</p>
+<p>Produces goodpath protocol and compiler lifecycle tracing at <a href="https://apple.github.io/swift-log/docs/current/Logging/Structs/Logger/Level.html#/s:7Logging6LoggerV5LevelO5debugyA2EmF">Logger.Level.debug</a> log level,
 approx 300 bytes per compile request.</p>
-<p>Produces protocol and lifecycle error reporting at <code>Logger.Level.error</code> log level.</p>
+<p>Produces protocol and lifecycle error reporting at <a href="https://apple.github.io/swift-log/docs/current/Logging/Structs/Logger/Level.html#/s:7Logging6LoggerV5LevelO5erroryA2EmF">Logger.Level.error</a> log level.</p>
 
 
 
@@ -1472,7 +1472,7 @@ approx 300 bytes per compile request.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public static var logger: <a href="https://developer.apple.com/documentation/os/logger?language=swift">Logger</a></code></pre>
+    <pre><code class="language-swift">public static var logger: <a href="https://apple.github.io/swift-log/docs/current/Logging/Structs/Logger.html">Logger</a></code></pre>
   </div>
 
 
