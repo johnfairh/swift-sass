@@ -17,10 +17,10 @@ import Foundation
 
 /// Methods required to implement a stylesheet importer.
 ///
-/// This type resolves `@import`, `@use`, and `@forward` rules in
+/// Importers resolve `@import`, `@use`, and `@forward` rules in
 /// stylesheets.  The methods are called back by the compiler during compilation.  You
 /// don't need this to include the contents of a filesystem directory: see instead
-/// `ImportResolver.loadPath()`.
+/// `ImportResolver.loadPath(_:)`.
 ///
 /// You could use this to present network resources or dynamically constructed content.
 ///
@@ -40,52 +40,50 @@ import Foundation
 /// Users of your importer mostly likely expect the same behavior if the URLs you
 /// are importing resemble filenames with extensions and directories.
 ///
-/// From the embedded Sass protocol documentation:
+/// From the Sass embedded protocol documentation:
 ///
-/// * The importer should look for stylesheets by adding the prefix `_` to the
-///   URL's basename, and by adding the extensions `.sass` and `.scss` if the
-///   URL doesn't already have one of those extensions. For example, given the URL
-///   "foo/bar/baz" the importer should look for:
+/// The importer should look for stylesheets by adding the prefix `_` to the
+/// URL's basename, and by adding the extensions `.sass` and `.scss` if the
+/// URL doesn't already have one of those extensions. For example, given the URL
+/// "foo/bar/baz" the importer should look for:
 ///
-///   * `foo/bar/baz.sass`
-///   * `foo/bar/baz.scss`
-///   * `foo/bar/_baz.sass`
-///   * `foo/bar/_baz.scss`
+/// 1. `foo/bar/baz.sass`
+/// 2. `foo/bar/baz.scss`
+/// 3. `foo/bar/_baz.sass`
+/// 4. `foo/bar/_baz.scss`
 ///
-///   Given the URL "foo/bar/baz.scss" the importer should look for:
+/// Given the URL "foo/bar/baz.scss" the importer should look for:
 ///
-///   * `foo/bar/baz.scss`
-///   * `foo/bar/_baz.scss`
+/// 1. `foo/bar/baz.scss`
+/// 2. `foo/bar/_baz.scss`
 ///
-///   If the importer finds a stylesheet at more than one of these URLs then it
-///   must throw an error indicating that the import is ambiguous.
+/// If the importer finds a stylesheet at more than one of these URLs then it
+/// must throw an error indicating that the import is ambiguous.
 ///
-/// * If none of the possible paths are valid then the importer should perform the
-///   same resolution on the URL followed by `/index`. In the example above, it
-///   should additionally look for:
+/// If none of the possible paths are valid then the importer should perform the
+/// same resolution on the URL followed by `/index`. In the example above, it
+/// should additionally look for:
 ///
-///   * `foo/bar/baz/_index.sass`
-///   * `foo/bar/baz/index.sass`
-///   * `foo/bar/baz/_index.scss`
-///   * `foo/bar/baz/index.scss`
+/// 1. `foo/bar/baz/_index.sass`
+/// 2. `foo/bar/baz/index.sass`
+/// 3. `foo/bar/baz/_index.scss`
+/// 4. `foo/bar/baz/index.scss`
 ///
-///   If more than one of these implicit index resources exist then the importer must
-///   throw an error indicating that the import is ambiguous.
+/// If more than one of these implicit index resources exist then the importer must
+/// throw an error indicating that the import is ambiguous.
 public protocol Importer {
     /// Convert an imported URL to its canonical format.
     ///
     /// The returned URL must be absolute and include a scheme.  If the routine
-    /// happens to be called with a resource's canonical URL (for example, something
+    /// happens to be called with a resource's canonical URL (including something
     /// the routine previously returned) then it must be returned unchanged.
     ///
     /// - parameter importURL: The text following `@import` or `@use` in
     ///   a stylesheet.
     /// - returns: The canonical URL, or `nil` if the importer doesn't recognize the
-    ///   import request.  The compiler will try another importer.
-    /// - throws: Only when `importString` cannot be canonicalized: it is definitely
-    ///   this importer's responsibility to do so, but it can't.
-    ///
-    ///   For example ambiguity: the request is
+    ///   import request to have the compiler try the next importer.
+    /// - throws: Only when `importURL` cannot be canonicalized: it is definitely
+    ///   this importer's responsibility to do so, but it can't.  For example, if the request is
     ///   "foo" but both `foo.sass` and `foo.css` are available.  If "foo" didn't match
     ///   anything then the importer should return `nil` instead.
     ///
@@ -104,14 +102,9 @@ public protocol Importer {
 
 /// The results of loading a stylesheet through an importer.
 public struct ImporterResults {
-    /// The contents of the stylesheet.
-    public let contents: String
-    /// The syntax of the stylesheet.
-    public let syntax: Syntax
-    /// URL used to reference the stylesheet from a source map.
-    public let sourceMapURL: URL?
+    // MARK: Initializers
 
-    /// Initialize a new `ImporterResults`
+    /// Initialize a new `ImporterResults`.
     ///
     /// - parameter contents: The stylesheet text.
     /// - parameter syntax: The syntax of `contents`, default `.scss`.
@@ -124,11 +117,20 @@ public struct ImporterResults {
         self.syntax = syntax
         self.sourceMapURL = sourceMapURL
     }
+
+    // MARK: Properties
+
+    /// The contents of the stylesheet.
+    public let contents: String
+    /// The syntax of the stylesheet.
+    public let syntax: Syntax
+    /// URL used to reference the stylesheet from a source map.
+    public let sourceMapURL: URL?
 }
 
-/// How the compiler should resolve `@import`, `@use`, and `@forward` rules.
+/// How the Sass compiler should resolve `@import`, `@use`, and `@forward` rules.
 public enum ImportResolver {
-    /// Search a filesystem directory to resolve the rule.
+    /// Search a filesystem directory to resolve the rule.  See [the Sass docs](https://sass-lang.com/documentation/at-rules/import#load-paths).
     case loadPath(URL)
     /// Call back through the `Importer` to resolve the rule.
     case importer(Importer)

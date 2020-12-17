@@ -141,9 +141,10 @@ extension Int {
 /// 11 decimal places.  Use the `SassNumber` methods to convert to integers and test for ranges.
 ///
 /// The units on a `SassNumber` can describe the result of multiplying and dividing numbers with
-/// primitive units.  Best described in the (Sass docs)[https://sass-lang.com/documentation/values/numbers#units].
-/// The (CSS values spec)[https://www.w3.org/TR/css-values-4/#intro] defines several common
-/// units and how to convert between them, for example _px_ to _pt_.  `SassNumber.asConvertedTo(...)`
+/// primitive units.  Best described in the
+/// [Sass docs](https://sass-lang.com/documentation/values/numbers#units).
+/// The [CSS values spec](https://www.w3.org/TR/css-values-4/#intro) defines several common
+/// units and how to convert between them, for example _px_ to _pt_.  `asConvertedTo(...)`
 /// implements these conversions which lets you, for example, write a function that accepts any length unit
 /// that you can easily convert to your preferred unit.
 ///
@@ -154,23 +155,7 @@ public final class SassNumber: SassValue {
     private let sassDouble: SassDouble
     private let units: UnitQuotient
 
-    /// The underlying sign and magnitude of the number.
-    ///
-    /// Fairly meaningless without understanding the number's units.
-    ///
-    /// - warning: Take care using this value directly because Sass and Swift use different
-    ///   tolerances for comparison and integer conversion.
-    ///
-    ///   * Use `asInt()` to check a  `SassNumber` is an integer  instead of `Int(exactly:)`.
-    ///     (It could be that `Int(exactly: n.double)` would fail.)
-    ///   * Use `asIn(range:)` to check a floating point `SassNumber` is within a range and convert
-    ///     it to a Swift `Double` within the range. (It could be that `range.contains(n.double)`
-    ///     would fail.)
-    ///   * If you must compare floating-point `SassNumber`s then consistently compare the `SassNumber`s
-    ///     themselves, not the `double`s within.  Similarly, use the `SassNumber` itself as a dictionary key.
-    public var double: Double {
-        sassDouble.double
-    }
+    // MARK: Initializers
 
     /// Initialize a new number from a value and optionally a unit.
     public init(_ double: Double, unit: String? = nil) {
@@ -181,12 +166,14 @@ public final class SassNumber: SassValue {
     /// Initialize a new number from a value and a list of numerator and denominator units.
     ///
     /// For example an acceleration:
-    /// ```SassNumber(981, numeratorUnits: ["cm"], denominatorUnits: ["s", "s"])```
+    /// ```swift
+    /// let g = SassNumber(981, numeratorUnits: ["cm"], denominatorUnits: ["s", "s"])
+    /// ```
     ///
     /// - parameter double: The value of the number.
     /// - parameter numeratorUnits: The names of units applied to the number.
     /// - parameter denominatorUnits: The names of units whose reciprocals are applied to the number.
-    /// - throws: `SassValueError.uncancelledUnits(...)` if units for the same dimension are listed in
+    /// - throws: `SassFunctionError.uncancelledUnits(...)` if units for the same dimension are listed in
     ///   both `numeratorUnits` and `denominatorUnits`.
     public init(_ double: Double, numeratorUnits: [String] = [], denominatorUnits: [String] = []) throws {
         sassDouble = SassDouble(double)
@@ -198,12 +185,34 @@ public final class SassNumber: SassValue {
         self.units = units
     }
 
+    // MARK: Properties
+
+    /// The underlying sign and magnitude of the number.
+    ///
+    /// Fairly meaningless without understanding the number's units.
+    ///
+    /// - warning: Take care using this value directly because Sass and Swift use different
+    ///   tolerances for comparison and integer conversion.
+    ///
+    ///   * Use `asInt()` to check a  `SassNumber` is an integer  instead of `Int.init(exactly:)`.
+    ///     (It could be that `Int(exactly: n.double)` would fail.)
+    ///   * Use `asIn(range:)` to check a floating point `SassNumber` is within a range and convert
+    ///     it to a Swift `Double` within the range. (It could be that `range.contains(n.double)`
+    ///     would fail.)
+    ///   * If you must compare floating-point `SassNumber`s then consistently compare the `SassNumber`s
+    ///     themselves, not the `double`s within.  Similarly, use the `SassNumber` itself as a dictionary key.
+    public var double: Double {
+        sassDouble.double
+    }
+
+    // MARK: Comparison
+
     /// The integer value of this number.
     ///
-    /// This has the same role as `Int(exactly:)` but maps more floating point values to
+    /// This has the same role as `Int.init(exactly:)` but maps more floating point values to
     /// the same integer according to the Sass specification.
     /// - returns: The integer that this `SassNumber` exactly represents.
-    /// - throws: `SassFunctionError.notInteger()` if the number is not an integer
+    /// - throws: `SassFunctionError.notInteger(...)` if the number is not an integer
     ///   according to Sass's rounding rules.
     public func asInt() throws -> Int {
         guard let intVal = Int(sassDouble) else {
@@ -239,6 +248,8 @@ public final class SassNumber: SassValue {
         }
         return clamped
     }
+
+    // MARK: Units
 
     /// Is the number free of units?
     public var hasNoUnits: Bool {
@@ -276,12 +287,13 @@ public final class SassNumber: SassValue {
 
     /// The equivalent `SassNumber` converted to the requested units.
     ///
-    /// Only units described in the (CSS spec)[https://www.w3.org/TR/css-values-4/#intro] as 'convertible'
+    /// Only units described in the [CSS spec](https://www.w3.org/TR/css-values-4/#intro) as 'convertible'
     /// can be converted.
     ///
     /// A number without any units can be 'converted' to any set of units.
     ///
-    /// - throws: If the requested units are invalid, or if the number's units are not convertible to the requested units.
+    /// - throws: `SassFunctionError` If the requested units are invalid, or if the number's units
+    /// are not convertible to the requested units.
     public func asConvertedTo(numeratorUnits: [String] = [], denominatorUnits: [String] = []) throws -> SassNumber {
         let newUnits = try UnitQuotient(numerator: numeratorUnits, denominator: denominatorUnits)
         if !units.hasUnits || !newUnits.hasUnits || units == newUnits {
@@ -295,15 +307,7 @@ public final class SassNumber: SassValue {
         return SassNumber(ratio.apply(double), units: newUnits)
     }
 
-    /// Take part in the `SassValueVisitor` protocol.
-    public override func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
-        try visitor.visit(number: self)
-    }
-
-    public override var description: String {
-        let unitStr = hasNoUnits ? "" : " \(units)"
-        return "Number(\(sassDouble.double)\(unitStr))"
-    }
+    // MARK: Misc
 
     /// Two `SassNumber`s are equal iff:
     /// 1. Neither have units and their values are the same to 11 decimal places; or
@@ -335,6 +339,16 @@ public final class SassNumber: SassValue {
         let canonValue = canon.1.apply(double)
         hasher.combine(SassDouble.hashEquivalent(canonValue))
         hasher.combine(canon.0)
+    }
+
+    /// Take part in the `SassValueVisitor` protocol.
+    public override func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
+        try visitor.visit(number: self)
+    }
+
+    public override var description: String {
+        let unitStr = hasNoUnits ? "" : " \(units)"
+        return "Number(\(sassDouble.double)\(unitStr))"
     }
 }
 

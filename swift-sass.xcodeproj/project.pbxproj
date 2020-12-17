@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02025A0325893D480086A4D0 /* SassEmbedded.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::SassEmbedded::Product" /* SassEmbedded.framework */; };
 		02440A1625765786008F0862 /* CompilerFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1525765786008F0862 /* CompilerFunction.swift */; };
 		02440A1925765C0C008F0862 /* TestFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1825765C0C008F0862 /* TestFunction.swift */; };
 		02440A1C2576679E008F0862 /* DynamicFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1B2576679E008F0862 /* DynamicFunction.swift */; };
@@ -46,13 +47,12 @@
 		02A3BC0125800D0600BBF99E /* CompilerWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0025800D0600BBF99E /* CompilerWork.swift */; };
 		02A3BC052581600700BBF99E /* AsyncCompilerTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */; };
 		02A3BC0F2585314200BBF99E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0E2585314200BBF99E /* main.swift */; };
-		02A3BC172585329C00BBF99E /* EmbeddedSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */; };
+		02A3BC172585329C00BBF99E /* SassEmbedded.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::SassEmbedded::Product" /* SassEmbedded.framework */; };
 		02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 02E0ED7E2586172C0080E954 /* SwiftProtobuf */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
 		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
 		OBJ_120 /* embedded_sass.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* embedded_sass.pb.swift */; };
 		OBJ_131 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* TestUtils.swift */; };
-		OBJ_133 /* EmbeddedSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,8 +60,8 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = "swift-sass::EmbeddedSass";
-			remoteInfo = EmbeddedSass;
+			remoteGlobalIDString = "swift-sass::SassEmbedded";
+			remoteInfo = SassEmbedded;
 		};
 		0289BB2425666BA70004544A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -146,8 +146,8 @@
 		OBJ_15 /* TestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		OBJ_9 /* Exec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exec.swift; sourceTree = "<group>"; };
-		"swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = EmbeddedSass.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"swift-sass::EmbeddedSassTests::Product" /* EmbeddedSassTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = EmbeddedSassTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		"swift-sass::SassEmbedded::Product" /* SassEmbedded.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SassEmbedded.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"swift-sass::SassEmbeddedTests::Product" /* SassEmbeddedTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = SassEmbeddedTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,7 +162,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				02A3BC172585329C00BBF99E /* EmbeddedSass.framework in Frameworks */,
+				02A3BC172585329C00BBF99E /* SassEmbedded.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,7 +182,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 0;
 			files = (
-				OBJ_133 /* EmbeddedSass.framework in Frameworks */,
+				02025A0325893D480086A4D0 /* SassEmbedded.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,8 +245,8 @@
 		OBJ_105 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				"swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */,
-				"swift-sass::EmbeddedSassTests::Product" /* EmbeddedSassTests.xctest */,
+				"swift-sass::SassEmbedded::Product" /* SassEmbedded.framework */,
+				"swift-sass::SassEmbeddedTests::Product" /* SassEmbeddedTests.xctest */,
 				0289BB1825666B060004544A /* Sass.framework */,
 				02A3BC0C2585314200BBF99E /* Cli */,
 			);
@@ -257,12 +257,12 @@
 			isa = PBXGroup;
 			children = (
 				0289BB42256BEB2B0004544A /* SassTests */,
-				OBJ_13 /* EmbeddedSassTests */,
+				OBJ_13 /* SassEmbeddedTests */,
 			);
 			name = Tests;
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_13 /* EmbeddedSassTests */ = {
+		OBJ_13 /* SassEmbeddedTests */ = {
 			isa = PBXGroup;
 			children = (
 				0291E7C7256000A400F6BE14 /* TestInterface.swift */,
@@ -273,8 +273,8 @@
 				0285E827256C4C2900956F18 /* TestFunctions.swift */,
 				OBJ_15 /* TestUtils.swift */,
 			);
-			name = EmbeddedSassTests;
-			path = Tests/EmbeddedSassTests;
+			name = SassEmbeddedTests;
+			path = Tests/SassEmbeddedTests;
 			sourceTree = SOURCE_ROOT;
 		};
 		OBJ_5 = {
@@ -293,12 +293,12 @@
 			isa = PBXGroup;
 			children = (
 				0289BB1925666B060004544A /* Sass */,
-				OBJ_8 /* EmbeddedSass */,
+				OBJ_8 /* SassEmbedded */,
 			);
 			name = Sources;
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_8 /* EmbeddedSass */ = {
+		OBJ_8 /* SassEmbedded */ = {
 			isa = PBXGroup;
 			children = (
 				02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */,
@@ -311,8 +311,8 @@
 				0289BB392568471D0004544A /* ProtobufConversion.swift */,
 				OBJ_11 /* embedded_sass.pb.swift */,
 			);
-			name = EmbeddedSass;
-			path = Sources/EmbeddedSass;
+			name = SassEmbedded;
+			path = Sources/SassEmbedded;
 			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
@@ -354,9 +354,9 @@
 			productReference = 02A3BC0C2585314200BBF99E /* Cli */;
 			productType = "com.apple.product-type.tool";
 		};
-		"swift-sass::EmbeddedSass" /* EmbeddedSass */ = {
+		"swift-sass::SassEmbedded" /* SassEmbedded */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = OBJ_114 /* Build configuration list for PBXNativeTarget "EmbeddedSass" */;
+			buildConfigurationList = OBJ_114 /* Build configuration list for PBXNativeTarget "SassEmbedded" */;
 			buildPhases = (
 				OBJ_117 /* Sources */,
 				OBJ_121 /* Frameworks */,
@@ -367,20 +367,20 @@
 			dependencies = (
 				0289BB2525666BA70004544A /* PBXTargetDependency */,
 			);
-			name = EmbeddedSass;
+			name = SassEmbedded;
 			packageProductDependencies = (
 				02440A262576C7DA008F0862 /* NIO */,
 				02440A29257957B5008F0862 /* NIOFoundationCompat */,
 				02A346E8257AAE3D00A14905 /* Logging */,
 				02E0ED7E2586172C0080E954 /* SwiftProtobuf */,
 			);
-			productName = EmbeddedSass;
-			productReference = "swift-sass::EmbeddedSass::Product" /* EmbeddedSass.framework */;
+			productName = SassEmbedded;
+			productReference = "swift-sass::SassEmbedded::Product" /* SassEmbedded.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		"swift-sass::EmbeddedSassTests" /* EmbeddedSassTests */ = {
+		"swift-sass::SassEmbeddedTests" /* SassEmbeddedTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = OBJ_126 /* Build configuration list for PBXNativeTarget "EmbeddedSassTests" */;
+			buildConfigurationList = OBJ_126 /* Build configuration list for PBXNativeTarget "SassEmbeddedTests" */;
 			buildPhases = (
 				OBJ_129 /* Sources */,
 				OBJ_132 /* Frameworks */,
@@ -391,9 +391,9 @@
 			dependencies = (
 				OBJ_135 /* PBXTargetDependency */,
 			);
-			name = EmbeddedSassTests;
-			productName = EmbeddedSassTests;
-			productReference = "swift-sass::EmbeddedSassTests::Product" /* EmbeddedSassTests.xctest */;
+			name = SassEmbeddedTests;
+			productName = SassEmbeddedTests;
+			productReference = "swift-sass::SassEmbeddedTests::Product" /* SassEmbeddedTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -433,8 +433,8 @@
 			projectRoot = "";
 			targets = (
 				0289BB1725666B060004544A /* Sass */,
-				"swift-sass::EmbeddedSass" /* EmbeddedSass */,
-				"swift-sass::EmbeddedSassTests" /* EmbeddedSassTests */,
+				"swift-sass::SassEmbedded" /* SassEmbedded */,
+				"swift-sass::SassEmbeddedTests" /* SassEmbeddedTests */,
 				02A3BC0B2585314200BBF99E /* Cli */,
 			);
 		};
@@ -527,7 +527,7 @@
 		};
 		OBJ_135 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "swift-sass::EmbeddedSass" /* EmbeddedSass */;
+			target = "swift-sass::SassEmbedded" /* SassEmbedded */;
 			targetProxy = 025C61F7255C154800AEA420 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -808,14 +808,14 @@
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = EmbeddedSass;
+				PRODUCT_BUNDLE_IDENTIFIER = SassEmbedded;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				SWIFT_VERSION = 5.0;
-				TARGET_NAME = EmbeddedSass;
+				TARGET_NAME = SassEmbedded;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
@@ -840,14 +840,14 @@
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = EmbeddedSass;
+				PRODUCT_BUNDLE_IDENTIFIER = SassEmbedded;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				SWIFT_VERSION = 5.0;
-				TARGET_NAME = EmbeddedSass;
+				TARGET_NAME = SassEmbedded;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
@@ -877,7 +877,7 @@
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				SWIFT_VERSION = 5.0;
-				TARGET_NAME = EmbeddedSassTests;
+				TARGET_NAME = SassEmbeddedTests;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
@@ -907,7 +907,7 @@
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				SWIFT_VERSION = 5.0;
-				TARGET_NAME = EmbeddedSassTests;
+				TARGET_NAME = SassEmbeddedTests;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
@@ -986,7 +986,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		OBJ_114 /* Build configuration list for PBXNativeTarget "EmbeddedSass" */ = {
+		OBJ_114 /* Build configuration list for PBXNativeTarget "SassEmbedded" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				OBJ_115 /* Debug */,
@@ -995,7 +995,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		OBJ_126 /* Build configuration list for PBXNativeTarget "EmbeddedSassTests" */ = {
+		OBJ_126 /* Build configuration list for PBXNativeTarget "SassEmbeddedTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				OBJ_127 /* Debug */,

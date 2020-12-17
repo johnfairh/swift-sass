@@ -19,10 +19,19 @@
 /// Common behavior between values passed to or returned from Sass functions.
 ///
 /// All Sass values can be treated as lists: singleton values like strings behave like
-/// 1-element lists and maps behave like lists of two-element (key, value) lists.
+/// 1-element lists and maps behave like lists of two-element (key, value) lists.  Use the
+/// `Sequence` conformance to access the list contents.
+///
+/// `SassValue` is abstract, you cannot create instances. Instead create instances of subtypes
+/// like `SassColor`.
+///
+/// All the `SassValue` types are immutable.
 open class SassValue: Hashable, Sequence, CustomStringConvertible {
+    /// stop anyone else actually subclassing this
+    init() {}
+
     /// Sass considers all values except `null` and `false` to be "truthy", meaning
-    /// your host function should almost always be checking this property instead of trying
+    /// your function should almost always be checking this property instead of trying
     /// to downcast to `SassBool`.
     public var isTruthy: Bool { true }
 
@@ -42,8 +51,8 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
 
     /// Convert a Sass list index.
     /// - parameter index: A Sass value intended to be used as an index into this value viewed as a list.
-    ///   This must be an integer between 1 and the number of elements in this value viewed as a list,
-    ///   or negative in the same range to index from the end.
+    ///   This must be an integer between 1 and the number of elements inclusive, or negative in the same
+    ///   range to index from the end.
     /// - throws: `SassFunctionError` if `sassIndex` is not an integer or out of range.
     /// - returns: An integer suitable for subscripting the array created from this value, guaranteed
     ///   to be a valid subscript in the range [0..<count]
@@ -58,9 +67,9 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
     /// Subscript the value using a Sass list index.
     ///
     /// (Swift can't throw exceptions from `subscript`).
-    /// - parameter sassIndex: A Sass value intended to be used as an index into this value viewed as a list.
-    ///   This must be an integer between 1 and `asArray.count` inclusive, or a negative number with similar
-    ///   magnitude to index back from the end.
+    /// - parameter sassIndex: A Sass value intended to be used as an index into this value viewed
+    ///   as a list.  This must be an integer between 1 and the number of elements inclusive, or a negative
+    ///   number with similar magnitude to index back from the end.
     /// - throws: `SassValueError` if `index` is not an integer or out of range.
     /// - returns: The value at the Sass Index.
     public func valueAt(sassIndex: SassValue) throws -> SassValue {
@@ -68,7 +77,7 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
         return self
     }
 
-    /// An iterator for the values in the list.
+    /// An iterator for the values in the list, for `Sequence` conformance.
     public func makeIterator() -> AnyIterator<SassValue> {
         AnyIterator(CollectionOfOne(self).makeIterator())
     }
@@ -83,7 +92,7 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
     // MARK: Hashable
 
     /// Two `SassValue`s are generally equal if they have the same dynamic type and
-    /// compare equally as that type.
+    /// compare equally as that type.  In addition, empty lists and maps compare as equal.
     public static func == (lhs: SassValue, rhs: SassValue) -> Bool {
         switch (lhs, rhs) {
         case let (lstr, rstr) as (SassString, SassString):
@@ -130,22 +139,22 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
 public protocol SassValueVisitor {
     /// The return type of the operation.
     associatedtype ReturnType
-    /// The operation for `SassString`
+    /// The operation for `SassString`.
     func visit(string: SassString) throws -> ReturnType
-    /// The operation for `SassNumber`
+    /// The operation for `SassNumber`.
     func visit(number: SassNumber) throws -> ReturnType
-    /// The operation for `SassColor`
+    /// The operation for `SassColor`.
     func visit(color: SassColor) throws -> ReturnType
-    /// The operation for `SassList`
+    /// The operation for `SassList`.
     func visit(list: SassList) throws -> ReturnType
-    /// The operation for `SassMap`
+    /// The operation for `SassMap`.
     func visit(map: SassMap) throws -> ReturnType
-    /// The operation for `SassBool`
+    /// The operation for `SassBool`.
     func visit(bool: SassBool) throws -> ReturnType
-    /// The operation for `SassNull`
+    /// The operation for `SassNull`.
     func visit(null: SassNull) throws -> ReturnType
-    /// The operation for `SassCompilerFunction`
+    /// The operation for `SassCompilerFunction`.
     func visit(compilerFunction: SassCompilerFunction) throws -> ReturnType
-    /// The operation for `SassDynamicFunction`
+    /// The operation for `SassDynamicFunction` (or `SassAsyncDynamicFunction`).
     func visit(dynamicFunction: SassDynamicFunction) throws -> ReturnType
 }

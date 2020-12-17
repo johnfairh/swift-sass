@@ -9,7 +9,7 @@
 // Shim wrapper around the dart sass compiler for large-scale testing.  This
 // doesn't add any value over using dart-sass!
 
-import EmbeddedSass
+import SassEmbedded
 import Foundation
 
 // Expected to be run via `swift run` from the package directory.
@@ -21,7 +21,7 @@ var dartSassEmbeddedURL: URL {
 
     let dartSassRootURL = packageRootURL
         .appendingPathComponent("Tests")
-        .appendingPathComponent("EmbeddedSassTests")
+        .appendingPathComponent("SassEmbeddedTests")
         .appendingPathComponent("dart-sass-embedded")
 
     #if os(Linux)

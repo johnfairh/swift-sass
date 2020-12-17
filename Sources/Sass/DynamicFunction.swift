@@ -50,15 +50,13 @@ public func _lookUpDynamicFunction(id: UInt32) -> SassDynamicFunction? {
 /// A dynamic Sass function.
 ///
 /// These are Sass functions, written in Swift, that are not declared up-front to the compiler when
-/// starting compilation.  Instead they are returned as `SassValue`s from other (up-front declared!)
-/// `SassFunction`s so the compiler can call them later on.
+/// starting compilation.  Instead they are returned as `SassValue`s from other `SassFunction`s
+/// (that _were_ declared up-front) so the compiler can call them later on.
+///
+/// Use `SassAsyncDynamicFunction` instead if your function is blocking and you want to use it with
+/// `SassEmbedded.Compiler` in asynchronous mode.
 open class SassDynamicFunction: SassValue {
-    /// The Sass signature of the function.
-    public let signature: String
-    /// The actual function.
-    public let function: SassFunction
-    /// The ID of the function, used by the compiler to refer to it.
-    public let id: UInt32
+    // MARK: Initializers
 
     /// Create a new dynamic function.
     /// - parameter signature: The Sass function signature.
@@ -71,6 +69,27 @@ open class SassDynamicFunction: SassValue {
         runtime.register(self)
     }
 
+    // MARK: Properties
+
+    /// The Sass signature of the function.
+    public let signature: String
+    /// The actual function.
+    public let function: SassFunction
+    /// The ID of the function, used by the Sass compiler to refer to it.
+    public let id: UInt32
+
+    // MARK: Misc
+
+    /// Dynamic functions are equal if they have the same ID.
+    public static func == (lhs: SassDynamicFunction, rhs: SassDynamicFunction) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    /// Hash the dynamic function
+    public override func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
     /// Take part in the `SassValueVisitor` protocol.
     public override func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
         try visitor.visit(dynamicFunction: self)
@@ -79,21 +98,10 @@ open class SassDynamicFunction: SassValue {
     public override var description: String {
         "DynamicFunction(\(id) \(signature))"
     }
-
-    /// Compiler functions are equal if they have the same ID and apply to the same compilation.
-    /// We only test the first part of that so watch out.
-    public static func == (lhs: SassDynamicFunction, rhs: SassDynamicFunction) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    /// Hash the compiler function
-    public override func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
 }
 
 extension SassValue {
-    /// Reinterpret the value as a compiler function.
+    /// Reinterpret the value as a dynamic function.
     /// - throws: `SassFunctionError.wrongType(...)` if it isn't a compiler function.
     public func asDynamicFunction() throws -> SassDynamicFunction {
         guard let selfDynamicFunction = self as? SassDynamicFunction else {

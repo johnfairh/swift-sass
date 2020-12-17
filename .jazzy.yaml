@@ -1,0 +1,134 @@
+author: John Fairhurst
+author_url: http://github.com/johnfairh
+copyright: Distributed under the MIT license.  Maintained by [John Fairhurst](mailto:johnfairh@gmail.com).
+readme: README.md
+code_host: github
+code_host_url: https://github.com/johnfairh/swift-sass
+code_host_file_url: https://github.com/johnfairh/swift-sass/tree/main
+clean: true
+sdk: macosx
+theme: fw2020
+deployment_url: https://johnfairh.github.io/swift-sass/
+build_tool: spm
+modules:
+  - Sass
+  - SassEmbedded
+docset_module_name: swift-sass
+title: Swift Sass v0.0.1
+merge_modules: true
+custom_abstracts: SourceDocs/*md
+topic_style: source-order-defs
+custom_groups:
+  - name: Sass Compilation
+    abstract: Main types for using the Sass compiler.
+    topics:
+      - name: Compiler
+        children:
+          - SassEmbedded.Compiler
+      - name: Inputs
+        children:
+          - Syntax
+          - CssStyle
+          - ImportResolver
+      - name: Outputs
+        children:
+          - CompilerResults
+          - CompilerMessage
+          - CompilerError
+          - Span
+
+  - name: Custom Importers
+    children:
+      - Importer
+      - ImporterResults
+      - AsyncImporter
+
+  - name: Custom Functions
+    children:
+      - SassFunction
+      - SassAsyncFunction
+      - SassFunctionSignature
+      - SassFunctionMap
+      - SassAsyncFunctionMap
+
+  - name: SassScript
+    topics:
+      - name: Main types
+        children:
+          - SassValue
+          - SassString
+          - SassNumber
+          - SassColor
+          - SassConstants
+          - SassList
+          - SassMap
+      - name: Function object types
+        children:
+          - SassCompilerFunction
+          - SassDynamicFunction
+          - SassAsyncDynamicFunction
+      - name: Less-commonly used types
+        children:
+          - SassValueVisitor
+          - SassNull
+          - SassBool
+
+  - name: Errors
+    abstract: Types thrown as errors -- see `CompilerError` too.
+    children:
+      - SassEmbedded.ProtocolError
+      - SassEmbedded.LifecycleError
+      - Sass.SassFunctionError
+
+custom_defs:
+  - name: SassEmbedded.Compiler
+    topics:
+      - name: Initializers
+        children:
+          - init(eventLoopGroupProvider:embeddedCompilerURL:timeout:importers:functions:)
+          - init(eventLoopGroupProvider:embeddedCompilerName:timeout:importers:functions:)
+      - name: Compilation
+        children:
+          - compile(text:syntax:url:outputStyle:createSourceMap:importers:functions:)
+          - compile(fileURL:outputStyle:createSourceMap:importers:functions:)
+          - compileAsync(text:syntax:url:outputStyle:createSourceMap:importers:functions:)
+          - compileAsync(fileURL:outputStyle:createSourceMap:importers:functions:)
+      - name: Lifecycle
+        children:
+           - compilerProcessIdentifier
+           - reinit()
+           - shutdownGracefully(queue:_:)
+           - syncShutdownGracefully()
+      - name: Logging
+        children:
+          - logger
+
+  - name: SassValue
+    topics:
+      - name: Sass properties
+        children:
+          - isNull
+          - isTruthy
+      - name: Downcasts
+        children:
+          - asString()
+          - asNumber()
+          - asColor()
+          - asBool()
+          - asMap()
+          - asCompilerFunction()
+          - asDynamicFunction()
+      - name: Sass listiness
+        children:
+          - arrayIndexFrom(sassIndex:)
+          - valueAt(sassIndex:)
+          - hasBrackets
+          - separator
+      - name: Misc
+        children:
+          - ==(SassValue, SassValue)
+          - accept(visitor:)
+          - hash(into:)
+          - makeIterator()
+          - description
+

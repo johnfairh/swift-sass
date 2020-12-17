@@ -8,31 +8,27 @@
 
 /// A Sass list value.
 ///
-/// Sass lists are immutable, have a separator and may be surrounded with brackets.
+/// Sass lists have a separator and may be surrounded with brackets.
 /// All Sass values can be treated as lists so much list-like behavior is available via
-/// `SassValue`.  This type is mostly useful for constructing your own multi-element lists.
+/// `SassValue`.  `SassList` is mostly useful for constructing your own multi-element lists.
 public final class SassList: SassValue {
-    /// A CSS list-separator style.
+    // MARK: Types
+    /// The list-separator character.
     public enum Separator: String, Equatable {
-        /// Comma
+        /// Comma.
         case comma = ","
-        /// Whitespace
+        /// Whitespace.
         case space = " "
-        /// Forward slash
+        /// Forward slash.
         case slash = "/"
         /// Not yet determined: singleton and empty lists don't have
         /// separators defined.
         case undecided = "?"
     }
 
-    private let array: [SassValue]
-    private let _separator: Separator
-    private let _hasBrackets: Bool
-    public override var separator: Separator { _separator }
-    public override var hasBrackets: Bool { _hasBrackets }
-    override var listCount: Int { array.count }
+    // MARK: Initializers
 
-    /// Initialize a new list with the contents of a Swift collection.
+    /// Initialize a new list with the contents of a Swift sequence.
     ///
     /// - parameter sequence: The `Sequence` whose contents should be copied into the list.
     /// - parameter separator: The separator character to use in any CSS generated from the list.
@@ -50,25 +46,25 @@ public final class SassList: SassValue {
         }
     }
 
+    // MARK: Properties
+
+    private let array: [SassValue]
+    private let _separator: Separator
+    private let _hasBrackets: Bool
+    /// The list separator.
+    public override var separator: Separator { _separator }
+    /// Does the list have brackets?
+    public override var hasBrackets: Bool { _hasBrackets }
+    override var listCount: Int { array.count }
+
+    // MARK: Methods
+
     public override func valueAt(sassIndex: SassValue) throws -> SassValue {
         let arrayIndex = try arrayIndexFrom(sassIndex: sassIndex)
         return array[arrayIndex]
     }
 
-    /// An iterator for the values in the list.
-    public override func makeIterator() -> AnyIterator<SassValue> {
-        AnyIterator(array.makeIterator())
-    }
-
-    public override func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
-        try visitor.visit(list: self)
-    }
-
-    public override var description: String {
-        "List(\(hasBrackets ? "[" : "")" +
-            map { $0.description }.joined(separator: separator.rawValue) +
-            "\(hasBrackets ? "]" : ""))"
-    }
+    // MARK: Misc
 
     /// List equality: all empty `SassList`s are equal.  Non-empty lists are equal iff they have the same separator, brackets, and contents.
     public static func == (lhs: SassList, rhs: SassList) -> Bool {
@@ -98,5 +94,20 @@ public final class SassList: SassValue {
             hasher.combine(hasBrackets)
             hasher.combine(separator)
         }
+    }
+
+    /// An iterator for the values in the list.
+    public override func makeIterator() -> AnyIterator<SassValue> {
+        AnyIterator(array.makeIterator())
+    }
+
+    public override func accept<V, R>(visitor: V) throws -> R where V : SassValueVisitor, R == V.ReturnType {
+        try visitor.visit(list: self)
+    }
+
+    public override var description: String {
+        "List(\(hasBrackets ? "[" : "")" +
+            map { $0.description }.joined(separator: separator.rawValue) +
+            "\(hasBrackets ? "]" : ""))"
     }
 }
