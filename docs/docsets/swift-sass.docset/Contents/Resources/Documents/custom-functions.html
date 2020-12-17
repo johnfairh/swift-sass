@@ -579,7 +579,10 @@ a compiler’s compilations.</p>
 <p>Use this to define Sass functions written in Swift that are available to stylesheets as they
 are compiled.</p>
 <p><a href="sass/types/sassvalue7.html?swift"><code>SassValue</code></a> is used to transmit function parameters and return values: any parameters with
-default values are instantiated before the function is called.  All <a href="sass/types/sassvalue7.html?swift"><code>SassValue</code></a>s are immutable.</p>
+default values are instantiated before the function is called.  If your function signature includes an
+argument list such as <code>funcName($arg1, $others...)</code> then the args list is passed as a
+list value, so in the example the function receives two arguments: one for <code>$arg1</code> and one for
+whatever else is passed.</p>
 <p>Usually the first job of a function is to downcast each parameter to the expected type using
 throwing methods such as <a href="sass/types/sassvalue7.html?swift#asstring"><code>SassValue.asString()</code></a>.</p>
 <p>Any error thrown from the function ends up cancelling the compilation job and returning an
@@ -609,7 +612,7 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/FunctionTypes.swift#L25">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/FunctionTypes.swift#L28">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -729,7 +732,7 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/FunctionTypes.swift#L31">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/FunctionTypes.swift#L34">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -764,7 +767,8 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
 
 
 <p>A set of <a href="custom-functions.html?swift#sassfunction"><code>SassFunction</code></a>s and their signatures.</p>
-
+<p>Do not include two function signatures that have the same function name, such as
+<code>myFunc($a)</code> and <code>myFunc($b)</code>: the program will terminate.</p>
 
 
 
@@ -788,7 +792,7 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/FunctionTypes.swift#L34">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/FunctionTypes.swift#L40">Show on GitHub</a></span>
             
           </nav>
         </div>

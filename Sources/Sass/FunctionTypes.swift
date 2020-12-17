@@ -34,6 +34,9 @@ public typealias SassFunction = ([SassValue]) throws -> SassValue
 public typealias SassFunctionSignature = String
 
 /// A set of `SassFunction`s and their signatures.
+///
+/// Do not include two function signatures that have the same function name, such as
+/// `myFunc($a)` and `myFunc($b)`: the program will terminate.
 public typealias SassFunctionMap = [SassFunctionSignature : SassFunction]
 
 extension SassFunctionSignature {
