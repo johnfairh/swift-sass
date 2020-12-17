@@ -128,4 +128,20 @@ class TestCompiler: SassEmbeddedTestCase {
         let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
     }
+
+    /// Bad explicitly given compiler
+    func testNotACompiler() throws {
+        do {
+            let notACompiler = URL(fileURLWithPath: "/tmp/fred")
+            let compiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+                                    embeddedCompilerURL: notACompiler)
+            defer { try! compiler.syncShutdownGracefully() }
+            let results = try compiler.compile(text: "")
+            XCTFail("Got results: \(results)")
+        } catch let error as LifecycleError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
 }

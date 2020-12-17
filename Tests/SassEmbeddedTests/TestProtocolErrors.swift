@@ -23,6 +23,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
                 rsp.id = 108
             }
         }
+        compiler.sync()
         try compiler.eventLoop.flatSubmit {
             try! compiler.child().send(message: msg)
         }.wait()
@@ -234,8 +235,13 @@ extension Compiler {
     }
 
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) {
+        sync()
         eventLoop.execute {
             try! self.child().receive(message: message)
         }
+    }
+
+    func sync() {
+        let _ = try! self.compilerProcessIdentifier.wait()
     }
 }

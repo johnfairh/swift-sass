@@ -578,9 +578,8 @@
 <p>It runs the actual Sass compiler as a child process: you need to supply this separately, see
 <a href="../../index.html">the readme</a>.</p>
 <p>Some debug logging is available via <a href="sassembedded/types/compiler.html?swift#logger"><code>Compiler.logger</code></a>.</p>
-<p>Be sure to manually shut down the compiler using <a href="sassembedded/types/compiler.html?swift#shutdowngracefullyqueue_"><code>Compiler.shutdownGracefully(...)</code></a>
-or <a href="sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code>Compiler.syncShutdownGracefully()</code></a>:  you will often get away with not doing this, but
-there are edge cases that will lead to crashes inside NIO</p>
+<p>You must shut down the compiler using <a href="sassembedded/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(...)</code></a>
+or <a href="sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> otherwise the program will exit.</p>
 
 
 
@@ -611,7 +610,7 @@ there are edge cases that will lead to crashes inside NIO</p>
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L29-L426">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L28-L446">Show on GitHub</a></span>
             
           </nav>
         </div>

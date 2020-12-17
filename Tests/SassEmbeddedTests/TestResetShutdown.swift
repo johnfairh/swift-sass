@@ -17,6 +17,7 @@ class TestResetShutdown: SassEmbeddedTestCase {
     // Clean restart case
     func testCleanRestart() throws {
         let compiler = try newCompiler()
+        compiler.sync()
         XCTAssertEqual(1, compiler.startCount)
 
         XCTAssertNoThrow(try compiler.reinit().wait())
@@ -74,10 +75,11 @@ class TestResetShutdown: SassEmbeddedTestCase {
         let tmpHeadURL = tmpDir.appendingPathComponent("tail")
         try FileManager.default.copyItem(at: realHeadURL, to: tmpHeadURL)
 
-        let badCompiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                                       embeddedCompilerURL: tmpHeadURL,
-                                       timeout: 1)
+        let badCompiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+                                   embeddedCompilerURL: tmpHeadURL,
+                                   timeout: 1)
         compilersToShutdown.append(badCompiler)
+        badCompiler.sync()
 
         // it's now running using the copied program
         try FileManager.default.removeItem(at: tmpHeadURL)
@@ -176,7 +178,8 @@ class TestResetShutdown: SassEmbeddedTestCase {
         XCTAssertNotNil(importer.loadPromise)
         // now we're all stuck waiting for the client
         let resetDone = compiler.reinit()
-        XCTAssertNil(try compiler.compilerProcessIdentifier.wait())
+        // hacky delay to let the event loop run down
+        try compiler.eventLoop.scheduleTask(in: .milliseconds(Int64(200)), {}).futureResult.wait()
         try importer.resumeLoad()
         try resetDone.wait()
         XCTAssertThrowsError(try compilerResults.wait())
@@ -184,8 +187,8 @@ class TestResetShutdown: SassEmbeddedTestCase {
 
     // Internal eventloopgroup
     func testInternalEventLoopGroup() throws {
-        let compiler = try Compiler(eventLoopGroupProvider: .createNew,
-                                    embeddedCompilerURL: SassEmbeddedTestCase.dartSassEmbeddedURL)
+        let compiler = Compiler(eventLoopGroupProvider: .createNew,
+                                embeddedCompilerURL: SassEmbeddedTestCase.dartSassEmbeddedURL)
         let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
         try compiler.syncShutdownGracefully()
@@ -193,8 +196,8 @@ class TestResetShutdown: SassEmbeddedTestCase {
 
     // Internal eventloopgroup, async shutdown
     func testInternalEventLoopGroupAsync() throws {
-        let compiler = try Compiler(eventLoopGroupProvider: .createNew,
-                                    embeddedCompilerURL: SassEmbeddedTestCase.dartSassEmbeddedURL)
+        let compiler = Compiler(eventLoopGroupProvider: .createNew,
+                                embeddedCompilerURL: SassEmbeddedTestCase.dartSassEmbeddedURL)
         let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
         CompilerShutdowner(compiler).start().wait()

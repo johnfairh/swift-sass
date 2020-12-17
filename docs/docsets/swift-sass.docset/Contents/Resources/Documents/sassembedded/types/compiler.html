@@ -559,9 +559,8 @@
 <p>It runs the actual Sass compiler as a child process: you need to supply this separately, see
 <a href="../../index.html">the readme</a>.</p>
 <p>Some debug logging is available via <a href="../../sassembedded/types/compiler.html?swift#logger"><code>Compiler.logger</code></a>.</p>
-<p>Be sure to manually shut down the compiler using <a href="../../sassembedded/types/compiler.html?swift#shutdowngracefullyqueue_"><code>Compiler.shutdownGracefully(...)</code></a>
-or <a href="../../sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code>Compiler.syncShutdownGracefully()</code></a>:  you will often get away with not doing this, but
-there are edge cases that will lead to crashes inside NIO</p>
+<p>You must shut down the compiler using <a href="../../sassembedded/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(...)</code></a>
+or <a href="../../sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> otherwise the program will exit.</p>
 
 
 
@@ -572,7 +571,7 @@ there are edge cases that will lead to crashes inside NIO</p>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L29-L426">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L28-L446">Show on GitHub</a>
           </nav>
           
           
@@ -618,12 +617,10 @@ there are edge cases that will lead to crashes inside NIO</p>
 
 
 <p>Use a program as the Sass embedded compiler.</p>
+<p>Initialization continues asynchronously after the initializer completes; failures are reported
+when the compiler is next used.</p>
 <p>You must shut down the compiler with <a href="../../sassembedded/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(queue:_:)</code></a> or
 <a href="../../sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> before letting it go out of scope.</p>
-<div class="j2-callout j2-callout-throws aside aside-throws">
-<div class="j2-callout-title aside-title" role="heading" aria-level="6">throws</div>
-<p>Something from Foundation if the program does not start.</p>
-</div>
 
 
 
@@ -638,7 +635,7 @@ there are edge cases that will lead to crashes inside NIO</p>
     embeddedCompilerURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>,
     timeout: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> = 60,
     importers: [<a href="../../sass/types/importresolver.html?swift">ImportResolver</a>] = [],
-    functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:]) throws</code></pre>
+    functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:])</code></pre>
   </div>
 
 
@@ -689,7 +686,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L97-L118">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L99-L120">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -724,12 +721,13 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
 
 
 <p>Use a program found on <a href="https://developer.apple.com/documentation/swiftui/path?language=swift" class="j2-swift"><code>PATH</code></a> as the Sass embedded compiler.</p>
+<p>Initialization continues asynchronously after the initializer completes; failures are reported
+when the compiler is next used.</p>
 <p>You must shut down the compiler with <a href="../../sassembedded/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(queue:_:)</code></a> or
 <a href="../../sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> before letting it go out of scope.</p>
 <div class="j2-callout j2-callout-throws aside aside-throws">
 <div class="j2-callout-title aside-title" role="heading" aria-level="6">throws</div>
-<p><a href="../../sassembedded/types/lifecycleerror.html?swift"><code>LifecycleError</code></a> if the program can’t be found.
-Something from Foundation if the embedded compiler does not start.</p>
+<p><a href="../../sassembedded/types/lifecycleerror.html?swift"><code>LifecycleError</code></a> if the program can’t be found.</p>
 </div>
 
 
@@ -795,7 +793,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L136-L150">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L140-L154">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -919,7 +917,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L276-L290">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L296-L310">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1019,7 +1017,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L241-L251">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L261-L271">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1086,7 +1084,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L254-L274">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L274-L294">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1151,7 +1149,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L225-L239">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L245-L259">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1199,7 +1197,8 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
 
 <p>The process ID of the compiler process.</p>
 <p>Not normally needed; could be used to adjust resource usage or maybe send it a signal if stuck.
-The process ID is reported as <code>nil</code> if there currently is no running child process.</p>
+The process ID is reported after waiting for any [re]initialization to complete; a value of <code>nil</code>
+means that the compiler is broken or shutdown.</p>
 
 
 
@@ -1223,7 +1222,7 @@ The process ID is reported as <code>nil</code> if there currently is no running 
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L204-L208">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L215-L228">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1287,7 +1286,7 @@ call it.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L161-L165">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L171-L175">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1352,7 +1351,7 @@ queue is being run.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L177-L185">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L187-L195">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1412,7 +1411,7 @@ queue is being run.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L192-L198">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L202-L208">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1486,7 +1485,7 @@ approx 300 bytes per compile request.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L218">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L238">Show on GitHub</a></span>
             
           </nav>
         </div>

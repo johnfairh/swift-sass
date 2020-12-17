@@ -23,9 +23,8 @@ import Logging
 ///
 /// Some debug logging is available via `Compiler.logger`.
 ///
-/// Be sure to manually shut down the compiler using `Compiler.shutdownGracefully(...)`
-/// or `Compiler.syncShutdownGracefully()`:  you will often get away with not doing this, but
-/// there are edge cases that will lead to crashes inside NIO
+/// You must shut down the compiler using `shutdownGracefully(...)`
+/// or `syncShutdownGracefully()` otherwise the program will exit.
 public final class Compiler {
     private let eventLoopGroup: ProvidedEventLoopGroup
 
@@ -55,6 +54,7 @@ public final class Compiler {
             }
         }
 
+        @discardableResult
         mutating func toInitializing(_ future: EventLoopFuture<Void>) -> EventLoopFuture<Void> {
             self = .initializing(future)
             return future
@@ -80,6 +80,9 @@ public final class Compiler {
 
     /// Use a program as the Sass embedded compiler.
     ///
+    /// Initialization continues asynchronously after the initializer completes; failures are reported
+    /// when the compiler is next used.
+    ///
     /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
     /// `syncShutdownGracefully()` before letting it go out of scope.
     ///
@@ -93,13 +96,12 @@ public final class Compiler {
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
-    /// - throws: Something from Foundation if the program does not start.
     public init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
                 embeddedCompilerURL: URL,
                 timeout: Int = 60,
                 importers: [ImportResolver] = [],
-                functions: SassAsyncFunctionMap = [:]) throws {
-        precondition(embeddedCompilerURL.isFileURL, "Not a file: \(embeddedCompilerURL)")
+                functions: SassAsyncFunctionMap = [:]) {
+        precondition(embeddedCompilerURL.isFileURL, "Not a file URL: \(embeddedCompilerURL)")
         self.eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider)
         eventLoop = self.eventLoopGroup.next()
         initThread = NIOThreadPool(numberOfThreads: 1)
@@ -114,10 +116,13 @@ public final class Compiler {
                             timeout: timeout,
                             importers: .init(importers),
                             functions: functions)
-        try state.toInitializing(startCompiler()).wait()
+        state.toInitializing(startCompiler())
     }
 
     /// Use a program found on `PATH` as the Sass embedded compiler.
+    ///
+    /// Initialization continues asynchronously after the initializer completes; failures are reported
+    /// when the compiler is next used.
     ///
     /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
     /// `syncShutdownGracefully()` before letting it go out of scope.
@@ -132,7 +137,6 @@ public final class Compiler {
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
     /// - throws: `LifecycleError` if the program can't be found.
-    ///   Something from Foundation if the embedded compiler does not start.
     public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
                             embeddedCompilerName: String = "dart-sass-embedded",
                             timeout: Int = 60,
@@ -142,11 +146,17 @@ public final class Compiler {
         guard let path = results.successString else {
             throw LifecycleError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
         }
-        try self.init(eventLoopGroupProvider: eventLoopGroupProvider,
-                      embeddedCompilerURL: URL(fileURLWithPath: path),
-                      timeout: timeout,
-                      importers: importers,
-                      functions: functions)
+        self.init(eventLoopGroupProvider: eventLoopGroupProvider,
+                  embeddedCompilerURL: URL(fileURLWithPath: path),
+                  timeout: timeout,
+                  importers: importers,
+                  functions: functions)
+    }
+
+    deinit {
+        guard case .shutdown = state else {
+            preconditionFailure("Compiler not shutdown: \(state)")
+        }
     }
 
     /// Restart the Sass embedded compiler.
@@ -200,10 +210,20 @@ public final class Compiler {
     /// The process ID of the compiler process.
     ///
     /// Not normally needed; could be used to adjust resource usage or maybe send it a signal if stuck.
-    /// The process ID is reported as `nil` if there currently is no running child process.
+    /// The process ID is reported after waiting for any [re]initialization to complete; a value of `nil`
+    /// means that the compiler is broken or shutdown.
     public var compilerProcessIdentifier: EventLoopFuture<Int32?> {
-        eventLoop.submit {
-            self.state.child?.processIdentifier
+        eventLoop.flatSubmit { [self] in
+            switch state {
+            case .broken, .shutdown:
+                return eventLoop.makeSucceededFuture(nil)
+            case .running(let child), .quiescing(let child, _):
+                return eventLoop.makeSucceededFuture(child.processIdentifier)
+            case .initializing(let future):
+                return future.flatMap {
+                    self.compilerProcessIdentifier
+                }
+            }
         }
     }
 

@@ -2,6 +2,9 @@ author: John Fairhurst
 author_url: http://github.com/johnfairh
 copyright: Distributed under the MIT license.  Maintained by [John Fairhurst](mailto:johnfairh@gmail.com).
 readme: README.md
+products:
+  - docs
+  - docset
 code_host: github
 code_host_url: https://github.com/johnfairh/swift-sass
 code_host_file_url: https://github.com/johnfairh/swift-sass/tree/main
