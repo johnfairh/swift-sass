@@ -619,7 +619,7 @@ are synchronous and non-blocking.  If they need to block or go async then use th
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">func canonicalize(eventLoop: EventLoop, importURL: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>) -&gt; EventLoopFuture&lt;
+    <pre><code class="language-swift">func canonicalize(eventLoop: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Protocols/EventLoop.html">EventLoop</a>, importURL: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>) -&gt; <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;
     <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?
 &gt;</code></pre>
   </div>
@@ -680,7 +680,7 @@ are synchronous and non-blocking.  If they need to block or go async then use th
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">func load(eventLoop: EventLoop, canonicalURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>) -&gt; EventLoopFuture&lt;
+    <pre><code class="language-swift">func load(eventLoop: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Protocols/EventLoop.html">EventLoop</a>, canonicalURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>) -&gt; <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;
     <a href="../../sass/types/importerresults.html?swift">ImporterResults</a>
 &gt;</code></pre>
   </div>
@@ -758,7 +758,7 @@ are synchronous and non-blocking.  If they need to block or go async then use th
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">func canonicalize(importURL: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>) throws -&gt; <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?</code></pre>
+    <pre><code class="language-swift">func canonicalize(importURL: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>) throws -&gt; <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?</code></pre>
   </div>
 
 
