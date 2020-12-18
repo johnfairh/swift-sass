@@ -17,8 +17,8 @@ modules:
   - Sass
   - SassEmbedded
 docset_module_name: swift-sass
-title: Swift Sass v0.0.1
-module_version: 0.0.1
+title: Swift Sass v0.1.0
+module_version: 0.1.0
 merge_modules: true
 custom_abstracts: SourceDocs/*md
 topic_style: source-order-defs

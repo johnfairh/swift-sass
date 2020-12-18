@@ -118,7 +118,7 @@ Only with Swift Package Manager, via Xcode or directly:
 ```swift
 .package(name: "swift-sass",
          url: "https://github.com/johnfairh/swift-sass.git",
-         from: "0.0.1")
+         from: "0.1.0")
 ```
 
 The Swift package does not bundle the embedded Dart Sass compiler: right now
