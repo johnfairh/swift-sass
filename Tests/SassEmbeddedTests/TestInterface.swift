@@ -13,7 +13,7 @@ import SassEmbedded
 /// Tests to check the normal operation of the sass compiler -- not testing the compiler itself,
 /// just that we can talk to it honestly and translate enums etc. properly.
 ///
-class TestCompiler: SassEmbeddedTestCase {
+class TestInterface: SassEmbeddedTestCase {
     let scssIn = """
     div {
         a {

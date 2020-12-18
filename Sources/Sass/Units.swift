@@ -293,6 +293,16 @@ struct UnitQuotient: CustomStringConvertible, Hashable {
         }
     }
 
+    /// Form a quotient from a single unit
+    init(unit: Unit.Name) {
+        try! self.init(numerator: [unit], denominator: [])
+    }
+
+    /// Form a unitless quotient
+    init() {
+        try! self.init(numerator: [], denominator: [])
+    }
+
     private init(numerator: UnitProduct, denominator: UnitProduct) {
         self.numerator = numerator
         self.denominator = denominator

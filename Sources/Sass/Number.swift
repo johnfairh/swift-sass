@@ -12,39 +12,73 @@
 // MARK: SassDouble
 
 /// The numeric part of a Sass number is expressed as a 64-bit floating point value.
-/// Integer / equality rounding has special rules that unfortunately don't seem to be sound.  Will gently pursue
-/// this upstream.  For now we implement our own thing inspired by theirs, basically rounding to 11 decimal
-/// places.
 ///
-/// Infinities and NaNs are left vague but they probably don't crop up very often in the domain --
-/// will do divide-by-zero test and see what happens.
+/// The Sass definition of numeric equality and treatment of floating point in general is weirdly confused to the
+/// point of unsoundness.
+///
+/// - The website says "10 digits of precision after the decimal point"
+///   (OK, that is vague but go on...)
+///     1. "Only the first ten digits of a number after the decimal point will be included in the generated CSS."
+///       (OK, so sounds like truncate after 10 DP?)
+///     2.- "Operations like == and >= will consider two numbers equivalent if they’re the same up to the
+///       tenth digit after the decimal point."
+///       (OK, definitely truncation. So 1.01234567891 == 1.01234567899.)
+///     3. "If a number is less than 0.0000000001 away from an integer, it’s considered to be an integer"
+///       (OK again, truncation it is (that's 9 zeroes and a 1 after the decimal point).)
+///
+///  - The Dart Sass code says:
+///     1. Numbers within 1e-11 are equal.
+///       (Yikes, that's not a sound version of equality.)
+///       (Hmm, that's nothing like the truncation thing on the website)
+///       (Hmm, is this an attempt at a ULP-type comparison?  Double.ulpOfOne is more like 1e-16 though.)
+///       (Hmm, I think this is confusing 'object equaliity' with 'binary floating point comparison')
+///     2. Hash a number by multiplying by 1e11 and schoolbook rounding to integer.
+///       (Which ~means schoolbook round to 11 decimal places)
+///       (Yikes, that's not consistent with the equality definition we just saw)
+///     3. Treat as integer if it's less than 1e-11 away from an integer.
+///       (OK, consistent with rule 1)
+///       (Hmm, not what the website says)
+///     4. When printing decimals, print 10 decimal places with schoolbook rounding
+///       (Hmm, not what the website says)
+///       (Wait, it prints 10DP but compares at 1e-11 proximity?  So two numbers can
+///       print identically but compare differently.  Wild.)
+///
+/// The most obvious example of the hash vs. equality inconsistency is 5e-11 and (5e-11 - 5e-12) which are
+/// equal but have different hash values.
+///
+/// So:
+/// 1. The website is probably out of date given the code is so wildly different.
+/// 2. Neither of these designs -- code and website -- are worth implementing.
+/// 3. I can't reverse engineer a design from the implementation.  I'd like to say that the printing and
+///   hashing parts outvote the equality so '10DP with rounding' is the goal, but there's so much effort
+///   been put into this 1e-11 stuff.
+/// 4. I can't even reverse engineer a convincing user need this is implementing besides 'binary floating point
+///   is hard, help me'. Is it to stop putting ugly decimals in CSS?  Is there some archaic browser issue?
+///
+/// What shall we do?
+/// 1. It must be algebraically sound with consistent hashing & equality.
+///   Otherwise I won't be able to sleep and Swift will crash in weird ways.
+/// 2. It must be understandable to users.   In particular this means there must not be printing/comparison
+///   disagreements: it's fine for the internal rep to have greater precision but printed values must match
+///   what is used for comparison.
+/// 3. I suppose it must be vaguely in the spirit of Sass :-)
+///
+/// I'm going to slowly back away from this tangle and approximate 10DP with rounding -- all kinds of errors
+/// though because of binary floating point stemming from the embedded protocol.  I doubt it will ever be
+/// an issue even if anyone uses this code for anything serious, and if it does then we can deal with it then.
+///
+/// I hate numbers.
 ///
 /// The `SassDouble` type wraps up these concerns.  It's private.
 struct SassDouble: Hashable, Comparable {
-    static let tolerance = Double(1e-11)
-
-    /// From the sass protocol spec: "A hash code with the same equality semantics can be generated
-    /// for a number x by [schoolbook] rounding x * 1e11 to the nearest integer and taking the hash
-    /// code of the result."  This is definitely _not_ the "same equality semantics", it's rounding to
-    /// 11 decimal places.
-    static let hashInverseTolerance = Double(1e11)
-
-    static func hashEquivalent(_ double: Double) -> Int {
-        Int((double * hashInverseTolerance).rounded())
+    /// Shift the decimal point 10 places right and do schoolbook rounding to integer.
+    /// If we divided this by 1e10 then we'd get the original rounded to 10dp, but we don't actually need that.
+    ///
+    /// Double.greatestFiniteMag is over 1e300.
+    static func hashEquivalent(_ double: Double) -> Double {
+        (double * 1e10).rounded()
     }
 
-    /// Sass protocol spec: Two numbers are equal if their numerical value are within 1e-11 of one another.
-    /// This is an unsound definition of equality, inconsistent with the same spec's hashing idea (above),
-    /// and is keeping me awake at night.  So we don't use it.
-//    static func sass_areEqual(_ lhs: Double, _ rhs: Double) -> Bool {
-//        let r = (lhs - rhs).magnitude < tolerance
-//        return r
-//    }
-
-    /// Instead use the hash approach - schoolbook round to 11 decimal places.  This is sound (equivalence
-    /// relation) and doesn't break Swift hashing (values equal guarantee their hashvalues are equal).
-    ///
-    /// It's inconsistent with Dart Sass.  Oh well.
     static func areEqual(_ lhs: Double, _ rhs: Double) -> Bool {
         hashEquivalent(lhs) == hashEquivalent(rhs)
     }
@@ -75,7 +109,6 @@ struct SassDouble: Hashable, Comparable {
             return double
         }
         return nil
-
     }
 
     /// Clamp for half-open ranges, sass-equal to UB means not in.
@@ -96,7 +129,7 @@ struct SassDouble: Hashable, Comparable {
 
     // MARK: Hashable Comparable
 
-    var hashEquivalent: Int {
+    var hashEquivalent: Double {
         SassDouble.hashEquivalent(double)
     }
 
@@ -138,7 +171,7 @@ extension Int {
 /// Sass numbers are `Double`s with units.
 ///
 /// Sass has its own rules for numeric equality and integer conversion that use only the first
-/// 11 decimal places.  Use the `SassNumber` methods to convert to integers and test for ranges.
+/// 10 decimal places.  Use the `SassNumber` methods to convert to integers and test for ranges.
 ///
 /// The units on a `SassNumber` can describe the result of multiplying and dividing numbers with
 /// primitive units.  Best described in the
@@ -160,7 +193,7 @@ public final class SassNumber: SassValue {
     /// Initialize a new number from a value and optionally a unit.
     public init(_ double: Double, unit: String? = nil) {
         sassDouble = SassDouble(double)
-        units = try! UnitQuotient(numerator: unit.flatMap { [$0] } ?? [], denominator: [])
+        units = unit.flatMap { UnitQuotient(unit: $0) } ?? UnitQuotient()
     }
 
     /// Initialize a new number from a value and a list of numerator and denominator units.
@@ -210,7 +243,7 @@ public final class SassNumber: SassValue {
     /// The integer value of this number.
     ///
     /// This has the same role as `Int.init(exactly:)` but maps more floating point values to
-    /// the same integer according to the Sass specification.
+    /// the same integer according to Sass rules.
     /// - returns: The integer that this `SassNumber` exactly represents.
     /// - throws: `SassFunctionError.notInteger(...)` if the number is not an integer
     ///   according to Sass's rounding rules.
@@ -310,9 +343,9 @@ public final class SassNumber: SassValue {
     // MARK: Misc
 
     /// Two `SassNumber`s are equal iff:
-    /// 1. Neither have units and their values are the same to 11 decimal places; or
+    /// 1. Neither have units and their values are the same to 10 decimal places; or
     /// 2. They have convertible units and, when both converted to the same units, have values
-    ///   that are equal to 11dp.
+    ///   that are equal to 10dp.
     public static func == (lhs: SassNumber, rhs: SassNumber) -> Bool {
         if lhs.hasNoUnits != rhs.hasNoUnits {
             return false

@@ -32,43 +32,23 @@ extension Ratio : Equatable {
     }
 }
 
+extension SassDouble {
+    static let lastPlace = 1e-10
+}
+
 class TestNumber: XCTestCase {
 
     // MARK: SassDouble
 
-    /// Things that are wrong with the Sass number equality & hashing spec.
-    /// This test passes if `SassDouble.areEqual(...)` uses the sass_spec algorithm
-    func testSassNumericWeirdness() throws {
-        try XCTSkipIf(true)
-        // 1. == is not an equivalence relation
-        let dx = SassDouble(0)
-        let dy = SassDouble(dx.double + SassDouble.tolerance)
-        let dz = SassDouble(dy.double.nextDown)
-
-        XCTAssertNotEqual(dx, dy) // Values for dx for which this doesn't even work due to fp precision: 12, ...
-        XCTAssertEqual(dx, dz)
-        XCTAssertEqual(dz, dy) // <- not equivalence relation
-
-        // 2. == doesn't match hashvalue [bcoz hashvalue does rounding...]
-        let d1 = SassDouble(1000)
-        let d2 = SassDouble((d1.double + SassDouble.tolerance).nextDown)
-        XCTAssertEqual(d1, d2)
-        let h1 = d1.hashEquivalent
-        let h2 = d2.hashEquivalent
-        XCTAssertNotEqual(h1, h2) // <- bad: different hash values for == values
-    }
-
     func testDoubleEquals() {
-        // Carefully chosen values to avoid floating point gremlins!
-        // If you close your eyes, they can't see you.
-        let samples = [Double]([0, 8000, -1000, -8000])
+        let samples = [Double]([0, 1, -1, 12.4, 8000, -1000, -8000])
         samples.forEach { s in
             let d1 = Double(s)
-            let d2 = Double(d1 + SassDouble.tolerance)
+            let d2 = Double(d1 + SassDouble.lastPlace)
             XCTAssertNotEqual(d1, d2)
             XCTAssertNotEqual(SassDouble(d1), SassDouble(d2))
             XCTAssertLessThan(SassDouble(d1), SassDouble(d2))
-            let d3 = d2 - (SassDouble.tolerance * 2) / 3
+            let d3 = (d2 - SassDouble.lastPlace/2).nextDown.nextDown
             XCTAssertEqual(SassDouble(d1), SassDouble(d3))
             XCTAssertFalse(SassDouble(d1) < SassDouble(d3))
         }
@@ -82,6 +62,8 @@ class TestNumber: XCTestCase {
         let dict = [d1: true]
         XCTAssertNotNil(dict[d1])
         XCTAssertNotNil(dict[SassDouble(d1.double.nextUp)])
+        XCTAssertNotNil(dict[SassDouble((d1.double + SassDouble.lastPlace/2).nextDown)])
+        XCTAssertNil(dict[SassDouble(d1.double + SassDouble.lastPlace/2)])
     }
 
     func testClosedRange() throws {
@@ -91,8 +73,8 @@ class TestNumber: XCTestCase {
         XCTAssertEqual(r.upperBound, SassDouble(10.1).clampTo(range: r))
         XCTAssertEqual(r.upperBound, SassDouble(r.upperBound.nextUp).clampTo(range: r))
         XCTAssertEqual(r.lowerBound, SassDouble(r.lowerBound.nextDown).clampTo(range: r))
-        XCTAssertNil(SassDouble(r.upperBound + SassDouble.tolerance*2).clampTo(range: r))
-        XCTAssertNil(SassDouble(r.lowerBound - SassDouble.tolerance).clampTo(range: r))
+        XCTAssertNil(SassDouble(r.upperBound + SassDouble.lastPlace*2/3).clampTo(range: r))
+        XCTAssertNil(SassDouble((r.lowerBound - SassDouble.lastPlace/2).nextDown).clampTo(range: r))
     }
 
     func testHalfOpenRange() throws {
@@ -101,17 +83,19 @@ class TestNumber: XCTestCase {
         XCTAssertEqual(r.lowerBound, SassDouble(1).clampTo(range: r))
         XCTAssertNil(SassDouble(6.8).clampTo(range: r))
         XCTAssertNil(SassDouble(r.upperBound.nextUp).clampTo(range: r))
-        XCTAssertGreaterThan(r.upperBound, SassDouble(r.upperBound - SassDouble.tolerance*2).clampTo(range: r)!)
+        XCTAssertGreaterThan(r.upperBound, SassDouble(r.upperBound - SassDouble.lastPlace*2).clampTo(range: r)!)
         XCTAssertEqual(r.lowerBound, SassDouble(r.lowerBound.nextDown).clampTo(range: r))
-        XCTAssertNil(SassDouble(r.lowerBound - SassDouble.tolerance).clampTo(range: r))
+        XCTAssertNil(SassDouble(r.lowerBound - SassDouble.lastPlace).clampTo(range: r))
     }
 
     func testIntConversion() {
         XCTAssertEqual(5, Int(SassDouble(5.0)))
         XCTAssertEqual(5, Int(SassDouble(5.0.nextUp)))
         XCTAssertEqual(5, Int(SassDouble(5.0.nextDown)))
-        XCTAssertNil(Int(SassDouble(5.0 + SassDouble.tolerance)))
-        XCTAssertNil(Int(SassDouble(5.0 - SassDouble.tolerance)))
+        XCTAssertEqual(5, Int(SassDouble((5.0 + SassDouble.lastPlace/2).nextDown)))
+        XCTAssertEqual(5, Int(SassDouble((5.0 - SassDouble.lastPlace/2))))
+        XCTAssertNil(Int(SassDouble(5.0 + SassDouble.lastPlace/2)))
+        XCTAssertNil(Int(SassDouble((5.0 - SassDouble.lastPlace/2).nextDown)))
     }
 
     // MARK: SassNumber numerics
