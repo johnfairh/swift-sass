@@ -571,7 +571,7 @@ or <a href="../../sassembedded/types/compiler.html?swift#syncshutdowngracefully"
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L28-L446">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L28-L446">Show on GitHub</a>
           </nav>
           
           
@@ -686,7 +686,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L99-L120">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L99-L120">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -740,7 +740,7 @@ when the compiler is next used.</p>
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public convenience init(
     eventLoopGroupProvider: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Enums/NIOEventLoopGroupProvider.html">NIOEventLoopGroupProvider</a>,
-    embeddedCompilerName: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a> = &quot;dart-sass-embedded&quot;,
+    embeddedCompilerName: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a> = &quot;dart-sass-embedded&quot;,
     timeout: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> = 60,
     importers: [<a href="../../sass/types/importresolver.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:]) throws</code></pre>
@@ -793,7 +793,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L140-L154">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L140-L154">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -840,7 +840,11 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
 
 
 <p>Compile to CSS from an inline stylesheet.</p>
-
+<p>Ought to have a special importer to go with <a href="https://developer.apple.com/documentation/foundation/url?language=swift" class="j2-swift"><code>url</code></a> but compiler doesn’t implement it so ….</p>
+<div class="j2-callout j2-callout-throws aside aside-throws">
+<div class="j2-callout-title aside-title" role="heading" aria-level="6">throws</div>
+<p><a href="../../sass/types/compilererror.html?swift"><code>CompilerError</code></a> if there is a critical error with the input, for example a syntax error. Some other kind of error if something goes wrong  with the compiler infrastructure itself.</p>
+</div>
 
 
 
@@ -851,7 +855,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public func compile(
-    text: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>,
+    text: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>,
     syntax: <a href="../../sass/types/syntax.html?swift">Syntax</a> = .scss,
     url: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>? = nil,
     outputStyle: <a href="../../sass/types/cssstyle.html?swift">CssStyle</a> = .expanded,
@@ -917,7 +921,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L296-L310">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L296-L310">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -952,7 +956,10 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
 
 
 <p>Compile to CSS from a stylesheet file.</p>
-
+<div class="j2-callout j2-callout-throws aside aside-throws">
+<div class="j2-callout-title aside-title" role="heading" aria-level="6">throws</div>
+<p><a href="../../sass/types/compilererror.html?swift"><code>CompilerError</code></a> if there is a critical error with the input, for example a syntax error. Some other kind of error if something goes wrong  with the compiler infrastructure itself.</p>
+</div>
 
 
 
@@ -1017,7 +1024,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L261-L271">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L261-L271">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1063,7 +1070,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public func compileAsync(
-    text: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>,
+    text: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>,
     syntax: <a href="../../sass/types/syntax.html?swift">Syntax</a> = .scss,
     url: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>? = nil,
     outputStyle: <a href="../../sass/types/cssstyle.html?swift">CssStyle</a> = .expanded,
@@ -1084,7 +1091,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L274-L294">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L274-L294">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1149,7 +1156,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L245-L259">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L245-L259">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1222,7 +1229,7 @@ means that the compiler is broken or shutdown.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L215-L228">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L215-L228">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1286,7 +1293,7 @@ call it.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L171-L175">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L171-L175">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1337,7 +1344,7 @@ queue is being run.</p>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public func shutdownGracefully(
-    queue: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/DispatchQueue.html">DispatchQueue</a> = .global(), _ callback: @escaping (<a href="https://developer.apple.com/documentation/swift/error?language=swift">Error</a>?) -&gt; <a href="https://developer.apple.com/documentation/swift/void?language=swift">Void</a>)</code></pre>
+    queue: <a href="https://developer.apple.com/documentation/dispatch/dispatchqueue?language=swift">DispatchQueue</a> = .global(), _ callback: @escaping (<a href="https://developer.apple.com/documentation/swift/error?language=swift">Error</a>?) -&gt; <a href="https://developer.apple.com/documentation/swift/void?language=swift">Void</a>)</code></pre>
   </div>
 
 
@@ -1351,7 +1358,7 @@ queue is being run.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L187-L195">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L187-L195">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1411,7 +1418,7 @@ queue is being run.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L202-L208">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L202-L208">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1485,7 +1492,7 @@ approx 300 bytes per compile request.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/SassEmbedded/Compiler.swift#L238">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L238">Show on GitHub</a></span>
             
           </nav>
         </div>

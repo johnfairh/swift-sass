@@ -7,7 +7,7 @@ products:
   - docset
 code_host: github
 code_host_url: https://github.com/johnfairh/swift-sass
-code_host_file_url: https://github.com/johnfairh/swift-sass/tree/main
+code_host_file_url: https://github.com/johnfairh/swift-sass/blob/main
 clean: true
 sdk: macosx
 theme: fw2020
@@ -27,6 +27,8 @@ remote_autolink:
     modules: NIO
   - url: https://apple.github.io/swift-log/docs/current/Logging/
     modules: Logging
+rewrite_link_urls:
+  - https://github.com/johnfairh/swift-sass/blob/main
 custom_groups:
   - name: Sass Compilation
     abstract: Main types for using the Sass compiler.

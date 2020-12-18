@@ -241,7 +241,7 @@ public protocol CompilerProtocol {
     ///     any set globally.  Default none.
     ///   - functions: Functions for this compilation, overriding any with the same name previously
     ///     set globally.  Default none.
-    /// - throws: `CompilerError()` if there is a critical error with the input, for example a syntax error.
+    /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
     ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
     /// - returns: `CompilerResults` with CSS and optional source map.
     ///

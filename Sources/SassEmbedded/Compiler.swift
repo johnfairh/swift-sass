@@ -19,7 +19,7 @@ import Logging
 /// A Sass compiler interface that uses the Sass embedded protocol.
 ///
 /// It runs the actual Sass compiler as a child process: you need to supply this separately, see
-/// [the readme](../../index.html).
+/// [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md).
 ///
 /// Some debug logging is available via `Compiler.logger`.
 ///

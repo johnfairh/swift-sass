@@ -33,7 +33,7 @@
 //extension BinaryInteger {
 //    init(_ value: SassValue) throws {
 //        guard let numValue = value as SassNumber else {
-//            throw SassValueError.wrongType(expected: "SassNumber", actual: value)
+//            throw SassFunctionError.wrongType(expected: "SassNumber", actual: value)
 //        }
 //        self = try numValue.toInt()
 //    }

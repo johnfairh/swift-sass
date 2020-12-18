@@ -70,8 +70,8 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
     /// - parameter sassIndex: A Sass value intended to be used as an index into this value viewed
     ///   as a list.  This must be an integer between 1 and the number of elements inclusive, or a negative
     ///   number with similar magnitude to index back from the end.
-    /// - throws: `SassValueError` if `index` is not an integer or out of range.
-    /// - returns: The value at the Sass Index.
+    /// - throws: `SassFunctionError` if `index` is not an integer or out of range.
+    /// - returns: The value at the Sass index.
     public func valueAt(sassIndex: SassValue) throws -> SassValue {
         _ = try arrayIndexFrom(sassIndex: sassIndex)
         return self

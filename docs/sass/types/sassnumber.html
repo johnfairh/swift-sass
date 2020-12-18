@@ -558,7 +558,7 @@
 <p>A Sass numeric value.</p>
 <p>Sass numbers are <a href="https://developer.apple.com/documentation/swift/double?language=swift" class="j2-swift"><code>Double</code></a>s with units.</p>
 <p>Sass has its own rules for numeric equality and integer conversion that use only the first
-11 decimal places.  Use the <code>SassNumber</code> methods to convert to integers and test for ranges.</p>
+10 decimal places.  Use the <code>SassNumber</code> methods to convert to integers and test for ranges.</p>
 <p>The units on a <code>SassNumber</code> can describe the result of multiplying and dividing numbers with
 primitive units.  Best described in the
 <a href="https://sass-lang.com/documentation/values/numbers#units">Sass docs</a>.
@@ -579,7 +579,7 @@ so that “1 cm” == “10 mm”.</p>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L154-L353">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L187-L386">Show on GitHub</a>
           </nav>
           
           
@@ -635,7 +635,7 @@ so that “1 cm” == “10 mm”.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public init(_ double: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>, unit: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>? = nil)</code></pre>
+    <pre><code class="language-swift">public init(_ double: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>, unit: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>? = nil)</code></pre>
   </div>
 
 
@@ -649,7 +649,7 @@ so that “1 cm” == “10 mm”.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L161-L164">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L194-L197">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -702,8 +702,8 @@ both <a href="../../sass/types/sassnumber.html?swift#numeratorunits"><code>numer
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public init(
-    _ double: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>, numeratorUnits: [<a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>] = [],
-    denominatorUnits: [<a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>] = []) throws</code></pre>
+    _ double: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>, numeratorUnits: [<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>] = [],
+    denominatorUnits: [<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>] = []) throws</code></pre>
   </div>
 
 
@@ -739,7 +739,7 @@ both <a href="../../sass/types/sassnumber.html?swift#numeratorunits"><code>numer
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L178-L181">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L211-L214">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -824,7 +824,7 @@ themselves, not the <code>double</code>s within.  Similarly, use the <a href="..
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L204-L206">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L237-L239">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -872,7 +872,7 @@ themselves, not the <code>double</code>s within.  Similarly, use the <a href="..
 
 <p>The integer value of this number.</p>
 <p>This has the same role as <a href="https://developer.apple.com/documentation/swift/int/2885075-init?language=swift" class="j2-swift"><code>Int.init(exactly:)</code></a> but maps more floating point values to
-the same integer according to the Sass specification.</p>
+the same integer according to Sass rules.</p>
 <div class="j2-callout j2-callout-throws aside aside-throws">
 <div class="j2-callout-title aside-title" role="heading" aria-level="6">throws</div>
 <p><a href="../../sass/types/sassfunctionerror.html?swift#notinteger_"><code>SassFunctionError.notInteger(...)</code></a> if the number is not an integer
@@ -904,7 +904,7 @@ according to Sass’s rounding rules.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L217-L222">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L250-L255">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -971,7 +971,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L231-L236">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L264-L269">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1038,7 +1038,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L245-L250">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L278-L283">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1109,7 +1109,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L255-L257">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L288-L290">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1168,7 +1168,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L260-L264">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L293-L297">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1213,7 +1213,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public func hasUnit(name: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>) -&gt; <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a></code></pre>
+    <pre><code class="language-swift">public func hasUnit(name: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>) -&gt; <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a></code></pre>
   </div>
 
 
@@ -1227,7 +1227,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L267-L269">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L300-L302">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1272,7 +1272,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public func checkHasUnit(name: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>) throws</code></pre>
+    <pre><code class="language-swift">public func checkHasUnit(name: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>) throws</code></pre>
   </div>
 
 
@@ -1286,7 +1286,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L272-L276">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L305-L309">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1331,7 +1331,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var numeratorUnits: [<a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>] { get }</code></pre>
+    <pre><code class="language-swift">public var numeratorUnits: [<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>] { get }</code></pre>
   </div>
 
 
@@ -1345,7 +1345,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L279-L281">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L312-L314">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1390,7 +1390,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var denominatorUnits: [<a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>] { get }</code></pre>
+    <pre><code class="language-swift">public var denominatorUnits: [<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>] { get }</code></pre>
   </div>
 
 
@@ -1404,7 +1404,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L284-L286">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L317-L319">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1457,7 +1457,7 @@ are not convertible to the requested units.</p>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public func asConvertedTo(
-    numeratorUnits: [<a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>] = [], denominatorUnits: [<a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a>] = []
+    numeratorUnits: [<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>] = [], denominatorUnits: [<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>] = []
 ) throws -&gt; <a href="../../sass/types/sassnumber.html?swift">SassNumber</a></code></pre>
   </div>
 
@@ -1472,7 +1472,7 @@ are not convertible to the requested units.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L297-L303">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L330-L336">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1520,9 +1520,9 @@ are not convertible to the requested units.</p>
 
 <p>Two <a href="../../sass/types/sassnumber.html?swift"><code>SassNumber</code></a>s are equal iff:</p>
 <ol>
-<li>Neither have units and their values are the same to 11 decimal places; or</li>
+<li>Neither have units and their values are the same to 10 decimal places; or</li>
 <li>They have convertible units and, when both converted to the same units, have values
-that are equal to 11dp.</li>
+that are equal to 10dp.</li>
 </ol>
 
 
@@ -1547,7 +1547,7 @@ that are equal to 11dp.</li>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L316-L330">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L349-L363">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1606,7 +1606,7 @@ that are equal to 11dp.</li>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L333-L342">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L366-L375">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1666,7 +1666,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L345-L347">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L378-L380">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1711,7 +1711,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public override var description: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Extensions/String.html">String</a> { get }</code></pre>
+    <pre><code class="language-swift">public override var description: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a> { get }</code></pre>
   </div>
 
 
@@ -1725,7 +1725,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/tree/main/Sources/Sass/Number.swift#L349-L352">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Number.swift#L382-L385">Show on GitHub</a></span>
             
           </nav>
         </div>
