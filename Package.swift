@@ -34,12 +34,22 @@ let package = Package(
       .target(
         name: "SassEmbedded",
         dependencies: [
-          "SwiftProtobuf",
-          "Sass",
+          .target(name: "Sass"),
+          .target(name: "DartSassEmbeddedMacOS",
+              condition: .when(platforms: [.macOS])),
+          .target(name: "DartSassEmbeddedLinux",
+              condition: .when(platforms: [.linux])),
+          .product(name: "SwiftProtobuf", package: "SwiftProtobuf"),
           .product(name: "NIO", package: "swift-nio"),
           .product(name: "NIOFoundationCompat", package: "swift-nio"),
           .product(name: "Logging", package: "swift-log"),
         ]),
+      .target(
+        name: "DartSassEmbeddedMacOS",
+        resources: [.copy("sass_embedded")]),
+      .target(
+        name: "DartSassEmbeddedLinux",
+        resources: [.copy("sass_embedded")]),
       .testTarget(
         name: "SassEmbeddedTests",
         dependencies: ["SassEmbedded"],
