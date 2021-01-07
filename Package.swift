@@ -5,15 +5,15 @@ import PackageDescription
 let package = Package(
     name: "swift-sass",
     platforms: [
-      .macOS("10.15")
+      .macOS("10.15"),
     ],
     products: [
-        .library(
-            name: "SassEmbedded",
-            targets: ["SassEmbedded"]),
-        .executable(
-          name: "ssassc",
-          targets: ["Cli"])
+      .library(
+        name: "SassEmbedded",
+        targets: ["SassEmbedded"]),
+      .executable(
+        name: "ssassc",
+        targets: ["Cli"]),
     ],
     dependencies: [
       .package(
@@ -30,9 +30,7 @@ let package = Package(
         from: "1.4.0")
     ],
     targets: [
-      .target(
-        name: "Sass",
-        dependencies: []),
+      .target(name: "Sass"),
       .target(
         name: "SassEmbedded",
         dependencies: [
@@ -40,7 +38,7 @@ let package = Package(
           "Sass",
           .product(name: "NIO", package: "swift-nio"),
           .product(name: "NIOFoundationCompat", package: "swift-nio"),
-          .product(name: "Logging", package: "swift-log")
+          .product(name: "Logging", package: "swift-log"),
         ]),
       .testTarget(
         name: "SassEmbeddedTests",
@@ -50,7 +48,7 @@ let package = Package(
         name: "SassTests",
         dependencies: ["Sass"]),
       .target(
-          name: "Cli",
-          dependencies: ["SassEmbedded"])
+        name: "Cli",
+        dependencies: ["SassEmbedded"]),
     ]
 )
