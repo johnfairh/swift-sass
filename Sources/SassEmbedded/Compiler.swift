@@ -153,6 +153,39 @@ public final class Compiler {
                   functions: functions)
     }
 
+    /// Use the bundled Dart Sass compiler as the Sass compiler.
+    ///
+    /// The bundled Dart Sass compiler is built for macOS (Intel) or Ubuntu Xenial (16.04) 64-bit.
+    /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerURL:timeout:importers:functions:)`
+    /// supplying the path of the correct Dart Sass compiler.
+    ///
+    /// Initialization continues asynchronously after the initializer completes; failures are reported
+    /// when the compiler is next used.
+    ///
+    /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
+    /// `syncShutdownGracefully()` before letting it go out of scope.
+    ///
+    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
+    ///   an existing group or `.createNew` to create and manage a new event loop.
+    /// - parameter timeout: The maximum time in seconds allowed for the embedded
+    ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
+    ///   -1 to disable timeouts.
+    /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
+    ///   the source file's URL, used for all this compiler's compilations.
+    /// - parameter functions: Sass functions available to all this compiler's compilations.
+    /// - throws: `LifecycleError` if the program can't be found.
+    public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
+                            timeout: Int = 60,
+                            importers: [ImportResolver] = [],
+                            functions: SassAsyncFunctionMap = [:]) throws {
+        let url = try DartSassEmbedded.getURL()
+        self.init(eventLoopGroupProvider: eventLoopGroupProvider,
+                  embeddedCompilerURL: url,
+                  timeout: timeout,
+                  importers: importers,
+                  functions: functions)
+    }
+
     deinit {
         guard case .shutdown = state else {
             preconditionFailure("Compiler not shutdown: \(state)")

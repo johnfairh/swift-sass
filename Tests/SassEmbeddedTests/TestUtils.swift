@@ -55,10 +55,9 @@ class SassEmbeddedTestCase: XCTestCase {
     }
 
     func newCompiler(importers: [ImportResolver] = [], asyncFunctions: SassAsyncFunctionMap) throws -> Compiler {
-        let c = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                         embeddedCompilerURL: SassEmbeddedTestCase.dartSassEmbeddedURL,
-                         importers: importers,
-                         functions: asyncFunctions)
+        let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+                             importers: importers,
+                             functions: asyncFunctions)
         compilersToShutdown.append(c)
         return c
     }

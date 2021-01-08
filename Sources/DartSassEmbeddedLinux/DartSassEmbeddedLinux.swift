@@ -14,8 +14,8 @@ import Foundation
 // This file doesn't take part in the Xcode build so shouldn't belong to any
 // target.
 
-public final class DartSassEmbedded {
-    static var bundle: Bundle? {
+public final class DartSassEmbeddedBundle {
+    public static var bundle: Bundle? {
         Bundle.module
     }
 }

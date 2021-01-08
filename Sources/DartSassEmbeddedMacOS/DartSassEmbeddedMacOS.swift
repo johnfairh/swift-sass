@@ -13,12 +13,12 @@ import Foundation
 //
 // Some further shenanigans here to make the xctest-in-Xcode version work.
 
-public final class DartSassEmbedded {
-    static var bundle: Bundle? {
+public final class DartSassEmbeddedBundle {
+    public static var bundle: Bundle? {
         #if SWIFT_PACKAGE
         return Bundle.module
         #else
-        return Bundle.init(for: DartSassEmbedded.self)
+        return Bundle.init(for: DartSassEmbeddedBundle.self)
         #endif
     }
 }
