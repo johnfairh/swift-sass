@@ -32,24 +32,6 @@ class SassEmbeddedTestCase: XCTestCase {
         eventLoopGroup = nil
     }
 
-    static var unitTestDirURL: URL {
-        URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-    }
-
-    static var dartSassEmbeddedDirURL: URL {
-        let rootURL = unitTestDirURL.appendingPathComponent("dart-sass-embedded")
-        #if os(Linux)
-        let platformURL = rootURL.appendingPathComponent("linux")
-        #else
-        let platformURL = rootURL.appendingPathComponent("macos")
-        #endif
-        return platformURL.appendingPathComponent("sass_embedded")
-    }
-
-    static var dartSassEmbeddedURL: URL {
-        dartSassEmbeddedDirURL.appendingPathComponent("dart-sass-embedded")
-    }
-
     func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap = [:]) throws -> Compiler {
         return try newCompiler(importers: importers, asyncFunctions: SassAsyncFunctionMap(functions))
     }

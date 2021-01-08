@@ -78,6 +78,39 @@ public final class Compiler {
     /// The actual compilation work
     private var work: CompilerWork!
 
+    /// Use the bundled Dart Sass compiler as the Sass compiler.
+    ///
+    /// The bundled Dart Sass compiler is built for macOS (Intel) or Ubuntu Xenial (16.04) 64-bit.
+    /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerURL:timeout:importers:functions:)`
+    /// supplying the path of the correct Dart Sass compiler.
+    ///
+    /// Initialization continues asynchronously after the initializer completes; failures are reported
+    /// when the compiler is next used.
+    ///
+    /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
+    /// `syncShutdownGracefully()` before letting it go out of scope.
+    ///
+    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
+    ///   an existing group or `.createNew` to create and manage a new event loop.
+    /// - parameter timeout: The maximum time in seconds allowed for the embedded
+    ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
+    ///   -1 to disable timeouts.
+    /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
+    ///   the source file's URL, used for all this compiler's compilations.
+    /// - parameter functions: Sass functions available to all this compiler's compilations.
+    /// - throws: `LifecycleError` if the program can't be found.
+    public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
+                            timeout: Int = 60,
+                            importers: [ImportResolver] = [],
+                            functions: SassAsyncFunctionMap = [:]) throws {
+        let url = try DartSassEmbedded.getURL()
+        self.init(eventLoopGroupProvider: eventLoopGroupProvider,
+                  embeddedCompilerURL: url,
+                  timeout: timeout,
+                  importers: importers,
+                  functions: functions)
+    }
+
     /// Use a program as the Sass embedded compiler.
     ///
     /// Initialization continues asynchronously after the initializer completes; failures are reported
@@ -117,73 +150,6 @@ public final class Compiler {
                             importers: .init(importers),
                             functions: functions)
         state.toInitializing(startCompiler())
-    }
-
-    /// Use a program found on `PATH` as the Sass embedded compiler.
-    ///
-    /// Initialization continues asynchronously after the initializer completes; failures are reported
-    /// when the compiler is next used.
-    ///
-    /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
-    /// `syncShutdownGracefully()` before letting it go out of scope.
-    ///
-    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
-    ///   an existing group or `.createNew` to create and manage a new event loop.
-    /// - parameter embeddedCompilerName: Name of the program, default `dart-sass-embedded`.
-    /// - parameter timeout: The maximum time in seconds allowed for the embedded
-    ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
-    ///   -1 to disable timeouts.
-    /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
-    ///   the source file's URL, used for all this compiler's compilations.
-    /// - parameter functions: Sass functions available to all this compiler's compilations.
-    /// - throws: `LifecycleError` if the program can't be found.
-    public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
-                            embeddedCompilerName: String = "dart-sass-embedded",
-                            timeout: Int = 60,
-                            importers: [ImportResolver] = [],
-                            functions: SassAsyncFunctionMap = [:]) throws {
-        let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName)
-        guard let path = results.successString else {
-            throw LifecycleError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
-        }
-        self.init(eventLoopGroupProvider: eventLoopGroupProvider,
-                  embeddedCompilerURL: URL(fileURLWithPath: path),
-                  timeout: timeout,
-                  importers: importers,
-                  functions: functions)
-    }
-
-    /// Use the bundled Dart Sass compiler as the Sass compiler.
-    ///
-    /// The bundled Dart Sass compiler is built for macOS (Intel) or Ubuntu Xenial (16.04) 64-bit.
-    /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerURL:timeout:importers:functions:)`
-    /// supplying the path of the correct Dart Sass compiler.
-    ///
-    /// Initialization continues asynchronously after the initializer completes; failures are reported
-    /// when the compiler is next used.
-    ///
-    /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
-    /// `syncShutdownGracefully()` before letting it go out of scope.
-    ///
-    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
-    ///   an existing group or `.createNew` to create and manage a new event loop.
-    /// - parameter timeout: The maximum time in seconds allowed for the embedded
-    ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
-    ///   -1 to disable timeouts.
-    /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
-    ///   the source file's URL, used for all this compiler's compilations.
-    /// - parameter functions: Sass functions available to all this compiler's compilations.
-    /// - throws: `LifecycleError` if the program can't be found.
-    public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
-                            timeout: Int = 60,
-                            importers: [ImportResolver] = [],
-                            functions: SassAsyncFunctionMap = [:]) throws {
-        let url = try DartSassEmbedded.getURL()
-        self.init(eventLoopGroupProvider: eventLoopGroupProvider,
-                  embeddedCompilerURL: url,
-                  timeout: timeout,
-                  importers: importers,
-                  functions: functions)
     }
 
     deinit {

@@ -24,7 +24,7 @@ jobs:
           key: ${{ runner.os }}-spm4-${{ hashFiles('Package.resolved', 'Makefile') }}
 
       - name: SPM tests
-        run: make test platform=macos
+        run: make test
       - name: Normalize coverage info
         run: xcrun llvm-cov export -format lcov .build/debug/swift-sassPackageTests.xctest/Contents/MacOS/swift-sassPackageTests -instr-profile .build/debug/codecov/default.profdata -ignore-filename-regex "(Test|checkouts|pb\.swift$)" > coverage.lcov
       - name: Upload coverage
@@ -45,7 +45,7 @@ jobs:
           key: ${{ runner.os }}-spm4-${{ hashFiles('Package.resolved', 'Makefile') }}
 
       - name: Run tests
-        run: make test platform=linux
+        run: make test
 
   macos11:
     name: macOS 11 tests
@@ -62,6 +62,6 @@ jobs:
           key: ${{ runner.os }}-spm4-${{ hashFiles('Package.resolved', 'Makefile') }}
 
       - name: Xcode
-        run: sudo xcode-select -s /Applications/Xcode_12.2.app/Contents/Developer
+        run: sudo xcode-select -s /Applications/Xcode_12.3.app/Contents/Developer
       - name: SPM tests
-        run: make test platform=macos
+        run: make test

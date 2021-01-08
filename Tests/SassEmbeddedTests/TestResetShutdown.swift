@@ -187,8 +187,7 @@ class TestResetShutdown: SassEmbeddedTestCase {
 
     // Internal eventloopgroup
     func testInternalEventLoopGroup() throws {
-        let compiler = Compiler(eventLoopGroupProvider: .createNew,
-                                embeddedCompilerURL: SassEmbeddedTestCase.dartSassEmbeddedURL)
+        let compiler = try Compiler(eventLoopGroupProvider: .createNew)
         let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
         try compiler.syncShutdownGracefully()
@@ -196,8 +195,7 @@ class TestResetShutdown: SassEmbeddedTestCase {
 
     // Internal eventloopgroup, async shutdown
     func testInternalEventLoopGroupAsync() throws {
-        let compiler = Compiler(eventLoopGroupProvider: .createNew,
-                                embeddedCompilerURL: SassEmbeddedTestCase.dartSassEmbeddedURL)
+        let compiler = try Compiler(eventLoopGroupProvider: .createNew)
         let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
         CompilerShutdowner(compiler).start().wait()
