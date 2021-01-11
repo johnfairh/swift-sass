@@ -21,11 +21,12 @@ final class DartSassEmbeddedBundle {
 enum DartSassEmbedded {
     /// Decode the platform and locate the platform-specific binary.
     static func getURL() throws -> URL {
+        let programName = getenv("DART_SASS_EMBEDDED_NAME").flatMap { String(cString: $0) } ?? "dart-sass-embedded"
         guard let bundle = DartSassEmbeddedBundle.bundle,
-              let url = bundle.url(forResource: "dart-sass-embedded",
+              let url = bundle.url(forResource: programName,
                                    withExtension: nil,
                                    subdirectory: "sass_embedded") else {
-            throw LifecycleError("No `dart-sass-embedded` is available for the current platform.")
+            throw LifecycleError("No `\(programName)` is available for the current platform.")
         }
         return url
     }

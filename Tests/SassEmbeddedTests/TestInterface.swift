@@ -122,4 +122,19 @@ class TestInterface: SassEmbeddedTestCase {
             XCTFail("Unexpected error: \(error)")
         }
     }
+
+    /// Missing from bundle/not a bundled platform
+    func testBundleMissing() throws {
+        putenv(strdup("DART_SASS_EMBEDDED_NAME=unreal")) /* leak it */
+        defer { unsetenv("DART_SASS_EMBEDDED_NAME") }
+
+        do {
+            let compiler = try Compiler(eventLoopGroupProvider: .createNew)
+            XCTFail("Created compiler without dart: \(compiler)")
+        } catch let error as LifecycleError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
 }
