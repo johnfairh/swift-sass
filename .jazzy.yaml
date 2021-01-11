@@ -96,8 +96,8 @@ custom_defs:
     topics:
       - name: Initializers
         children:
+          - init(eventLoopGroupProvider:timeout:importers:functions:)
           - init(eventLoopGroupProvider:embeddedCompilerURL:timeout:importers:functions:)
-          - init(eventLoopGroupProvider:embeddedCompilerName:timeout:importers:functions:)
       - name: Compilation
         children:
           - compile(text:syntax:url:outputStyle:createSourceMap:importers:functions:)

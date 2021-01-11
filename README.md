@@ -10,7 +10,7 @@ Distributed under the MIT license, see LICENSE.
 
 # Swift Sass
 
-Embed a [Sass](https://sass-lang.com) compiler in your Swift program.  Write
+Embed the Dart [Sass](https://sass-lang.com) compiler in your Swift program.  Write
 stylesheet importers and SassScript functions in Swift.
 
 This package provides a Swift language interface to a separate Sass
@@ -42,8 +42,7 @@ Minimally:
 ```swift
 import SassEmbedded
 
-let compiler = try Compiler(eventLoopGroupProvider: .createNew,
-                            embeddedCompilerURL: dartSassEmbeddedFileURL)
+let compiler = try Compiler(eventLoopGroupProvider: .createNew)
 
 let results = try compiler.compile(fileURL: scssFileURL)
 
@@ -110,7 +109,7 @@ asynchronous / non-blocking APIs.
 * Swift 5.3
 * macOS 10.15+ (tested on macOS 10.15.7, macOS 11.0 IA64)
 * Linux (tested on Ubuntu 18.04.5)
-* Dart Sass Embedded version 1.0.0-beta.5
+* Embedded Sass Protocol version 1.0.0-beta.5.
 
 ## Installation
 
@@ -121,14 +120,16 @@ Only with Swift Package Manager, via Xcode or directly:
          from: "0.1.0")
 ```
 
-The Swift package does not bundle the embedded Dart Sass compiler: right now
-you either need to download it from
-[the release page](https://github.com/sass/dart-sass-embedded/release) and
-ship it as part of your program's distribution, or pass this requirement on
-to your users.
+The Swift package bundles the embedded Dart Sass compiler for macOS and Linux
+(specifically Ubuntu Xenial/16.04 64-bit).  For other platforms you will need
+to either download the correct version from
+[the release page](https://github.com/sass/dart-sass-embedded/release) or build
+it manually, ship it as part of your program's distribution, and use
+[this initializer](https://johnfairh.github.io/swift-sass/sassembedded/types/compiler.html?swift#initeventloopgroupprovidertimeoutimportersfunctions).
 
 There is no need to install a Dart runtime or SDK as part of this, the
-downloaded package is standalone.
+`dart-embedded-sass` program is standalone.  The version required is
+1.0.0-beta.5.
 
 ## On LibSass
 

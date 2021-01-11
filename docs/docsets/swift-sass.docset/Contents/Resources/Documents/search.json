@@ -1034,14 +1034,14 @@
     "name" : "compile(text:syntax:url:outputStyle:createSourceMap:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "sassembedded\/types\/compiler.html?swift#initeventloopgroupproviderembeddedcompilernametimeoutimportersfunctions" : {
-    "abstract" : "Use a program found on PATH as the Sass embedded compiler.",
-    "name" : "init(eventLoopGroupProvider:embeddedCompilerName:timeout:importers:functions:)",
-    "parent_name" : "Compiler"
-  },
   "sassembedded\/types\/compiler.html?swift#initeventloopgroupproviderembeddedcompilerurltimeoutimportersfunctions" : {
     "abstract" : "Use a program as the Sass embedded compiler.",
     "name" : "init(eventLoopGroupProvider:embeddedCompilerURL:timeout:importers:functions:)",
+    "parent_name" : "Compiler"
+  },
+  "sassembedded\/types\/compiler.html?swift#initeventloopgroupprovidertimeoutimportersfunctions" : {
+    "abstract" : "Use the bundled Dart Sass compiler as the Sass compiler.",
+    "name" : "init(eventLoopGroupProvider:timeout:importers:functions:)",
     "parent_name" : "Compiler"
   },
   "sassembedded\/types\/compiler.html?swift#logger" : {

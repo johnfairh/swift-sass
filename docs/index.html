@@ -529,7 +529,7 @@ Distributed under the MIT license, see LICENSE.
 <span data-anchor-id="swift-sass">
 Swift Sass
 </span></h1>
-<p>Embed a <a href="https://sass-lang.com">Sass</a> compiler in your Swift program.  Write
+<p>Embed the Dart <a href="https://sass-lang.com">Sass</a> compiler in your Swift program.  Write
 stylesheet importers and SassScript functions in Swift.</p>
 <p>This package provides a Swift language interface to a separate Sass
 implementation.  The <code>SassEmbedded</code> module lets you access
@@ -559,8 +559,7 @@ Examples
 <p>Minimally:</p>
 <pre><code class="language-swift">import SassEmbedded
 
-let compiler = try Compiler(eventLoopGroupProvider: .createNew,
-                            embeddedCompilerURL: dartSassEmbeddedFileURL)
+let compiler = try Compiler(eventLoopGroupProvider: .createNew)
 
 let results = try compiler.compile(fileURL: scssFileURL)
 
@@ -628,7 +627,7 @@ Requirements
 <li>Swift 5.3</li>
 <li>macOS 10.15+ (tested on macOS 10.15.7, macOS 11.0 IA64)</li>
 <li>Linux (tested on Ubuntu 18.04.5)</li>
-<li>Dart Sass Embedded version 1.0.0-beta.5</li>
+<li>Embedded Sass Protocol version 1.0.0-beta.5.</li>
 </ul>
 <h2 class="j2-anchor j2-heading heading" id="installation">
 <span data-anchor-id="installation">
@@ -639,13 +638,15 @@ Installation
          url: &quot;https://github.com/johnfairh/swift-sass.git&quot;,
          from: &quot;0.1.0&quot;)
 </code></pre>
-<p>The Swift package does not bundle the embedded Dart Sass compiler: right now
-you either need to download it from
-<a href="https://github.com/sass/dart-sass-embedded/release">the release page</a> and
-ship it as part of your program’s distribution, or pass this requirement on
-to your users.</p>
+<p>The Swift package bundles the embedded Dart Sass compiler for macOS and Linux
+(specifically Ubuntu Xenial/16.04 64-bit).  For other platforms you will need
+to either download the correct version from
+<a href="https://github.com/sass/dart-sass-embedded/release">the release page</a> or build
+it manually, ship it as part of your program’s distribution, and use
+<a href="https://johnfairh.github.io/swift-sass/sassembedded/types/compiler.html?swift#initeventloopgroupprovidertimeoutimportersfunctions">this initializer</a>.</p>
 <p>There is no need to install a Dart runtime or SDK as part of this, the
-downloaded package is standalone.</p>
+<code>dart-embedded-sass</code> program is standalone.  The version required is
+1.0.0-beta.5.</p>
 <h2 class="j2-anchor j2-heading heading" id="on-libsass">
 <span data-anchor-id="on-libsass">
 On LibSass

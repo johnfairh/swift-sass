@@ -18,7 +18,8 @@ import Logging
 
 /// A Sass compiler interface that uses the Sass embedded protocol.
 ///
-/// It runs the actual Sass compiler as a child process: you need to supply this separately, see
+/// It runs the actual Sass compiler as a child process. The Dart Sass compiler is bundled with this
+/// package for macOS and Ubuntu 64-bit Linux. For other platforms you need to supply this separately, see
 /// [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md).
 ///
 /// Some debug logging is available via `Compiler.logger`.
@@ -122,7 +123,8 @@ public final class Compiler {
     /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.
     /// - parameter embeddedCompilerURL: The file URL to `dart-sass-embedded`
-    ///   or something else that speaks the Sass embedded protocol.
+    ///   or something else that speaks the Sass embedded protocol.  Check [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md)
+    ///   for the supported protocol versions.
     /// - parameter timeout: The maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
