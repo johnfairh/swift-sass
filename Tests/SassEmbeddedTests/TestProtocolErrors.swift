@@ -224,6 +224,45 @@ class TestProtocolErrors: SassEmbeddedTestCase {
         let kind = Sass_EmbeddedProtocol_OutboundMessage.LogEvent.TypeEnum.UNRECOGNIZED(100)
         XCTAssertThrowsError(_ = try CompilerMessage.Kind(kind))
     }
+
+    // MARK: Varint
+
+    func decodeVarint(buffer: inout ByteBuffer) throws -> UInt64? {
+        var decoder = Varint()
+        while buffer.readableBytes > 0 {
+            let byte = buffer.readInteger(as: UInt8.self)!
+            if let decoded = try decoder.decode(byte: byte) {
+                XCTAssertEqual(0, buffer.readableBytes)
+                return decoded
+            }
+        }
+        return nil
+    }
+
+    func testVarintConversion() throws {
+        let values: [UInt64] = [0, 0x7f, 0x80, 0xffff, 0xffffffff, 0xffffffffffffffff]
+        let allocator = ByteBufferAllocator()
+        try values.forEach { value in
+            var buffer = allocator.buffer(capacity: 20)
+            buffer.writeVarint(value)
+
+            if let decoded = try decodeVarint(buffer: &buffer) {
+                XCTAssertEqual(value, decoded)
+            } else {
+                XCTFail("Couldn't decode buffer: \(buffer), expected \(value)")
+            }
+        }
+    }
+
+    func testVarintError() throws {
+        let allocator = ByteBufferAllocator()
+        var buffer = allocator.buffer(capacity: 20)
+        buffer.writeInteger(UInt32(0xffffffff))
+        buffer.writeInteger(UInt32(0xffffffff))
+        buffer.writeInteger(UInt32(0xffffffff))
+
+        XCTAssertThrowsError(try decodeVarint(buffer: &buffer))
+    }
 }
 
 extension Compiler {

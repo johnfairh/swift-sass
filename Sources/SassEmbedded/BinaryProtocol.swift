@@ -101,3 +101,39 @@ final class ProtocolReader: ByteToMessageDecoder {
         channel.pipeline.addHandler(ByteToMessageHandler(ProtocolReader()))
     }
 }
+
+// MARK: Varint helpers
+
+extension ByteBuffer {
+    /// Append a value to the buffer in varint format
+    mutating func writeVarint(_ value: UInt64) {
+        var v = value
+        while v > 127 {
+            writeInteger(UInt8(v & 0x7f | 0x80))
+            v >>= 7
+        }
+        writeInteger(UInt8(v))
+    }
+}
+
+/// Progressively decode a varint from a byte stream
+struct Varint {
+    private var curValue = UInt64(0)
+    private var curShift = 0
+
+    /// Decode a new byte.
+    /// * Returns nil -> more bytes required
+    /// * Returns a value -> that's the value
+    /// * Throws an error -> this isn't a varint
+    mutating func decode(byte: UInt8) throws -> UInt64? {
+        curValue |= UInt64(byte & 0x7f) << curShift
+        if byte & 0x80 == 0 {
+            return curValue
+        }
+        curShift += 7
+        if curShift > 63 {
+            throw ProtocolError("Can't decode varint holding a value wider than 64 bits, so far: \(curValue)")
+        }
+        return nil
+    }
+}
