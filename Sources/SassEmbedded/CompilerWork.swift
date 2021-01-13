@@ -345,6 +345,9 @@ final class Compilation {
             case .fileImportRequest(let req):
                 return eventLoop.makeProtocolError("Unexpected FileImport-Req: \(req)")
 
+            case .versionResponse(let rsp):
+                return eventLoop.makeProtocolError("Unexpected Version-Rsp: \(rsp)")
+
             case nil, .error:
                 preconditionFailure("Unreachable: message type not associated with CompID: \(message)")
             }

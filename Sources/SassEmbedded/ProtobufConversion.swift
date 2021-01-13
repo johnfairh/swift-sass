@@ -141,14 +141,15 @@ extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message {
         case .functionCallRequest(let m): return m.logMessage
         case .importRequest(let m): return m.logMessage
         case .logEvent(let m): return m.logMessage
+        case .versionResponse(let m): return m.logMessage
         }
     }
 
     var compilationID: UInt32? {
         switch self {
         case .canonicalizeRequest(let m): return m.compilationID
-        case .compileResponse(let m): return UInt32(m.id) // XXX oops bad protobuf
-        case .error: return nil
+        case .compileResponse(let m): return m.id
+        case .error, .versionResponse: return nil
         case .fileImportRequest(let m): return m.compilationID
         case .functionCallRequest(let m): return m.compilationID
         case .importRequest(let m): return m.compilationID
@@ -204,6 +205,12 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest.OneOf_Identi
         case .functionID(let id): return String(id)
         case .name(let name): return name
         }
+    }
+}
+
+extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse {
+    var logMessage: String {
+        "Version-Rsp Proto=\(protocolVersion) Pkg=\(compilerVersion) Sass=\(implementationVersion) Name=\(implementationName)"
     }
 }
 

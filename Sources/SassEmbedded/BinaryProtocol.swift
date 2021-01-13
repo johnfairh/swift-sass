@@ -6,33 +6,14 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
-//
-// Routines to send and receive messages to the embedded Sass compiler.
-//
-// Two horror stories in standards compliance and interop here:
-//
-// 1) SwiftProtobuf has `BinaryDelimited` helpers to make this stuff trivial.
-//    Unfortunately they require `InputStream`/`OutputStream` which doesn't match
-//    anything in the Posix-y FD world let alone NIO.
-//
-// 2) Protobuf's written docs are vague about how binary delimiters should work.
-//    The code is unambiguous though: use a varint32 to hold the length.
-//    The Sass team interpreted this differently though and require a
-//    straight 32-bit number (in reverse network byte order).
-//
-// Now, these two things sort of cancel each other out!  Because of (2) we don't
-// actually need the `Varint` stuff that is private inside SwiftProtobuf, and so
-// we can manually do its fixed-header format, bypassing `BinaryDelimited`
-// entirely.
-//
-// Switching to NIO means it gets to think about SIGPIPE -- amusingly on Linux
-// it cops out and masks it off for the entire process.
-//
-
 import Foundation
 import SwiftProtobuf
 import NIO
 import NIOFoundationCompat
+
+// Routines to send and receive messages to the embedded Sass compiler.
+// Theoretically broken with payloads over 2^63 bytes in size because of signed
+// 64-bit sizes in Foundation.Data.
 
 /// Serialize Sass protocol messages down to NIO.
 final class ProtocolWriter: MessageToByteEncoder {
@@ -42,10 +23,9 @@ final class ProtocolWriter: MessageToByteEncoder {
     ///
     /// - parameter message: The message to send to the compiler ('inbound' from their perspective...).
     /// - throws: Something from protobuf if it can't understand its own types.
-    /// - note: Uses the embedded Sass binary delimiter protocol, not the regular protobuf one.
     func encode(data: Sass_EmbeddedProtocol_InboundMessage, out: inout ByteBuffer) throws {
         let buffer = try data.serializedData()
-        out.writeInteger(UInt32(buffer.count), endianness: .little, as: UInt32.self)
+        out.writeVarint(UInt64(buffer.count))
         out.writeData(buffer)
     }
 
@@ -61,39 +41,46 @@ final class ProtocolReader: ByteToMessageDecoder {
 
     enum State {
         /// Waiting for a new message
-        case idle
+        case waitHeader
+        /// Reading the length header
+        case header(Varint)
         /// Read the length header, waiting for the body
-        case reading(Int)
+        case waitBody(UInt64)
     }
-    var state = State.idle
+    var state = State.waitHeader
 
     /// Read and deserialize a message from the embedded sass compiler.
-    ///
     /// - throws: `SwiftProtobuf.BinaryDecodingError` if it can't make sense of the bytes.
-    /// - note: Uses the embedded Sass binary delimiter protocol, not the regular protobuf one.
     func decode(context: ChannelHandlerContext, buffer: inout ByteBuffer) throws -> DecodingState {
         switch state {
-        case .idle:
-            guard buffer.readableBytes >= MemoryLayout<UInt32>.size else {
-                return .needMoreData
-            }
-            let msgLen = buffer.readInteger(endianness: .little, as: UInt32.self)!
-            state = .reading(Int(msgLen))
-
+        case .waitHeader:
+            state = .header(Varint())
             return .continue
 
-        case .reading(let msgLen):
+        case .header(let lenVarint):
+            let byte = buffer.readInteger(as: UInt8.self)!
+            if let length = try lenVarint.decode(byte: byte) {
+                state = .waitBody(length)
+            }
+            return .continue
+
+        case .waitBody(let msgLen):
             guard buffer.readableBytes >= msgLen else {
                 return .needMoreData
             }
 
             var message = Sass_EmbeddedProtocol_OutboundMessage()
-            try message.merge(serializedData: buffer.readData(length: msgLen)!)
-            state = .idle
+            try message.merge(serializedData: buffer.readData(length: Int(msgLen))!)
+            state = .waitHeader
 
             context.fireChannelRead(wrapInboundOut(message))
             return .continue
         }
+    }
+
+    /// Just stop when we're dying off.
+    func decodeLast(context: ChannelHandlerContext, buffer: inout ByteBuffer, seenEOF: Bool) throws -> DecodingState {
+        .needMoreData
     }
 
     /// Add a channel handler matching the protocol reader.
@@ -117,7 +104,7 @@ extension ByteBuffer {
 }
 
 /// Progressively decode a varint from a byte stream
-struct Varint {
+final class Varint {
     private var curValue = UInt64(0)
     private var curShift = 0
 
@@ -125,7 +112,7 @@ struct Varint {
     /// * Returns nil -> more bytes required
     /// * Returns a value -> that's the value
     /// * Throws an error -> this isn't a varint
-    mutating func decode(byte: UInt8) throws -> UInt64? {
+    func decode(byte: UInt8) throws -> UInt64? {
         curValue |= UInt64(byte & 0x7f) << curShift
         if byte & 0x80 == 0 {
             return curValue

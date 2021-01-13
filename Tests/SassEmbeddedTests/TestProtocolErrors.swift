@@ -70,7 +70,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
 
         let msg = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
             msg.compileResponse = .with { rsp in
-                rsp.id = Int32(Compilation.peekNextCompilationID)
+                rsp.id = Compilation.peekNextCompilationID
                 rsp.result = nil // missing 'result'
             }
         }
@@ -228,7 +228,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     // MARK: Varint
 
     func decodeVarint(buffer: inout ByteBuffer) throws -> UInt64? {
-        var decoder = Varint()
+        let decoder = Varint()
         while buffer.readableBytes > 0 {
             let byte = buffer.readInteger(as: UInt8.self)!
             if let decoded = try decoder.decode(byte: byte) {
