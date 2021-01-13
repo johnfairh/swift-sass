@@ -75,6 +75,14 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     set {message = .functionCallResponse(newValue)}
   }
 
+  var versionRequest: Sass_EmbeddedProtocol_InboundMessage.VersionRequest {
+    get {
+      if case .versionRequest(let v)? = message {return v}
+      return Sass_EmbeddedProtocol_InboundMessage.VersionRequest()
+    }
+    set {message = .versionRequest(newValue)}
+  }
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   /// The wrapped message. Mandatory.
@@ -84,6 +92,7 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     case importResponse(Sass_EmbeddedProtocol_InboundMessage.ImportResponse)
     case fileImportResponse(Sass_EmbeddedProtocol_InboundMessage.FileImportResponse)
     case functionCallResponse(Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse)
+    case versionRequest(Sass_EmbeddedProtocol_InboundMessage.VersionRequest)
 
   #if !swift(>=4.1)
     static func ==(lhs: Sass_EmbeddedProtocol_InboundMessage.OneOf_Message, rhs: Sass_EmbeddedProtocol_InboundMessage.OneOf_Message) -> Bool {
@@ -109,6 +118,10 @@ struct Sass_EmbeddedProtocol_InboundMessage {
       }()
       case (.functionCallResponse, .functionCallResponse): return {
         guard case .functionCallResponse(let l) = lhs, case .functionCallResponse(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.versionRequest, .versionRequest): return {
+        guard case .versionRequest(let l) = lhs, case .versionRequest(let r) = rhs else { preconditionFailure() }
         return l == r
       }()
       default: return false
@@ -153,6 +166,20 @@ struct Sass_EmbeddedProtocol_InboundMessage {
       }
     }
 
+  }
+
+  /// A request for information about the version of the embedded compiler. The
+  /// host can use this to provide diagnostic information to the user, to check
+  /// which features the compiler supports, or to ensure that it's compatible
+  /// with the same protocol version the compiler supports.
+  struct VersionRequest {
+    // SwiftProtobuf.Message conformance is added in an extension below. See the
+    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+    // methods supported on all messages.
+
+    var unknownFields = SwiftProtobuf.UnknownStorage()
+
+    init() {}
   }
 
   /// A request that compiles an entrypoint to CSS.
@@ -829,6 +856,14 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     set {message = .functionCallRequest(newValue)}
   }
 
+  var versionResponse: Sass_EmbeddedProtocol_OutboundMessage.VersionResponse {
+    get {
+      if case .versionResponse(let v)? = message {return v}
+      return Sass_EmbeddedProtocol_OutboundMessage.VersionResponse()
+    }
+    set {message = .versionResponse(newValue)}
+  }
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   /// The wrapped message. Mandatory.
@@ -840,6 +875,7 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     case importRequest(Sass_EmbeddedProtocol_OutboundMessage.ImportRequest)
     case fileImportRequest(Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest)
     case functionCallRequest(Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest)
+    case versionResponse(Sass_EmbeddedProtocol_OutboundMessage.VersionResponse)
 
   #if !swift(>=4.1)
     static func ==(lhs: Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message, rhs: Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message) -> Bool {
@@ -875,10 +911,40 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
         guard case .functionCallRequest(let l) = lhs, case .functionCallRequest(let r) = rhs else { preconditionFailure() }
         return l == r
       }()
+      case (.versionResponse, .versionResponse): return {
+        guard case .versionResponse(let l) = lhs, case .versionResponse(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
       default: return false
       }
     }
   #endif
+  }
+
+  /// A response that contains the version of the embedded compiler.
+  struct VersionResponse {
+    // SwiftProtobuf.Message conformance is added in an extension below. See the
+    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+    // methods supported on all messages.
+
+    /// The version of the embedded protocol, in semver format.
+    var protocolVersion: String = String()
+
+    /// The version of the embedded compiler package. This has no guaranteed
+    /// format, although compilers are encouraged to use semver.
+    var compilerVersion: String = String()
+
+    /// The version of the Sass implementation that the embedded compiler wraps.
+    /// This has no guaranteed format, although Sass implementations are
+    /// encouraged to use semver.
+    var implementationVersion: String = String()
+
+    /// The name of the Sass implementation that the embedded compiler wraps.
+    var implementationName: String = String()
+
+    var unknownFields = SwiftProtobuf.UnknownStorage()
+
+    init() {}
   }
 
   /// A response that contains the result of a compilation.
@@ -888,7 +954,7 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     // methods supported on all messages.
 
     /// The compilation's request id. Mandatory.
-    var id: Int32 = 0
+    var id: UInt32 = 0
 
     /// The success or failure result of the compilation. Mandatory.
     var result: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.OneOf_Result? = nil
@@ -1150,12 +1216,12 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     /// The URL of the import to be canonicalized. This may be either absolute or
     /// relative.
     ///
-    /// When loading a URL, the host must first try resolving that URL relative
-    /// to the canonical URL of the current file, and canonicalizing the result
-    /// using the importer that loaded the current file. If this returns `null`,
-    /// the host must then try canonicalizing the original URL with each importer
-    /// in order until one returns something other than `null`. That is the
-    /// result of the import.
+    /// When loading a URL, the compiler must first try resolving that URL
+    /// relative to the canonical URL of the current file, and canonicalizing the
+    /// result using the importer that loaded the current file. If this returns
+    /// `null`, the compiler must then try canonicalizing the original URL with
+    /// each importer in order until one returns something other than `null`.
+    /// That is the result of the import.
     var url: String = String()
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -1207,8 +1273,7 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     /// Mandatory.
     var importerID: UInt32 = 0
 
-    /// The canonical URL of the import. This is guaranteed to be a URL returned
-    /// by a `CanonicalizeRequest` to this importer.
+    /// The (non-canonicalized) URL of the import.
     var url: String = String()
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -1330,7 +1395,7 @@ struct Sass_EmbeddedProtocol_ProtocolError {
   /// The ID of the request that had an error. This MUST be `-1` if the request
   /// ID couldn't be determined, or if the error is being reported for a response
   /// or an event.
-  var id: Int32 = 0
+  var id: UInt32 = 0
 
   /// A human-readable message providing more detail about the error.
   var message: String = String()
@@ -1957,6 +2022,7 @@ extension Sass_EmbeddedProtocol_InboundMessage: SwiftProtobuf.Message, SwiftProt
     4: .same(proto: "importResponse"),
     5: .same(proto: "fileImportResponse"),
     6: .same(proto: "functionCallResponse"),
+    7: .same(proto: "versionRequest"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -2010,6 +2076,15 @@ extension Sass_EmbeddedProtocol_InboundMessage: SwiftProtobuf.Message, SwiftProt
         try decoder.decodeSingularMessageField(value: &v)
         if let v = v {self.message = .functionCallResponse(v)}
       }()
+      case 7: try {
+        var v: Sass_EmbeddedProtocol_InboundMessage.VersionRequest?
+        if let current = self.message {
+          try decoder.handleConflictingOneOf()
+          if case .versionRequest(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {self.message = .versionRequest(v)}
+      }()
       default: break
       }
     }
@@ -2040,6 +2115,10 @@ extension Sass_EmbeddedProtocol_InboundMessage: SwiftProtobuf.Message, SwiftProt
       guard case .functionCallResponse(let v)? = self.message else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 6)
     }()
+    case .versionRequest?: try {
+      guard case .versionRequest(let v)? = self.message else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 7)
+    }()
     case nil: break
     }
     try unknownFields.traverse(visitor: &visitor)
@@ -2058,6 +2137,25 @@ extension Sass_EmbeddedProtocol_InboundMessage.Syntax: SwiftProtobuf._ProtoNameP
     1: .same(proto: "INDENTED"),
     2: .same(proto: "CSS"),
   ]
+}
+
+extension Sass_EmbeddedProtocol_InboundMessage.VersionRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = Sass_EmbeddedProtocol_InboundMessage.protoMessageName + ".VersionRequest"
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap()
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let _ = try decoder.nextFieldNumber() {
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sass_EmbeddedProtocol_InboundMessage.VersionRequest, rhs: Sass_EmbeddedProtocol_InboundMessage.VersionRequest) -> Bool {
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
 }
 
 extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
@@ -2577,6 +2675,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage: SwiftProtobuf.Message, SwiftPro
     5: .same(proto: "importRequest"),
     6: .same(proto: "fileImportRequest"),
     7: .same(proto: "functionCallRequest"),
+    8: .same(proto: "versionResponse"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -2648,6 +2747,15 @@ extension Sass_EmbeddedProtocol_OutboundMessage: SwiftProtobuf.Message, SwiftPro
         try decoder.decodeSingularMessageField(value: &v)
         if let v = v {self.message = .functionCallRequest(v)}
       }()
+      case 8: try {
+        var v: Sass_EmbeddedProtocol_OutboundMessage.VersionResponse?
+        if let current = self.message {
+          try decoder.handleConflictingOneOf()
+          if case .versionResponse(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {self.message = .versionResponse(v)}
+      }()
       default: break
       }
     }
@@ -2686,6 +2794,10 @@ extension Sass_EmbeddedProtocol_OutboundMessage: SwiftProtobuf.Message, SwiftPro
       guard case .functionCallRequest(let v)? = self.message else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 7)
     }()
+    case .versionResponse?: try {
+      guard case .versionResponse(let v)? = self.message else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 8)
+    }()
     case nil: break
     }
     try unknownFields.traverse(visitor: &visitor)
@@ -2693,6 +2805,56 @@ extension Sass_EmbeddedProtocol_OutboundMessage: SwiftProtobuf.Message, SwiftPro
 
   static func ==(lhs: Sass_EmbeddedProtocol_OutboundMessage, rhs: Sass_EmbeddedProtocol_OutboundMessage) -> Bool {
     if lhs.message != rhs.message {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".VersionResponse"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "protocol_version"),
+    2: .standard(proto: "compiler_version"),
+    3: .standard(proto: "implementation_version"),
+    4: .standard(proto: "implementation_name"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.protocolVersion) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.compilerVersion) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.implementationVersion) }()
+      case 4: try { try decoder.decodeSingularStringField(value: &self.implementationName) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.protocolVersion.isEmpty {
+      try visitor.visitSingularStringField(value: self.protocolVersion, fieldNumber: 1)
+    }
+    if !self.compilerVersion.isEmpty {
+      try visitor.visitSingularStringField(value: self.compilerVersion, fieldNumber: 2)
+    }
+    if !self.implementationVersion.isEmpty {
+      try visitor.visitSingularStringField(value: self.implementationVersion, fieldNumber: 3)
+    }
+    if !self.implementationName.isEmpty {
+      try visitor.visitSingularStringField(value: self.implementationName, fieldNumber: 4)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sass_EmbeddedProtocol_OutboundMessage.VersionResponse, rhs: Sass_EmbeddedProtocol_OutboundMessage.VersionResponse) -> Bool {
+    if lhs.protocolVersion != rhs.protocolVersion {return false}
+    if lhs.compilerVersion != rhs.compilerVersion {return false}
+    if lhs.implementationVersion != rhs.implementationVersion {return false}
+    if lhs.implementationName != rhs.implementationName {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -2712,7 +2874,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse: SwiftProtobuf.M
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
+      case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
       case 2: try {
         var v: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess?
         if let current = self.result {
@@ -2738,7 +2900,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse: SwiftProtobuf.M
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 1)
+      try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
     }
     // The use of inline closures is to circumvent an issue where the compiler
     // allocates stack space for every case branch when no optimizations are
@@ -3149,7 +3311,7 @@ extension Sass_EmbeddedProtocol_ProtocolError: SwiftProtobuf.Message, SwiftProto
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularEnumField(value: &self.type) }()
-      case 2: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
+      case 2: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
       case 3: try { try decoder.decodeSingularStringField(value: &self.message) }()
       default: break
       }
@@ -3161,7 +3323,7 @@ extension Sass_EmbeddedProtocol_ProtocolError: SwiftProtobuf.Message, SwiftProto
       try visitor.visitSingularEnumField(value: self.type, fieldNumber: 1)
     }
     if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 2)
+      try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 2)
     }
     if !self.message.isEmpty {
       try visitor.visitSingularStringField(value: self.message, fieldNumber: 3)
