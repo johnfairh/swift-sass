@@ -271,25 +271,31 @@ public final class Compiler {
                          functions: .init(functions)).wait()
     }
 
-    /// Asynchronous version of `compile(text:syntax:url:outputStyle:createSourceMap:importers:functions:)`.
+    /// Asynchronous version of `compile(text:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)`.
     public func compileAsync(text: String,
                              syntax: Syntax = .scss,
                              url: URL? = nil,
+                             importer: ImportResolver? = nil,
                              outputStyle: CssStyle = .expanded,
                              createSourceMap: Bool = false,
                              importers: [ImportResolver] = [],
                              functions: SassAsyncFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
         eventLoop.flatSubmit { [self] in
             defer { kickPendingCompilations() }
+            let asyncImporter = importer.flatMap { AsyncImportResolver($0) }
             return work.addPendingCompilation(
                 input: .string(.with { m in
                     m.source = text
                     m.syntax = .init(syntax)
                     url.flatMap { m.url = $0.absoluteString }
+                    asyncImporter.flatMap {
+                        m.importer = .init($0, id: Compilation.baseImporterID)
+                    }
                 }),
                 outputStyle: outputStyle,
                 createSourceMap: createSourceMap,
                 importers: .init(importers),
+                stringImporter: asyncImporter,
                 functions: functions)
         }
     }
@@ -297,6 +303,7 @@ public final class Compiler {
     public func compile(text: String,
                         syntax: Syntax = .scss,
                         url: URL? = nil,
+                        importer: ImportResolver? = nil,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
                         importers: [ImportResolver] = [],
@@ -304,6 +311,7 @@ public final class Compiler {
         try compileAsync(text: text,
                          syntax: syntax,
                          url: url,
+                         importer: importer,
                          outputStyle: outputStyle,
                          createSourceMap: createSourceMap,
                          importers: importers,

@@ -235,6 +235,8 @@ public protocol CompilerProtocol {
     ///   - text: The stylesheet text to compile.
     ///   - syntax: The syntax of `text`, default `.scss`.
     ///   - url: The absolute URL to associate with `text`.  Default `nil` meaning unknown.
+    ///   - importer: Rule to resolve `@import` etc. from `text` relative to `url`.  Default `nil`
+    ///     meaning the current filesystem directory is used.
     ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
     ///   - createSourceMap: Create a JSON source map for the CSS.  Default `false`.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
@@ -245,10 +247,10 @@ public protocol CompilerProtocol {
     ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
     /// - returns: `CompilerResults` with CSS and optional source map.
     ///
-    /// Ought to have a special importer to go with `url` but compiler doesn't implement it so ....
     func compile(text: String,
                  syntax: Syntax,
                  url: URL?,
+                 importer: ImportResolver?,
                  outputStyle: CssStyle,
                  createSourceMap: Bool,
                  importers: [ImportResolver],

@@ -66,6 +66,7 @@ final class CompilerWork {
                                outputStyle: CssStyle,
                                createSourceMap: Bool,
                                importers: [AsyncImportResolver],
+                               stringImporter: AsyncImportResolver? = nil,
                                functions: SassAsyncFunctionMap) -> EventLoopFuture<CompilerResults> {
         eventLoop.preconditionInEventLoop()
 
@@ -83,6 +84,7 @@ final class CompilerWork {
                 outputStyle: outputStyle,
                 createSourceMap: createSourceMap,
                 importers: globalImporters + importers,
+                stringImporter: stringImporter,
                 functionsMap: mergedFnsNameMap)
 
         pendingCompilations.append(compilation)
@@ -241,9 +243,16 @@ final class Compilation {
          outputStyle: CssStyle,
          createSourceMap: Bool,
          importers: [AsyncImportResolver],
+         stringImporter: AsyncImportResolver?,
          functionsMap: [SassFunctionSignature : (String, SassAsyncFunction)]) {
         self.promise = promise
-        self.importers = importers
+        var firstFreeImporterID = Compilation.baseImporterID
+        if let stringImporter = stringImporter {
+            self.importers = [stringImporter] + importers
+            firstFreeImporterID += 1
+        } else {
+            self.importers = importers
+        }
         self.functions = functionsMap.mapValues { $0.1 }
         self.timer = nil
         self.compileReq = .with { msg in
@@ -251,7 +260,7 @@ final class Compilation {
             msg.input = input
             msg.style = .init(outputStyle)
             msg.sourceMap = createSourceMap
-            msg.importers = .init(importers, startingID: Compilation.baseImporterID)
+            msg.importers = .init(importers, startingID: firstFreeImporterID)
             msg.globalFunctions = functionsMap.values.map { $0.0 }
         }
         self.messages = []
