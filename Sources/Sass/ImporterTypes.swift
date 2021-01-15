@@ -132,6 +132,7 @@ public struct ImporterResults {
 public enum ImportResolver {
     /// Search a filesystem directory to resolve the rule.  See [the Sass docs](https://sass-lang.com/documentation/at-rules/import#load-paths).
     case loadPath(URL)
-    /// Call back through the `Importer` to resolve the rule.
+    /// Call back through the `Importer` to resolve the rule.  This can be an `AsyncImporter` if
+    /// the compiler implementation accepts asynchronous importers.
     case importer(Importer)
 }

@@ -100,9 +100,9 @@ custom_defs:
           - init(eventLoopGroupProvider:embeddedCompilerURL:timeout:importers:functions:)
       - name: Compilation
         children:
-          - compile(text:syntax:url:outputStyle:createSourceMap:importers:functions:)
+          - compile(text:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)
           - compile(fileURL:outputStyle:createSourceMap:importers:functions:)
-          - compileAsync(text:syntax:url:outputStyle:createSourceMap:importers:functions:)
+          - compileAsync(text:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)
           - compileAsync(fileURL:outputStyle:createSourceMap:importers:functions:)
       - name: Lifecycle
         children:
