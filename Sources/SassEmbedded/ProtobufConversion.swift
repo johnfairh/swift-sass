@@ -76,6 +76,15 @@ extension CompilerMessage {
     }
 }
 
+extension Versions {
+    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.VersionResponse) {
+        protocolVersion = protobuf.protocolVersion
+        packageVersion = protobuf.compilerVersion
+        compilerVersion = protobuf.implementationVersion
+        compilerName = protobuf.implementationName
+    }
+}
+
 // MARK: Native -> PB
 
 extension Sass_EmbeddedProtocol_InboundMessage.Syntax {
@@ -126,8 +135,8 @@ extension Sass_EmbeddedProtocol_OutboundMessage {
         message?.logMessage ?? "unknown-1"
     }
 
-    var compilationID: UInt32? {
-        message?.compilationID
+    var requestID: UInt32? {
+        message?.requestID
     }
 }
 
@@ -145,15 +154,16 @@ extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message {
         }
     }
 
-    var compilationID: UInt32? {
+    var requestID: UInt32? {
         switch self {
         case .canonicalizeRequest(let m): return m.compilationID
         case .compileResponse(let m): return m.id
-        case .error, .versionResponse: return nil
+        case .error: return nil
         case .fileImportRequest(let m): return m.compilationID
         case .functionCallRequest(let m): return m.compilationID
         case .importRequest(let m): return m.compilationID
         case .logEvent(let m): return m.compilationID
+        case .versionResponse: return VersionRequest.RequestID
         }
     }
 }
@@ -163,6 +173,7 @@ extension Sass_EmbeddedProtocol_ProtocolError {
         "Protocol-Error CompID=\(id)"
     }
 }
+
 extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse {
     var logMessage: String {
         "Compile-Rsp CompID=\(id)"
@@ -210,7 +221,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest.OneOf_Identi
 
 extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse {
     var logMessage: String {
-        "Version-Rsp Proto=\(protocolVersion) Pkg=\(compilerVersion) Sass=\(implementationVersion) Name=\(implementationName)"
+        "Version-Rsp Proto=\(protocolVersion) Pkg=\(compilerVersion) Compiler=\(implementationVersion) Name=\(implementationName)"
     }
 }
 

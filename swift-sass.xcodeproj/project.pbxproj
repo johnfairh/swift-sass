@@ -48,6 +48,7 @@
 		029B4F8E257E569D00A768D2 /* TestResetShutdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F8D257E569D00A768D2 /* TestResetShutdown.swift */; };
 		029B4F91257E578600A768D2 /* TestProtocolErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F90257E578600A768D2 /* TestProtocolErrors.swift */; };
 		029B4F94258005C000A768D2 /* NIO+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F93258005C000A768D2 /* NIO+Extras.swift */; };
+		02A1A96F25B5AAEA0045E28F /* CompilerRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */; };
 		02A346E9257AAE3D00A14905 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 02A346E8257AAE3D00A14905 /* Logging */; };
 		02A3BC0125800D0600BBF99E /* CompilerWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0025800D0600BBF99E /* CompilerWork.swift */; };
 		02A3BC052581600700BBF99E /* AsyncCompilerTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */; };
@@ -155,6 +156,7 @@
 		029B4F8D257E569D00A768D2 /* TestResetShutdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestResetShutdown.swift; sourceTree = "<group>"; };
 		029B4F90257E578600A768D2 /* TestProtocolErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolErrors.swift; sourceTree = "<group>"; };
 		029B4F93258005C000A768D2 /* NIO+Extras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NIO+Extras.swift"; sourceTree = "<group>"; };
+		02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerRequests.swift; sourceTree = "<group>"; };
 		02A3BC0025800D0600BBF99E /* CompilerWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerWork.swift; sourceTree = "<group>"; };
 		02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncCompilerTypes.swift; sourceTree = "<group>"; };
 		02A3BC0C2585314200BBF99E /* Cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Cli; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -352,6 +354,7 @@
 				02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */,
 				OBJ_10 /* Compiler.swift */,
 				02A3BC0025800D0600BBF99E /* CompilerWork.swift */,
+				02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */,
 				025C624E255D2C9300AEA420 /* BinaryProtocol.swift */,
 				025C6251255D54C000AEA420 /* Errors.swift */,
 				OBJ_9 /* Exec.swift */,
@@ -587,6 +590,7 @@
 				025C6252255D54C000AEA420 /* Errors.swift in Sources */,
 				02512B5E25A8755B00CB8833 /* DartSassEmbedded.swift in Sources */,
 				0289BB3A2568471D0004544A /* ProtobufConversion.swift in Sources */,
+				02A1A96F25B5AAEA0045E28F /* CompilerRequests.swift in Sources */,
 				02A3BC0125800D0600BBF99E /* CompilerWork.swift in Sources */,
 				025C624F255D2C9300AEA420 /* BinaryProtocol.swift in Sources */,
 				OBJ_119 /* Compiler.swift in Sources */,

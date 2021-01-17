@@ -70,7 +70,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
 
         let msg = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
             msg.compileResponse = .with { rsp in
-                rsp.id = Compilation.peekNextCompilationID
+                rsp.id = CompilationRequest.peekNextCompilationID
                 rsp.result = nil // missing 'result'
             }
         }
@@ -156,7 +156,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// importer ID is completely wrong
     func testImporterBadID() throws {
         try checkBadImportMessage(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 42
             $0.importerID = 12
         }, "Bad importer ID")
@@ -165,7 +165,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// Importer ID picks out a loadpath not an importer
     func testImporterBadImporterType() throws {
         try checkBadImportMessage(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 42
             $0.importerID = 4001
         }, "not an importer")
@@ -174,7 +174,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// URL has gotten messed up
     func testImporterBadURL() throws {
         try checkBadImportMessage(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 42
             $0.importerID = 4000
         }, "Malformed import URL")
@@ -186,7 +186,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// Missing fn identifier
     func testImporterNoIdentifier() throws {
         try checkBadFnCallMessage(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 42
         }, "Missing 'identifier'")
     }
@@ -194,7 +194,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// Bad ID
     func testImporterBadNumericID() throws {
         try checkBadFnCallMessage(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 42
             $0.functionID = 108
         }, "Host function ID")
@@ -203,7 +203,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// Bad name
     func testImporterBadName() throws {
         try checkBadFnCallMessage(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 42
             $0.name = "mysterious"
         }, "Host function name")
@@ -212,7 +212,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// File import is in the API but not implemented anywhere...
     func testUnexpectedFileImport() throws {
         try checkBadFileImport(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 108
             $0.importerID = 22
         }, "Unexpected FileImport-Req")
