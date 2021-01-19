@@ -27,7 +27,11 @@ let package = Package(
       .package(
         name: "swift-log",
         url: "https://github.com/apple/swift-log.git",
-        from: "1.4.0")
+        from: "1.4.0"),
+      .package(
+        name: "semver",
+        url: "https://github.com/sersoft-gmbh/semver.git",
+        from: "3.0.0"),
     ],
     targets: [
       .target(name: "Sass"),

@@ -22,9 +22,6 @@ import Foundation
 
 // MARK: CompilerRequest
 
-/// CompilerRequest is the interface to compiler requests.
-///
-/// The `TypedCompilerRequest` is split off because of Swift associated-type limitations.
 protocol CompilerRequest: class {
     /// Notify that the initial request has been sent.  Return any timeout handler.
     func start(timeout: Int) -> EventLoopFuture<Void>?
