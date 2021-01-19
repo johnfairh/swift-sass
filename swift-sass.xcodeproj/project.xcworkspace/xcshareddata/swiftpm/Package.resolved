@@ -2,12 +2,12 @@
   "object": {
     "pins": [
       {
-        "package": "semver",
-        "repositoryURL": "https://github.com/sersoft-gmbh/semver.git",
+        "package": "Semver",
+        "repositoryURL": "https://github.com/johnfairh/Semver.swift.git",
         "state": {
           "branch": null,
-          "revision": "6e2941ac2ea7f5b499919c27234123214ce4a34c",
-          "version": "3.0.1"
+          "revision": "0560c97720a92e03355375637b84b6f81c2d4f52",
+          "version": "1.2.2"
         }
       },
       {

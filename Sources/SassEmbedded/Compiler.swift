@@ -14,7 +14,7 @@ import Logging
 // Compiler -- interface, control state machine
 // CompilerChild -- Child process, NIO reads and writes
 // CompilerWork -- Sass stuff, protocol, job management
-// CompilationRequest -- job state, many, managed by CompilerWork
+// CompilerRequest -- job state, many, managed by CompilerWork
 
 /// A Sass compiler interface that uses the Sass embedded protocol.
 ///
@@ -378,8 +378,8 @@ public final class Compiler {
             self.debug("Compiler is started, starting healthcheck")
             self.state.inittingToChecking(child)
             return child.sendVersionRequest()
-        }.map { versions in
-            // version check here
+        }.flatMapThrowing { versions in
+            try versions.check()
             self.state.checkingToRunning()
             self.kickPendingCompilations()
         }.flatMapErrorThrowing { error in
@@ -556,18 +556,13 @@ final class CompilerChild: ChannelInboundHandler {
     }
 
     func sendVersionRequest() -> EventLoopFuture<Versions> {
-        let (future, _) = work.startVersionRequest()
-// TODO: When the compiler actually supports Version, let it speak.
-//       Until then, fake up the response.
-        eventLoop.scheduleTask(in: .milliseconds(100)) {
-            var rmsg = Sass_EmbeddedProtocol_OutboundMessage()
-            rmsg.versionResponse = .with { ver in
-                ver.compilerVersion = "1"
-                ver.protocolVersion = "2"
-                ver.implementationName = "Dummy"
-                ver.implementationVersion = "13"
+        let (future, reqMsg) = work.startVersionRequest()
+        if let fakeVersionsMsg = Versions.fakeVersionsMsg {
+            eventLoop.scheduleTask(in: .milliseconds(100)) {
+                self.receive(message: fakeVersionsMsg)
             }
-            self.receive(message: rmsg)
+        } else {
+            send(message: reqMsg)
         }
         return future
     }

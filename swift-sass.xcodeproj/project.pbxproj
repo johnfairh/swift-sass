@@ -49,7 +49,8 @@
 		029B4F91257E578600A768D2 /* TestProtocolErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F90257E578600A768D2 /* TestProtocolErrors.swift */; };
 		029B4F94258005C000A768D2 /* NIO+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F93258005C000A768D2 /* NIO+Extras.swift */; };
 		02A1A96F25B5AAEA0045E28F /* CompilerRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */; };
-		02A1A97525B706EA0045E28F /* SemVer in Frameworks */ = {isa = PBXBuildFile; productRef = 02A1A97425B706EA0045E28F /* SemVer */; };
+		02A1A97A25B70A8B0045E28F /* Versions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A97925B70A8B0045E28F /* Versions.swift */; };
+		02A1A99125B774420045E28F /* Semver in Frameworks */ = {isa = PBXBuildFile; productRef = 02A1A99025B774420045E28F /* Semver */; };
 		02A346E9257AAE3D00A14905 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 02A346E8257AAE3D00A14905 /* Logging */; };
 		02A3BC0125800D0600BBF99E /* CompilerWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0025800D0600BBF99E /* CompilerWork.swift */; };
 		02A3BC052581600700BBF99E /* AsyncCompilerTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */; };
@@ -158,6 +159,7 @@
 		029B4F90257E578600A768D2 /* TestProtocolErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolErrors.swift; sourceTree = "<group>"; };
 		029B4F93258005C000A768D2 /* NIO+Extras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NIO+Extras.swift"; sourceTree = "<group>"; };
 		02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerRequests.swift; sourceTree = "<group>"; };
+		02A1A97925B70A8B0045E28F /* Versions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Versions.swift; sourceTree = "<group>"; };
 		02A3BC0025800D0600BBF99E /* CompilerWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerWork.swift; sourceTree = "<group>"; };
 		02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncCompilerTypes.swift; sourceTree = "<group>"; };
 		02A3BC0C2585314200BBF99E /* Cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Cli; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -199,11 +201,11 @@
 			buildActionMask = 0;
 			files = (
 				02440A2A257957B5008F0862 /* NIOFoundationCompat in Frameworks */,
-				02A1A97525B706EA0045E28F /* SemVer in Frameworks */,
 				02903F3C25A73DE90049106E /* DartSassEmbeddedMacOS.framework in Frameworks */,
 				02440A272576C7DA008F0862 /* NIO in Frameworks */,
 				0289BB2225666BA70004544A /* Sass.framework in Frameworks */,
 				02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */,
+				02A1A99125B774420045E28F /* Semver in Frameworks */,
 				02A346E9257AAE3D00A14905 /* Logging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -357,6 +359,7 @@
 				OBJ_10 /* Compiler.swift */,
 				02A3BC0025800D0600BBF99E /* CompilerWork.swift */,
 				02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */,
+				02A1A97925B70A8B0045E28F /* Versions.swift */,
 				025C624E255D2C9300AEA420 /* BinaryProtocol.swift */,
 				025C6251255D54C000AEA420 /* Errors.swift */,
 				OBJ_9 /* Exec.swift */,
@@ -456,7 +459,7 @@
 				02440A29257957B5008F0862 /* NIOFoundationCompat */,
 				02A346E8257AAE3D00A14905 /* Logging */,
 				02E0ED7E2586172C0080E954 /* SwiftProtobuf */,
-				02A1A97425B706EA0045E28F /* SemVer */,
+				02A1A99025B774420045E28F /* Semver */,
 			);
 			productName = SassEmbedded;
 			productReference = "swift-sass::SassEmbedded::Product" /* SassEmbedded.framework */;
@@ -515,7 +518,7 @@
 				02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */,
 				02A346E7257AAE3D00A14905 /* XCRemoteSwiftPackageReference "swift-log" */,
 				02E0ED79258617180080E954 /* XCRemoteSwiftPackageReference "swift-protobuf" */,
-				02A1A97325B706EA0045E28F /* XCRemoteSwiftPackageReference "semver" */,
+				02A1A98F25B774420045E28F /* XCRemoteSwiftPackageReference "Semver.swift" */,
 			);
 			productRefGroup = OBJ_105 /* Products */;
 			projectDirPath = "";
@@ -600,6 +603,7 @@
 				OBJ_119 /* Compiler.swift in Sources */,
 				029B4F94258005C000A768D2 /* NIO+Extras.swift in Sources */,
 				OBJ_120 /* embedded_sass.pb.swift in Sources */,
+				02A1A97A25B70A8B0045E28F /* Versions.swift in Sources */,
 				02A3BC052581600700BBF99E /* AsyncCompilerTypes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1290,12 +1294,12 @@
 				minimumVersion = 2.25.0;
 			};
 		};
-		02A1A97325B706EA0045E28F /* XCRemoteSwiftPackageReference "semver" */ = {
+		02A1A98F25B774420045E28F /* XCRemoteSwiftPackageReference "Semver.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sersoft-gmbh/semver.git";
+			repositoryURL = "https://github.com/johnfairh/Semver.swift.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 3.0.0;
+				minimumVersion = 1.2.2;
 			};
 		};
 		02A346E7257AAE3D00A14905 /* XCRemoteSwiftPackageReference "swift-log" */ = {
@@ -1327,10 +1331,10 @@
 			package = 02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */;
 			productName = NIOFoundationCompat;
 		};
-		02A1A97425B706EA0045E28F /* SemVer */ = {
+		02A1A99025B774420045E28F /* Semver */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 02A1A97325B706EA0045E28F /* XCRemoteSwiftPackageReference "semver" */;
-			productName = SemVer;
+			package = 02A1A98F25B774420045E28F /* XCRemoteSwiftPackageReference "Semver.swift" */;
+			productName = Semver;
 		};
 		02A346E8257AAE3D00A14905 /* Logging */ = {
 			isa = XCSwiftPackageProductDependency;

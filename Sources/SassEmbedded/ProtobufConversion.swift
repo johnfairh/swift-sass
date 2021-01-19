@@ -78,9 +78,9 @@ extension CompilerMessage {
 
 extension Versions {
     init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.VersionResponse) {
-        protocolVersion = protobuf.protocolVersion
-        packageVersion = protobuf.compilerVersion
-        compilerVersion = protobuf.implementationVersion
+        protocolVersionString = protobuf.protocolVersion
+        packageVersionString = protobuf.compilerVersion
+        compilerVersionString = protobuf.implementationVersion
         compilerName = protobuf.implementationName
     }
 }
@@ -125,6 +125,15 @@ extension Array where Element == Sass_EmbeddedProtocol_InboundMessage.CompileReq
         self = importers.enumerated().map {
             .init($0.1, id: UInt32($0.0) + startingID)
         }
+    }
+}
+
+extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse {
+    init(_ versions: Versions) {
+        protocolVersion = versions.protocolVersionString
+        compilerVersion = versions.packageVersionString
+        implementationVersion = versions.compilerVersionString
+        implementationName = versions.compilerName
     }
 }
 

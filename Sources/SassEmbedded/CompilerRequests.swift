@@ -393,13 +393,6 @@ private extension AsyncImportResolver {
 
 // MARK: VersionRequest
 
-struct Versions {
-    let protocolVersion: String
-    let packageVersion: String
-    let compilerVersion: String
-    let compilerName: String
-}
-
 final class VersionRequest: ManagedCompilerRequest {
     // Protocol reqs
     private(set) var promise: EventLoopPromise<Versions>
