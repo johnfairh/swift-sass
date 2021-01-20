@@ -2,7 +2,7 @@
 //  TestUtils.swift
 //  SassEmbeddedTests
 //
-//  Copyright 2020 swift-sass contributors
+//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
