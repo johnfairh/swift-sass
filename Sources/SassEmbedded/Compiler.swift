@@ -96,6 +96,15 @@ public final class Compiler {
     /// The actual compilation work
     private var work: CompilerWork!
 
+    public private(set) var compilerName: String?
+    public private(set) var compilerVersion: String?
+
+    /// Once established we hang on to these to help debug
+    private func setVersions(_ versions: Versions) {
+        compilerName = versions.compilerName
+        compilerVersion = versions.compilerVersionString
+    }
+
     /// Use the bundled Dart Sass compiler as the Sass compiler.
     ///
     /// The bundled Dart Sass compiler is built for macOS (Intel) or Ubuntu Xenial (16.04) 64-bit.
@@ -380,6 +389,7 @@ public final class Compiler {
             return child.sendVersionRequest()
         }.flatMapThrowing { versions in
             try versions.check()
+            self.setVersions(versions)
             self.state.checkingToRunning()
             self.kickPendingCompilations()
         }.flatMapErrorThrowing { error in

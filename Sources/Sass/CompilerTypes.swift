@@ -2,7 +2,7 @@
 //  CompilerTypes.swift
 //  Sass
 //
-//  Copyright 2020 swift-sass contributors
+//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 //  Much text here taken verbatim or only slightly editted from the embedded Sass
@@ -11,9 +11,9 @@
 //  Licensed under MIT (https://github.com/sass/embedded-protocol/blob/master/LICENSE)
 //
 
-// Sass compiler interface types, shared between embedded Sass and libsass.
-
 import Foundation
+
+// Sass compiler interface types, shared between embedded Sass and libsass.
 
 /// How the Sass compiler should format the CSS it produces.
 public enum CssStyle {
@@ -255,6 +255,13 @@ public protocol CompilerProtocol {
                  createSourceMap: Bool,
                  importers: [ImportResolver],
                  functions: SassFunctionMap) throws -> CompilerResults
+
+    /// The name of the underlying Sass implementation.  `nil` if unknown.
+    var compilerName: String? { get }
+
+    /// The version of the underlying Sass implementation.  For Dart Sass and libsass this is in
+    /// [semver](https://semver.org/spec/v2.0.0.html) format. `nil` if unknown.
+    var compilerVersion: String? { get }
 }
 
 // MARK: Message pretty-printers
