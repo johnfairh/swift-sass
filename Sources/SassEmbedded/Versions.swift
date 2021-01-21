@@ -37,10 +37,12 @@ struct Versions: CustomStringConvertible {
             throw ProtocolError("Embedded Sass compiler does not support required protocol version \(Versions.minProtocolVersion).  Its versions are: \(self)")
         }
         if protocolVersion.major > Versions.minProtocolVersion.major {
-            throw ProtocolError("Embedded Sass compiler protocol version is incompatible with required version \(Versions.minProtocolVersion).  Its versions are: \(self)")
+            throw ProtocolError("Embedded Sass compiler protocol version is incompatible with required version \(Versions.minProtocolVersion) -> nextMajor.  Its versions are: \(self)")
         }
     }
 }
+
+import NIO
 
 /// Version response injection for testing and bringup until the compiler implements the request.
 extension Versions {
@@ -52,5 +54,15 @@ extension Versions {
 
     static var fakeVersionsMsg: Sass_EmbeddedProtocol_OutboundMessage? {
         fakeVersions.flatMap { ver in .with { $0.versionResponse = .init(ver) } }
+    }
+
+    static func fakeVersionReply(eventLoop: EventLoop, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) -> Bool {
+        guard let replyMsg = fakeVersionsMsg else {
+            return false
+        }
+        eventLoop.scheduleTask(in: .milliseconds(100)) {
+            callback(replyMsg)
+        }
+        return true
     }
 }

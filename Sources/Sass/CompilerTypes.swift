@@ -255,13 +255,6 @@ public protocol CompilerProtocol {
                  createSourceMap: Bool,
                  importers: [ImportResolver],
                  functions: SassFunctionMap) throws -> CompilerResults
-
-    /// The name of the underlying Sass implementation.  `nil` if unknown.
-    var compilerName: String? { get }
-
-    /// The version of the underlying Sass implementation.  For Dart Sass and libsass this is in
-    /// [semver](https://semver.org/spec/v2.0.0.html) format. `nil` if unknown.
-    var compilerVersion: String? { get }
 }
 
 // MARK: Message pretty-printers

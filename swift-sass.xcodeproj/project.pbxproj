@@ -51,6 +51,7 @@
 		02A1A96F25B5AAEA0045E28F /* CompilerRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */; };
 		02A1A97A25B70A8B0045E28F /* Versions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A97925B70A8B0045E28F /* Versions.swift */; };
 		02A1A99125B774420045E28F /* Semver in Frameworks */ = {isa = PBXBuildFile; productRef = 02A1A99025B774420045E28F /* Semver */; };
+		02A1A9A125B99C650045E28F /* TestVersions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A99525B99C560045E28F /* TestVersions.swift */; };
 		02A346E9257AAE3D00A14905 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 02A346E8257AAE3D00A14905 /* Logging */; };
 		02A3BC0125800D0600BBF99E /* CompilerWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0025800D0600BBF99E /* CompilerWork.swift */; };
 		02A3BC052581600700BBF99E /* AsyncCompilerTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */; };
@@ -160,6 +161,7 @@
 		029B4F93258005C000A768D2 /* NIO+Extras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NIO+Extras.swift"; sourceTree = "<group>"; };
 		02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerRequests.swift; sourceTree = "<group>"; };
 		02A1A97925B70A8B0045E28F /* Versions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Versions.swift; sourceTree = "<group>"; };
+		02A1A99525B99C560045E28F /* TestVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestVersions.swift; sourceTree = "<group>"; };
 		02A3BC0025800D0600BBF99E /* CompilerWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerWork.swift; sourceTree = "<group>"; };
 		02A3BC042581600700BBF99E /* AsyncCompilerTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncCompilerTypes.swift; sourceTree = "<group>"; };
 		02A3BC0C2585314200BBF99E /* Cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Cli; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -323,6 +325,7 @@
 				029B4F90257E578600A768D2 /* TestProtocolErrors.swift */,
 				0289BB362566A62B0004544A /* TestImporters.swift */,
 				0285E827256C4C2900956F18 /* TestFunctions.swift */,
+				02A1A99525B99C560045E28F /* TestVersions.swift */,
 				OBJ_15 /* TestUtils.swift */,
 			);
 			name = SassEmbeddedTests;
@@ -614,6 +617,7 @@
 			files = (
 				0285E843256FCEDA00956F18 /* TestMap.swift in Sources */,
 				029B4F8E257E569D00A768D2 /* TestResetShutdown.swift in Sources */,
+				02A1A9A125B99C650045E28F /* TestVersions.swift in Sources */,
 				0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */,
 				0285E85625756B1500956F18 /* TestColor.swift in Sources */,
 				0285E828256C4C2900956F18 /* TestFunctions.swift in Sources */,

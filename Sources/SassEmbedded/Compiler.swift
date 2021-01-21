@@ -96,14 +96,8 @@ public final class Compiler {
     /// The actual compilation work
     private var work: CompilerWork!
 
-    public private(set) var compilerName: String?
-    public private(set) var compilerVersion: String?
-
-    /// Once established we hang on to these to help debug
-    private func setVersions(_ versions: Versions) {
-        compilerName = versions.compilerName
-        compilerVersion = versions.compilerVersionString
-    }
+    /// Most recently received version of compiler
+    private var versions: Versions?
 
     /// Use the bundled Dart Sass compiler as the Sass compiler.
     ///
@@ -254,6 +248,33 @@ public final class Compiler {
         }
     }
 
+    /// The name of the underlying Sass implementation.  `nil` if unknown.
+    public var compilerName: EventLoopFuture<String?> {
+        versionsFuture.map { $0?.compilerName }
+    }
+
+    /// The version of the underlying Sass implementation.  For Dart Sass and LibSass this is in
+    /// [semver](https://semver.org/spec/v2.0.0.html) format. `nil` if unknown (never got a version).
+    public var compilerVersion: EventLoopFuture<String?> {
+        versionsFuture.map { $0?.compilerVersionString }
+    }
+
+    private var versionsFuture: EventLoopFuture<Versions?> {
+        eventLoop.flatSubmit { [self] in
+            switch state {
+            case .broken, .shutdown, .running, .quiescing:
+                return eventLoop.makeSucceededFuture(versions)
+            case .checking(_, let future), .initializing(let future):
+                // i feel pretty dumb for writing this but neither always nor when... do what I want
+                return future.map {
+                    self.versions
+                }.recover { _ in
+                    self.versions
+                }
+            }
+        }
+    }
+
     /// Logger for the module.
     ///
     /// A [swift-log](https://github.com/apple/swift-log) `Logger`.
@@ -389,7 +410,7 @@ public final class Compiler {
             return child.sendVersionRequest()
         }.flatMapThrowing { versions in
             try versions.check()
-            self.setVersions(versions)
+            self.versions = versions
             self.state.checkingToRunning()
             self.kickPendingCompilations()
         }.flatMapErrorThrowing { error in
@@ -567,11 +588,7 @@ final class CompilerChild: ChannelInboundHandler {
 
     func sendVersionRequest() -> EventLoopFuture<Versions> {
         let (future, reqMsg) = work.startVersionRequest()
-        if let fakeVersionsMsg = Versions.fakeVersionsMsg {
-            eventLoop.scheduleTask(in: .milliseconds(100)) {
-                self.receive(message: fakeVersionsMsg)
-            }
-        } else {
+        if !Versions.fakeVersionReply(eventLoop: eventLoop, callback: { self.receive(message: $0) }) {
             send(message: reqMsg)
         }
         return future

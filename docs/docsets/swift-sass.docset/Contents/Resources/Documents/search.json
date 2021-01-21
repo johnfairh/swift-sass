@@ -1024,7 +1024,7 @@
     "name" : "compile(fileURL:outputStyle:createSourceMap:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "sassembedded\/types\/compiler.html?swift#compilername1" : {
+  "sassembedded\/types\/compiler.html?swift#compilername" : {
     "abstract" : "The name of the underlying Sass implementation.  nil if unknown.",
     "name" : "compilerName",
     "parent_name" : "Compiler"
@@ -1034,8 +1034,8 @@
     "name" : "compilerProcessIdentifier",
     "parent_name" : "Compiler"
   },
-  "sassembedded\/types\/compiler.html?swift#compilerversion1" : {
-    "abstract" : "The version of the underlying Sass implementation.  For Dart Sass and libsass this is in semver format. nil if unknown.",
+  "sassembedded\/types\/compiler.html?swift#compilerversion" : {
+    "abstract" : "The version of the underlying Sass implementation.  For Dart Sass and libsass this is in\nsemver format. nil if unknown (never got a version).",
     "name" : "compilerVersion",
     "parent_name" : "Compiler"
   },
