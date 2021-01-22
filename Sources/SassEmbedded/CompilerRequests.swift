@@ -407,10 +407,10 @@ final class VersionRequest: ManagedCompilerRequest {
         .init()
     }
 
-    static let RequestID = UInt32(0xfffffffe)
+    static let requestID = UInt32(0xfffffffe)
 
     var requestID: UInt32 {
-        VersionRequest.RequestID
+        VersionRequest.requestID
     }
 
     init(promise: EventLoopPromise<Versions>) {

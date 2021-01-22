@@ -265,12 +265,11 @@ public final class Compiler {
             case .broken, .shutdown, .running, .quiescing:
                 return eventLoop.makeSucceededFuture(versions)
             case .checking(_, let future), .initializing(let future):
-                // i feel pretty dumb for writing this but neither always nor when... do what I want
-                return future.map {
-                    self.versions
-                }.recover { _ in
-                    self.versions
+                let promise = eventLoop.makePromise(of: Optional<Versions>.self)
+                future.whenComplete { _ in
+                    promise.succeed(self.versions)
                 }
+                return promise.futureResult
             }
         }
     }
@@ -588,7 +587,7 @@ final class CompilerChild: ChannelInboundHandler {
 
     func sendVersionRequest() -> EventLoopFuture<Versions> {
         let (future, reqMsg) = work.startVersionRequest()
-        if !Versions.fakeVersionReply(eventLoop: eventLoop, callback: { self.receive(message: $0) }) {
+        if !Versions.willProvideVersions(eventLoop: eventLoop, callback: { self.receive(message: $0) }) {
             send(message: reqMsg)
         }
         return future

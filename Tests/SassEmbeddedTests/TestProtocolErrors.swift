@@ -23,6 +23,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
                 rsp.id = 108
             }
         }
+        XCTAssertNil(compiler.state.child)
         compiler.sync()
         try compiler.eventLoop.flatSubmit {
             try! compiler.child().send(message: msg)
@@ -281,6 +282,7 @@ extension Compiler {
     }
 
     func sync() {
-        let _ = try! self.compilerProcessIdentifier.wait()
+        let _ = try! compilerProcessIdentifier.wait()
+        XCTAssertNil(state.future)
     }
 }

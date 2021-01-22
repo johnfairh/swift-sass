@@ -6,6 +6,7 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
+import NIO
 import XCTest
 @testable import SassEmbedded
 
@@ -47,9 +48,42 @@ class TestVersions: SassEmbeddedTestCase {
     }
 
     func testBadVersionReport() throws {
-        let normalFakeVersions = Versions.fakeVersions
-        defer { Versions.fakeVersions = normalFakeVersions }
-        Versions.fakeVersions = Versions(protocolVersionString: "huh")
+        defer { Versions.responder = DefaultVersionsResponder() }
+        Versions.responder = DefaultVersionsResponder(Versions(protocolVersionString: "huh"))
+        let compiler = try newCompiler()
+        let version = try compiler.compilerVersion.wait()
+        XCTAssertNil(version)
+    }
+
+    struct HangingVersionsResponder: VersionsResponder {
+        func provideVersions(eventLoop: EventLoop, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) {
+            // drop it
+        }
+    }
+
+    func testStuckVersionReport() throws {
+        defer { Versions.responder = DefaultVersionsResponder() }
+        Versions.responder = HangingVersionsResponder()
+        let compiler = try newBadCompiler(timeout: 1)
+        let version = try compiler.compilerVersion.wait()
+        XCTAssertNil(version)
+    }
+
+    struct CorruptVersionsResponder: VersionsResponder {
+        func provideVersions(eventLoop: EventLoop, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) {
+            eventLoop.scheduleTask(in: .milliseconds(100)) {
+                callback(.with {
+                    $0.importRequest = .with {
+                        $0.compilationID = VersionRequest.requestID
+                    }
+                })
+            }
+        }
+    }
+
+    func testCorruptVersionReport() throws {
+        defer { Versions.responder = DefaultVersionsResponder() }
+        Versions.responder = CorruptVersionsResponder()
         let compiler = try newCompiler()
         let version = try compiler.compilerVersion.wait()
         XCTAssertNil(version)

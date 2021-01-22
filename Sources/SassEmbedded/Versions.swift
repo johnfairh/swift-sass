@@ -45,24 +45,38 @@ struct Versions: CustomStringConvertible {
 import NIO
 
 /// Version response injection for testing and bringup until the compiler implements the request.
-extension Versions {
-    static var fakeVersions: Versions? =
+
+protocol VersionsResponder {
+    func provideVersions(eventLoop: EventLoop, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void)
+}
+
+struct DefaultVersionsResponder: VersionsResponder {
+    static let defaultVersions =
         Versions(protocolVersionString: Versions.minProtocolVersion.toString(),
                  packageVersionString: "0.0.1",
                  compilerVersionString: "0.0.1",
                  compilerName: "ProbablyDartSass")
 
-    static var fakeVersionsMsg: Sass_EmbeddedProtocol_OutboundMessage? {
-        fakeVersions.flatMap { ver in .with { $0.versionResponse = .init(ver) } }
+    private let versions: Versions
+    init(_ versions: Versions = Self.defaultVersions) {
+        self.versions = versions
     }
 
-    static func fakeVersionReply(eventLoop: EventLoop, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) -> Bool {
-        guard let replyMsg = fakeVersionsMsg else {
+    func provideVersions(eventLoop: EventLoop, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) {
+        eventLoop.scheduleTask(in: .milliseconds(100)) {
+            callback(.with { $0.versionResponse = .init(versions) })
+        }
+    }
+}
+
+extension Versions {
+    static var responder: VersionsResponder? = DefaultVersionsResponder()
+
+    static func willProvideVersions(eventLoop: EventLoop, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) -> Bool {
+        guard let responder = responder else {
             return false
         }
-        eventLoop.scheduleTask(in: .milliseconds(100)) {
-            callback(replyMsg)
-        }
+        responder.provideVersions(eventLoop: eventLoop, callback: callback)
         return true
     }
 }
