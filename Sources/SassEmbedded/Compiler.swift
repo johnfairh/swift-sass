@@ -414,6 +414,7 @@ public final class Compiler {
             self.kickPendingCompilations()
         }.flatMapErrorThrowing { error in
             self.debug("Can't start the compiler at all: \(error)")
+            self.state.child?.stopAndCancelWork(with: error)
             self.state = .broken(error)
             self.kickPendingCompilations()
             throw error
@@ -552,6 +553,22 @@ final class CompilerChild: ChannelInboundHandler {
         self.work = work
         self.errorHandler = errorHandler
         self.stopping = false
+
+        // The termination handler is always called when the process ends.
+        // Only cascade this up into a compiler restart when we're not already
+        // stopping, ie. we didn't just ask the process to end.
+
+        // This vs. `stopAndCancelWork()` vs. the eventLoop becoming invalid is still
+        // racy because we don't flush out any pending call here before stopping the event loop.
+        // Don't want to interlock it because (a) more quiesce phases and (b) don't trust
+        // the library to guarantee a timely call.
+        self.child.process.terminationHandler = { _ in
+            eventLoop.execute {
+                if !self.stopping {
+                    errorHandler(ProtocolError("Compiler process exitted unexpectedly"))
+                }
+            }
+        }
     }
 
     /// Connect Sass protocol handlers.
@@ -576,7 +593,10 @@ final class CompilerChild: ChannelInboundHandler {
         }
 
         return child.channel.writeAndFlush(message).flatMapError { error in
-            self.errorHandler(ProtocolError("Write to Sass compiler failed: \(error)."))
+            // tough to reliably hit this error.  if we kill the process while trying to write to
+            // it we get this on Darwin maybe 20% of the time vs. the write working, leaving the
+            // sigchld handler to clean up.
+            self.errorHandler(ProtocolError("Write to Sass compiler failed: \(error)"))
             return self.eventLoop.makeFailedFuture(error)
         }
     }
@@ -622,6 +642,7 @@ final class CompilerChild: ChannelInboundHandler {
     /// to keep them tightly bound.
     func stopAndCancelWork(with error: Error? = nil) {
         stopping = true
+        child.process.terminationHandler = nil
         child.terminate()
         if let error = error {
             work.cancelAllActive(with: error)
