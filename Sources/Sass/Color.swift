@@ -2,7 +2,7 @@
 //  Color.swift
 //  Sass
 //
-//  Copyright 2020 swift-sass contributors
+//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
@@ -299,7 +299,7 @@ public final class SassColor: SassValue {
 
     // MARK: Misc
 
-    /// Colors are compared in their RGB-A forms, using  only 11 DP for the alpha.
+    /// Colors are compared in their RGB-A forms, using  only 10 DP for the alpha.
     public static func == (lhs: SassColor, rhs: SassColor) -> Bool {
         lhs.colorValue.rgb() == rhs.colorValue.rgb() &&
             SassDouble.areEqual(lhs.colorValue.alpha, rhs.colorValue.alpha)
