@@ -2,7 +2,7 @@
 //  ProtobufConversion.swift
 //  SassEmbedded
 //
-//  Copyright 2020 swift-sass contributors
+//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
@@ -76,6 +76,15 @@ extension CompilerMessage {
     }
 }
 
+extension Versions {
+    init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.VersionResponse) {
+        protocolVersionString = protobuf.protocolVersion
+        packageVersionString = protobuf.compilerVersion
+        compilerVersionString = protobuf.implementationVersion
+        compilerName = protobuf.implementationName
+    }
+}
+
 // MARK: Native -> PB
 
 extension Sass_EmbeddedProtocol_InboundMessage.Syntax {
@@ -119,6 +128,15 @@ extension Array where Element == Sass_EmbeddedProtocol_InboundMessage.CompileReq
     }
 }
 
+extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse {
+    init(_ versions: Versions) {
+        protocolVersion = versions.protocolVersionString
+        compilerVersion = versions.packageVersionString
+        implementationVersion = versions.compilerVersionString
+        implementationName = versions.compilerName
+    }
+}
+
 // MARK: Inbound message polymorphism
 
 extension Sass_EmbeddedProtocol_OutboundMessage {
@@ -126,8 +144,8 @@ extension Sass_EmbeddedProtocol_OutboundMessage {
         message?.logMessage ?? "unknown-1"
     }
 
-    var compilationID: UInt32? {
-        message?.compilationID
+    var requestID: UInt32? {
+        message?.requestID
     }
 }
 
@@ -141,18 +159,20 @@ extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message {
         case .functionCallRequest(let m): return m.logMessage
         case .importRequest(let m): return m.logMessage
         case .logEvent(let m): return m.logMessage
+        case .versionResponse(let m): return m.logMessage
         }
     }
 
-    var compilationID: UInt32? {
+    var requestID: UInt32? {
         switch self {
         case .canonicalizeRequest(let m): return m.compilationID
-        case .compileResponse(let m): return UInt32(m.id) // XXX oops bad protobuf
+        case .compileResponse(let m): return m.id
         case .error: return nil
         case .fileImportRequest(let m): return m.compilationID
         case .functionCallRequest(let m): return m.compilationID
         case .importRequest(let m): return m.compilationID
         case .logEvent(let m): return m.compilationID
+        case .versionResponse: return VersionRequest.requestID
         }
     }
 }
@@ -162,6 +182,7 @@ extension Sass_EmbeddedProtocol_ProtocolError {
         "Protocol-Error CompID=\(id)"
     }
 }
+
 extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse {
     var logMessage: String {
         "Compile-Rsp CompID=\(id)"
@@ -204,6 +225,12 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest.OneOf_Identi
         case .functionID(let id): return String(id)
         case .name(let name): return name
         }
+    }
+}
+
+extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse {
+    var logMessage: String {
+        "Version-Rsp Proto=\(protocolVersion) Pkg=\(compilerVersion) Compiler=\(implementationVersion) Name=\(implementationName)"
     }
 }
 

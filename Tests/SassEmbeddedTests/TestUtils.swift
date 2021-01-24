@@ -2,7 +2,7 @@
 //  TestUtils.swift
 //  SassEmbeddedTests
 //
-//  Copyright 2020 swift-sass contributors
+//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
@@ -32,33 +32,14 @@ class SassEmbeddedTestCase: XCTestCase {
         eventLoopGroup = nil
     }
 
-    static var unitTestDirURL: URL {
-        URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-    }
-
-    static var dartSassEmbeddedDirURL: URL {
-        let rootURL = unitTestDirURL.appendingPathComponent("dart-sass-embedded")
-        #if os(Linux)
-        let platformURL = rootURL.appendingPathComponent("linux")
-        #else
-        let platformURL = rootURL.appendingPathComponent("macos")
-        #endif
-        return platformURL.appendingPathComponent("sass_embedded")
-    }
-
-    static var dartSassEmbeddedURL: URL {
-        dartSassEmbeddedDirURL.appendingPathComponent("dart-sass-embedded")
-    }
-
     func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap = [:]) throws -> Compiler {
         return try newCompiler(importers: importers, asyncFunctions: SassAsyncFunctionMap(functions))
     }
 
     func newCompiler(importers: [ImportResolver] = [], asyncFunctions: SassAsyncFunctionMap) throws -> Compiler {
-        let c = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                         embeddedCompilerURL: SassEmbeddedTestCase.dartSassEmbeddedURL,
-                         importers: importers,
-                         functions: asyncFunctions)
+        let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+                             importers: importers,
+                             functions: asyncFunctions)
         compilersToShutdown.append(c)
         return c
     }

@@ -1,10 +1,8 @@
 //
 //  Exec.swift
-//  TMLMisc -> SourceKittenFramework -> BebopLib -> SassEmbedded
+//  SassEmbedded
 //
-//  Copyright © 2019 SourceKitten. All rights reserved.
-//  Copyright 2020 Bebop Authors
-//  Copyright 2020 swift-sass contributors
+//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
@@ -32,94 +30,6 @@ private struct SocketPipe {
 
 /// Namespace for utilities to execute a child process.
 enum Exec {
-    /// The result of running the child process.
-    struct Results {
-        /// The command that was run
-        let command: String
-        /// Its arguments
-        let arguments: [String]
-        /// The process's exit status.
-        let terminationStatus: Int32
-        /// The data from stdout and optionally stderr.
-        let data: Data
-        /// The `data` reinterpreted as a string with whitespace trimmed; `nil` for the empty string.
-        var string: String? {
-            let encoded = String(data: data, encoding: .utf8) ?? ""
-            let trimmed = encoded.trimmingCharacters(in: .whitespacesAndNewlines)
-            return trimmed.isEmpty ? nil : trimmed
-        }
-        /// The `data` reinterpreted as a string but intercepted to `nil` if the command actually failed
-        var successString: String? {
-            guard terminationStatus == 0 else {
-                return nil
-            }
-            return string
-        }
-        /// Some text explaining a failure
-        var failureReport: String {
-            var report = """
-            Command failed: \(command)
-            Arguments: \(arguments)
-            Exit status: \(terminationStatus)
-            """
-            if let output = string {
-                report += ", output:\n\(output)"
-            }
-            return report
-        }
-    }
-
-    /**
-    Run a command with arguments and return its output and exit status.
-
-    - parameter command: Absolute path of the command to run.
-    - parameter arguments: Arguments to pass to the command.
-    - parameter currentDirectory: Current directory for the command.  By default
-                                  the parent process's current directory.
-    */
-    static func run(_ command: String,
-                    _ arguments: String...,
-                    currentDirectory: String = FileManager.default.currentDirectoryPath) -> Results {
-        return run(command, arguments, currentDirectory: currentDirectory)
-    }
-
-    /**
-     Run a command with arguments and return its output and exit status.
-
-     - parameter command: Absolute path of the command to run.
-     - parameter arguments: Arguments to pass to the command.
-     - parameter currentDirectory: Current directory for the command.  By default
-                                   the parent process's current directory.
-     */
-     static func run(_ command: String,
-                     _ arguments: [String] = [],
-                     currentDirectory: String = FileManager.default.currentDirectoryPath) -> Results {
-        let process = Process()
-        process.arguments = arguments
-
-        let pipe = Pipe()
-        process.standardOutput = pipe
-
-        // FileHandle.nullDevice does not work here, as it consists of an invalid file descriptor,
-        // causing process.launch() to abort with an EBADF.
-        process.standardError = FileHandle(forWritingAtPath: "/dev/null")!
-
-        do {
-            process.executableURL = URL(fileURLWithPath: command)
-            process.currentDirectoryURL = URL(fileURLWithPath: currentDirectory)
-            try process.run()
-        } catch {
-            return Results(command: command, arguments: arguments, terminationStatus: -1, data: Data())
-        }
-
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        process.waitUntilExit()
-        return Results(command: process.executableURL?.path ?? "",
-                       arguments: process.arguments ?? [],
-                       terminationStatus: process.terminationStatus,
-                       data: data)
-    }
-
     /// Start an asynchrous child process with NIO connections.
     ///
     /// Doesn't work on an event loop -- a weird underlying NIO design point we lean into: this

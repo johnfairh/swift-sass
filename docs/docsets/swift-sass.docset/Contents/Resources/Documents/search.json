@@ -173,7 +173,7 @@
     "name" : "ImportResolver"
   },
   "sass\/types\/importresolver.html?swift#importer_" : {
-    "abstract" : "Call back through the Importer to resolve the rule.",
+    "abstract" : "Call back through the Importer to resolve the rule.  This can be an AsyncImporter if\nthe compiler implementation accepts asynchronous importers.",
     "name" : "importer(_:)",
     "parent_name" : "ImportResolver"
   },
@@ -1014,9 +1014,9 @@
     "name" : "compileAsync(fileURL:outputStyle:createSourceMap:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "sassembedded\/types\/compiler.html?swift#compileasynctextsyntaxurloutputstylecreatesourcemapimportersfunctions" : {
-    "abstract" : "Asynchronous version of compile(text:syntax:url:outputStyle:createSourceMap:importers:functions:).",
-    "name" : "compileAsync(text:syntax:url:outputStyle:createSourceMap:importers:functions:)",
+  "sassembedded\/types\/compiler.html?swift#compileasynctextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions" : {
+    "abstract" : "Asynchronous version of compile(text:syntax:url:importer:outputStyle:createSourceMap:importers:functions:).",
+    "name" : "compileAsync(text:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)",
     "parent_name" : "Compiler"
   },
   "sassembedded\/types\/compiler.html?swift#compilefileurloutputstylecreatesourcemapimportersfunctions1" : {
@@ -1024,24 +1024,34 @@
     "name" : "compile(fileURL:outputStyle:createSourceMap:importers:functions:)",
     "parent_name" : "Compiler"
   },
+  "sassembedded\/types\/compiler.html?swift#compilername" : {
+    "abstract" : "The name of the underlying Sass implementation.  nil if unknown.",
+    "name" : "compilerName",
+    "parent_name" : "Compiler"
+  },
   "sassembedded\/types\/compiler.html?swift#compilerprocessidentifier" : {
     "abstract" : "The process ID of the compiler process.",
     "name" : "compilerProcessIdentifier",
     "parent_name" : "Compiler"
   },
-  "sassembedded\/types\/compiler.html?swift#compiletextsyntaxurloutputstylecreatesourcemapimportersfunctions1" : {
-    "abstract" : "Compile to CSS from an inline stylesheet.",
-    "name" : "compile(text:syntax:url:outputStyle:createSourceMap:importers:functions:)",
+  "sassembedded\/types\/compiler.html?swift#compilerversion" : {
+    "abstract" : "The version of the underlying Sass implementation.  For Dart Sass and libsass this is in\nsemver format. nil if unknown (never got a version).",
+    "name" : "compilerVersion",
     "parent_name" : "Compiler"
   },
-  "sassembedded\/types\/compiler.html?swift#initeventloopgroupproviderembeddedcompilernametimeoutimportersfunctions" : {
-    "abstract" : "Use a program found on PATH as the Sass embedded compiler.",
-    "name" : "init(eventLoopGroupProvider:embeddedCompilerName:timeout:importers:functions:)",
+  "sassembedded\/types\/compiler.html?swift#compiletextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions1" : {
+    "abstract" : "Compile to CSS from an inline stylesheet.",
+    "name" : "compile(text:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)",
     "parent_name" : "Compiler"
   },
   "sassembedded\/types\/compiler.html?swift#initeventloopgroupproviderembeddedcompilerurltimeoutimportersfunctions" : {
     "abstract" : "Use a program as the Sass embedded compiler.",
     "name" : "init(eventLoopGroupProvider:embeddedCompilerURL:timeout:importers:functions:)",
+    "parent_name" : "Compiler"
+  },
+  "sassembedded\/types\/compiler.html?swift#initeventloopgroupprovidertimeoutimportersfunctions" : {
+    "abstract" : "Use the bundled Dart Sass compiler as the Sass compiler.",
+    "name" : "init(eventLoopGroupProvider:timeout:importers:functions:)",
     "parent_name" : "Compiler"
   },
   "sassembedded\/types\/compiler.html?swift#logger" : {

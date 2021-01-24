@@ -1,8 +1,8 @@
 //
-//  TestCompiler.swift
+//  TestInterface.swift
 //  SassEmbeddedTests
 //
-//  Copyright 2020 swift-sass contributors
+//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
@@ -107,28 +107,6 @@ class TestInterface: SassEmbeddedTestCase {
         }
     }
 
-    /// Can we search PATH properly
-    func testCompilerSearch() throws {
-        do {
-            let compiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup), embeddedCompilerName: "not-a-compiler")
-            XCTFail("Created a weird compiler \(compiler)")
-        } catch let error as LifecycleError {
-            print(error)
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
-        // omg don't @ me
-        let oldPATH = strdup(getenv("PATH"))
-        let oldPATHString = String(cString: oldPATH!)
-        defer { setenv("PATH", oldPATH!, 1) }
-        let newPATH = "\(SassEmbeddedTestCase.dartSassEmbeddedDirURL.path):\(oldPATHString)"
-        setenv("PATH", strdup(newPATH), 1)
-        let compiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup), embeddedCompilerName: "dart-sass-embedded")
-        compilersToShutdown.append(compiler)
-        let results = try compiler.compile(text: "")
-        XCTAssertEqual("", results.css)
-    }
-
     /// Bad explicitly given compiler
     func testNotACompiler() throws {
         do {
@@ -138,6 +116,21 @@ class TestInterface: SassEmbeddedTestCase {
             defer { try! compiler.syncShutdownGracefully() }
             let results = try compiler.compile(text: "")
             XCTFail("Got results: \(results)")
+        } catch let error as LifecycleError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    /// Missing from bundle/not a bundled platform
+    func testBundleMissing() throws {
+        putenv(strdup("DART_SASS_EMBEDDED_NAME=unreal")) /* leak it */
+        defer { unsetenv("DART_SASS_EMBEDDED_NAME") }
+
+        do {
+            let compiler = try Compiler(eventLoopGroupProvider: .createNew)
+            XCTFail("Created compiler without dart: \(compiler)")
         } catch let error as LifecycleError {
             print(error)
         } catch {

@@ -2,7 +2,7 @@
 //  Compiler.swift
 //  SassEmbedded
 //
-//  Copyright 2020 swift-sass contributors
+//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
@@ -14,11 +14,12 @@ import Logging
 // Compiler -- interface, control state machine
 // CompilerChild -- Child process, NIO reads and writes
 // CompilerWork -- Sass stuff, protocol, job management
-// Compilation -- job state, many, managed by CompilerWork
+// CompilerRequest -- job state, many, managed by CompilerWork
 
 /// A Sass compiler interface that uses the Sass embedded protocol.
 ///
-/// It runs the actual Sass compiler as a child process: you need to supply this separately, see
+/// It runs the actual Sass compiler as a child process. The Dart Sass compiler is bundled with this
+/// package for macOS and Ubuntu 64-bit Linux. For other platforms you need to supply this separately, see
 /// [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md).
 ///
 /// Some debug logging is available via `Compiler.logger`.
@@ -37,6 +38,8 @@ public final class Compiler {
     enum State {
         /// No child, new jobs wait on promise with new state.
         case initializing(EventLoopFuture<Void>)
+        /// Child up, checking it's working before accepting compilations.
+        case checking(CompilerChild, EventLoopFuture<Void>)
         /// Child is running and accepting compilation jobs.
         case running(CompilerChild)
         /// Child is broken.  Fail new jobs with the error.  Reinit permitted.
@@ -49,8 +52,15 @@ public final class Compiler {
 
         var child: CompilerChild? {
             switch self {
-            case .running(let c), .quiescing(let c, _): return c
+            case .checking(let c, _), .running(let c), .quiescing(let c, _): return c
             case .initializing(_), .broken(_), .shutdown: return nil
+            }
+        }
+
+        var future: EventLoopFuture<Void>? {
+            switch self {
+            case .initializing(let f), .checking(_, let f), .quiescing(_, let f): return f
+            case .running, .broken, .shutdown: return nil
             }
         }
 
@@ -60,8 +70,16 @@ public final class Compiler {
             return future
         }
 
+        mutating func inittingToChecking(_ child: CompilerChild) {
+            self = .checking(child, future!)
+        }
+
+        mutating func checkingToRunning() {
+            self = .running(child!)
+        }
+
         mutating func toQuiescing(_ future: EventLoopFuture<Void>) -> EventLoopFuture<Void> {
-            self = .quiescing(child!, future) // ! -> must be running to start quiesce
+            self = .quiescing(child!, future)
             return future
         }
     }
@@ -78,6 +96,42 @@ public final class Compiler {
     /// The actual compilation work
     private var work: CompilerWork!
 
+    /// Most recently received version of compiler
+    private var versions: Versions?
+
+    /// Use the bundled Dart Sass compiler as the Sass compiler.
+    ///
+    /// The bundled Dart Sass compiler is built for macOS (Intel) or Ubuntu Xenial (16.04) 64-bit.
+    /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerURL:timeout:importers:functions:)`
+    /// supplying the path of the correct Dart Sass compiler.
+    ///
+    /// Initialization continues asynchronously after the initializer completes; failures are reported
+    /// when the compiler is next used.
+    ///
+    /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
+    /// `syncShutdownGracefully()` before letting it go out of scope.
+    ///
+    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
+    ///   an existing group or `.createNew` to create and manage a new event loop.
+    /// - parameter timeout: The maximum time in seconds allowed for the embedded
+    ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
+    ///   -1 to disable timeouts.
+    /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
+    ///   the source file's URL, used for all this compiler's compilations.
+    /// - parameter functions: Sass functions available to all this compiler's compilations.
+    /// - throws: `LifecycleError` if the program can't be found.
+    public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
+                            timeout: Int = 60,
+                            importers: [ImportResolver] = [],
+                            functions: SassAsyncFunctionMap = [:]) throws {
+        let url = try DartSassEmbedded.getURL()
+        self.init(eventLoopGroupProvider: eventLoopGroupProvider,
+                  embeddedCompilerURL: url,
+                  timeout: timeout,
+                  importers: importers,
+                  functions: functions)
+    }
+
     /// Use a program as the Sass embedded compiler.
     ///
     /// Initialization continues asynchronously after the initializer completes; failures are reported
@@ -89,7 +143,8 @@ public final class Compiler {
     /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.
     /// - parameter embeddedCompilerURL: The file URL to `dart-sass-embedded`
-    ///   or something else that speaks the Sass embedded protocol.
+    ///   or something else that speaks the Sass embedded protocol.  Check [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md)
+    ///   for the supported protocol versions.
     /// - parameter timeout: The maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
@@ -117,40 +172,6 @@ public final class Compiler {
                             importers: .init(importers),
                             functions: functions)
         state.toInitializing(startCompiler())
-    }
-
-    /// Use a program found on `PATH` as the Sass embedded compiler.
-    ///
-    /// Initialization continues asynchronously after the initializer completes; failures are reported
-    /// when the compiler is next used.
-    ///
-    /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
-    /// `syncShutdownGracefully()` before letting it go out of scope.
-    ///
-    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
-    ///   an existing group or `.createNew` to create and manage a new event loop.
-    /// - parameter embeddedCompilerName: Name of the program, default `dart-sass-embedded`.
-    /// - parameter timeout: The maximum time in seconds allowed for the embedded
-    ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
-    ///   -1 to disable timeouts.
-    /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
-    ///   the source file's URL, used for all this compiler's compilations.
-    /// - parameter functions: Sass functions available to all this compiler's compilations.
-    /// - throws: `LifecycleError` if the program can't be found.
-    public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
-                            embeddedCompilerName: String = "dart-sass-embedded",
-                            timeout: Int = 60,
-                            importers: [ImportResolver] = [],
-                            functions: SassAsyncFunctionMap = [:]) throws {
-        let results = Exec.run("/usr/bin/env", "which", embeddedCompilerName)
-        guard let path = results.successString else {
-            throw LifecycleError("Can't find `\(embeddedCompilerName)` on PATH.\n\(results.failureReport)")
-        }
-        self.init(eventLoopGroupProvider: eventLoopGroupProvider,
-                  embeddedCompilerURL: URL(fileURLWithPath: path),
-                  timeout: timeout,
-                  importers: importers,
-                  functions: functions)
     }
 
     deinit {
@@ -217,12 +238,38 @@ public final class Compiler {
             switch state {
             case .broken, .shutdown:
                 return eventLoop.makeSucceededFuture(nil)
-            case .running(let child), .quiescing(let child, _):
+            case .checking(let child, _), .running(let child), .quiescing(let child, _):
                 return eventLoop.makeSucceededFuture(child.processIdentifier)
             case .initializing(let future):
                 return future.flatMap {
                     self.compilerProcessIdentifier
                 }
+            }
+        }
+    }
+
+    /// The name of the underlying Sass implementation.  `nil` if unknown.
+    public var compilerName: EventLoopFuture<String?> {
+        versionsFuture.map { $0?.compilerName }
+    }
+
+    /// The version of the underlying Sass implementation.  For Dart Sass and LibSass this is in
+    /// [semver](https://semver.org/spec/v2.0.0.html) format. `nil` if unknown (never got a version).
+    public var compilerVersion: EventLoopFuture<String?> {
+        versionsFuture.map { $0?.compilerVersionString }
+    }
+
+    private var versionsFuture: EventLoopFuture<Versions?> {
+        eventLoop.flatSubmit { [self] in
+            switch state {
+            case .broken, .shutdown, .running, .quiescing:
+                return eventLoop.makeSucceededFuture(versions)
+            case .checking(_, let future), .initializing(let future):
+                let promise = eventLoop.makePromise(of: Optional<Versions>.self)
+                future.whenComplete { _ in
+                    promise.succeed(self.versions)
+                }
+                return promise.futureResult
             }
         }
     }
@@ -270,25 +317,31 @@ public final class Compiler {
                          functions: .init(functions)).wait()
     }
 
-    /// Asynchronous version of `compile(text:syntax:url:outputStyle:createSourceMap:importers:functions:)`.
+    /// Asynchronous version of `compile(text:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)`.
     public func compileAsync(text: String,
                              syntax: Syntax = .scss,
                              url: URL? = nil,
+                             importer: ImportResolver? = nil,
                              outputStyle: CssStyle = .expanded,
                              createSourceMap: Bool = false,
                              importers: [ImportResolver] = [],
                              functions: SassAsyncFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
         eventLoop.flatSubmit { [self] in
             defer { kickPendingCompilations() }
+            let asyncImporter = importer.flatMap { AsyncImportResolver($0) }
             return work.addPendingCompilation(
                 input: .string(.with { m in
                     m.source = text
                     m.syntax = .init(syntax)
                     url.flatMap { m.url = $0.absoluteString }
+                    asyncImporter.flatMap {
+                        m.importer = .init($0, id: CompilationRequest.baseImporterID)
+                    }
                 }),
                 outputStyle: outputStyle,
                 createSourceMap: createSourceMap,
                 importers: .init(importers),
+                stringImporter: asyncImporter,
                 functions: functions)
         }
     }
@@ -296,6 +349,7 @@ public final class Compiler {
     public func compile(text: String,
                         syntax: Syntax = .scss,
                         url: URL? = nil,
+                        importer: ImportResolver? = nil,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
                         importers: [ImportResolver] = [],
@@ -303,6 +357,7 @@ public final class Compiler {
         try compileAsync(text: text,
                          syntax: syntax,
                          url: url,
+                         importer: importer,
                          outputStyle: outputStyle,
                          createSourceMap: createSourceMap,
                          importers: importers,
@@ -322,15 +377,13 @@ public final class Compiler {
             // jobs submitted after/during shutdown: fail them.
             work.cancelAllPending(with: LifecycleError("Compiler has been shutdown, not accepting further work"))
 
-        case .initializing:
+        case .initializing, .checking:
             // jobs submitted while [re]starting the compiler: wait.
             break
 
         case .running(let child):
             // goodpath
-            work.startAllPending().forEach {
-                child.send(message: $0)
-            }
+            child.send(messages: work.startAllPending())
         }
     }
 
@@ -341,7 +394,7 @@ public final class Compiler {
     ///
     /// When this future completes the system is either in running or broken.
     private func startCompiler() -> EventLoopFuture<Void> {
-        precondition(!work.hasActiveCompilations)
+        precondition(!work.hasActiveRequests)
         startCount += 1
         return initThread.runIfActive(eventLoop: eventLoop) { [self] in
             try CompilerChild(eventLoop: eventLoop,
@@ -350,12 +403,18 @@ public final class Compiler {
                               errorHandler: { [unowned self] in self.handle(error: $0) })
         }.flatMap { child in
             child.addChannelHandlers()
-        }.map { child in
-            self.debug("Compiler is started")
-            self.state = .running(child)
+        }.flatMap { child -> EventLoopFuture<Versions> in
+            self.debug("Compiler is started, starting healthcheck")
+            self.state.inittingToChecking(child)
+            return child.sendVersionRequest()
+        }.flatMapThrowing { versions in
+            try versions.check()
+            self.versions = versions
+            self.state.checkingToRunning()
             self.kickPendingCompilations()
         }.flatMapErrorThrowing { error in
             self.debug("Can't start the compiler at all: \(error)")
+            self.state.child?.stopAndCancelWork(with: error)
             self.state = .broken(error)
             self.kickPendingCompilations()
             throw error
@@ -368,7 +427,7 @@ public final class Compiler {
     /// 1. Write transport errors, reported by a promise from `CompilerChild.send(message:to:)`
     /// 2. Read transport errors, reported by the channel handler from `CompilerChild.errorCaught(...)`
     /// 3. Protocol errors reported by the Sass compiler, from `CompilerWork.receieveGlobal(message:)`
-    /// 4. Protocol errors detected by us, from `Compilation.receive(message)`.
+    /// 4. Protocol errors detected by us, from `CompilationRequest.receive(message)`.
     /// 5. User-injected restarts, from `reinit()`.
     /// 6. Timeouts, from `CompilerWork`'s reset API.
     ///
@@ -380,6 +439,13 @@ public final class Compiler {
 
         switch state {
         case .initializing(let future):
+            return future
+
+        case .checking(let child, let future):
+            // Timeout or something while checking the version, kick the process
+            // and let the init process handle the error.
+            debug("Error while checking compiler, stopping it")
+            child.stopAndCancelWork(with: error)
             return future
 
         case .running(let child):
@@ -414,8 +480,8 @@ public final class Compiler {
         eventLoop.preconditionInEventLoop()
 
         switch state {
-        case .initializing(let initFuture):
-            debug("Shutdown during restart, deferring")
+        case .initializing(let initFuture), .checking(_, let initFuture):
+            debug("Shutdown during startup, deferring")
             // Nasty corner - wait for the init to resolve and then
             // try again!
             return initFuture.flatMap { _ in
@@ -487,6 +553,22 @@ final class CompilerChild: ChannelInboundHandler {
         self.work = work
         self.errorHandler = errorHandler
         self.stopping = false
+
+        // The termination handler is always called when the process ends.
+        // Only cascade this up into a compiler restart when we're not already
+        // stopping, ie. we didn't just ask the process to end.
+
+        // This vs. `stopAndCancelWork()` vs. the eventLoop becoming invalid is still
+        // racy because we don't flush out any pending call here before stopping the event loop.
+        // Don't want to interlock it because (a) more quiesce phases and (b) don't trust
+        // the library to guarantee a timely call.
+        self.child.process.terminationHandler = { _ in
+            eventLoop.execute {
+                if !self.stopping {
+                    errorHandler(ProtocolError("Compiler process exitted unexpectedly"))
+                }
+            }
+        }
     }
 
     /// Connect Sass protocol handlers.
@@ -511,9 +593,24 @@ final class CompilerChild: ChannelInboundHandler {
         }
 
         return child.channel.writeAndFlush(message).flatMapError { error in
-            self.errorHandler(ProtocolError("Write to Sass compiler failed: \(error)."))
+            // tough to reliably hit this error.  if we kill the process while trying to write to
+            // it we get this on Darwin maybe 20% of the time vs. the write working, leaving the
+            // sigchld handler to clean up.
+            self.errorHandler(ProtocolError("Write to Sass compiler failed: \(error)"))
             return self.eventLoop.makeFailedFuture(error)
         }
+    }
+
+    func send(messages: [Sass_EmbeddedProtocol_InboundMessage]) {
+        messages.forEach { send(message: $0) }
+    }
+
+    func sendVersionRequest() -> EventLoopFuture<Versions> {
+        let (future, reqMsg) = work.startVersionRequest()
+        if !Versions.willProvideVersions(eventLoop: eventLoop, callback: { self.receive(message: $0) }) {
+            send(message: reqMsg)
+        }
+        return future
     }
 
     /// Called from the pipeline handler with a new message
@@ -545,6 +642,7 @@ final class CompilerChild: ChannelInboundHandler {
     /// to keep them tightly bound.
     func stopAndCancelWork(with error: Error? = nil) {
         stopping = true
+        child.process.terminationHandler = nil
         child.terminate()
         if let error = error {
             work.cancelAllActive(with: error)

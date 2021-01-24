@@ -2,7 +2,7 @@
 //  TestResetShutdown.swift
 //  SassEmbeddedTests
 //
-//  Copyright 2020 swift-sass contributors
+//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
@@ -187,8 +187,7 @@ class TestResetShutdown: SassEmbeddedTestCase {
 
     // Internal eventloopgroup
     func testInternalEventLoopGroup() throws {
-        let compiler = Compiler(eventLoopGroupProvider: .createNew,
-                                embeddedCompilerURL: SassEmbeddedTestCase.dartSassEmbeddedURL)
+        let compiler = try Compiler(eventLoopGroupProvider: .createNew)
         let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
         try compiler.syncShutdownGracefully()
@@ -196,8 +195,7 @@ class TestResetShutdown: SassEmbeddedTestCase {
 
     // Internal eventloopgroup, async shutdown
     func testInternalEventLoopGroupAsync() throws {
-        let compiler = Compiler(eventLoopGroupProvider: .createNew,
-                                embeddedCompilerURL: SassEmbeddedTestCase.dartSassEmbeddedURL)
+        let compiler = try Compiler(eventLoopGroupProvider: .createNew)
         let results = try compiler.compile(text: "")
         XCTAssertEqual("", results.css)
         CompilerShutdowner(compiler).start().wait()

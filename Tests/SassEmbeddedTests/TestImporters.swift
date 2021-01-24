@@ -2,7 +2,7 @@
 //  TestImporters.swift
 //  SassEmbeddedTests
 //
-//  Copyright 2020 swift-sass contributors
+//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
@@ -107,6 +107,9 @@ class TestImporters: SassEmbeddedTestCase {
                 unclaimedRequestCount += 1
                 return nil
             }
+            if importURL.starts(with: "test://") {
+                return URL(string: importURL)
+            }
             return URL(string: "test://\(importURL)")
         }
 
@@ -178,6 +181,19 @@ class TestImporters: SassEmbeddedTestCase {
         XCTAssertEqual("", results.css)
     }
 
-    // malformed messages (over in TestProtocolErrors I suppose)
-    // some missing good-path thing?
+    // Importer for string source doc
+    func testStringImporter() throws {
+        let importer = TestImporter(css: secondaryCssRed)
+        let compiler = try newCompiler()
+        let results = try compiler.compile(text: "@import 'something';",
+                                           url: URL(string: "test://vfs"),
+                                           importer: .importer(importer),
+                                           outputStyle: .compressed,
+                                           createSourceMap: true)
+        XCTAssertEqual("a{color:red}", results.css)
+        let json = try XCTUnwrap(results.sourceMap)
+        let map = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!) as! [String:Any]
+        let sources = try XCTUnwrap(map["sources"] as? Array<String>)
+        XCTAssertEqual("test://vfs/something", sources[0])
+    }
 }

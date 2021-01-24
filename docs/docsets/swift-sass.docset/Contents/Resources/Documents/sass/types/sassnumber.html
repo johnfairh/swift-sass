@@ -795,7 +795,7 @@ tolerances for comparison and integer conversion.</p>
 <li>Use <a href="../../sass/types/sassnumber.html?swift#asint"><code>asInt()</code></a> to check a  <a href="../../sass/types/sassnumber.html?swift"><code>SassNumber</code></a> is an integer  instead of <a href="https://developer.apple.com/documentation/swift/int/2885075-init?language=swift" class="j2-swift"><code>Int.init(exactly:)</code></a>.
 (It could be that <a href="https://developer.apple.com/documentation/swift/int?language=swift" class="j2-swift"><code>Int(exactly: n.double)</code></a> would fail.)</li>
 <li>Use <a href="../../sass/types/sassnumber.html?swift#asinrange1"><code>asIn(range:)</code></a> to check a floating point <a href="../../sass/types/sassnumber.html?swift"><code>SassNumber</code></a> is within a range and convert
-it to a Swift <a href="https://developer.apple.com/documentation/swift/double?language=swift" class="j2-swift"><code>Double</code></a> within the range. (It could be that <a href="https://developer.apple.com/documentation/swift/range/1641800-contains?language=swift" class="j2-swift"><code>range.contains(n.double)</code></a>
+it to a Swift <a href="https://developer.apple.com/documentation/swift/double?language=swift" class="j2-swift"><code>Double</code></a> within the range. (It could be that <code>range.contains(n.double)</code>
 would fail.)</li>
 <li>If you must compare floating-point <a href="../../sass/types/sassnumber.html?swift"><code>SassNumber</code></a>s then consistently compare the <a href="../../sass/types/sassnumber.html?swift"><code>SassNumber</code></a>s
 themselves, not the <code>double</code>s within.  Similarly, use the <a href="../../sass/types/sassnumber.html?swift"><code>SassNumber</code></a> itself as a dictionary key.</li>
@@ -963,7 +963,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
             
 
   <h5>Return Value</h5>
-  <p>The <a href="https://developer.apple.com/documentation/swift/double?language=swift" class="j2-swift"><code>Double</code></a> value corresponding to this <a href="../../sass/types/sassvalue7.html?swift"><code>SassValue</code></a> in <a href="https://developer.apple.com/documentation/swift/range?language=swift" class="j2-swift"><code>range</code></a>.</p>
+  <p>The <a href="https://developer.apple.com/documentation/swift/double?language=swift" class="j2-swift"><code>Double</code></a> value corresponding to this <a href="../../sass/types/sassvalue7.html?swift"><code>SassValue</code></a> in <code>range</code>.</p>
 
 
           
@@ -1030,7 +1030,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
             
 
   <h5>Return Value</h5>
-  <p>The <a href="https://developer.apple.com/documentation/swift/double?language=swift" class="j2-swift"><code>Double</code></a> value corresponding to this <a href="../../sass/types/sassvalue7.html?swift"><code>SassValue</code></a> in <a href="https://developer.apple.com/documentation/swift/range?language=swift" class="j2-swift"><code>range</code></a>.</p>
+  <p>The <a href="https://developer.apple.com/documentation/swift/double?language=swift" class="j2-swift"><code>Double</code></a> value corresponding to this <a href="../../sass/types/sassvalue7.html?swift"><code>SassValue</code></a> in <code>range</code>.</p>
 
 
           

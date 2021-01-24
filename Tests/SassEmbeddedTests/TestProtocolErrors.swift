@@ -2,7 +2,7 @@
 //  TestProtocolErrors.swift
 //  SassEmbeddedTests
 //
-//  Copyright 2020 swift-sass contributors
+//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
@@ -23,6 +23,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
                 rsp.id = 108
             }
         }
+        XCTAssertNil(compiler.state.child)
         compiler.sync()
         try compiler.eventLoop.flatSubmit {
             try! compiler.child().send(message: msg)
@@ -70,7 +71,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
 
         let msg = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
             msg.compileResponse = .with { rsp in
-                rsp.id = Int32(Compilation.peekNextCompilationID)
+                rsp.id = CompilationRequest.peekNextCompilationID
                 rsp.result = nil // missing 'result'
             }
         }
@@ -156,7 +157,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// importer ID is completely wrong
     func testImporterBadID() throws {
         try checkBadImportMessage(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 42
             $0.importerID = 12
         }, "Bad importer ID")
@@ -165,7 +166,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// Importer ID picks out a loadpath not an importer
     func testImporterBadImporterType() throws {
         try checkBadImportMessage(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 42
             $0.importerID = 4001
         }, "not an importer")
@@ -174,7 +175,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// URL has gotten messed up
     func testImporterBadURL() throws {
         try checkBadImportMessage(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 42
             $0.importerID = 4000
         }, "Malformed import URL")
@@ -186,7 +187,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// Missing fn identifier
     func testImporterNoIdentifier() throws {
         try checkBadFnCallMessage(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 42
         }, "Missing 'identifier'")
     }
@@ -194,7 +195,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// Bad ID
     func testImporterBadNumericID() throws {
         try checkBadFnCallMessage(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 42
             $0.functionID = 108
         }, "Host function ID")
@@ -203,7 +204,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// Bad name
     func testImporterBadName() throws {
         try checkBadFnCallMessage(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 42
             $0.name = "mysterious"
         }, "Host function name")
@@ -212,7 +213,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     /// File import is in the API but not implemented anywhere...
     func testUnexpectedFileImport() throws {
         try checkBadFileImport(.with {
-            $0.compilationID = Compilation.peekNextCompilationID
+            $0.compilationID = CompilationRequest.peekNextCompilationID
             $0.id = 108
             $0.importerID = 22
         }, "Unexpected FileImport-Req")
@@ -223,6 +224,45 @@ class TestProtocolErrors: SassEmbeddedTestCase {
     func testBadLogEventKind() throws {
         let kind = Sass_EmbeddedProtocol_OutboundMessage.LogEvent.TypeEnum.UNRECOGNIZED(100)
         XCTAssertThrowsError(_ = try CompilerMessage.Kind(kind))
+    }
+
+    // MARK: Varint
+
+    func decodeVarint(buffer: inout ByteBuffer) throws -> UInt64? {
+        let decoder = Varint()
+        while buffer.readableBytes > 0 {
+            let byte = buffer.readInteger(as: UInt8.self)!
+            if let decoded = try decoder.decode(byte: byte) {
+                XCTAssertEqual(0, buffer.readableBytes)
+                return decoded
+            }
+        }
+        return nil
+    }
+
+    func testVarintConversion() throws {
+        let values: [UInt64] = [0, 0x7f, 0x80, 0xffff, 0xffffffff, 0xffffffffffffffff]
+        let allocator = ByteBufferAllocator()
+        try values.forEach { value in
+            var buffer = allocator.buffer(capacity: 20)
+            buffer.writeVarint(value)
+
+            if let decoded = try decodeVarint(buffer: &buffer) {
+                XCTAssertEqual(value, decoded)
+            } else {
+                XCTFail("Couldn't decode buffer: \(buffer), expected \(value)")
+            }
+        }
+    }
+
+    func testVarintError() throws {
+        let allocator = ByteBufferAllocator()
+        var buffer = allocator.buffer(capacity: 20)
+        buffer.writeInteger(UInt32(0xffffffff))
+        buffer.writeInteger(UInt32(0xffffffff))
+        buffer.writeInteger(UInt32(0xffffffff))
+
+        XCTAssertThrowsError(try decodeVarint(buffer: &buffer))
     }
 }
 
@@ -242,6 +282,7 @@ extension Compiler {
     }
 
     func sync() {
-        let _ = try! self.compilerProcessIdentifier.wait()
+        let _ = try! compilerProcessIdentifier.wait()
+        XCTAssertNil(state.future)
     }
 }

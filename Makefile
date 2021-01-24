@@ -1,17 +1,11 @@
-.PHONY: all build test test_linux shell_linux protobuf
+.PHONY: all build test test_linux shell_linux protobuf dart_sass_embedded
 
 all: build
 
 build:
 	swift build
 
-ifeq ($(shell uname), Linux)
-platform ?= linux
-else
-platform ?= macos
-endif
-
-test: Tests/SassEmbeddedTests/dart-sass-embedded/${platform}
+test:
 	swift test --enable-test-discovery --enable-code-coverage
 
 test_linux:
@@ -27,12 +21,12 @@ protobuf:
 	protoc --version
 	protoc --swift_out=Sources/SassEmbedded --proto_path embedded-protocol embedded_sass.proto
 
-# Update the local copies of dart-sass-embedded for the test suite
-# Ad-hoc and arch-dependent while this thing isn't available elsewhere.
-sass_embedded_version=1.0.0-beta.5
+# Update the local copies of dart-sass-embedded 
+# Only needed when there's a new release of the compiler to pick up
+sass_embedded_version := 1.0.0-beta.6
 
-sass_embedded_release_url=https://github.com/sass/dart-sass-embedded/releases/download/${sass_embedded_version}/sass_embedded-${sass_embedded_version}
+sass_embedded_release_url := https://github.com/sass/dart-sass-embedded/releases/download/${sass_embedded_version}/sass_embedded-${sass_embedded_version}
 
-Tests/SassEmbeddedTests/dart-sass-embedded/%:
-	mkdir -p $@
-	curl -L ${sass_embedded_release_url}-$*-x64.tar.gz | tar -xzv -C $@
+dart_sass_embedded:
+	curl -L ${sass_embedded_release_url}-macos-x64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedMacOS
+	curl -L ${sass_embedded_release_url}-linux-x64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedLinux
