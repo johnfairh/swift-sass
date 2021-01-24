@@ -291,7 +291,7 @@
     "parent_name" : "SassColor"
   },
   "sass\/types\/sasscolor.html?swift#sasscolor-sasscolor" : {
-    "abstract" : "Colors are compared in their RGB-A forms, using  only 11 DP for the alpha.",
+    "abstract" : "Colors are compared in their RGB-A forms, using  only 10 DP for the alpha.",
     "name" : "==(SassColor, SassColor)",
     "parent_name" : "SassColor"
   },
@@ -1035,7 +1035,7 @@
     "parent_name" : "Compiler"
   },
   "sassembedded\/types\/compiler.html?swift#compilerversion" : {
-    "abstract" : "The version of the underlying Sass implementation.  For Dart Sass and libsass this is in\nsemver format. nil if unknown (never got a version).",
+    "abstract" : "The version of the underlying Sass implementation.  For Dart Sass and LibSass this is in\nsemver format. nil if unknown (never got a version).",
     "name" : "compilerVersion",
     "parent_name" : "Compiler"
   },

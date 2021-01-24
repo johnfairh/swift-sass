@@ -12,6 +12,13 @@
 
 * None
 
+# 0.2.0
+
+* Bundle the 1.0.0-beta.6 `dart_sass_embedded` binaries
+* Take out the 'search $PATH' `Compiler` initializer
+* Support importer on compile-string interfaces
+* Surface compiler versions (currently faked out)
+
 # 0.1.1
 
 * Use https:// for submodule links
