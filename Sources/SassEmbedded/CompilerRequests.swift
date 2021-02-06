@@ -22,7 +22,7 @@ import Foundation
 
 // MARK: CompilerRequest
 
-protocol CompilerRequest: class {
+protocol CompilerRequest: AnyObject {
     /// Notify that the initial request has been sent.  Return any timeout handler.
     func start(timeout: Int) -> EventLoopFuture<Void>?
     /// Handle a compiler response for `requestID`
