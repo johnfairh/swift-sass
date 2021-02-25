@@ -99,8 +99,8 @@ class TestInterface: SassEmbeddedTestCase {
 
         // Current dart-sass-embedded maps everything !compressed down to nested
         // so this is a bit scuffed...
-        let styles: [CssStyle] = [.compact, .compressed, .nested]
-        let expected = [scssOutExpanded, scssOutCompressed, scssOutExpanded]
+        let styles: [CssStyle] = [.compressed]
+        let expected = [scssOutCompressed]
         try zip(styles, expected).forEach { tc in
             let results = try compiler.compile(text: scssIn, syntax: .scss, outputStyle: tc.0)
             XCTAssertEqual(tc.1, results.css, String(describing: tc.0))

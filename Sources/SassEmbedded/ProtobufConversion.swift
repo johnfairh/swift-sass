@@ -100,10 +100,8 @@ extension Sass_EmbeddedProtocol_InboundMessage.Syntax {
 extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OutputStyle {
     init(_ style: CssStyle) {
         switch style {
-        case .compact: self = .compact
         case .compressed: self = .compressed
         case .expanded: self = .expanded
-        case .nested: self = .nested
         }
     }
 }

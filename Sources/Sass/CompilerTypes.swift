@@ -23,14 +23,6 @@ public enum CssStyle {
     /// The entire stylesheet is written on a single line, with as few
     /// characters as possible.
     case compressed
-
-    /// CSS rules and declarations are indented to match the nesting of the
-    /// Sass source.
-    case nested
-
-    /// Each CSS rule is written on its own single line, along with all its
-    /// declarations.
-    case compact
 }
 
 /// The [syntax used for a stylesheet](https://sass-lang.com/documentation/syntax).
