@@ -57,7 +57,7 @@ public struct CompilerResults {
 }
 
 /// Thrown as an error after a failed compilation.
-public struct CompilerError: Swift.Error {
+public struct CompilerError: Swift.Error, CustomStringConvertible {
     /// A message describing the reason for the failure.
     public let message: String
 
@@ -70,12 +70,17 @@ public struct CompilerError: Swift.Error {
     /// Any compiler diagnostics found before the error.
     public let messages: [CompilerMessage]
 
+    /// A rich multi-line user-readable description of this error, containing  `message`, `span`,
+    /// and `stackTrace`, but not `messages`.  This is provided by the underlying Sass compiler.
+    public let description: String
+
     /// :nodoc:
-    public init(message: String, span: Span?, stackTrace: String?, messages: [CompilerMessage]) {
+    public init(message: String, span: Span?, stackTrace: String?, messages: [CompilerMessage], description: String) {
         self.message = message
         self.span = span
         self.stackTrace = stackTrace
         self.messages = messages
+        self.description = description
     }
 }
 
@@ -155,7 +160,7 @@ public struct Span: CustomStringConvertible {
 /// from succeeding.
 ///
 /// Appropriate for display to end users who own the stylesheets.
-public struct CompilerMessage {
+public struct CompilerMessage: CustomStringConvertible {
     // MARK: Types
 
     /// Kinds of diagnostic message.
@@ -186,13 +191,28 @@ public struct CompilerMessage {
     /// The stack trace through the compiler input stylesheets that led to the message.
     public let stackTrace: String?
 
+    /// A rich multi-line user-readable description of this error, containing the message, span,
+    /// and stacktrace.  This is provided by the underlying Sass compiler.
+    public let description: String
+
     /// :nodoc:
-    public init(kind: Kind, message: String, span: Span?, stackTrace: String?) {
+    public init(kind: Kind, message: String, span: Span?, stackTrace: String?, description: String) {
         self.kind = kind
         self.message = message
         self.span = span
         self.stackTrace = stackTrace
+        self.description = description
     }
+}
+
+/// The style of `description` in compiler diagnostics held in `CompilerError`
+/// and `CompilerMessage`.
+public enum CompilerMessageStyle {
+    /// Plain text.
+    case plain
+
+    /// Colorized with terminal escape sequences.
+    case terminalColored
 }
 
 // MARK: Compiler interface
@@ -247,59 +267,4 @@ public protocol CompilerProtocol {
                  createSourceMap: Bool,
                  importers: [ImportResolver],
                  functions: SassFunctionMap) throws -> CompilerResults
-}
-
-// MARK: Message pretty-printers
-
-/// Gadget to share implementation between the subtly different error/warning/debug log types.
-protocol LogFormatter {
-    var message: String { get }
-    var messageType: String { get }
-    var span: Span? { get }
-    var stackTrace: String? { get }
-    var description: String { get }
-}
-
-extension LogFormatter {
-    var baseDescription: String {
-        var desc = span.flatMap { "\($0): " } ?? ""
-        desc += "\(messageType): "
-        desc += message
-        if let trace = stackTrace?.trimmingCharacters(in: .newlines),
-           !trace.isEmpty {
-            let paddedTrace = trace.split(separator: "\n")
-                .map { "    " + $0 }
-                .joined(separator: "\n")
-            desc += "\n\(paddedTrace)"
-        }
-        return desc
-    }
-
-    public var description: String { baseDescription }
-}
-
-extension CompilerError: CustomStringConvertible {}
-extension CompilerError: LogFormatter {
-    var messageType: String { "error" }
-
-    /// A  human-readable description of the message. :nodoc:
-    public var description: String {
-        messages.map { "\($0.description)\n" }.joined() + baseDescription
-    }
-}
-
-extension CompilerMessage.Kind: CustomStringConvertible {
-    /// A human-readable description of the message kind. :nodoc:
-    public var description: String {
-        switch self {
-        case .deprecation: return "deprecation warning"
-        case .warning: return "warning"
-        case .debug: return "debug"
-        }
-    }
-}
-
-extension CompilerMessage: CustomStringConvertible {}
-extension CompilerMessage: LogFormatter {
-    var messageType: String { kind.description }
 }

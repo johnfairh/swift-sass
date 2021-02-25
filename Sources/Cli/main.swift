@@ -22,7 +22,8 @@ do {
     let inputURL = URL(fileURLWithPath: args[1])
     let outputURL = URL(fileURLWithPath: args[2])
 
-    let compiler = try Compiler(eventLoopGroupProvider: .createNew)
+    let compiler = try Compiler(eventLoopGroupProvider: .createNew,
+                                messageStyle: .terminalColored)
     defer { try? compiler.syncShutdownGracefully() }
 
     let results = try compiler.compile(fileURL: inputURL)

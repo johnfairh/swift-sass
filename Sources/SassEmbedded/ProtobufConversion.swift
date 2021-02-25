@@ -51,7 +51,8 @@ extension CompilerError {
         self = .init(message: protobuf.message,
                      span: protobuf.hasSpan ? .init(protobuf.span) : nil,
                      stackTrace: protobuf.stackTrace.nonEmptyString,
-                     messages: messages)
+                     messages: messages,
+                     description: protobuf.formatted.nonEmptyString ?? protobuf.message)
     }
 }
 
@@ -72,7 +73,8 @@ extension CompilerMessage {
         self = .init(kind: try Kind(protobuf.type),
                      message: protobuf.message,
                      span: protobuf.hasSpan ? .init(protobuf.span) : nil,
-                     stackTrace: protobuf.stackTrace.nonEmptyString)
+                     stackTrace: protobuf.stackTrace.nonEmptyString,
+                     description: protobuf.formatted)
     }
 }
 
@@ -82,6 +84,15 @@ extension Versions {
         packageVersionString = protobuf.compilerVersion
         compilerVersionString = protobuf.implementationVersion
         compilerName = protobuf.implementationName
+    }
+}
+
+extension CompilerMessageStyle {
+    var isColored: Bool {
+        switch self {
+        case .plain: return false
+        case .terminalColored: return true
+        }
     }
 }
 

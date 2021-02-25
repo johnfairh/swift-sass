@@ -177,6 +177,7 @@ final class CompilationRequest: ManagedCompilerRequest {
          input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
          outputStyle: CssStyle,
          createSourceMap: Bool,
+         messageStyle: CompilerMessageStyle,
          importers: [AsyncImportResolver],
          stringImporter: AsyncImportResolver?,
          functionsMap: [SassFunctionSignature : (String, SassAsyncFunction)]) {
@@ -195,6 +196,8 @@ final class CompilationRequest: ManagedCompilerRequest {
             msg.sourceMap = createSourceMap
             msg.importers = .init(importers, startingID: firstFreeImporterID)
             msg.globalFunctions = functionsMap.values.map { $0.0 }
+            msg.alertAscii = false
+            msg.alertColor = messageStyle.isColored
         }
         self.messages = []
         self.promise = promise
