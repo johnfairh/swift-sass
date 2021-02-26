@@ -109,7 +109,7 @@ asynchronous / non-blocking APIs.
 * Swift 5.3
 * macOS 10.15+ (tested on macOS 10.15.7, macOS 11.0 IA64)
 * Linux (tested on Ubuntu 18.04.5)
-* Embedded Sass Protocol version 1.0.0-beta.6.
+* Embedded Sass Protocol version 1.0.0-beta.8
 
 ## Installation
 
@@ -129,7 +129,7 @@ it manually, ship it as part of your program's distribution, and use
 
 There is no need to install a Dart runtime or SDK as part of this, the
 `dart-embedded-sass` program is standalone.  The version required is
-1.0.0-beta.6.
+`1.0.0-beta.7`.
 
 ## On LibSass
 
