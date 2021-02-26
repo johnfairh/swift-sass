@@ -94,6 +94,23 @@ class TestCompilerErrors: SassEmbeddedTestCase {
         }
     }
 
+    // Compiler error without rich description, missing file
+    func testMissingFile() throws {
+        let compiler = try newCompiler()
+
+        do {
+            let badURL = URL(fileURLWithPath: "/tmp/no")
+            let results = try compiler.compile(fileURL: badURL)
+            XCTFail("Managed to compile non-existant file: \(results)")
+        } catch let error as CompilerError {
+            XCTAssertEqual("Cannot open file: /tmp/no", String(describing: error))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    // Compiler warnings - no span
+
     let warnsomeSass = """
     $known-prefixes: webkit, moz, ms, o
     @mixin prefix($property, $value, $prefixes)
@@ -116,7 +133,6 @@ class TestCompilerErrors: SassEmbeddedTestCase {
 
     """
 
-    // Compiler warnings - no span
     func testCompilerWarning() throws {
         let compiler = try newCompiler()
         let results = try compiler.compile(text: warnsomeSass, syntax: .sass)
