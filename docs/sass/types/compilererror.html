@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../../css/fw2020.css">
     
     
-   <title>CompilerError - Swift Sass v0.2.0</title>
+   <title>CompilerError - Swift Sass v0.3.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./../../" data-doc-path="sass/types/compilererror.html" data-assets-path="../../">
@@ -31,7 +31,7 @@
       
       <a href="../../index.html">
       
-      Swift Sass v0.2.0</a>
+      Swift Sass v0.3.0</a>
     </div>
     
     <span class="navbar-text j2-coverage font-weight-slightly-bold small d-none d-lg-inline-block mr-2">(100% documented)</span>
@@ -154,6 +154,15 @@
     
 
   <a class="j2-nav-item" href="../../sass/types/importresolver.html?swift">ImportResolver</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../sass/types/compilermessagestyle.html?swift">CompilerMessageStyle</a>
 
 
 
@@ -540,9 +549,7 @@
             
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public struct CompilerError: <a href="https://developer.apple.com/documentation/swift/error?language=swift">Swift.Error</a>
-
-extension CompilerError: <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a></code></pre>
+    <pre><code class="language-swift">public struct CompilerError: <a href="https://developer.apple.com/documentation/swift/error?language=swift">Swift.Error</a>, <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a></code></pre>
   </div>
 
 
@@ -569,7 +576,7 @@ extension CompilerError: <a href="https://developer.apple.com/documentation/swif
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L68-L88">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L60-L86">Show on GitHub</a>
           </nav>
           
           
@@ -634,7 +641,7 @@ extension CompilerError: <a href="https://developer.apple.com/documentation/swif
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L70">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L62">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -693,7 +700,7 @@ extension CompilerError: <a href="https://developer.apple.com/documentation/swif
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L73">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L65">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -752,7 +759,7 @@ extension CompilerError: <a href="https://developer.apple.com/documentation/swif
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L76">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L68">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -811,7 +818,68 @@ extension CompilerError: <a href="https://developer.apple.com/documentation/swif
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L79">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L71">Show on GitHub</a></span>
+            
+          </nav>
+        </div>
+      <div>
+    </div>
+    
+  </section>
+  
+  
+  
+  
+    <section id="description5" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20description%3A%20String" class="dashAnchor j2-item-dash-anchor" data-item-id="description5"></a>
+    <h4 class="sr-only">var description: String</h4>
+    
+    
+    <a class="j2-item-title" href="#_description5" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description5"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">var </span>description<span class="j2-item-secondary">: String</span></span>
+        
+      </code></a>
+    <div class="collapse  j2-item-popopen-wrapper" id="_description5">
+      <div class="j2-item-popopen">
+        <div class="j2-item-popopen-pointer" role="none"></div>
+        <div class="j2-item-popopen-body">
+          
+            <div class="clearfix">
+              
+  
+
+
+              
+
+
+<p>A rich multi-line user-readable description of this error, containing  <a href="../../sass/types/compilererror.html?swift#message"><code>message</code></a>, <a href="../../sass/types/compilererror.html?swift#span"><code>span</code></a>,
+and <a href="../../sass/types/compilererror.html?swift#stacktrace"><code>stackTrace</code></a>, but not <a href="../../sass/types/compilererror.html?swift#messages1"><code>messages</code></a>.  This is provided by the underlying Sass compiler,
+format controlled using <a href="../../sass/types/compilermessagestyle.html?swift"><code>CompilerMessageStyle</code></a>.</p>
+
+
+
+
+            </div>
+            <h5>Declaration</h5>
+            <div class="j2-item-declaration">
+              
+  <div class="j2-swift">
+    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
+    <pre><code class="language-swift">public let description: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a></code></pre>
+  </div>
+
+
+
+            </div>
+            
+
+
+          
+
+          <nav class="j2-item-nav" aria-label="item details">
+            
+            
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L76">Show on GitHub</a></span>
             
           </nav>
         </div>
