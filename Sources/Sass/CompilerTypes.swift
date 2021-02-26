@@ -71,7 +71,8 @@ public struct CompilerError: Swift.Error, CustomStringConvertible {
     public let messages: [CompilerMessage]
 
     /// A rich multi-line user-readable description of this error, containing  `message`, `span`,
-    /// and `stackTrace`, but not `messages`.  This is provided by the underlying Sass compiler.
+    /// and `stackTrace`, but not `messages`.  This is provided by the underlying Sass compiler,
+    /// format controlled using `CompilerMessageStyle`.
     public let description: String
 
     /// :nodoc:
@@ -192,7 +193,8 @@ public struct CompilerMessage: CustomStringConvertible {
     public let stackTrace: String?
 
     /// A rich multi-line user-readable description of this error, containing the message, span,
-    /// and stacktrace.  This is provided by the underlying Sass compiler.
+    /// and stacktrace.  This is provided by the underlying Sass compiler, format controlled using
+    /// `CompilerMessageStyle`.
     public let description: String
 
     /// :nodoc:
@@ -205,8 +207,7 @@ public struct CompilerMessage: CustomStringConvertible {
     }
 }
 
-/// The style of `description` in compiler diagnostics held in `CompilerError`
-/// and `CompilerMessage`.
+/// The format used for `CompilerError.description` and  `CompilerMessage.description`.
 public enum CompilerMessageStyle {
     /// Plain text.
     case plain
