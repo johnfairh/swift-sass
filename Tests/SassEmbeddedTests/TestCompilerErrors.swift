@@ -25,12 +25,20 @@ class TestCompilerErrors: SassEmbeddedTestCase {
     """
 
     let badSassInlineError = """
-    [input] 6:3-6:41: error: "Property top must be either left or right."
-        - 6:3  root stylesheet
+    Error: "Property top must be either left or right."
+      ╷
+    6 │   @include reflexive-position(top, 12px)
+      │   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      ╵
+      - 6:3  root stylesheet
     """
 
     let badSassFileErrorPrefix = """
-    badfile.sass 6:3-6:41: error: "Property top must be either left or right."
+    Error: "Property top must be either left or right."
+      ╷
+    6 │   @include reflexive-position(top, 12px)
+      │   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      ╵
     """
     let badSassFileErrorSuffix = """
     badfile.sass 6:3  root stylesheet
@@ -66,6 +74,43 @@ class TestCompilerErrors: SassEmbeddedTestCase {
         }
     }
 
+    let badSassInlineColorError = """
+    Error: "Property top must be either left or right."
+    \u{001b}[34m  ╷\u{001b}[0m
+    \u{001b}[34m6 │\u{001b}[0m   \u{001b}[31m@include reflexive-position(top, 12px)\u{001b}[0m
+    """
+
+    func testColorCompilerError() throws {
+        let compiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+                                    messageStyle: .terminalColored)
+        compilersToShutdown.append(compiler)
+        do {
+            let results = try compiler.compile(text: badSass, syntax: .sass)
+            XCTFail("Managed to compile, got: \(results.css)")
+        } catch let error as CompilerError {
+            XCTAssertTrue(error.description.hasPrefix(badSassInlineColorError))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    // Compiler error without rich description, missing file
+    func testMissingFile() throws {
+        let compiler = try newCompiler()
+
+        do {
+            let badURL = URL(fileURLWithPath: "/tmp/no")
+            let results = try compiler.compile(fileURL: badURL)
+            XCTFail("Managed to compile non-existant file: \(results)")
+        } catch let error as CompilerError {
+            XCTAssertEqual("Cannot open file: /tmp/no", String(describing: error))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    // Compiler warnings - no span
+
     let warnsomeSass = """
     $known-prefixes: webkit, moz, ms, o
     @mixin prefix($property, $value, $prefixes)
@@ -81,7 +126,13 @@ class TestCompilerErrors: SassEmbeddedTestCase {
       @include prefix(transform, rotate(15deg), wekbit ms)
     """
 
-    // Compiler warnings - no span
+    let warningMessage = """
+    WARNING: Unknown prefix wekbit.
+        - 5:7   prefix()
+        - 12:3  root stylesheet
+
+    """
+
     func testCompilerWarning() throws {
         let compiler = try newCompiler()
         let results = try compiler.compile(text: warnsomeSass, syntax: .sass)
@@ -89,6 +140,7 @@ class TestCompilerErrors: SassEmbeddedTestCase {
         XCTAssertTrue(results.messages[0].kind == .warning)
         XCTAssertTrue(results.messages[0].message.contains("Unknown prefix"))
         XCTAssertNil(results.messages[0].span)
+        XCTAssertEqual(warningMessage, results.messages[0].description)
     }
 
     let multiWarningSass = """

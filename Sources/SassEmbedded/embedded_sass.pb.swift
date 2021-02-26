@@ -235,6 +235,13 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     /// that conflict with function names built into the Sass language.
     var globalFunctions: [String] = []
 
+    /// Whether to use terminal colors in the formatted message of errors and
+    /// logs.
+    var alertColor: Bool = false
+
+    /// Whether to encode the formatted message of errors and logs in ASCII.
+    var alertAscii: Bool = false
+
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
     /// The input stylesheet to parse. Mandatory.
@@ -276,14 +283,6 @@ struct Sass_EmbeddedProtocol_InboundMessage {
       /// The entire stylesheet is written on a single line, with as few
       /// characters as possible.
       case compressed // = 1
-
-      /// CSS rules and declarations are indented to match the nesting of the
-      /// Sass source.
-      case nested // = 2
-
-      /// Each CSS rule is written on its own single line, along with all its
-      /// declarations.
-      case compact // = 3
       case UNRECOGNIZED(Int)
 
       init() {
@@ -294,8 +293,6 @@ struct Sass_EmbeddedProtocol_InboundMessage {
         switch rawValue {
         case 0: self = .expanded
         case 1: self = .compressed
-        case 2: self = .nested
-        case 3: self = .compact
         default: self = .UNRECOGNIZED(rawValue)
         }
       }
@@ -304,8 +301,6 @@ struct Sass_EmbeddedProtocol_InboundMessage {
         switch self {
         case .expanded: return 0
         case .compressed: return 1
-        case .nested: return 2
-        case .compact: return 3
         case .UNRECOGNIZED(let i): return i
         }
       }
@@ -782,8 +777,6 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OutputStyle: CaseI
   static var allCases: [Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OutputStyle] = [
     .expanded,
     .compressed,
-    .nested,
-    .compact,
   ]
 }
 
@@ -1055,6 +1048,11 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
       /// inconsistent between implementations.
       var stackTrace: String = String()
 
+      /// A formatted, human-readable string that contains the message, span
+      /// (if available), and trace (if available). The format of this string is
+      /// not specified and is likely to be inconsistent between implementations.
+      var formatted: String = String()
+
       var unknownFields = SwiftProtobuf.UnknownStorage()
 
       init() {}
@@ -1095,6 +1093,11 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     /// the format of this stack trace is not specified and is likely to be
     /// inconsistent between implementations.
     var stackTrace: String = String()
+
+    /// A formatted, human-readable string that contains the message, span (if
+    /// available), and trace (if available). The format of this string is not
+    /// specified and is likely to be inconsistent between implementations.
+    var formatted: String = String()
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -1392,9 +1395,9 @@ struct Sass_EmbeddedProtocol_ProtocolError {
 
   var type: Sass_EmbeddedProtocol_ProtocolError.ErrorType = .parse
 
-  /// The ID of the request that had an error. This MUST be `-1` if the request
-  /// ID couldn't be determined, or if the error is being reported for a response
-  /// or an event.
+  /// The ID of the request that had an error. This MUST be `4294967295` if the
+  /// request ID couldn't be determined, or if the error is being reported for a
+  /// response or an event.
   var id: UInt32 = 0
 
   /// A human-readable message providing more detail about the error.
@@ -1851,7 +1854,7 @@ struct Sass_EmbeddedProtocol_Value {
 
       /// The list's separator hasn't yet been determined.
       ///
-      /// Singleton lists and empty lists don't have separators defiend. This
+      /// Singleton lists and empty lists don't have separators defined. This
       /// means that list functions will prefer other lists' separators if
       /// possible.
       case undecided // = 3
@@ -2168,6 +2171,8 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     5: .standard(proto: "source_map"),
     6: .same(proto: "importers"),
     7: .standard(proto: "global_functions"),
+    8: .standard(proto: "alert_color"),
+    9: .standard(proto: "alert_ascii"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -2196,6 +2201,8 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
       case 5: try { try decoder.decodeSingularBoolField(value: &self.sourceMap) }()
       case 6: try { try decoder.decodeRepeatedMessageField(value: &self.importers) }()
       case 7: try { try decoder.decodeRepeatedStringField(value: &self.globalFunctions) }()
+      case 8: try { try decoder.decodeSingularBoolField(value: &self.alertColor) }()
+      case 9: try { try decoder.decodeSingularBoolField(value: &self.alertAscii) }()
       default: break
       }
     }
@@ -2231,6 +2238,12 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     if !self.globalFunctions.isEmpty {
       try visitor.visitRepeatedStringField(value: self.globalFunctions, fieldNumber: 7)
     }
+    if self.alertColor != false {
+      try visitor.visitSingularBoolField(value: self.alertColor, fieldNumber: 8)
+    }
+    if self.alertAscii != false {
+      try visitor.visitSingularBoolField(value: self.alertAscii, fieldNumber: 9)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -2241,6 +2254,8 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     if lhs.sourceMap != rhs.sourceMap {return false}
     if lhs.importers != rhs.importers {return false}
     if lhs.globalFunctions != rhs.globalFunctions {return false}
+    if lhs.alertColor != rhs.alertColor {return false}
+    if lhs.alertAscii != rhs.alertAscii {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -2250,8 +2265,6 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OutputStyle: Swift
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     0: .same(proto: "EXPANDED"),
     1: .same(proto: "COMPRESSED"),
-    2: .same(proto: "NESTED"),
-    3: .same(proto: "COMPACT"),
   ]
 }
 
@@ -2971,6 +2984,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure: 
     1: .same(proto: "message"),
     2: .same(proto: "span"),
     3: .standard(proto: "stack_trace"),
+    4: .same(proto: "formatted"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -2982,6 +2996,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure: 
       case 1: try { try decoder.decodeSingularStringField(value: &self.message) }()
       case 2: try { try decoder.decodeSingularMessageField(value: &self._span) }()
       case 3: try { try decoder.decodeSingularStringField(value: &self.stackTrace) }()
+      case 4: try { try decoder.decodeSingularStringField(value: &self.formatted) }()
       default: break
       }
     }
@@ -2997,6 +3012,9 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure: 
     if !self.stackTrace.isEmpty {
       try visitor.visitSingularStringField(value: self.stackTrace, fieldNumber: 3)
     }
+    if !self.formatted.isEmpty {
+      try visitor.visitSingularStringField(value: self.formatted, fieldNumber: 4)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -3004,6 +3022,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure: 
     if lhs.message != rhs.message {return false}
     if lhs._span != rhs._span {return false}
     if lhs.stackTrace != rhs.stackTrace {return false}
+    if lhs.formatted != rhs.formatted {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -3017,6 +3036,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
     3: .same(proto: "message"),
     4: .same(proto: "span"),
     5: .standard(proto: "stack_trace"),
+    6: .same(proto: "formatted"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3030,6 +3050,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
       case 3: try { try decoder.decodeSingularStringField(value: &self.message) }()
       case 4: try { try decoder.decodeSingularMessageField(value: &self._span) }()
       case 5: try { try decoder.decodeSingularStringField(value: &self.stackTrace) }()
+      case 6: try { try decoder.decodeSingularStringField(value: &self.formatted) }()
       default: break
       }
     }
@@ -3051,6 +3072,9 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
     if !self.stackTrace.isEmpty {
       try visitor.visitSingularStringField(value: self.stackTrace, fieldNumber: 5)
     }
+    if !self.formatted.isEmpty {
+      try visitor.visitSingularStringField(value: self.formatted, fieldNumber: 6)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -3060,6 +3084,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
     if lhs.message != rhs.message {return false}
     if lhs._span != rhs._span {return false}
     if lhs.stackTrace != rhs.stackTrace {return false}
+    if lhs.formatted != rhs.formatted {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

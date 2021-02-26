@@ -23,6 +23,8 @@ final class CompilerWork {
     private let resetRequest: (Error) -> Void
     /// Configured max timeout, seconds
     private let timeout: Int
+    /// Message formatting style, for all compilations
+    private let messageStyle: CompilerMessageStyle
     /// Configured global importer rules, for all compilations
     private let globalImporters: [AsyncImportResolver]
     /// Configured functions, for all compilations
@@ -38,11 +40,13 @@ final class CompilerWork {
     init(eventLoop: EventLoop,
          resetRequest: @escaping (Error) -> Void,
          timeout: Int,
+         messageStyle: CompilerMessageStyle,
          importers: [AsyncImportResolver],
          functions: SassAsyncFunctionMap) {
         self.eventLoop = eventLoop
         self.resetRequest = resetRequest
         self.timeout = timeout
+        self.messageStyle = messageStyle
         globalImporters = importers
         globalFunctions = functions
         pendingCompilations = []
@@ -78,13 +82,14 @@ final class CompilerWork {
         let promise = eventLoop.makePromise(of: CompilerResults.self)
 
         let compilation = CompilationRequest(
-                promise: promise,
-                input: input,
-                outputStyle: outputStyle,
-                createSourceMap: createSourceMap,
-                importers: globalImporters + importers,
-                stringImporter: stringImporter,
-                functionsMap: mergedFnsNameMap)
+            promise: promise,
+            input: input,
+            outputStyle: outputStyle,
+            createSourceMap: createSourceMap,
+            messageStyle: messageStyle,
+            importers: globalImporters + importers,
+            stringImporter: stringImporter,
+            functionsMap: mergedFnsNameMap)
 
         pendingCompilations.append(compilation)
 

@@ -116,18 +116,21 @@ public final class Compiler {
     /// - parameter timeout: The maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
+    /// - parameter messageStyle: Style for diagnostic message descriptions.  Default `.plain`.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
     /// - throws: `LifecycleError` if the program can't be found.
     public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
                             timeout: Int = 60,
+                            messageStyle: CompilerMessageStyle = .plain,
                             importers: [ImportResolver] = [],
                             functions: SassAsyncFunctionMap = [:]) throws {
         let url = try DartSassEmbedded.getURL()
         self.init(eventLoopGroupProvider: eventLoopGroupProvider,
                   embeddedCompilerURL: url,
                   timeout: timeout,
+                  messageStyle: messageStyle,
                   importers: importers,
                   functions: functions)
     }
@@ -148,12 +151,14 @@ public final class Compiler {
     /// - parameter timeout: The maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
+    /// - parameter messageStyle: Style for diagnostic message descriptions.  Default `.plain`.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
     public init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
                 embeddedCompilerURL: URL,
                 timeout: Int = 60,
+                messageStyle: CompilerMessageStyle = .plain,
                 importers: [ImportResolver] = [],
                 functions: SassAsyncFunctionMap = [:]) {
         precondition(embeddedCompilerURL.isFileURL, "Not a file URL: \(embeddedCompilerURL)")
@@ -169,6 +174,7 @@ public final class Compiler {
         work = CompilerWork(eventLoop: eventLoop,
                             resetRequest: { [unowned self] in handle(error: $0) },
                             timeout: timeout,
+                            messageStyle: messageStyle,
                             importers: .init(importers),
                             functions: functions)
         state.toInitializing(startCompiler())
