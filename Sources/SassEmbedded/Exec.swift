@@ -44,7 +44,7 @@ enum Exec {
     /// - returns: `Exec.Child` for the child process.
     ///
     /// Stderr of the child process is discarded because I don't want it rn.
-    static func spawn(_ command: FilePath,
+    static func spawn(_ command: URL,
                       _ arguments: [String] = [],
                       currentDirectory: String = FileManager.default.currentDirectoryPath,
                       group: EventLoopGroup) throws -> Child {
@@ -68,7 +68,7 @@ enum Exec {
         process.standardInput = FileHandle(fileDescriptor: stdinPipe.reader)
         process.standardError = FileHandle(forWritingAtPath: "/dev/null")!
 
-        process.executableURL = URL(command)
+        process.executableURL = command
         process.currentDirectoryURL = URL(fileURLWithPath: currentDirectory)
         try process.run()
 
@@ -101,11 +101,5 @@ enum Exec {
             process.terminate()
             // this cascades closes to the channel
         }
-    }
-}
-
-extension URL {
-    init(_ filePath: FilePath) {
-        self.init(fileURLWithPath: filePath.description)
     }
 }

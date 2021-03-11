@@ -288,7 +288,7 @@ final class CompilationRequest: ManagedCompilerRequest {
 
         clientStarting()
 
-        return importer.canonicalize(eventLoop: eventLoop, importURL: req.url)
+        return importer.canonicalize(eventLoop: eventLoop, ruleURL: req.url)
             .map { canonURL -> IBM.CanonicalizeResponse in
                 if let canonURL = canonURL {
                     rsp.url = canonURL.absoluteString

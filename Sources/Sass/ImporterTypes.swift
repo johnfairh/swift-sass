@@ -78,9 +78,9 @@ public protocol Importer {
     /// happens to be called with a resource's canonical URL (including something
     /// the routine previously returned) then it must be returned unchanged.
     ///
-    /// - parameter importURL: The text following `@import` or `@use` in
+    /// - parameter ruleURL: The text following `@import` or `@use` in
     ///   a stylesheet.
-    /// - returns: The canonical URL, or `nil` if the importer doesn't recognize the
+    /// - returns: The canonical absolute URL, or `nil` if the importer doesn't recognize the
     ///   import request to have the compiler try the next importer.
     /// - throws: Only when `importURL` cannot be canonicalized: it is definitely
     ///   this importer's responsibility to do so, but it can't.  For example, if the request is
@@ -88,7 +88,7 @@ public protocol Importer {
     ///   anything then the importer should return `nil` instead.
     ///
     ///   Compilation will stop, quoting the description of the error thrown as the reason.
-    func canonicalize(importURL: String) throws -> URL?
+    func canonicalize(ruleURL: String) throws -> URL?
 
     /// Load a stylesheet from a canonical URL
     ///

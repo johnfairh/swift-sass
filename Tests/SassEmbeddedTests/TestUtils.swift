@@ -47,7 +47,7 @@ class SassEmbeddedTestCase: XCTestCase {
 
     func newBadCompiler(timeout: Int = 1) throws -> Compiler {
         let c = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                         embeddedCompilerFilePath: FilePath("/usr/bin/tail"),
+                         embeddedCompilerFileURL: URL(fileURLWithPath: "/usr/bin/tail"),
                          timeout: timeout)
         compilersToShutdown.append(c)
         return c
@@ -104,8 +104,8 @@ extension FileManager {
 /// An async importer that can be stopped in `load`.
 /// Accepts all `import` URLs and returns empty documents.
 final class HangingAsyncImporter: AsyncImporter {
-    func canonicalize(eventLoop: EventLoop, importURL: String) -> EventLoopFuture<URL?> {
-        return eventLoop.makeSucceededFuture(URL(string: "custom://\(importURL)"))
+    func canonicalize(eventLoop: EventLoop, ruleURL: String) -> EventLoopFuture<URL?> {
+        return eventLoop.makeSucceededFuture(URL(string: "custom://\(ruleURL)"))
     }
 
     var hangNextLoad: Bool { hangPromise != nil }

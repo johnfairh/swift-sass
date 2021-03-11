@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import SystemPackage
 
 #if os(macOS)
 @_implementationOnly import DartSassEmbeddedMacOS
@@ -21,14 +20,14 @@ final class DartSassEmbeddedBundle {
 
 enum DartSassEmbedded {
     /// Decode the platform and locate the platform-specific binary.
-    static func getFilePath() throws -> FilePath {
+    static func getURL() throws -> URL {
         let programName = getenv("DART_SASS_EMBEDDED_NAME").flatMap { String(cString: $0) } ?? "dart-sass-embedded"
         guard let bundle = DartSassEmbeddedBundle.bundle,
-              let path = bundle.path(forResource: programName,
-                                     ofType: nil,
-                                     inDirectory: "sass_embedded") else {
+              let url = bundle.url(forResource: programName,
+                                    withExtension: nil,
+                                    subdirectory: "sass_embedded") else {
             throw LifecycleError("No `\(programName)` is available for the current platform.")
         }
-        return FilePath(path)
+        return url
     }
 }

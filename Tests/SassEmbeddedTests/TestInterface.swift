@@ -8,7 +8,6 @@
 
 import XCTest
 import SassEmbedded
-import SystemPackage
 
 ///
 /// Tests to check the normal operation of the sass compiler -- not testing the compiler itself,
@@ -67,7 +66,7 @@ class TestInterface: SassEmbeddedTestCase {
 
     private func checkCompileFromFile(_ compiler: Compiler, extnsion: String, content: String, expected: String) throws {
         let url = try FileManager.default.createTempFile(filename: "file.\(extnsion)", contents: content)
-        let results = try compiler.compile(filePath: FilePath(url.path))
+        let results = try compiler.compile(fileURL: url)
         XCTAssertEqual(expected, results.css)
     }
 
@@ -82,7 +81,7 @@ class TestInterface: SassEmbeddedTestCase {
     func testSourceMap() throws {
         let compiler = try newCompiler()
 
-        let results = try compiler.compile(string: scssIn, url: "custom://bar", createSourceMap: true)
+        let results = try compiler.compile(string: scssIn, url: URL(string: "custom://bar"), createSourceMap: true)
         XCTAssertEqual(scssOutExpanded, results.css)
 
         let json = try XCTUnwrap(results.sourceMap)
@@ -111,9 +110,9 @@ class TestInterface: SassEmbeddedTestCase {
     /// Bad explicitly given compiler
     func testNotACompiler() throws {
         do {
-            let notACompiler = FilePath("/tmp/fred")
+            let notACompiler = URL(fileURLWithPath: "/tmp/fred")
             let compiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                                    embeddedCompilerFilePath: notACompiler)
+                                    embeddedCompilerFileURL: notACompiler)
             defer { try! compiler.syncShutdownGracefully() }
             let results = try compiler.compile(string: "")
             XCTFail("Got results: \(results)")

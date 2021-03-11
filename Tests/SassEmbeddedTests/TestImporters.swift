@@ -98,7 +98,7 @@ class TestImporters: SassEmbeddedTestCase {
         var claimRequest: Bool = true
         var unclaimedRequestCount = 0
 
-        func canonicalize(importURL: String) throws -> URL? {
+        func canonicalize(ruleURL: String) throws -> URL? {
             if let failNextCanon = failNextCanon {
                 failedCanonCount += 1
                 throw Error(message: failNextCanon)
@@ -107,10 +107,10 @@ class TestImporters: SassEmbeddedTestCase {
                 unclaimedRequestCount += 1
                 return nil
             }
-            if importURL.starts(with: "test://") {
-                return URL(string: importURL)
+            if ruleURL.starts(with: "test://") {
+                return URL(string: ruleURL)
             }
-            return URL(string: "test://\(importURL)")
+            return URL(string: "test://\(ruleURL)")
         }
 
         /// Fail the next import
@@ -186,7 +186,7 @@ class TestImporters: SassEmbeddedTestCase {
         let importer = TestImporter(css: secondaryCssRed)
         let compiler = try newCompiler()
         let results = try compiler.compile(string: "@import 'something';",
-                                           url: "test://vfs",
+                                           url: URL(string: "test://vfs"),
                                            importer: .importer(importer),
                                            outputStyle: .compressed,
                                            createSourceMap: true)

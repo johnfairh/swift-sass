@@ -60,7 +60,7 @@ class TestCompilerErrors: SassEmbeddedTestCase {
         let compiler = try newCompiler()
         let url = try FileManager.default.createTempFile(filename: "badfile.sass", contents: badSass)
         do {
-            let results = try compiler.compile(filePath: FilePath(url.path))
+            let results = try compiler.compile(fileURL: url)
             XCTFail("Managed to compile, got: \(results.css)")
         } catch let error as CompilerError {
             let d = error.description
@@ -99,7 +99,7 @@ class TestCompilerErrors: SassEmbeddedTestCase {
         let compiler = try newCompiler()
 
         do {
-            let results = try compiler.compile(filePath: "/tmp/no")
+            let results = try compiler.compile(fileURL: URL(fileURLWithPath: "/tmp/no"))
             XCTFail("Managed to compile non-existant file: \(results)")
         } catch let error as CompilerError {
             XCTAssertEqual("Cannot open file: /tmp/no", String(describing: error))

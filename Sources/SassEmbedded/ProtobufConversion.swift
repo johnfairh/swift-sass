@@ -118,17 +118,12 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OutputStyle {
     }
 }
 
-extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input {
-    init(_ filePath: FilePath) {
-        self = .path(URL(filePath).path)
-    }
-}
-
 extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer {
     init(_ importer: AsyncImportResolver, id: UInt32) {
         self.init()
         switch importer {
         case .loadPath(let url):
+            precondition(url.isFileURL)
             path = url.path
         case .importer:
             importerID = id

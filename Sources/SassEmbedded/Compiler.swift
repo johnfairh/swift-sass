@@ -6,9 +6,7 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
-//import Foundation
-import Dispatch
-@_exported import struct SystemPackage.FilePath
+import Foundation
 import NIO
 import Logging
 @_exported import Sass
@@ -93,7 +91,7 @@ public final class Compiler {
     private(set) var startCount: Int
 
     /// The path of the compiler program
-    private let embeddedCompilerFilePath: FilePath
+    private let embeddedCompilerFileURL: URL
 
     /// The actual compilation work
     private var work: CompilerWork!
@@ -128,9 +126,9 @@ public final class Compiler {
                             messageStyle: CompilerMessageStyle = .plain,
                             importers: [ImportResolver] = [],
                             functions: SassAsyncFunctionMap = [:]) throws {
-        let filePath = try DartSassEmbedded.getFilePath()
+        let url = try DartSassEmbedded.getURL()
         self.init(eventLoopGroupProvider: eventLoopGroupProvider,
-                  embeddedCompilerFilePath: filePath,
+                  embeddedCompilerFileURL: url,
                   timeout: timeout,
                   messageStyle: messageStyle,
                   importers: importers,
@@ -147,7 +145,7 @@ public final class Compiler {
     ///
     /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.
-    /// - parameter embeddedCompilerFilePath: The path of `dart-sass-embedded`
+    /// - parameter embeddedCompilerFileURL: The path of `dart-sass-embedded`
     ///   or something else that speaks the Sass embedded protocol.  Check [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md)
     ///   for the supported protocol versions.
     /// - parameter timeout: The maximum time in seconds allowed for the embedded
@@ -158,17 +156,18 @@ public final class Compiler {
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
     public init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
-                embeddedCompilerFilePath: FilePath,
+                embeddedCompilerFileURL: URL,
                 timeout: Int = 60,
                 messageStyle: CompilerMessageStyle = .plain,
                 importers: [ImportResolver] = [],
                 functions: SassAsyncFunctionMap = [:]) {
+        precondition(embeddedCompilerFileURL.isFileURL, "Not a file URL: \(embeddedCompilerFileURL)")
         self.eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider)
         eventLoop = self.eventLoopGroup.next()
         initThread = NIOThreadPool(numberOfThreads: 1)
         initThread.start()
         work = nil
-        self.embeddedCompilerFilePath = embeddedCompilerFilePath
+        self.embeddedCompilerFileURL = embeddedCompilerFileURL
         state = .shutdown
         startCount = 0
         // self init done
@@ -295,8 +294,8 @@ public final class Compiler {
         Compiler.logger.debug(.init(stringLiteral: msg()))
     }
 
-    /// Asynchronous version of `compile(filePath:outputStyle:createSourceMap:importers:functions:)`.
-    public func compileAsync(filePath: FilePath,
+    /// Asynchronous version of `compile(fileURL:outputStyle:createSourceMap:importers:functions:)`.
+    public func compileAsync(fileURL: URL,
                              outputStyle: CssStyle = .expanded,
                              createSourceMap: Bool = false,
                              importers: [ImportResolver] = [],
@@ -304,7 +303,7 @@ public final class Compiler {
         eventLoop.flatSubmit { [self] in
             defer { kickPendingCompilations() }
             return work.addPendingCompilation(
-                input: .init(filePath),
+                input: .path(fileURL.path),
                 outputStyle: outputStyle,
                 createSourceMap: createSourceMap,
                 importers: .init(importers),
@@ -315,7 +314,7 @@ public final class Compiler {
     /// Compile to CSS from a stylesheet file.
     ///
     /// - parameters:
-    ///   - filePath: The path of the file to compile.  The file extension determines the
+    ///   - fileURL: The URL of the file to compile.  The file extension determines the
     ///     expected syntax of the contents, so it must be css/scss/sass.
     ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
     ///   - createSourceMap: Create a JSON source map for the CSS.  Default `false`.
@@ -326,12 +325,12 @@ public final class Compiler {
     /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
     ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
     /// - returns: `CompilerResults` with CSS and optional source map.
-    public func compile(filePath: FilePath,
+    public func compile(fileURL: URL,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
-        try compileAsync(filePath: filePath,
+        try compileAsync(fileURL: fileURL,
                          outputStyle: outputStyle,
                          createSourceMap: createSourceMap,
                          importers: importers,
@@ -341,7 +340,7 @@ public final class Compiler {
     /// Asynchronous version of `compile(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)`.
     public func compileAsync(string: String,
                              syntax: Syntax = .scss,
-                             url: String? = nil,
+                             url: URL? = nil,
                              importer: ImportResolver? = nil,
                              outputStyle: CssStyle = .expanded,
                              createSourceMap: Bool = false,
@@ -354,7 +353,7 @@ public final class Compiler {
                 input: .string(.with { m in
                     m.source = string
                     m.syntax = .init(syntax)
-                    url.flatMap { m.url = $0 }
+                    url.flatMap { m.url = $0.absoluteString }
                     asyncImporter.flatMap {
                         m.importer = .init($0, id: CompilationRequest.baseImporterID)
                     }
@@ -387,7 +386,7 @@ public final class Compiler {
     /// - returns: `CompilerResults` with CSS and optional source map.
     public func compile(string: String,
                         syntax: Syntax = .scss,
-                        url: String? = nil,
+                        url: URL? = nil,
                         importer: ImportResolver? = nil,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
@@ -437,7 +436,7 @@ public final class Compiler {
         startCount += 1
         return initThread.runIfActive(eventLoop: eventLoop) { [self] in
             try CompilerChild(eventLoop: eventLoop,
-                              filePath: embeddedCompilerFilePath,
+                              fileURL: embeddedCompilerFileURL,
                               work: work,
                               errorHandler: { [unowned self] in self.handle(error: $0) })
         }.flatMap { child in
@@ -582,8 +581,8 @@ final class CompilerChild: ChannelInboundHandler {
     /// Create a new Sass compiler process.
     ///
     /// Must not be called in an event loop!  But I don't know how to check that.
-    init(eventLoop: EventLoop, filePath: FilePath, work: CompilerWork, errorHandler: @escaping (Error) -> Void) throws {
-        self.child = try Exec.spawn(filePath, group: eventLoop)
+    init(eventLoop: EventLoop, fileURL: URL, work: CompilerWork, errorHandler: @escaping (Error) -> Void) throws {
+        self.child = try Exec.spawn(fileURL, group: eventLoop)
         self.eventLoop = eventLoop
         self.work = work
         self.errorHandler = errorHandler
