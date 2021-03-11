@@ -35,7 +35,7 @@ enum Exec {
     /// Doesn't work on an event loop -- a weird underlying NIO design point we lean into: this
     /// blocks a little as the process starts.
     ///
-    /// - parameter command: Absolute path of the command to run
+    /// - parameter command: Path of the command to run
     /// - parameter arguments: Arguments to pass to the command
     /// - parameter currentDirectory: Current directory for the command.  By default
     ///                               the parent process's current directory.
@@ -44,7 +44,7 @@ enum Exec {
     /// - returns: `Exec.Child` for the child process.
     ///
     /// Stderr of the child process is discarded because I don't want it rn.
-    static func spawn(_ command: URL,
+    static func spawn(_ command: FilePath,
                       _ arguments: [String] = [],
                       currentDirectory: String = FileManager.default.currentDirectoryPath,
                       group: EventLoopGroup) throws -> Child {
@@ -68,7 +68,7 @@ enum Exec {
         process.standardInput = FileHandle(fileDescriptor: stdinPipe.reader)
         process.standardError = FileHandle(forWritingAtPath: "/dev/null")!
 
-        process.executableURL = command
+        process.executableURL = URL(command)
         process.currentDirectoryURL = URL(fileURLWithPath: currentDirectory)
         try process.run()
 
@@ -101,5 +101,11 @@ enum Exec {
             process.terminate()
             // this cascades closes to the channel
         }
+    }
+}
+
+extension URL {
+    init(_ filePath: FilePath) {
+        self.init(fileURLWithPath: filePath.description)
     }
 }

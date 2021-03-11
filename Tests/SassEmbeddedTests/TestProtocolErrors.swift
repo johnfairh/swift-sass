@@ -76,7 +76,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
             }
         }
 
-        let compileResult = compiler.compileAsync(text: "")
+        let compileResult = compiler.compileAsync(string: "")
 
         compiler.receive(message: msg)
 
@@ -94,7 +94,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
         XCTAssertEqual(2, compiler.startCount)
 
         // Peculiar error
-        let compileResult2 = compiler.compileAsync(text: "")
+        let compileResult2 = compiler.compileAsync(string: "")
         compiler.eventLoop.execute {
             try! compiler.child().channel.pipeline.fireErrorCaught(ProtocolError("Injected channel error"))
         }
@@ -138,7 +138,7 @@ class TestProtocolErrors: SassEmbeddedTestCase {
         ])
         let hangDone = importer.hangLoad(eventLoop: compiler.eventLoop)
 
-        let compilerResults = compiler.compileAsync(text: "@import 'something';")
+        let compilerResults = compiler.compileAsync(string: "@import 'something';")
         _ = try hangDone.wait()
 
         compiler.receive(message: msg)

@@ -32,6 +32,10 @@ let package = Package(
         name: "Semver",
         url: "https://github.com/johnfairh/Semver.swift.git",
         from: "1.2.2"),
+      .package(
+        name: "swift-system",
+        url: "https://github.com/apple/swift-system.git",
+        from: "0.0.1"),
     ],
     targets: [
       .target(name: "Sass"),
@@ -48,6 +52,7 @@ let package = Package(
           .product(name: "NIOFoundationCompat", package: "swift-nio"),
           .product(name: "Logging", package: "swift-log"),
           .product(name: "Semver", package: "Semver"),
+          .product(name: "SystemPackage", package: "swift-system"),
         ]),
       .target(
         name: "DartSassEmbeddedMacOS",

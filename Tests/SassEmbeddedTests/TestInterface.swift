@@ -8,6 +8,7 @@
 
 import XCTest
 import SassEmbedded
+import SystemPackage
 
 ///
 /// Tests to check the normal operation of the sass compiler -- not testing the compiler itself,
@@ -48,17 +49,17 @@ class TestInterface: SassEmbeddedTestCase {
     /// Does it work, goodpath, no imports, scss/sass/css inline input
     func testCoreInline() throws {
         let compiler = try newCompiler()
-        let results1 = try compiler.compile(text: scssIn)
+        let results1 = try compiler.compile(string: scssIn)
         XCTAssertNil(results1.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(scssOutExpanded, results1.css)
 
-        let results2 = try compiler.compile(text: sassIn, syntax: .sass)
+        let results2 = try compiler.compile(string: sassIn, syntax: .sass)
         XCTAssertNil(results2.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(sassOutExpanded, results2.css)
 
-        let results3 = try compiler.compile(text: sassOutExpanded, syntax: .css)
+        let results3 = try compiler.compile(string: sassOutExpanded, syntax: .css)
         XCTAssertNil(results3.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(sassOutExpanded, results3.css)
@@ -66,7 +67,7 @@ class TestInterface: SassEmbeddedTestCase {
 
     private func checkCompileFromFile(_ compiler: Compiler, extnsion: String, content: String, expected: String) throws {
         let url = try FileManager.default.createTempFile(filename: "file.\(extnsion)", contents: content)
-        let results = try compiler.compile(fileURL: url)
+        let results = try compiler.compile(filePath: FilePath(url.path))
         XCTAssertEqual(expected, results.css)
     }
 
@@ -81,7 +82,7 @@ class TestInterface: SassEmbeddedTestCase {
     func testSourceMap() throws {
         let compiler = try newCompiler()
 
-        let results = try compiler.compile(text: scssIn, url: URL(string: "custom://bar"), createSourceMap: true)
+        let results = try compiler.compile(string: scssIn, url: "custom://bar", createSourceMap: true)
         XCTAssertEqual(scssOutExpanded, results.css)
 
         let json = try XCTUnwrap(results.sourceMap)
@@ -102,7 +103,7 @@ class TestInterface: SassEmbeddedTestCase {
         let styles: [CssStyle] = [.compressed, .compact, .nested]
         let expected = [scssOutCompressed, scssOutExpanded, scssOutExpanded]
         try zip(styles, expected).forEach { tc in
-            let results = try compiler.compile(text: scssIn, syntax: .scss, outputStyle: tc.0)
+            let results = try compiler.compile(string: scssIn, syntax: .scss, outputStyle: tc.0)
             XCTAssertEqual(tc.1, results.css, String(describing: tc.0))
         }
     }
@@ -110,11 +111,11 @@ class TestInterface: SassEmbeddedTestCase {
     /// Bad explicitly given compiler
     func testNotACompiler() throws {
         do {
-            let notACompiler = URL(fileURLWithPath: "/tmp/fred")
+            let notACompiler = FilePath("/tmp/fred")
             let compiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                                    embeddedCompilerURL: notACompiler)
+                                    embeddedCompilerFilePath: notACompiler)
             defer { try! compiler.syncShutdownGracefully() }
-            let results = try compiler.compile(text: "")
+            let results = try compiler.compile(string: "")
             XCTFail("Got results: \(results)")
         } catch let error as LifecycleError {
             print(error)

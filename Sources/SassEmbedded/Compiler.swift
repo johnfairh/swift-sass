@@ -6,7 +6,9 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
-import Foundation // for URL !
+//import Foundation
+import Dispatch
+@_exported import struct SystemPackage.FilePath
 import NIO
 import Logging
 @_exported import Sass
@@ -90,8 +92,8 @@ public final class Compiler {
     /// Number of times we've tried to start the embedded Sass compiler.
     private(set) var startCount: Int
 
-    /// The URL of the compiler program
-    private let embeddedCompilerURL: URL
+    /// The path of the compiler program
+    private let embeddedCompilerFilePath: FilePath
 
     /// The actual compilation work
     private var work: CompilerWork!
@@ -126,9 +128,9 @@ public final class Compiler {
                             messageStyle: CompilerMessageStyle = .plain,
                             importers: [ImportResolver] = [],
                             functions: SassAsyncFunctionMap = [:]) throws {
-        let url = try DartSassEmbedded.getURL()
+        let filePath = try DartSassEmbedded.getFilePath()
         self.init(eventLoopGroupProvider: eventLoopGroupProvider,
-                  embeddedCompilerURL: url,
+                  embeddedCompilerFilePath: filePath,
                   timeout: timeout,
                   messageStyle: messageStyle,
                   importers: importers,
@@ -145,7 +147,7 @@ public final class Compiler {
     ///
     /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.
-    /// - parameter embeddedCompilerURL: The file URL to `dart-sass-embedded`
+    /// - parameter embeddedCompilerFilePath: The path of `dart-sass-embedded`
     ///   or something else that speaks the Sass embedded protocol.  Check [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md)
     ///   for the supported protocol versions.
     /// - parameter timeout: The maximum time in seconds allowed for the embedded
@@ -156,18 +158,17 @@ public final class Compiler {
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
     public init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
-                embeddedCompilerURL: URL,
+                embeddedCompilerFilePath: FilePath,
                 timeout: Int = 60,
                 messageStyle: CompilerMessageStyle = .plain,
                 importers: [ImportResolver] = [],
                 functions: SassAsyncFunctionMap = [:]) {
-        precondition(embeddedCompilerURL.isFileURL, "Not a file URL: \(embeddedCompilerURL)")
         self.eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider)
         eventLoop = self.eventLoopGroup.next()
         initThread = NIOThreadPool(numberOfThreads: 1)
         initThread.start()
         work = nil
-        self.embeddedCompilerURL = embeddedCompilerURL
+        self.embeddedCompilerFilePath = embeddedCompilerFilePath
         state = .shutdown
         startCount = 0
         // self init done
@@ -294,8 +295,8 @@ public final class Compiler {
         Compiler.logger.debug(.init(stringLiteral: msg()))
     }
 
-    /// Asynchronous version of `compile(fileURL:outputStyle:createSourceMap:importers:functions:)`.
-    public func compileAsync(fileURL: URL,
+    /// Asynchronous version of `compile(filePath:outputStyle:createSourceMap:importers:functions:)`.
+    public func compileAsync(filePath: FilePath,
                              outputStyle: CssStyle = .expanded,
                              createSourceMap: Bool = false,
                              importers: [ImportResolver] = [],
@@ -303,7 +304,7 @@ public final class Compiler {
         eventLoop.flatSubmit { [self] in
             defer { kickPendingCompilations() }
             return work.addPendingCompilation(
-                input: .path(fileURL.path),
+                input: .init(filePath),
                 outputStyle: outputStyle,
                 createSourceMap: createSourceMap,
                 importers: .init(importers),
@@ -314,7 +315,7 @@ public final class Compiler {
     /// Compile to CSS from a stylesheet file.
     ///
     /// - parameters:
-    ///   - fileURL: The `file:` URL to compile.  The file extension determines the
+    ///   - filePath: The path of the file to compile.  The file extension determines the
     ///     expected syntax of the contents, so it must be css/scss/sass.
     ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
     ///   - createSourceMap: Create a JSON source map for the CSS.  Default `false`.
@@ -325,22 +326,22 @@ public final class Compiler {
     /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
     ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
     /// - returns: `CompilerResults` with CSS and optional source map.
-    public func compile(fileURL: URL,
+    public func compile(filePath: FilePath,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
-        try compileAsync(fileURL: fileURL,
+        try compileAsync(filePath: filePath,
                          outputStyle: outputStyle,
                          createSourceMap: createSourceMap,
                          importers: importers,
                          functions: .init(functions)).wait()
     }
 
-    /// Asynchronous version of `compile(text:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)`.
-    public func compileAsync(text: String,
+    /// Asynchronous version of `compile(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)`.
+    public func compileAsync(string: String,
                              syntax: Syntax = .scss,
-                             url: URL? = nil,
+                             url: String? = nil,
                              importer: ImportResolver? = nil,
                              outputStyle: CssStyle = .expanded,
                              createSourceMap: Bool = false,
@@ -351,9 +352,9 @@ public final class Compiler {
             let asyncImporter = importer.flatMap { AsyncImportResolver($0) }
             return work.addPendingCompilation(
                 input: .string(.with { m in
-                    m.source = text
+                    m.source = string
                     m.syntax = .init(syntax)
-                    url.flatMap { m.url = $0.absoluteString }
+                    url.flatMap { m.url = $0 }
                     asyncImporter.flatMap {
                         m.importer = .init($0, id: CompilationRequest.baseImporterID)
                     }
@@ -369,10 +370,11 @@ public final class Compiler {
     /// Compile to CSS from an inline stylesheet.
     ///
     /// - parameters:
-    ///   - text: The stylesheet text to compile.
+    ///   - string: The stylesheet text to compile.
     ///   - syntax: The syntax of `text`, default `.scss`.
-    ///   - url: The absolute URL to associate with `text`.  Default `nil` meaning unknown.
-    ///   - importer: Rule to resolve `@import` etc. from `text` relative to `url`.  Default `nil`
+    ///   - url: The absolute URL to associate with `string`, from where it was loaded.
+    ///     Default `nil` meaning unknown.
+    ///   - importer: Rule to resolve `@import` etc. from `string` relative to `url`.  Default `nil`
     ///     meaning the current filesystem directory is used.
     ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
     ///   - createSourceMap: Create a JSON source map for the CSS.  Default `false`.
@@ -383,16 +385,15 @@ public final class Compiler {
     /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
     ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
     /// - returns: `CompilerResults` with CSS and optional source map.
-    ///
-    public func compile(text: String,
+    public func compile(string: String,
                         syntax: Syntax = .scss,
-                        url: URL? = nil,
+                        url: String? = nil,
                         importer: ImportResolver? = nil,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
-        try compileAsync(text: text,
+        try compileAsync(string: string,
                          syntax: syntax,
                          url: url,
                          importer: importer,
@@ -436,7 +437,7 @@ public final class Compiler {
         startCount += 1
         return initThread.runIfActive(eventLoop: eventLoop) { [self] in
             try CompilerChild(eventLoop: eventLoop,
-                              url: embeddedCompilerURL,
+                              filePath: embeddedCompilerFilePath,
                               work: work,
                               errorHandler: { [unowned self] in self.handle(error: $0) })
         }.flatMap { child in
@@ -581,8 +582,8 @@ final class CompilerChild: ChannelInboundHandler {
     /// Create a new Sass compiler process.
     ///
     /// Must not be called in an event loop!  But I don't know how to check that.
-    init(eventLoop: EventLoop, url: URL, work: CompilerWork, errorHandler: @escaping (Error) -> Void) throws {
-        self.child = try Exec.spawn(url, group: eventLoop)
+    init(eventLoop: EventLoop, filePath: FilePath, work: CompilerWork, errorHandler: @escaping (Error) -> Void) throws {
+        self.child = try Exec.spawn(filePath, group: eventLoop)
         self.eventLoop = eventLoop
         self.work = work
         self.errorHandler = errorHandler
