@@ -7,27 +7,6 @@ on:
     branches: ['*']
 
 jobs:
-  linux:
-    name: Linux SPM unit tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Swift version
-        id: swift-version
-        run: |
-          echo "::set-output name=version::$(swift --version)"
-        shell: bash
-
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: .build
-          key: ${{ runner.os }}-spm5-${{ steps.swift-version.outputs.version }}-${{ hashFiles('Package.resolved', 'Makefile') }}
-
-      - name: Run tests
-        run: make test
-
   macos11:
     name: macOS 11 tests
     runs-on: macos-11
@@ -35,6 +14,8 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_13.2.app/Contents/Developer
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
       - name: Cache dependencies
         uses: actions/cache@v2
@@ -43,7 +24,9 @@ jobs:
           key: ${{ runner.os }}-spm5-${{ hashFiles('Package.resolved', 'Makefile') }}
 
       - name: SPM tests
-        run: make test
+        run: |
+          make libsass4
+          make test
       - name: Normalize coverage info
         run: xcrun llvm-cov export -format lcov .build/debug/swift-sassPackageTests.xctest/Contents/MacOS/swift-sassPackageTests -instr-profile .build/debug/codecov/default.profdata -ignore-filename-regex "(Test|checkouts|pb\.swift$)" > coverage.lcov
       - name: Upload coverage

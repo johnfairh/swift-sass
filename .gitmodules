@@ -1,3 +1,6 @@
 [submodule "embedded-protocol"]
 	path = embedded-protocol
 	url = https://github.com/sass/embedded-protocol.git
+[submodule "libsass4"]
+	path = libsass4
+	url = https://github.com/mgreter/libsass.git

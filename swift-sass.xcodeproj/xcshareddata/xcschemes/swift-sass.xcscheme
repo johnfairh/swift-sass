@@ -48,6 +48,34 @@
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "02B1C8CB25EFB8180053920D"
+               BuildableName = "SassLibSass.framework"
+               BlueprintName = "SassLibSass"
+               ReferencedContainer = "container:swift-sass.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "02B1C96925F285AE0053920D"
+               BuildableName = "TestHelpers.framework"
+               BlueprintName = "TestHelpers"
+               ReferencedContainer = "container:swift-sass.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
