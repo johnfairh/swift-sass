@@ -31,8 +31,8 @@ extension Span {
 extension Span.Location {
     init(_ protobuf: Sass_EmbeddedProtocol_SourceSpan.SourceLocation) {
         self = .init(offset: Int(protobuf.offset),
-                     line: Int(protobuf.line),
-                     column: Int(protobuf.column))
+                     line: Int(protobuf.line + 1),
+                     column: Int(protobuf.column + 1))
     }
 }
 

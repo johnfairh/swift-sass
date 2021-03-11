@@ -102,15 +102,15 @@ public struct Span: CustomStringConvertible {
         /// The 0-based byte offset of this location within the stylesheet.
         public let offset: Int
 
-        /// The 0-based line number of this location within the stylesheet.
+        /// The 1-based line number of this location within the stylesheet.
         public let line: Int
 
-        /// The 0-based column number of this location within its line.
+        /// The 1-based column number of this location within its line.
         public let column: Int
 
-        /// A short description of the location.  Uses 1-based counting!
+        /// A short description of the location.
         public var description: String {
-            "\(line + 1):\(column + 1)"
+            "\(line):\(column)"
         }
 
         /// :nodoc:
@@ -130,7 +130,6 @@ public struct Span: CustomStringConvertible {
     /// The URL of the stylesheet to which the span refers, or `nil` if it refers to
     /// an inline compilation that doesn't specify a URL.
     public let url: URL?
-
 
     /// The location of the first character in the span.
     public let start: Location
