@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "swift-sass",
     platforms: [
-      .macOS("10.15"),
+      .macOS("11.0"),
     ],
     products: [
       .library(
