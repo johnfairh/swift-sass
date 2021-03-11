@@ -311,6 +311,20 @@ public final class Compiler {
         }
     }
 
+    /// Compile to CSS from a stylesheet file.
+    ///
+    /// - parameters:
+    ///   - fileURL: The `file:` URL to compile.  The file extension determines the
+    ///     expected syntax of the contents, so it must be css/scss/sass.
+    ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
+    ///   - createSourceMap: Create a JSON source map for the CSS.  Default `false`.
+    ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
+    ///     `sourceFileURL`'s directory and any set globally..  Default none.
+    ///   - functions: Functions for this compilation, overriding any with the same name previously
+    ///     set globally. Default none.
+    /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
+    ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
+    /// - returns: `CompilerResults` with CSS and optional source map.
     public func compile(fileURL: URL,
                         outputStyle: CssStyle = .expanded,
                         createSourceMap: Bool = false,
@@ -352,6 +366,24 @@ public final class Compiler {
         }
     }
 
+    /// Compile to CSS from an inline stylesheet.
+    ///
+    /// - parameters:
+    ///   - text: The stylesheet text to compile.
+    ///   - syntax: The syntax of `text`, default `.scss`.
+    ///   - url: The absolute URL to associate with `text`.  Default `nil` meaning unknown.
+    ///   - importer: Rule to resolve `@import` etc. from `text` relative to `url`.  Default `nil`
+    ///     meaning the current filesystem directory is used.
+    ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
+    ///   - createSourceMap: Create a JSON source map for the CSS.  Default `false`.
+    ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
+    ///     any set globally.  Default none.
+    ///   - functions: Functions for this compilation, overriding any with the same name previously
+    ///     set globally.  Default none.
+    /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
+    ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
+    /// - returns: `CompilerResults` with CSS and optional source map.
+    ///
     public func compile(text: String,
                         syntax: Syntax = .scss,
                         url: URL? = nil,
@@ -516,10 +548,6 @@ public final class Compiler {
         }
     }
 }
-
-/// :nodoc:
-extension Compiler: CompilerProtocol {}
-
 
 /// NIO layer
 ///
