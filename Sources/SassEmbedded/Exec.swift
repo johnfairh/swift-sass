@@ -35,7 +35,7 @@ enum Exec {
     /// Doesn't work on an event loop -- a weird underlying NIO design point we lean into: this
     /// blocks a little as the process starts.
     ///
-    /// - parameter command: Absolute path of the command to run
+    /// - parameter command: Path of the command to run
     /// - parameter arguments: Arguments to pass to the command
     /// - parameter currentDirectory: Current directory for the command.  By default
     ///                               the parent process's current directory.

@@ -46,7 +46,7 @@ class SassEmbeddedTestCase: XCTestCase {
 
     func newBadCompiler(timeout: Int = 1) throws -> Compiler {
         let c = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                         embeddedCompilerURL: URL(fileURLWithPath: "/usr/bin/tail"),
+                         embeddedCompilerFileURL: URL(fileURLWithPath: "/usr/bin/tail"),
                          timeout: timeout)
         compilersToShutdown.append(c)
         return c
@@ -55,7 +55,7 @@ class SassEmbeddedTestCase: XCTestCase {
     // Helper to trigger & validate a protocol error
     func checkProtocolError(_ compiler: Compiler, _ text: String? = nil, protocolNotLifecycle: Bool = true) {
         do {
-            let results = try compiler.compile(text: "")
+            let results = try compiler.compile(string: "")
             XCTFail("Managed to compile with compiler that should have failed: \(results)")
         } catch {
             if (error is ProtocolError && protocolNotLifecycle) ||
@@ -72,7 +72,7 @@ class SassEmbeddedTestCase: XCTestCase {
 
     // Helper to check a compiler is working normally
     func checkCompilerWorking(_ compiler: Compiler) throws {
-        let results = try compiler.compile(text: "")
+        let results = try compiler.compile(string: "")
         XCTAssertEqual("", results.css)
     }
 }
@@ -103,8 +103,8 @@ extension FileManager {
 /// An async importer that can be stopped in `load`.
 /// Accepts all `import` URLs and returns empty documents.
 final class HangingAsyncImporter: AsyncImporter {
-    func canonicalize(eventLoop: EventLoop, importURL: String) -> EventLoopFuture<URL?> {
-        return eventLoop.makeSucceededFuture(URL(string: "custom://\(importURL)"))
+    func canonicalize(eventLoop: EventLoop, ruleURL: String) -> EventLoopFuture<URL?> {
+        return eventLoop.makeSucceededFuture(URL(string: "custom://\(ruleURL)"))
     }
 
     var hangNextLoad: Bool { hangPromise != nil }

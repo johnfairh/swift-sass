@@ -15,8 +15,8 @@ import Foundation
 /// You can use a straight `Importer` with `SassEmbedded.Compiler` only if the method implementations
 /// are synchronous and non-blocking.  If they need to block or go async then use this protocol instead.
 public protocol AsyncImporter: Importer {
-    /// Async version of `Importer.canonicalize(importURL:)`.
-    func canonicalize(eventLoop: EventLoop, importURL: String) -> EventLoopFuture<URL?>
+    /// Async version of `Importer.canonicalize(ruleURL:)`.
+    func canonicalize(eventLoop: EventLoop, ruleURL: String) -> EventLoopFuture<URL?>
 
     /// Async version of `Importer.load(canonicalURL:)`.
     func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults>
@@ -26,8 +26,8 @@ public protocol AsyncImporter: Importer {
 
 public extension AsyncImporter {
     /// Default implementation - is never called.
-    func canonicalize(importURL: String) throws -> URL? {
-        preconditionFailure("Use canonicalize(eventLoop:importURL:) instead")
+    func canonicalize(ruleURL: String) throws -> URL? {
+        preconditionFailure("Use canonicalize(eventLoop:ruleURL:) instead")
     }
 
     /// Default implementation - is never called.
@@ -72,8 +72,8 @@ private struct SyncImporterAdapter: AsyncImporter {
         precondition(!(importer is AsyncImporter))
     }
 
-    func canonicalize(eventLoop: EventLoop, importURL: String) -> EventLoopFuture<URL?> {
-        eventLoop.submit { try importer.canonicalize(importURL: importURL) }
+    func canonicalize(eventLoop: EventLoop, ruleURL: String) -> EventLoopFuture<URL?> {
+        eventLoop.submit { try importer.canonicalize(ruleURL: ruleURL) }
     }
 
     func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {

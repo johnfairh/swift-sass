@@ -48,17 +48,17 @@ class TestInterface: SassEmbeddedTestCase {
     /// Does it work, goodpath, no imports, scss/sass/css inline input
     func testCoreInline() throws {
         let compiler = try newCompiler()
-        let results1 = try compiler.compile(text: scssIn)
+        let results1 = try compiler.compile(string: scssIn)
         XCTAssertNil(results1.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(scssOutExpanded, results1.css)
 
-        let results2 = try compiler.compile(text: sassIn, syntax: .sass)
+        let results2 = try compiler.compile(string: sassIn, syntax: .sass)
         XCTAssertNil(results2.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(sassOutExpanded, results2.css)
 
-        let results3 = try compiler.compile(text: sassOutExpanded, syntax: .css)
+        let results3 = try compiler.compile(string: sassOutExpanded, syntax: .css)
         XCTAssertNil(results3.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(sassOutExpanded, results3.css)
@@ -81,7 +81,7 @@ class TestInterface: SassEmbeddedTestCase {
     func testSourceMap() throws {
         let compiler = try newCompiler()
 
-        let results = try compiler.compile(text: scssIn, url: URL(string: "custom://bar"), createSourceMap: true)
+        let results = try compiler.compile(string: scssIn, url: URL(string: "custom://bar"), createSourceMap: true)
         XCTAssertEqual(scssOutExpanded, results.css)
 
         let json = try XCTUnwrap(results.sourceMap)
@@ -97,12 +97,12 @@ class TestInterface: SassEmbeddedTestCase {
     func testOutputStyle() throws {
         let compiler = try newCompiler()
 
-        // Current dart-sass-embedded maps everything !compressed down to nested
+        // Current dart-sass-embedded maps everything !compressed down to expanded
         // so this is a bit scuffed...
-        let styles: [CssStyle] = [.compressed]
-        let expected = [scssOutCompressed]
+        let styles: [CssStyle] = [.compressed, .compact, .nested]
+        let expected = [scssOutCompressed, scssOutExpanded, scssOutExpanded]
         try zip(styles, expected).forEach { tc in
-            let results = try compiler.compile(text: scssIn, syntax: .scss, outputStyle: tc.0)
+            let results = try compiler.compile(string: scssIn, syntax: .scss, outputStyle: tc.0)
             XCTAssertEqual(tc.1, results.css, String(describing: tc.0))
         }
     }
@@ -112,9 +112,9 @@ class TestInterface: SassEmbeddedTestCase {
         do {
             let notACompiler = URL(fileURLWithPath: "/tmp/fred")
             let compiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                                    embeddedCompilerURL: notACompiler)
+                                    embeddedCompilerFileURL: notACompiler)
             defer { try! compiler.syncShutdownGracefully() }
-            let results = try compiler.compile(text: "")
+            let results = try compiler.compile(string: "")
             XCTFail("Got results: \(results)")
         } catch let error as LifecycleError {
             print(error)

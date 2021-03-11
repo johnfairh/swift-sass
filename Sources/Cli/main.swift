@@ -19,19 +19,19 @@ guard args.count == 3 else {
 }
 
 do {
-    let inputURL = URL(fileURLWithPath: args[1])
-    let outputURL = URL(fileURLWithPath: args[2])
+    let input = URL(fileURLWithPath: args[1])
+    let output = URL(fileURLWithPath: args[2])
 
     let compiler = try Compiler(eventLoopGroupProvider: .createNew,
                                 messageStyle: .terminalColored)
     defer { try? compiler.syncShutdownGracefully() }
 
-    let results = try compiler.compile(fileURL: inputURL)
+    let results = try compiler.compile(fileURL: input)
 
     results.messages.forEach {
         print($0)
     }
-    try results.css.write(to: outputURL, atomically: false, encoding: .utf8)
+    try results.css.write(to: output, atomically: false, encoding: .utf8)
 } catch {
     fputs("Error: \(error)\n", stderr)
     exit(2)

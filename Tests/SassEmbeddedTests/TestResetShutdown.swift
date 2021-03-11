@@ -49,7 +49,7 @@ class TestResetShutdown: SassEmbeddedTestCase {
 
         var compilationComplete = false
 
-        let compileResult = badCompiler.compileAsync(text: "")
+        let compileResult = badCompiler.compileAsync(string: "")
         compileResult.whenComplete { _ in compilationComplete = true }
 
         let eventLoop = eventLoopGroup.next()
@@ -76,7 +76,7 @@ class TestResetShutdown: SassEmbeddedTestCase {
         try FileManager.default.copyItem(at: realHeadURL, to: tmpHeadURL)
 
         let badCompiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                                   embeddedCompilerURL: tmpHeadURL,
+                                   embeddedCompilerFileURL: tmpHeadURL,
                                    timeout: 1)
         compilersToShutdown.append(badCompiler)
         badCompiler.sync()
@@ -153,7 +153,7 @@ class TestResetShutdown: SassEmbeddedTestCase {
         let badCompiler = try newBadCompiler()
 
         // job hangs
-        let compileResult = badCompiler.compileAsync(text: "")
+        let compileResult = badCompiler.compileAsync(string: "")
         // shutdown hangs waiting for job
         let shutdowner1 = CompilerShutdowner(badCompiler)
         shutdowner1.start()
@@ -173,7 +173,7 @@ class TestResetShutdown: SassEmbeddedTestCase {
         let importer = HangingAsyncImporter()
         let compiler = try newCompiler(importers: [.importer(importer)])
         let hangDone = importer.hangLoad(eventLoop: compiler.eventLoop)
-        let compilerResults = compiler.compileAsync(text: "@import 'something';")
+        let compilerResults = compiler.compileAsync(string: "@import 'something';")
         _ = try hangDone.wait()
         XCTAssertNotNil(importer.loadPromise)
         // now we're all stuck waiting for the client
@@ -188,7 +188,7 @@ class TestResetShutdown: SassEmbeddedTestCase {
     // Internal eventloopgroup
     func testInternalEventLoopGroup() throws {
         let compiler = try Compiler(eventLoopGroupProvider: .createNew)
-        let results = try compiler.compile(text: "")
+        let results = try compiler.compile(string: "")
         XCTAssertEqual("", results.css)
         try compiler.syncShutdownGracefully()
     }
@@ -196,7 +196,7 @@ class TestResetShutdown: SassEmbeddedTestCase {
     // Internal eventloopgroup, async shutdown
     func testInternalEventLoopGroupAsync() throws {
         let compiler = try Compiler(eventLoopGroupProvider: .createNew)
-        let results = try compiler.compile(text: "")
+        let results = try compiler.compile(string: "")
         XCTAssertEqual("", results.css)
         CompilerShutdowner(compiler).start().wait()
     }

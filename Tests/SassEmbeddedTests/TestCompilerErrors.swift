@@ -47,7 +47,7 @@ class TestCompilerErrors: SassEmbeddedTestCase {
     func testCompilerErrorInline() throws {
         let compiler = try newCompiler()
         do {
-            let results = try compiler.compile(text: badSass, syntax: .sass)
+            let results = try compiler.compile(string: badSass, syntax: .sass)
             XCTFail("Managed to compile, got: \(results.css)")
         } catch let error as CompilerError {
             XCTAssertEqual(badSassInlineError, error.description)
@@ -85,7 +85,7 @@ class TestCompilerErrors: SassEmbeddedTestCase {
                                     messageStyle: .terminalColored)
         compilersToShutdown.append(compiler)
         do {
-            let results = try compiler.compile(text: badSass, syntax: .sass)
+            let results = try compiler.compile(string: badSass, syntax: .sass)
             XCTFail("Managed to compile, got: \(results.css)")
         } catch let error as CompilerError {
             XCTAssertTrue(error.description.hasPrefix(badSassInlineColorError))
@@ -99,8 +99,7 @@ class TestCompilerErrors: SassEmbeddedTestCase {
         let compiler = try newCompiler()
 
         do {
-            let badURL = URL(fileURLWithPath: "/tmp/no")
-            let results = try compiler.compile(fileURL: badURL)
+            let results = try compiler.compile(fileURL: URL(fileURLWithPath: "/tmp/no"))
             XCTFail("Managed to compile non-existant file: \(results)")
         } catch let error as CompilerError {
             XCTAssertEqual("Cannot open file: /tmp/no", String(describing: error))
@@ -135,7 +134,7 @@ class TestCompilerErrors: SassEmbeddedTestCase {
 
     func testCompilerWarning() throws {
         let compiler = try newCompiler()
-        let results = try compiler.compile(text: warnsomeSass, syntax: .sass)
+        let results = try compiler.compile(string: warnsomeSass, syntax: .sass)
         XCTAssertEqual(1, results.messages.count)
         XCTAssertTrue(results.messages[0].kind == .warning)
         XCTAssertTrue(results.messages[0].message.contains("Unknown prefix"))
@@ -152,7 +151,7 @@ class TestCompilerErrors: SassEmbeddedTestCase {
     // Multiple warnings
     func testCompilerWarningMultiple() throws {
         let compiler = try newCompiler()
-        let results = try compiler.compile(text: multiWarningSass, syntax: .sass)
+        let results = try compiler.compile(string: multiWarningSass, syntax: .sass)
         XCTAssertEqual(3, results.messages.count)
         print(results.messages)
         results.messages[0...1].forEach { w in
@@ -172,7 +171,7 @@ class TestCompilerErrors: SassEmbeddedTestCase {
     // Deprecation warning
     func testDeprecationWarning() throws {
         let compiler = try newCompiler()
-        let results = try compiler.compile(text: deprecatedScss, syntax: .scss)
+        let results = try compiler.compile(string: deprecatedScss, syntax: .scss)
         XCTAssertEqual("", results.css)
         XCTAssertEqual(1, results.messages.count)
         XCTAssertEqual(.deprecation, results.messages[0].kind)
@@ -187,7 +186,7 @@ class TestCompilerErrors: SassEmbeddedTestCase {
     // Warning with a span
     func testWarningSpan() throws {
         let compiler = try newCompiler()
-        let results = try compiler.compile(text: warningScssWithLocation, syntax: .scss)
+        let results = try compiler.compile(string: warningScssWithLocation, syntax: .scss)
         XCTAssertEqual(1, results.messages.count)
         XCTAssertEqual(.warning, results.messages[0].kind)
         XCTAssertNotNil(results.messages[0].span)
@@ -204,7 +203,7 @@ class TestCompilerErrors: SassEmbeddedTestCase {
     func testErrorAndWarning() throws {
         let compiler = try newCompiler()
         do {
-            let results = try compiler.compile(text: badWarningScss, syntax: .scss)
+            let results = try compiler.compile(string: badWarningScss, syntax: .scss)
             XCTFail("Managed to compile nonsense: \(results)")
         } catch let error as CompilerError {
             print(error)

@@ -28,7 +28,7 @@ class TestFunctions: SassEmbeddedTestCase {
         let compiler = try newCompiler(functions: quoteStringFunction)
 
         try [#"fish"#, #""fish""#].forEach {
-            let results = try compiler.compile(text: "a { a: myQuoteString(\($0)) }", outputStyle: .compressed)
+            let results = try compiler.compile(string: "a { a: myQuoteString(\($0)) }", outputStyle: .compressed)
             XCTAssertEqual(#"a{a:"fish"}"#, results.css)
         }
     }
@@ -47,7 +47,7 @@ class TestFunctions: SassEmbeddedTestCase {
         let compiler = try newCompiler(functions: errorFunction)
 
         do {
-            let results = try compiler.compile(text: "$data: badFunction('22');")
+            let results = try compiler.compile(string: "$data: badFunction('22');")
             XCTFail("Managed to compile nonsense: \(results)")
         } catch let error as CompilerError {
             print(error)
@@ -73,7 +73,7 @@ class TestFunctions: SassEmbeddedTestCase {
     func testOverride() throws {
         let compiler = try newCompiler(functions: globalOverrideFunction)
 
-        let results = try compiler.compile(text: "a { a: ofunc() }", outputStyle: .compressed, functions: localOverrideFunction)
+        let results = try compiler.compile(string: "a { a: ofunc() }", outputStyle: .compressed, functions: localOverrideFunction)
         XCTAssertEqual(#"a{a:"goat"}"#, results.css)
     }
 
@@ -216,7 +216,7 @@ class TestFunctions: SassEmbeddedTestCase {
         let compiler = try newCompiler(functions: [
             "hostEcho($param)" : echoFunc
         ])
-        let results = try compiler.compile(text: scss, outputStyle: .compressed)
+        let results = try compiler.compile(string: scss, outputStyle: .compressed)
         XCTAssertEqual(#"a{b:"something"}"#, results.css)
     }
 
@@ -256,7 +256,7 @@ class TestFunctions: SassEmbeddedTestCase {
         let compiler = try newCompiler(functions: [
             "makeAdder($op1)" : adderMaker
         ])
-        let results = try compiler.compile(text: scss, outputStyle: .compressed)
+        let results = try compiler.compile(string: scss, outputStyle: .compressed)
         XCTAssertEqual(#"a{b:9}"#, results.css)
 
         // what a monstrosity
@@ -273,7 +273,7 @@ class TestFunctions: SassEmbeddedTestCase {
 
     func testAsyncHostFunction() throws {
         let compiler = try newCompiler(asyncFunctions: slowEchoFunction)
-        let results = try compiler.compile(text: "a { a: slowEcho('fish') }", outputStyle: .compressed)
+        let results = try compiler.compile(string: "a { a: slowEcho('fish') }", outputStyle: .compressed)
         XCTAssertEqual(#"a{a:"fish"}"#, results.css)
     }
 
@@ -297,7 +297,7 @@ class TestFunctions: SassEmbeddedTestCase {
         let compiler = try newCompiler(functions: [
             "getFishMaker()" : fishMakerMaker
         ])
-        let results = try compiler.compile(text: scss, outputStyle: .compressed)
+        let results = try compiler.compile(string: scss, outputStyle: .compressed)
         XCTAssertEqual(#"a{b:"plaice"}"#, results.css)
 
     }
@@ -321,7 +321,7 @@ class TestFunctions: SassEmbeddedTestCase {
         """
 
         let compiler = try newCompiler(functions: varArgsFunction)
-        let results = try compiler.compile(text: scss, outputStyle: .compressed)
+        let results = try compiler.compile(string: scss, outputStyle: .compressed)
         XCTAssertEqual("a{b:1}", results.css)
     }
 }

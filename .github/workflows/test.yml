@@ -9,27 +9,6 @@ on:
       - main
 
 jobs:
-  macos:
-    name: macOS 10.15 tests
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            .build
-            Tests/EmbeddedSassTests/dart-sass-embedded
-          key: ${{ runner.os }}-spm4-${{ hashFiles('Package.resolved', 'Makefile') }}
-
-      - name: SPM tests
-        run: make test
-      - name: Normalize coverage info
-        run: xcrun llvm-cov export -format lcov .build/debug/swift-sassPackageTests.xctest/Contents/MacOS/swift-sassPackageTests -instr-profile .build/debug/codecov/default.profdata -ignore-filename-regex "(Test|checkouts|pb\.swift$)" > coverage.lcov
-      - name: Upload coverage
-        run: bash <(curl -s https://codecov.io/bash) -f coverage.lcov
-
   linux:
     name: Linux SPM unit tests
     runs-on: ubuntu-latest
@@ -62,6 +41,10 @@ jobs:
           key: ${{ runner.os }}-spm4-${{ hashFiles('Package.resolved', 'Makefile') }}
 
       - name: Xcode
-        run: sudo xcode-select -s /Applications/Xcode_12.3.app/Contents/Developer
+        run: sudo xcode-select -s /Applications/Xcode_12.4.app/Contents/Developer
       - name: SPM tests
         run: make test
+      - name: Normalize coverage info
+        run: xcrun llvm-cov export -format lcov .build/debug/swift-sassPackageTests.xctest/Contents/MacOS/swift-sassPackageTests -instr-profile .build/debug/codecov/default.profdata -ignore-filename-regex "(Test|checkouts|pb\.swift$)" > coverage.lcov
+      - name: Upload coverage
+        run: bash <(curl -s https://codecov.io/bash) -f coverage.lcov

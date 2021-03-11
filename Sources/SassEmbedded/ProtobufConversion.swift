@@ -31,8 +31,8 @@ extension Span {
 extension Span.Location {
     init(_ protobuf: Sass_EmbeddedProtocol_SourceSpan.SourceLocation) {
         self = .init(offset: Int(protobuf.offset),
-                     line: Int(protobuf.line),
-                     column: Int(protobuf.column))
+                     line: Int(protobuf.line + 1),
+                     column: Int(protobuf.column + 1))
     }
 }
 
@@ -113,6 +113,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OutputStyle {
         switch style {
         case .compressed: self = .compressed
         case .expanded: self = .expanded
+        case .nested, .compact: self = .expanded
         }
     }
 }
@@ -122,6 +123,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer {
         self.init()
         switch importer {
         case .loadPath(let url):
+            precondition(url.isFileURL)
             path = url.path
         case .importer:
             importerID = id

@@ -24,8 +24,8 @@ enum DartSassEmbedded {
         let programName = getenv("DART_SASS_EMBEDDED_NAME").flatMap { String(cString: $0) } ?? "dart-sass-embedded"
         guard let bundle = DartSassEmbeddedBundle.bundle,
               let url = bundle.url(forResource: programName,
-                                   withExtension: nil,
-                                   subdirectory: "sass_embedded") else {
+                                    withExtension: nil,
+                                    subdirectory: "sass_embedded") else {
             throw LifecycleError("No `\(programName)` is available for the current platform.")
         }
         return url

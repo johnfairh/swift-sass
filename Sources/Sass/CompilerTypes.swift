@@ -23,6 +23,14 @@ public enum CssStyle {
     /// The entire stylesheet is written on a single line, with as few
     /// characters as possible.
     case compressed
+
+    /// CSS rules and declarations are indented to match the nesting of the
+    /// Sass source.
+    case nested
+
+    /// Each CSS rule is written on its own single line, along with all its
+    /// declarations.
+    case compact
 }
 
 /// The [syntax used for a stylesheet](https://sass-lang.com/documentation/syntax).
@@ -94,15 +102,15 @@ public struct Span: CustomStringConvertible {
         /// The 0-based byte offset of this location within the stylesheet.
         public let offset: Int
 
-        /// The 0-based line number of this location within the stylesheet.
+        /// The 1-based line number of this location within the stylesheet.
         public let line: Int
 
-        /// The 0-based column number of this location within its line.
+        /// The 1-based column number of this location within its line.
         public let column: Int
 
-        /// A short description of the location.  Uses 1-based counting!
+        /// A short description of the location.
         public var description: String {
-            "\(line + 1):\(column + 1)"
+            "\(line):\(column)"
         }
 
         /// :nodoc:
@@ -122,7 +130,6 @@ public struct Span: CustomStringConvertible {
     /// The URL of the stylesheet to which the span refers, or `nil` if it refers to
     /// an inline compilation that doesn't specify a URL.
     public let url: URL?
-
 
     /// The location of the first character in the span.
     public let start: Location
@@ -214,58 +221,4 @@ public enum CompilerMessageStyle {
 
     /// Colorized with terminal escape sequences.
     case terminalColored
-}
-
-// MARK: Compiler interface
-
-/// The top-level interfaces to a Sass compiler implementation. :nodoc:
-public protocol CompilerProtocol {
-    // this protocol mostly exists to inherit doc comments but also
-    // to try and ensure matching function from implementations...
-    /// Compile to CSS from a stylesheet file.
-    ///
-    /// - parameters:
-    ///   - fileURL: The `file:` URL to compile.  The file extension determines the
-    ///     expected syntax of the contents, so it must be css/scss/sass.
-    ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
-    ///   - createSourceMap: Create a JSON source map for the CSS.  Default `false`.
-    ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
-    ///     `sourceFileURL`'s directory and any set globally..  Default none.
-    ///   - functions: Functions for this compilation, overriding any with the same name previously
-    ///     set globally. Default none.
-    /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
-    ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
-    /// - returns: `CompilerResults` with CSS and optional source map.
-    func compile(fileURL: URL,
-                 outputStyle: CssStyle,
-                 createSourceMap: Bool,
-                 importers: [ImportResolver],
-                 functions: SassFunctionMap) throws -> CompilerResults
-
-    /// Compile to CSS from an inline stylesheet.
-    ///
-    /// - parameters:
-    ///   - text: The stylesheet text to compile.
-    ///   - syntax: The syntax of `text`, default `.scss`.
-    ///   - url: The absolute URL to associate with `text`.  Default `nil` meaning unknown.
-    ///   - importer: Rule to resolve `@import` etc. from `text` relative to `url`.  Default `nil`
-    ///     meaning the current filesystem directory is used.
-    ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
-    ///   - createSourceMap: Create a JSON source map for the CSS.  Default `false`.
-    ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
-    ///     any set globally.  Default none.
-    ///   - functions: Functions for this compilation, overriding any with the same name previously
-    ///     set globally.  Default none.
-    /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
-    ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
-    /// - returns: `CompilerResults` with CSS and optional source map.
-    ///
-    func compile(text: String,
-                 syntax: Syntax,
-                 url: URL?,
-                 importer: ImportResolver?,
-                 outputStyle: CssStyle,
-                 createSourceMap: Bool,
-                 importers: [ImportResolver],
-                 functions: SassFunctionMap) throws -> CompilerResults
 }
