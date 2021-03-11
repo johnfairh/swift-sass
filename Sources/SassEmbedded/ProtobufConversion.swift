@@ -113,6 +113,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OutputStyle {
         switch style {
         case .compressed: self = .compressed
         case .expanded: self = .expanded
+        case .nested, .compact: self = .expanded
         }
     }
 }
