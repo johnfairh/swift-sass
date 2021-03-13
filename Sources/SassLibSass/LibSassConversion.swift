@@ -122,3 +122,36 @@ extension CompilerMessage.Kind {
         }
     }
 }
+
+extension LibSass.Compiler {
+    func add(importer: ImportResolver) {
+        switch importer {
+        case .importer:
+            preconditionFailure("Sass.Importer not supported with LibSass, use LibSassImporter")
+
+        case .loadPath(let url):
+            precondition(url.isFileURL)
+            add(includePath: url.path)
+
+        case .libSassImporter(let client):
+            let newImporter = LibSass.Importer(priority: 1.0) { url, _, _ in
+                let newImport: LibSass.Import
+                do {
+                    guard let results = try client.load(ruleURL: url,
+                                                        contextFileURL: URL(fileURLWithPath: self.lastImport.absPath)) else {
+                        return nil
+                    }
+                    newImport = LibSass.Import(string: results.contents,
+                                               fileURL: results.sourceMapURL,
+                                               syntax: results.syntax.toLibSass)
+                } catch {
+                    newImport = LibSass.Import(errorMessage: String(describing: error))
+                }
+                let list = LibSass.ImportList()
+                list.push(import: newImport)
+                return list
+            }
+            add(customImporter: newImporter)
+        }
+    }
+}

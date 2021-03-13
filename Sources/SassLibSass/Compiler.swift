@@ -99,6 +99,9 @@ public struct Compiler {
             compiler.set(sourceMapEmbedContents: false) // to match embedded-sass API
             // sourceRoot - dart sets an empty string.  libsass just ignores the field if empty.
         }
+        (globalImporters + importers).forEach {
+            compiler.add(importer: $0)
+        }
         compiler.parseCompileRender()
         if let error = compiler.error {
             throw CompilerError(error, messages: compiler.messages)

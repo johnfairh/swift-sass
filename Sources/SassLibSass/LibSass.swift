@@ -246,7 +246,7 @@ enum LibSass {
             init(_ callback: @escaping Callback) { self.callback = callback }
         }
 
-        init(callback: @escaping Callback, priority: Double) {
+        init(priority: Double, callback: @escaping Callback) {
             let glue = CallbackGlue(callback)
             let rawGlue = Unmanaged<CallbackGlue>.passUnretained(glue).toOpaque()
 
