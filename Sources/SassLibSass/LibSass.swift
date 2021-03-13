@@ -21,20 +21,30 @@ enum LibSass {
     /// struct SassCompiler
     final class Compiler {
         private let ptr: OpaquePointer
+        private let owned: Bool
+        private var associatedObjects: [AnyObject] = []
 
         init() {
             ptr = sass_make_compiler()
+            owned = true
+        }
+
+        init(ptr: OpaquePointer!) {
+            self.ptr = ptr
+            self.owned = false
         }
 
         deinit {
-            sass_delete_compiler(ptr)
+            if owned {
+                sass_delete_compiler(ptr)
+            }
         }
 
         // Setter methods rather than properties because some of them are
         // set-only and we don't need the getters for those that do have them.
 
         func set(entryPoint mainImport: Import) {
-            mainImport.owned = false
+            mainImport.makeUnowned()
             sass_compiler_set_entry_point(ptr, mainImport.ptr)
         }
 
@@ -87,12 +97,25 @@ enum LibSass {
         var warningString: String {
             String(safeCString: sass_compiler_get_warn_string(ptr))
         }
+
+        var lastImport: Import {
+            Import(ptr: sass_compiler_get_last_import(ptr))
+        }
+
+        func add(includePath: String) {
+            sass_compiler_add_include_paths(ptr, includePath)
+        }
+
+        func add(customImporter: Importer) {
+            customImporter.makeUnowned().flatMap { associatedObjects.append($0) }
+            sass_compiler_add_custom_importer(ptr, customImporter.ptr)
+        }
     }
 
     /// struct SassImport
     final class Import {
         fileprivate let ptr: OpaquePointer
-        fileprivate var owned: Bool
+        private var owned: Bool
 
         init(string: String, fileURL: URL?, syntax: SassImportSyntax) {
             self.ptr = sass_make_content_import(string.sassDup, fileURL?.path)
@@ -105,8 +128,32 @@ enum LibSass {
             self.owned = true
         }
 
+        init(errorMessage: String) {
+            self.ptr = sass_make_content_import(nil, nil) // sure..
+            self.owned = true
+            sass_import_set_error_message(ptr, errorMessage)
+        }
+
+        fileprivate init(ptr: OpaquePointer!) {
+            self.ptr = ptr
+            self.owned = false
+        }
+
         func set(syntax: SassImportSyntax) {
             sass_import_set_syntax(ptr, syntax)
+        }
+
+        var impPath: String {
+            String(safeCString: sass_import_get_imp_path(ptr))
+        }
+
+        var absPath: String {
+            String(safeCString: sass_import_get_abs_path(ptr))
+        }
+
+        fileprivate func makeUnowned() {
+            precondition(owned)
+            owned = false
         }
 
         deinit {
@@ -155,6 +202,7 @@ enum LibSass {
         }
     }
 
+    /// struct SassTrace
     final class Trace {
         fileprivate let ptr: OpaquePointer
         private let spanPtr: OpaquePointer
@@ -179,6 +227,93 @@ enum LibSass {
         var fileURL: URL {
             let sourcePtr = sass_srcspan_get_source(spanPtr)
             return URL(fileURLWithPath: String(cString: sass_source_get_abs_path(sourcePtr)))
+        }
+    }
+
+    /// struct SassImporter
+    final class Importer {
+        fileprivate let ptr: OpaquePointer
+        private var owned: Bool
+        private var swiftContext: AnyObject?
+
+        typealias Callback = (String, Importer, Compiler) -> ImportList?
+
+        /// Shim client's callback through C.  We hold 1 refcount on this (in Swift) until added to a
+        /// Compiler, at which point we move it over there for the compiler lifetime.  The C version
+        /// does not have an associated ref.
+        private final class CallbackGlue {
+            let callback: Callback
+            init(_ callback: @escaping Callback) { self.callback = callback }
+        }
+
+        init(callback: @escaping Callback, priority: Double) {
+            let glue = CallbackGlue(callback)
+            let rawGlue = Unmanaged<CallbackGlue>.passUnretained(glue).toOpaque()
+
+            func importerLambda(url: UnsafePointer<Int8>?, importerPtr: OpaquePointer?, compilerPtr: OpaquePointer?) -> OpaquePointer? {
+                let importer = Importer(ptr: importerPtr)
+                let compiler = Compiler(ptr: compilerPtr)
+                let lambda = Unmanaged<CallbackGlue>.fromOpaque(importer.context!).takeUnretainedValue()
+                guard let list = lambda.callback(String(safeCString: url), importer, compiler) else {
+                    return nil
+                }
+                list.makeUnowned()
+                return list.ptr
+            }
+
+            self.ptr = sass_make_importer(importerLambda, priority, rawGlue)
+            self.swiftContext = glue
+            self.owned = true
+        }
+
+        fileprivate init(ptr: OpaquePointer!) {
+            self.ptr = ptr
+            self.owned = false
+            self.swiftContext = nil
+        }
+
+        fileprivate func makeUnowned() -> AnyObject? {
+            precondition(owned)
+            owned = false
+            defer { swiftContext = nil }
+            return swiftContext
+        }
+
+        deinit {
+            if owned {
+                sass_delete_importer(ptr)
+            }
+        }
+
+        var context: UnsafeMutableRawPointer? {
+            sass_importer_get_cookie(ptr)
+        }
+    }
+
+    /// struct SassImportList
+    final class ImportList {
+        fileprivate let ptr: OpaquePointer
+        private var owned: Bool
+
+        init() {
+            ptr = sass_make_import_list()
+            owned = true
+        }
+
+        deinit {
+            if owned {
+                sass_delete_import_list(ptr)
+            }
+        }
+
+        fileprivate func makeUnowned() {
+            precondition(owned)
+            owned = false
+        }
+
+        func push(import next: Import) {
+            next.makeUnowned()
+            sass_import_list_push(ptr, next.ptr)
         }
     }
 }
