@@ -124,21 +124,28 @@ extension CompilerMessage.Kind {
 }
 
 extension LibSass.Compiler {
-    func add(importer: ImportResolver) {
+    func add(importers: [ImportResolver]) {
+        importers.reversed().enumerated().forEach { x in
+            add(importer: x.element, priority: x.offset)
+        }
+    }
+
+    // Higher priority -> earlier in the internal list
+    private func add(importer: ImportResolver, priority: Int) {
         switch importer {
         case .importer:
-            preconditionFailure("Sass.Importer not supported with LibSass, use LibSassImporter")
+            preconditionFailure("Sass.Importer not supported with LibSass, use Sass.LibSassImporter")
 
         case .loadPath(let url):
             precondition(url.isFileURL)
             add(includePath: url.path)
 
         case .libSassImporter(let client):
-            let newImporter = LibSass.Importer(priority: 1.0) { url, _, _ in
+            let newImporter = LibSass.Importer(priority: Double(priority)) { [unowned self] url, _, _ in
                 let newImport: LibSass.Import
                 do {
                     guard let results = try client.load(ruleURL: url,
-                                                        contextFileURL: URL(fileURLWithPath: self.lastImport.absPath)) else {
+                                                        contextFileURL: self.lastImport.absPath) else {
                         return nil
                     }
                     newImport = LibSass.Import(string: results.contents,
@@ -147,9 +154,7 @@ extension LibSass.Compiler {
                 } catch {
                     newImport = LibSass.Import(errorMessage: String(describing: error))
                 }
-                let list = LibSass.ImportList()
-                list.push(import: newImport)
-                return list
+                return LibSass.ImportList(newImport)
             }
             add(customImporter: newImporter)
         }

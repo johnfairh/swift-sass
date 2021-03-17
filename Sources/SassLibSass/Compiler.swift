@@ -7,9 +7,24 @@
 //
 @_exported import Sass
 import struct Foundation.URL
+import class Foundation.FileManager
 
-/// A Sass compiler interface using LibSass.
+/// A Sass compiler using LibSass.
 ///
+/// ## Custom importer resolution
+///
+/// LibSass uses a non-standard algorithm for processing imports.  The ordering is:
+/// 1. Consult every `LibSassImporter` or `LibSassPathImporter` in the order given.
+/// 2. Attempt to resolve relative to the importing stylesheet's path, if it has one.
+///   If the importing stylesheet does not have a path then use the current directory.
+/// 3. Search every `.loadPath` in the order given.
+///
+/// When searching filesystems for files, the rules described in `Importer` are used.
+///
+/// The most important difference between this and `EmbeddedSass.Compiler` is that here,
+/// custom importers always have priority over source-relative.  Further, the full list of custom importers
+/// is always called in order: LibSass does not maintain any link between a stylesheet and the importer
+/// that produced it.
 public struct Compiler {
     private let messageStyle: CompilerMessageStyle
     private let globalImporters: [ImportResolver]
@@ -90,6 +105,7 @@ public struct Compiler {
                          importers: [ImportResolver],
                          functions: SassFunctionMap) throws -> CompilerResults {
         let compiler = LibSass.Compiler()
+        LibSass.chdir(to: FileManager.default.currentDirectoryPath)
         compiler.set(entryPoint: mainImport)
         compiler.set(style: outputStyle.toLibSass)
         compiler.set(precision: 10)
@@ -99,9 +115,7 @@ public struct Compiler {
             compiler.set(sourceMapEmbedContents: false) // to match embedded-sass API
             // sourceRoot - dart sets an empty string.  libsass just ignores the field if empty.
         }
-        (globalImporters + importers).forEach {
-            compiler.add(importer: $0)
-        }
+        compiler.add(importers: globalImporters + importers)
         compiler.parseCompileRender()
         if let error = compiler.error {
             throw CompilerError(error, messages: compiler.messages)

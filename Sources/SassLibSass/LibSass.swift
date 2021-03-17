@@ -18,6 +18,13 @@ enum LibSass {
         String(safeCString: libsass_version())
     }
 
+    // Current directory is very aggressively cached.  We avoid using it
+    // everywhere except when users refuse to give paths to inline stylesheets
+    // that have @import-type rules.
+    static func chdir(to path: String) {
+        sass_chdir(path)
+    }
+
     /// struct SassCompiler
     final class Compiler {
         private let ptr: OpaquePointer
@@ -147,8 +154,8 @@ enum LibSass {
             String(safeCString: sass_import_get_imp_path(ptr))
         }
 
-        var absPath: String {
-            String(safeCString: sass_import_get_abs_path(ptr))
+        var absPath: URL {
+            URL(fileURLWithPath: String(safeCString: sass_import_get_abs_path(ptr)))
         }
 
         fileprivate func makeUnowned() {
@@ -298,6 +305,11 @@ enum LibSass {
         init() {
             ptr = sass_make_import_list()
             owned = true
+        }
+
+        convenience init(_ singleImport: Import) {
+            self.init()
+            push(import: singleImport)
         }
 
         deinit {
