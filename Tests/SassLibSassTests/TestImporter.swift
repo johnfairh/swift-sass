@@ -13,14 +13,14 @@ import SassLibSass
 /// Custom importers, libsass-style
 class TestImporter: XCTestCase {
 
-    class StaticImporter: LibSassImporter {
+    class StaticImporter: Importer {
         private let content: String
-        private let importedURL: URL?
+        private let importedName: String
         var disableNextLoad: Bool
 
-        init(content: String, importedURL: URL? = nil) {
+        init(content: String, importedName: String = "") {
             self.content = content
-            self.importedURL = importedURL
+            self.importedName = importedName
             self.disableNextLoad = false
         }
 
@@ -29,7 +29,7 @@ class TestImporter: XCTestCase {
                 disableNextLoad = false
                 return nil
             }
-            return ImporterResults(content, sourceMapURL: importedURL)
+            return ImporterResults(content, fileURL: URL(fileURLWithPath: importedName))
         }
     }
 
@@ -37,8 +37,8 @@ class TestImporter: XCTestCase {
 
     func testImporterPriority() throws {
         let importers: [ImportResolver] = [
-            .libSassImporter(StaticImporter(content: "a { b: 1 }")),
-            .libSassImporter(StaticImporter(content: "a { c: 1 }"))
+            .importer(StaticImporter(content: "a { b: 1 }")),
+            .importer(StaticImporter(content: "a { c: 1 }"))
         ]
 
         let compiler = Compiler()
@@ -71,10 +71,16 @@ class TestImporter: XCTestCase {
         try Self.fileImportContent.write(to: fileImportURL)
         let mainURL = tmpDir.appendingPathComponent("main.scss")
         try Self.mainContent.write(to: mainURL)
-        let importer = StaticImporter(content: Self.dynImportContent, importedURL: URL(fileURLWithPath: "dynimported.scss"))
-        let compiler = Compiler(importers: [.libSassImporter(importer)])
+        let importer = StaticImporter(content: Self.dynImportContent, importedName: "dynimported.scss")
+        let compiler = Compiler(importers: [.importer(importer)])
 
         try testFn(compiler, importer, tmpDir, mainURL)
+    }
+
+    func testUseIsBroken() throws {
+        try withRulesSetup { compiler, importer, tmpDir, mainURL in
+            assertFile(try compiler.compile(string: "@use 'imported';", fileURL: mainURL))
+        }
     }
 
     func testCustomBeforeNative() throws {
@@ -119,7 +125,7 @@ class TestImporter: XCTestCase {
 
     // errors
 
-    class BadImporter: LibSassImporter {
+    class BadImporter: Importer {
         struct Error: Swift.Error {
         }
 
@@ -129,7 +135,7 @@ class TestImporter: XCTestCase {
     }
 
     func testFailedImporter() throws {
-        let compiler = Compiler(importers: [.libSassImporter(BadImporter())])
+        let compiler = Compiler(importers: [.importer(BadImporter())])
         do {
             let results = try compiler.compile(string: "@import 'something';")
             XCTFail("Managed to compile: \(results)")
@@ -139,6 +145,27 @@ class TestImporter: XCTestCase {
             XCTFail("Unexpected error: \(error)")
         }
     }
-}
 
-// sourcemap
+    // sourcemap
+
+    func testSourceMap() throws {
+        let importer1 = StaticImporter(content: "div { a: b }", importedName: "x")
+        let importer2 = StaticImporter(content: "span { a: b }", importedName: "imported.scss")
+        importer1.disableNextLoad = true
+        let compiler = Compiler()
+        let results = try compiler.compile(string: "@import 'one';\n@import 'two';",
+                                           fileURL: URL(fileURLWithPath: "main.scss"),
+                                           createSourceMap: true,
+                                           importers: [
+                                            .importer(importer1),
+                                            .importer(importer2)
+                                           ])
+        let json = try XCTUnwrap(results.sourceMap)
+        // Check we have a reasonable-looking source map, details don't matter
+        let map = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!) as! [String:Any]
+        let sources = try XCTUnwrap(map["sources"] as? Array<String>)
+        XCTAssertEqual("main.scss", sources[0])
+        XCTAssertEqual("imported.scss", sources[1])
+        XCTAssertEqual("x", sources[2])
+    }
+}

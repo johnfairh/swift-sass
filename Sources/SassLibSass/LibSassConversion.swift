@@ -133,14 +133,11 @@ extension LibSass.Compiler {
     // Higher priority -> earlier in the internal list
     private func add(importer: ImportResolver, priority: Int) {
         switch importer {
-        case .importer:
-            preconditionFailure("Sass.Importer not supported with LibSass, use Sass.LibSassImporter")
-
         case .loadPath(let url):
             precondition(url.isFileURL)
             add(includePath: url.path)
 
-        case .libSassImporter(let client):
+        case .importer(let client):
             let newImporter = LibSass.Importer(priority: Double(priority)) { [unowned self] url, _, _ in
                 let newImport: LibSass.Import
                 do {
@@ -149,7 +146,7 @@ extension LibSass.Compiler {
                         return nil
                     }
                     newImport = LibSass.Import(string: results.contents,
-                                               fileURL: results.sourceMapURL,
+                                               fileURL: results.fileURL,
                                                syntax: results.syntax.toLibSass)
                 } catch {
                     newImport = LibSass.Import(errorMessage: String(describing: error))

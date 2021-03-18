@@ -7,19 +7,17 @@
 //
 @_exported import Sass
 import struct Foundation.URL
-import class Foundation.FileManager
+import class Foundation.FileManager // getcwd()
 
 /// A Sass compiler using LibSass.
 ///
 /// ## Custom importer resolution
 ///
-/// LibSass uses a non-standard algorithm for processing imports.  The ordering is:
-/// 1. Consult every `LibSassImporter` or `LibSassPathImporter` in the order given.
+/// LibSass uses a different algorithm to Dart Sass for processing imports.  The ordering is:
+/// 1. Consult every `Importer` or `FileImporter` in the order given.
 /// 2. Attempt to resolve relative to the importing stylesheet's path, if it has one.
 ///   If the importing stylesheet does not have a path then use the current directory.
 /// 3. Search every `.loadPath` in the order given.
-///
-/// When searching filesystems for files, the rules described in `Importer` are used.
 ///
 /// The most important difference between this and `EmbeddedSass.Compiler` is that here,
 /// custom importers always have priority over source-relative.  Further, the full list of custom importers
@@ -79,8 +77,8 @@ public struct Compiler {
     ///   - string: The stylesheet text to compile.
     ///   - syntax: The syntax of `text`, default `.scss`.
     ///   - fileURL: The absolute URL to associate with `string`, from where it was loaded.
-    ///     Default `nil` meaning unknown.  LibSass substitutes something like `stream://stdin`
-    ///     where necessary.
+    ///     Default `nil` meaning unknown, though it is best to avoid this if possible: LibSass substitutes
+    ///     something like `stream://stdin` where necessary which is usually unhelpful.
     ///   - outputStyle: How to format the produced CSS.  Default `.nested`.
     ///   - createSourceMap: Create a JSON source map for the CSS.  Default `false`.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
@@ -122,4 +120,49 @@ public struct Compiler {
         }
         return CompilerResults(css: compiler.outputString, sourceMap: compiler.sourceMapString, messages: compiler.messages)
     }
+}
+
+/// The results of loading a stylesheet through an importer.
+public struct ImporterResults {
+    // MARK: Initializers
+
+    /// Initialize a new `ImporterResults`.
+    ///
+    /// - parameter contents: The stylesheet text.
+    /// - parameter fileURL: A file URL to represent the imported file.  It's important that this is
+    ///   unique for a piece of content across a compilation otherwise LibSass will be confused.  The filename
+    ///   in the path is used in the generated source map.
+    /// - parameter syntax: The syntax of `contents`, default `.scss`.
+    public init(_ contents: String, fileURL: URL, syntax: Syntax = .scss) {
+        self.contents = contents
+        self.syntax = syntax
+        self.fileURL = fileURL
+    }
+
+    // MARK: Properties
+
+    /// The contents of the stylesheet.
+    public let contents: String
+    /// The syntax of the stylesheet.
+    public let syntax: Syntax
+    /// URL used to reference the stylesheet internally and in a  source map.
+    public let fileURL: URL
+}
+
+public protocol Importer {
+    func load(ruleURL: String, contextFileURL: URL) throws -> ImporterResults?
+}
+
+public protocol FileImporter {
+    func locate(ruleURL: String, contextFileURL: URL) throws -> URL?
+}
+
+/// How the Sass compiler should resolve `@import`, `@use`, and `@forward` rules.
+public enum ImportResolver {
+    /// Search a filesystem directory to resolve the rule.  See [the Sass docs](https://sass-lang.com/documentation/at-rules/import#load-paths).
+    case loadPath(URL)
+    /// Call back through the `Importer` to resolve the rule.
+    case importer(Importer)
+    /// call back through the `FileImporter` to resolve the rule.
+//    case fileImporter(FileImporter)
 }
