@@ -131,8 +131,7 @@ class TestGoodpath: XCTestCase {
                        map["mappings"] as? String)
         let sources = try XCTUnwrap(map["sources"] as? Array<String>)
         XCTAssertEqual("custom/bar", sources[0])
-        // This is a libsass bug, should be custom/bar.css
-        XCTAssertEqual("stream://stdout", map["file"] as? String)
+        XCTAssertEqual("custom/bar.css", map["file"] as? String)
     }
 
     /// Is outputstyle enum translated OK

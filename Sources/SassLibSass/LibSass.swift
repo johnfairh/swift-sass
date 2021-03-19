@@ -75,6 +75,10 @@ enum LibSass {
             sass_compiler_set_logger_style(ptr, loggerStyle)
         }
 
+        func set(outputPath: URL) {
+            sass_compiler_set_output_path(ptr, outputPath.path)
+        }
+
 //        func set(sourceMapSourceRoot root: String) {
 //            sass_compiler_set_srcmap_root(ptr, root)
 //        }

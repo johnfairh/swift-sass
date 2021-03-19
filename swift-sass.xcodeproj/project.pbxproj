@@ -57,6 +57,7 @@
 		029D3C402604E89400E1B6BC /* TestGoodpath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C8F525EFBD430053920D /* TestGoodpath.swift */; };
 		029D3C452604E89400E1B6BC /* TestHelpers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02B1C96A25F285AE0053920D /* TestHelpers.framework */; };
 		029D3C652604E93F00E1B6BC /* SassLibSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02B1C8CC25EFB8180053920D /* SassLibSass.framework */; };
+		029D3C812604EA8A00E1B6BC /* Importers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029D3C802604EA8A00E1B6BC /* Importers.swift */; };
 		02A1A96F25B5AAEA0045E28F /* CompilerRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */; };
 		02A1A97A25B70A8B0045E28F /* Versions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A97925B70A8B0045E28F /* Versions.swift */; };
 		02A1A99125B774420045E28F /* Semver in Frameworks */ = {isa = PBXBuildFile; productRef = 02A1A99025B774420045E28F /* Semver */; };
@@ -217,6 +218,7 @@
 		029B4F93258005C000A768D2 /* NIO+Extras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NIO+Extras.swift"; sourceTree = "<group>"; };
 		029D3C2425FCD97900E1B6BC /* TestImporters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestImporters.swift; sourceTree = "<group>"; };
 		029D3C4B2604E89400E1B6BC /* SassLibSassTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SassLibSassTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		029D3C802604EA8A00E1B6BC /* Importers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Importers.swift; sourceTree = "<group>"; };
 		02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerRequests.swift; sourceTree = "<group>"; };
 		02A1A97925B70A8B0045E28F /* Versions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Versions.swift; sourceTree = "<group>"; };
 		02A1A99525B99C560045E28F /* TestVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestVersions.swift; sourceTree = "<group>"; };
@@ -402,6 +404,7 @@
 			isa = PBXGroup;
 			children = (
 				02B1C93C25F23AC30053920D /* Compiler.swift */,
+				029D3C802604EA8A00E1B6BC /* Importers.swift */,
 				02B1C93025F0EDEE0053920D /* LibSass.swift */,
 				02B1C94725F243770053920D /* LibSassConversion.swift */,
 			);
@@ -854,6 +857,7 @@
 				02B1C93825F0EDF40053920D /* LibSass.swift in Sources */,
 				02B1C94825F243770053920D /* LibSassConversion.swift in Sources */,
 				02B1C93D25F23AC30053920D /* Compiler.swift in Sources */,
+				029D3C812604EA8A00E1B6BC /* Importers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
