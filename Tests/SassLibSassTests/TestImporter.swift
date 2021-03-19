@@ -123,6 +123,25 @@ class TestImporter: XCTestCase {
         }
     }
 
+    // path-only
+
+    struct FileImporter: SassLibSass.FileImporter {
+        private let pathURL: URL
+        init(pathURL: URL) { self.pathURL = pathURL }
+        func locate(ruleURL: String, contextFileURL: URL) throws -> URL? {
+            pathURL.appendingPathComponent(ruleURL)
+        }
+    }
+
+    func testFilePathOnly() throws {
+        try withRulesSetup { compiler, importer, tmpDir, mainURL in
+            importer.disableNextLoad = true
+            let fileImporter = FileImporter(pathURL: tmpDir)
+            let results = try compiler.compile(string: Self.mainContent, importers: [.fileImporter(fileImporter)])
+            assertFile(results)
+        }
+    }
+
     // errors
 
     class BadImporter: Importer {

@@ -9,7 +9,7 @@
 import struct Foundation.URL
 import class Foundation.FileManager // getcwd()
 
-/// A Sass compiler using LibSass.
+/// A Sass compiler that uses LibSass.
 ///
 /// ## Custom importer resolution
 ///
@@ -145,7 +145,7 @@ public struct ImporterResults {
     public let contents: String
     /// The syntax of the stylesheet.
     public let syntax: Syntax
-    /// URL used to reference the stylesheet internally and in a  source map.
+    /// URL used to reference the stylesheet internally and in a source map.
     public let fileURL: URL
 }
 
@@ -164,5 +164,5 @@ public enum ImportResolver {
     /// Call back through the `Importer` to resolve the rule.
     case importer(Importer)
     /// call back through the `FileImporter` to resolve the rule.
-//    case fileImporter(FileImporter)
+    case fileImporter(FileImporter)
 }

@@ -123,6 +123,16 @@ extension CompilerMessage.Kind {
     }
 }
 
+// Importers
+
+extension LibSass.Import {
+    convenience init(_ importerResults: ImporterResults) {
+        self.init(string: importerResults.contents,
+                  fileURL: importerResults.fileURL,
+                  syntax: importerResults.syntax.toLibSass)
+    }
+}
+
 extension LibSass.Compiler {
     func add(importers: [ImportResolver]) {
         importers.reversed().enumerated().forEach { x in
@@ -132,6 +142,18 @@ extension LibSass.Compiler {
 
     // Higher priority -> earlier in the internal list
     private func add(importer: ImportResolver, priority: Int) {
+
+        func makeImportList( from: () throws -> LibSass.Import?) -> LibSass.ImportList? {
+            do {
+                guard let newImport = try from() else {
+                    return nil
+                }
+                return .init(newImport)
+            } catch {
+                return .init(LibSass.Import(errorMessage: String(describing: error)))
+            }
+        }
+
         switch importer {
         case .loadPath(let url):
             precondition(url.isFileURL)
@@ -139,19 +161,25 @@ extension LibSass.Compiler {
 
         case .importer(let client):
             let newImporter = LibSass.Importer(priority: Double(priority)) { [unowned self] url, _, _ in
-                let newImport: LibSass.Import
-                do {
-                    guard let results = try client.load(ruleURL: url,
-                                                        contextFileURL: self.lastImport.absPath) else {
-                        return nil
-                    }
-                    newImport = LibSass.Import(string: results.contents,
-                                               fileURL: results.fileURL,
-                                               syntax: results.syntax.toLibSass)
-                } catch {
-                    newImport = LibSass.Import(errorMessage: String(describing: error))
+                makeImportList {
+                    try client.load(ruleURL: url,
+                                    contextFileURL: self.lastImport.absPath)
+                        .flatMap {
+                            LibSass.Import($0)
+                        }
                 }
-                return LibSass.ImportList(newImport)
+            }
+            add(customImporter: newImporter)
+
+        case .fileImporter(let client):
+            let newImporter = LibSass.Importer(priority: Double(priority)) { [unowned self] url, _, _ in
+                makeImportList {
+                    try client.locate(ruleURL: url,
+                                      contextFileURL: self.lastImport.absPath)
+                        .flatMap {
+                            LibSass.Import(fileURL: $0)
+                        }
+                }
             }
             add(customImporter: newImporter)
         }
