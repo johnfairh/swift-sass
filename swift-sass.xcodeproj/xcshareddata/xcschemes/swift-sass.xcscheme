@@ -95,6 +95,16 @@
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "029D3C2E2604E89400E1B6BC"
+               BuildableName = "SassEmbeddedTests.xctest"
+               BlueprintName = "SassLibSassTests"
+               ReferencedContainer = "container:swift-sass.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

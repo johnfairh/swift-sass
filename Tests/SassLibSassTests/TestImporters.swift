@@ -1,5 +1,5 @@
 //
-//  TestImporter.swift
+//  TestImporters.swift
 //  SassLibSassTests
 //
 //  Copyright 2021 swift-sass contributors
@@ -11,7 +11,7 @@ import TestHelpers
 import SassLibSass
 
 /// Custom importers, libsass-style
-class TestImporter: XCTestCase {
+class TestImporters: XCTestCase {
 
     class StaticImporter {
         private let content: String

@@ -52,7 +52,11 @@
 		029B4F8E257E569D00A768D2 /* TestResetShutdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F8D257E569D00A768D2 /* TestResetShutdown.swift */; };
 		029B4F91257E578600A768D2 /* TestProtocolErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F90257E578600A768D2 /* TestProtocolErrors.swift */; };
 		029B4F94258005C000A768D2 /* NIO+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F93258005C000A768D2 /* NIO+Extras.swift */; };
-		029D3C2525FCD97900E1B6BC /* TestImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029D3C2425FCD97900E1B6BC /* TestImporter.swift */; };
+		029D3C372604E89400E1B6BC /* TestBadpath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C99825F3972E0053920D /* TestBadpath.swift */; };
+		029D3C3F2604E89400E1B6BC /* TestImporters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029D3C2425FCD97900E1B6BC /* TestImporters.swift */; };
+		029D3C402604E89400E1B6BC /* TestGoodpath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C8F525EFBD430053920D /* TestGoodpath.swift */; };
+		029D3C452604E89400E1B6BC /* TestHelpers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02B1C96A25F285AE0053920D /* TestHelpers.framework */; };
+		029D3C652604E93F00E1B6BC /* SassLibSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02B1C8CC25EFB8180053920D /* SassLibSass.framework */; };
 		02A1A96F25B5AAEA0045E28F /* CompilerRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */; };
 		02A1A97A25B70A8B0045E28F /* Versions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A97925B70A8B0045E28F /* Versions.swift */; };
 		02A1A99125B774420045E28F /* Semver in Frameworks */ = {isa = PBXBuildFile; productRef = 02A1A99025B774420045E28F /* Semver */; };
@@ -69,13 +73,11 @@
 		02D1B25026C7D377006B2CB1 /* ArgumentList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D1B24F26C7D377006B2CB1 /* ArgumentList.swift */; };
 		02B1C8D825EFB8290053920D /* Sass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0289BB1825666B060004544A /* Sass.framework */; };
 		02B1C8D925EFB8290053920D /* Sass.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0289BB1825666B060004544A /* Sass.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		02B1C8F625EFBD430053920D /* TestGoodpath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C8F525EFBD430053920D /* TestGoodpath.swift */; };
 		02B1C93825F0EDF40053920D /* LibSass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C93025F0EDEE0053920D /* LibSass.swift */; };
 		02B1C93D25F23AC30053920D /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C93C25F23AC30053920D /* Compiler.swift */; };
 		02B1C94825F243770053920D /* LibSassConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C94725F243770053920D /* LibSassConversion.swift */; };
 		02B1C97E25F285C20053920D /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C95D25F283E40053920D /* TestHelpers.swift */; };
 		02B1C98325F2860C0053920D /* TestHelpers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02B1C96A25F285AE0053920D /* TestHelpers.framework */; };
-		02B1C99925F3972E0053920D /* TestBadpath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C99825F3972E0053920D /* TestBadpath.swift */; };
 		02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 02E0ED7E2586172C0080E954 /* SwiftProtobuf */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
 		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
@@ -105,6 +107,13 @@
 			remoteGlobalIDString = 02903F2325A73AA20049106E;
 			remoteInfo = DartSassEmbeddedMacOS;
 		};
+		029D3C662604E94B00E1B6BC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 02B1C8CB25EFB8180053920D;
+			remoteInfo = SassLibSass;
+		};
 		02B1C8DA25EFB8290053920D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
@@ -127,6 +136,15 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		025C6242255C19E500AEA420 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		029D3C472604E89400E1B6BC /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
@@ -197,7 +215,8 @@
 		029B4F8D257E569D00A768D2 /* TestResetShutdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestResetShutdown.swift; sourceTree = "<group>"; };
 		029B4F90257E578600A768D2 /* TestProtocolErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolErrors.swift; sourceTree = "<group>"; };
 		029B4F93258005C000A768D2 /* NIO+Extras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NIO+Extras.swift"; sourceTree = "<group>"; };
-		029D3C2425FCD97900E1B6BC /* TestImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestImporter.swift; sourceTree = "<group>"; };
+		029D3C2425FCD97900E1B6BC /* TestImporters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestImporters.swift; sourceTree = "<group>"; };
+		029D3C4B2604E89400E1B6BC /* SassLibSassTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SassLibSassTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerRequests.swift; sourceTree = "<group>"; };
 		02A1A97925B70A8B0045E28F /* Versions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Versions.swift; sourceTree = "<group>"; };
 		02A1A99525B99C560045E28F /* TestVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestVersions.swift; sourceTree = "<group>"; };
@@ -239,6 +258,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		029D3C442604E89400E1B6BC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+				029D3C652604E93F00E1B6BC /* SassLibSass.framework in Frameworks */,
+				029D3C452604E89400E1B6BC /* TestHelpers.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -386,7 +414,7 @@
 			children = (
 				02B1C8F525EFBD430053920D /* TestGoodpath.swift */,
 				02B1C99825F3972E0053920D /* TestBadpath.swift */,
-				029D3C2425FCD97900E1B6BC /* TestImporter.swift */,
+				029D3C2425FCD97900E1B6BC /* TestImporters.swift */,
 			);
 			name = SassLibSassTests;
 			path = Tests/SassLibSassTests;
@@ -411,6 +439,7 @@
 				02903F2425A73AA20049106E /* DartSassEmbeddedMacOS.framework */,
 				02B1C8CC25EFB8180053920D /* SassLibSass.framework */,
 				02B1C96A25F285AE0053920D /* TestHelpers.framework */,
+				029D3C4B2604E89400E1B6BC /* SassLibSassTests.xctest */,
 			);
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -552,6 +581,24 @@
 			productName = DartSassEmbeddedMacOS;
 			productReference = 02903F2425A73AA20049106E /* DartSassEmbeddedMacOS.framework */;
 			productType = "com.apple.product-type.framework";
+		};
+		029D3C2E2604E89400E1B6BC /* SassLibSassTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 029D3C482604E89400E1B6BC /* Build configuration list for PBXNativeTarget "SassLibSassTests" */;
+			buildPhases = (
+				029D3C312604E89400E1B6BC /* Sources */,
+				029D3C442604E89400E1B6BC /* Frameworks */,
+				029D3C472604E89400E1B6BC /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				029D3C672604E94B00E1B6BC /* PBXTargetDependency */,
+			);
+			name = SassLibSassTests;
+			productName = SassEmbeddedTests;
+			productReference = 029D3C4B2604E89400E1B6BC /* SassLibSassTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		02A3BC0B2585314200BBF99E /* Cli */ = {
 			isa = PBXNativeTarget;
@@ -713,6 +760,7 @@
 				02A3BC0B2585314200BBF99E /* Cli */,
 				02903F2325A73AA20049106E /* DartSassEmbeddedMacOS */,
 				02B1C96925F285AE0053920D /* TestHelpers */,
+				029D3C2E2604E89400E1B6BC /* SassLibSassTests */,
 			);
 		};
 /* End PBXProject section */
@@ -781,6 +829,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		029D3C312604E89400E1B6BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				029D3C372604E89400E1B6BC /* TestBadpath.swift in Sources */,
+				029D3C3F2604E89400E1B6BC /* TestImporters.swift in Sources */,
+				029D3C402604E89400E1B6BC /* TestGoodpath.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		02A3BC082585314200BBF99E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -839,7 +897,6 @@
 				02A1A9A125B99C650045E28F /* TestVersions.swift in Sources */,
 				0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */,
 				0285E85625756B1500956F18 /* TestColor.swift in Sources */,
-				02B1C99925F3972E0053920D /* TestBadpath.swift in Sources */,
 				0285E828256C4C2900956F18 /* TestFunctions.swift in Sources */,
 				0289BB4A256BEE760004544A /* TestString.swift in Sources */,
 				0285E84C2571153900956F18 /* TestNumber.swift in Sources */,
@@ -847,8 +904,6 @@
 				02440A1925765C0C008F0862 /* TestFunction.swift in Sources */,
 				OBJ_131 /* TestUtils.swift in Sources */,
 				029B4F91257E578600A768D2 /* TestProtocolErrors.swift in Sources */,
-				029D3C2525FCD97900E1B6BC /* TestImporter.swift in Sources */,
-				02B1C8F625EFBD430053920D /* TestGoodpath.swift in Sources */,
 				0291E7CA2562E82F00F6BE14 /* TestCompilerErrors.swift in Sources */,
 				0289BB372566A62B0004544A /* TestImporters.swift in Sources */,
 				0285E82E256EDB6700956F18 /* TestList.swift in Sources */,
@@ -867,6 +922,11 @@
 			isa = PBXTargetDependency;
 			target = 02903F2325A73AA20049106E /* DartSassEmbeddedMacOS */;
 			targetProxy = 02903F3E25A73DE90049106E /* PBXContainerItemProxy */;
+		};
+		029D3C672604E94B00E1B6BC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 02B1C8CB25EFB8180053920D /* SassLibSass */;
+			targetProxy = 029D3C662604E94B00E1B6BC /* PBXContainerItemProxy */;
 		};
 		02B1C8DB25EFB8290053920D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1171,6 +1231,80 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		029D3C492604E89400E1B6BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/libsass4",
+					"$(SRCROOT)/libsass4/include",
+					"$(SRCROOT)",
+				);
+				INFOPLIST_FILE = "swift-sass.xcodeproj/SassLibSassTests_Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@loader_path/Frameworks",
+					"$(SRCROOT)/libsass4/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_VERSION = 5.0;
+				TARGET_NAME = SassLibSassTests;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Debug;
+		};
+		029D3C4A2604E89400E1B6BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/libsass4",
+					"$(SRCROOT)/libsass4/include",
+					"$(SRCROOT)",
+				);
+				INFOPLIST_FILE = "swift-sass.xcodeproj/SassLibSassTests_Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@loader_path/Frameworks",
+					"$(SRCROOT)/libsass4/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_VERSION = 5.0;
+				TARGET_NAME = SassLibSassTests;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Release;
 		};
@@ -1787,6 +1921,15 @@
 			buildConfigurations = (
 				02903F2A25A73AA20049106E /* Debug */,
 				02903F2B25A73AA20049106E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		029D3C482604E89400E1B6BC /* Build configuration list for PBXNativeTarget "SassLibSassTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				029D3C492604E89400E1B6BC /* Debug */,
+				029D3C4A2604E89400E1B6BC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
