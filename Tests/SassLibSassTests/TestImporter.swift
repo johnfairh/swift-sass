@@ -13,7 +13,7 @@ import SassLibSass
 /// Custom importers, libsass-style
 class TestImporter: XCTestCase {
 
-    class StaticImporter: Importer {
+    class StaticImporter {
         private let content: String
         private let importedName: String
         var disableNextLoad: Bool
@@ -24,7 +24,7 @@ class TestImporter: XCTestCase {
             self.disableNextLoad = false
         }
 
-        func load(ruleURL: String, contextFileURL: URL) throws -> ImporterResults? {
+        func load(_ ruleURL: String, _ contextFileURL: URL) throws -> ImporterResults? {
             guard !disableNextLoad else {
                 disableNextLoad = false
                 return nil
@@ -37,8 +37,8 @@ class TestImporter: XCTestCase {
 
     func testImporterPriority() throws {
         let importers: [ImportResolver] = [
-            .importer(StaticImporter(content: "a { b: 1 }")),
-            .importer(StaticImporter(content: "a { c: 1 }"))
+            .importer( { _, _ in ImporterResults("a { b: 1 }", fileURL: URL(fileURLWithPath: "")) }),
+            .importer( { _, _ in ImporterResults("a { c: 1 }", fileURL: URL(fileURLWithPath: "")) }),
         ]
 
         let compiler = Compiler()
@@ -72,7 +72,7 @@ class TestImporter: XCTestCase {
         let mainURL = tmpDir.appendingPathComponent("main.scss")
         try Self.mainContent.write(to: mainURL)
         let importer = StaticImporter(content: Self.dynImportContent, importedName: "dynimported.scss")
-        let compiler = Compiler(importers: [.importer(importer)])
+        let compiler = Compiler(importers: [.importer( { try importer.load($0, $1) } )])
 
         try testFn(compiler, importer, tmpDir, mainURL)
     }
@@ -125,36 +125,23 @@ class TestImporter: XCTestCase {
 
     // path-only
 
-    struct FileImporter: SassLibSass.FileImporter {
-        private let pathURL: URL
-        init(pathURL: URL) { self.pathURL = pathURL }
-        func locate(ruleURL: String, contextFileURL: URL) throws -> URL? {
-            pathURL.appendingPathComponent(ruleURL)
-        }
-    }
-
     func testFilePathOnly() throws {
         try withRulesSetup { compiler, importer, tmpDir, mainURL in
             importer.disableNextLoad = true
-            let fileImporter = FileImporter(pathURL: tmpDir)
-            let results = try compiler.compile(string: Self.mainContent, importers: [.fileImporter(fileImporter)])
+            let results = try compiler.compile(string: Self.mainContent,
+                                               importers: [.fileImporter( { r, _ in tmpDir.appendingPathComponent(r) } )])
             assertFile(results)
         }
     }
 
     // errors
 
-    class BadImporter: Importer {
+    func testFailedImporter() throws {
         struct Error: Swift.Error {
         }
 
-        func load(ruleURL: String, contextFileURL: URL) throws -> ImporterResults? {
-            throw Error()
-        }
-    }
+        let compiler = Compiler(importers: [.importer( { _, _ in throw Error() } )])
 
-    func testFailedImporter() throws {
-        let compiler = Compiler(importers: [.importer(BadImporter())])
         do {
             let results = try compiler.compile(string: "@import 'something';")
             XCTFail("Managed to compile: \(results)")
@@ -169,15 +156,17 @@ class TestImporter: XCTestCase {
 
     func testSourceMap() throws {
         let importer1 = StaticImporter(content: "div { a: b }", importedName: "x")
-        let importer2 = StaticImporter(content: "span { a: b }", importedName: "imported.scss")
         importer1.disableNextLoad = true
         let compiler = Compiler()
         let results = try compiler.compile(string: "@import 'one';\n@import 'two';",
                                            fileURL: URL(fileURLWithPath: "main.scss"),
                                            createSourceMap: true,
                                            importers: [
-                                            .importer(importer1),
-                                            .importer(importer2)
+                                            .importer( { try importer1.load($0, $1) }),
+                                            .importer(
+                                                { _, _ in
+                                                    ImporterResults("span { a: b }", fileURL: URL(fileURLWithPath: "imported.scss"))
+                                                }),
                                            ])
         let json = try XCTUnwrap(results.sourceMap)
         // Check we have a reasonable-looking source map, details don't matter

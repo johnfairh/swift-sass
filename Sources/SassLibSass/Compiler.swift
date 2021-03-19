@@ -14,7 +14,8 @@ import class Foundation.FileManager // getcwd()
 /// ## Custom importer resolution
 ///
 /// LibSass uses a different algorithm to Dart Sass for processing imports.  The ordering is:
-/// 1. Consult every `Importer` or `FileImporter` in the order given.
+/// 1. Consult every `ImportResolver.importer(_)` or `ImportResolver.fileImporter(_)`
+///   in the order given.
 /// 2. Attempt to resolve relative to the importing stylesheet's path, if it has one.
 ///   If the importing stylesheet does not have a path then use the current directory.
 /// 3. Search every `.loadPath` in the order given.
@@ -149,20 +150,37 @@ public struct ImporterResults {
     public let fileURL: URL
 }
 
-public protocol Importer {
-    func load(ruleURL: String, contextFileURL: URL) throws -> ImporterResults?
-}
-
-public protocol FileImporter {
-    func locate(ruleURL: String, contextFileURL: URL) throws -> URL?
-}
-
 /// How the Sass compiler should resolve `@import`, `@use`, and `@forward` rules.
 public enum ImportResolver {
     /// Search a filesystem directory to resolve the rule.  See [the Sass docs](https://sass-lang.com/documentation/at-rules/import#load-paths).
     case loadPath(URL)
-    /// Call back through the `Importer` to resolve the rule.
-    case importer(Importer)
-    /// call back through the `FileImporter` to resolve the rule.
-    case fileImporter(FileImporter)
+
+    /// Interpret the rule and return a stylesheet.
+    ///
+    /// - `ruleURL` is the text following the `@import` as written in the rule.
+    /// - `contextFileURL` is the URL of the stylesheet that contains the rule being processed.
+    ///
+    /// The routine must either:
+    /// - return `nil` to indicate that this importer cannot resolve the required URL.  The Sass compiler
+    ///   will try the next importer.
+    ///   compiler to try the next importer.
+    /// - return a filled-in `ImporterResults` with the stylesheet to be imported.
+    /// - throw an error of some kind indicating either that the import is ambiguous or some other kind
+    ///   of serious error condition exists.  The Sass compiler will error out.
+    case importer((_ ruleURL: String, _ contextFileURL: URL) throws -> ImporterResults?)
+
+    /// Interpret the rule and return the filesystem location of a stylesheet.
+    ///
+    /// - `ruleURL` is the text following the `@import` as written in the rule.
+    /// - `contextFileURL` is the URL of the stylesheet that contains the rule being processed.
+    ///
+    /// The routine must either:
+    /// - return `nil` to indicate that this importer cannot resolve the required URL.  The Sass compiler
+    ///   will try the next importer.
+    /// - return the URL of the stylesheet to import.  The compiler performs standard Sass file resolution
+    ///   on this, which in particular means you can return a directory path here as a dynamic version of
+    ///   `.loadPath`.
+    /// - throw an error of some kind indicating either that the import is ambiguous or some other kind
+    ///   of serious error condition exists.  The Sass compiler will error out.
+    case fileImporter((_ ruleURL: String, _ contextFileURL: URL) throws -> URL?)
 }

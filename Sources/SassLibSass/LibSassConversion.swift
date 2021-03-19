@@ -162,11 +162,9 @@ extension LibSass.Compiler {
         case .importer(let client):
             let newImporter = LibSass.Importer(priority: Double(priority)) { [unowned self] url, _, _ in
                 makeImportList {
-                    try client.load(ruleURL: url,
-                                    contextFileURL: self.lastImport.absPath)
-                        .flatMap {
-                            LibSass.Import($0)
-                        }
+                    try client(url, self.lastImport.absPath).flatMap {
+                        LibSass.Import($0)
+                    }
                 }
             }
             add(customImporter: newImporter)
@@ -174,11 +172,9 @@ extension LibSass.Compiler {
         case .fileImporter(let client):
             let newImporter = LibSass.Importer(priority: Double(priority)) { [unowned self] url, _, _ in
                 makeImportList {
-                    try client.locate(ruleURL: url,
-                                      contextFileURL: self.lastImport.absPath)
-                        .flatMap {
-                            LibSass.Import(fileURL: $0)
-                        }
+                    try client(url, self.lastImport.absPath).flatMap {
+                        LibSass.Import(fileURL: $0)
+                    }
                 }
             }
             add(customImporter: newImporter)
