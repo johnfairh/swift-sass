@@ -181,3 +181,94 @@ extension LibSass.Compiler {
         }
     }
 }
+
+// Functions
+
+extension LibSass.Compiler {
+    func add<S: Sequence>(functions: S) where S.Element == (key: String, value: SassFunction) {
+        functions.forEach { addFunction(signature: $0.0, callback: $0.1) }
+    }
+
+    func addFunction(signature: String, callback: @escaping SassFunction) {
+        let fn = LibSass.Function(signature: signature) { args, _ in
+            do {
+                // LibSass always builds a list to put the args in.
+                // We do this level of unpacking for the client.
+                precondition(args.kind == SASS_LIST, "LibSass didn't put function args in a list?")
+                var argsArray = [SassValue]()
+                for idx in 0..<args.listSize {
+                    argsArray.append(try args[idx].asSassValue())
+                }
+                let retVal = try callback(argsArray)
+                return try LibSass.Value.from(sassValue: retVal)
+            } catch {
+                return LibSass.Value(error: String(describing: error))
+            }
+        }
+        add(customFunction: fn)
+    }
+}
+
+// Values
+
+// figure this out...
+struct Error: Swift.Error {
+}
+
+extension LibSass.Value {
+    func asSassValue() throws -> SassValue {
+        switch kind {
+        case SASS_BOOLEAN:
+            return boolValue ? SassConstants.true : SassConstants.false
+
+        default:
+            throw Error()
+        }
+    }
+}
+
+struct LibSassVisitor: SassValueVisitor {
+    func visit(string: SassString) throws -> LibSass.Value {
+        throw Error()
+    }
+
+    func visit(number: SassNumber) throws -> LibSass.Value {
+        throw Error()
+    }
+
+    func visit(color: SassColor) throws -> LibSass.Value {
+        throw Error()
+    }
+
+    func visit(list: SassList) throws -> LibSass.Value {
+        throw Error()
+    }
+
+    func visit(map: SassMap) throws -> LibSass.Value {
+        throw Error()
+    }
+
+    func visit(bool: SassBool) throws -> LibSass.Value {
+        LibSass.Value(bool: bool.isTruthy)
+    }
+
+    func visit(null: SassNull) throws -> LibSass.Value {
+        throw Error()
+    }
+
+    func visit(compilerFunction: SassCompilerFunction) throws -> LibSass.Value {
+        throw Error()
+    }
+
+    func visit(dynamicFunction: SassDynamicFunction) throws -> LibSass.Value {
+        throw Error()
+    }
+}
+
+extension LibSass.Value {
+    static let visitor = LibSassVisitor()
+
+    static func from(sassValue: SassValue) throws -> LibSass.Value {
+        try sassValue.accept(visitor: visitor)
+    }
+}

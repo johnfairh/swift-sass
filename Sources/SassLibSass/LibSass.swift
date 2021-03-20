@@ -121,6 +121,11 @@ enum LibSass {
             customImporter.makeUnowned().flatMap { associatedObjects.append($0) }
             sass_compiler_add_custom_importer(ptr, customImporter.ptr)
         }
+
+        func add(customFunction: Function) {
+            customFunction.makeUnowned().flatMap { associatedObjects.append($0) }
+            sass_compiler_add_custom_function(ptr, customFunction.ptr)
+        }
     }
 
     /// struct SassImport
@@ -331,6 +336,121 @@ enum LibSass {
             next.makeUnowned()
             sass_import_list_push(ptr, next.ptr)
         }
+    }
+
+    /// struct SassFunction
+    final class Function {
+        fileprivate let ptr: OpaquePointer
+        private var owned: Bool
+        private var swiftContext: AnyObject?
+
+        typealias Callback = (Value, Compiler) -> Value
+
+        /// Shim client's callback through C.  We hold 1 refcount on this (in Swift) until added to a
+        /// Compiler, at which point we move it over there for the compiler lifetime.  The C version
+        /// does not have an associated ref.
+        private final class CallbackGlue {
+            let callback: Callback
+            init(_ callback: @escaping Callback) { self.callback = callback }
+        }
+
+        init(signature: String, callback: @escaping Callback) {
+            let glue = CallbackGlue(callback)
+            let rawGlue = Unmanaged<CallbackGlue>.passUnretained(glue).toOpaque()
+
+            func functionLambda(argsValuePtr: OpaquePointer?,
+                                compilerPtr: OpaquePointer?,
+                                cookie: UnsafeMutableRawPointer!) -> OpaquePointer? {
+                let argsValue = Value(argsValuePtr)
+                let compiler = Compiler(ptr: compilerPtr)
+                let lambda = Unmanaged<CallbackGlue>.fromOpaque(cookie).takeUnretainedValue()
+                let returnValue = lambda.callback(argsValue, compiler)
+                return returnValue.makeUnowned()
+            }
+
+            self.ptr = sass_make_function(signature, functionLambda, rawGlue)
+            self.swiftContext = glue
+            self.owned = true
+        }
+
+        fileprivate init(ptr: OpaquePointer!) {
+            self.ptr = ptr
+            self.owned = false
+            self.swiftContext = nil
+        }
+
+        fileprivate func makeUnowned() -> AnyObject? {
+            precondition(owned)
+            owned = false
+            defer { swiftContext = nil }
+            return swiftContext
+        }
+
+        deinit {
+            if owned {
+                sass_delete_function(ptr)
+            }
+        }
+    }
+
+    /// struct SassValue
+    final class Value {
+        fileprivate let ptr: OpaquePointer
+        private var owned: Bool
+
+        fileprivate init(_ ptr: OpaquePointer!) {
+            self.ptr = ptr
+            self.owned = false
+        }
+
+        deinit {
+            if owned {
+                sass_delete_value(ptr)
+            }
+        }
+
+        fileprivate func makeUnowned() -> OpaquePointer {
+            precondition(owned)
+            owned = false
+            return ptr
+        }
+
+        // various constructors
+
+        init() {
+            self.ptr = sass_make_null()
+            self.owned = true
+        }
+
+        init(error: String) {
+            self.ptr = sass_make_error(error)
+            self.owned = true
+        }
+
+        // kind
+
+        var kind: SassValueType {
+            sass_value_get_tag(ptr)
+        }
+
+        // boolean
+        init(bool: Bool) {
+            self.ptr = sass_make_boolean(bool)
+            self.owned = true
+        }
+        var boolValue: Bool { sass_boolean_get_value(ptr) }
+
+        // list
+        init(values: [Value], hasBrackets: Bool, separator: SassSeparator) {
+            self.ptr = sass_make_list(separator, hasBrackets)
+            self.owned = true
+            values.forEach { sass_list_push(self.ptr, $0.makeUnowned()) }
+        }
+
+        var listSize: Int { sass_list_get_size(ptr) }
+        var listHasBrackets: Bool { sass_list_get_is_bracketed(ptr) }
+        var listSeparator: SassSeparator { sass_list_get_separator(ptr) }
+        subscript(index: Int) -> Value { Value(sass_list_at(ptr, index)) }
     }
 }
 

@@ -122,7 +122,16 @@ public struct Compiler {
         }
         // End workaround
 
+        // Importers
         compiler.add(importers: globalImporters + importers)
+
+        // Functions
+        // Override global functions with per-compile ones that have the same name.
+        let localFnsNameMap = functions._asSassFunctionNameElementMap
+        let globalFnsNameMap = globalFunctions._asSassFunctionNameElementMap
+        let mergedFnsNameMap = globalFnsNameMap.merging(localFnsNameMap) { g, l in l }
+        compiler.add(functions: mergedFnsNameMap.values)
+
         compiler.parseCompileRender()
         if let error = compiler.error {
             throw CompilerError(error, messages: compiler.messages)
