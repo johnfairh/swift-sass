@@ -199,8 +199,7 @@ extension LibSass.Compiler {
                 for idx in 0..<args.listSize {
                     argsArray.append(try args[idx].asSassValue())
                 }
-                let retVal = try callback(argsArray)
-                return try LibSass.Value.from(sassValue: retVal)
+                return try callback(argsArray).asLibSassValue()
             } catch {
                 return LibSass.Value(error: String(describing: error))
             }
@@ -221,6 +220,15 @@ extension LibSass.Value {
         case SASS_BOOLEAN:
             return boolValue ? SassConstants.true : SassConstants.false
 
+        case SASS_NULL:
+            return SassConstants.null
+
+        case SASS_STRING:
+            return SassString(stringValue, isQuoted: stringIsQuoted)
+
+        case SASS_NUMBER:
+            return try SassNumber(numberValue, numeratorUnits: [], denominatorUnits: [])
+
         default:
             throw Error()
         }
@@ -229,10 +237,11 @@ extension LibSass.Value {
 
 struct LibSassVisitor: SassValueVisitor {
     func visit(string: SassString) throws -> LibSass.Value {
-        throw Error()
+        LibSass.Value(string: string.string, isQuoted: string.isQuoted)
     }
 
     func visit(number: SassNumber) throws -> LibSass.Value {
+        //LibSass.Value(number: number.double, units: number.)
         throw Error()
     }
 
@@ -253,7 +262,7 @@ struct LibSassVisitor: SassValueVisitor {
     }
 
     func visit(null: SassNull) throws -> LibSass.Value {
-        throw Error()
+        LibSass.Value()
     }
 
     func visit(compilerFunction: SassCompilerFunction) throws -> LibSass.Value {
@@ -265,10 +274,10 @@ struct LibSassVisitor: SassValueVisitor {
     }
 }
 
-extension LibSass.Value {
-    static let visitor = LibSassVisitor()
+private let visitor = LibSassVisitor()
 
-    static func from(sassValue: SassValue) throws -> LibSass.Value {
-        try sassValue.accept(visitor: visitor)
+extension SassValue {
+    func asLibSassValue() throws -> LibSass.Value {
+        try accept(visitor: visitor)
     }
 }

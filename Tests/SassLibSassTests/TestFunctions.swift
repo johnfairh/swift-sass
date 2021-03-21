@@ -8,7 +8,7 @@
 
 import XCTest
 import TestHelpers
-import SassLibSass
+@testable import SassLibSass
 
 /// Custom functions, libsass-style.
 /// Most of this is validating the round-tripping between our types and libsass.
@@ -22,10 +22,30 @@ class TestFunctions: XCTestCase {
 
     func testEcho() throws {
         let compiler = Compiler()
-        let results = try compiler.compile(string: "a { b: myEcho(false) }",
+        let results = try compiler.compile(string: "a { b: myEcho(frederick) }",
                                            outputStyle: .compressed,
                                            functions: echoFunction)
-        XCTAssertEqual("a{b:false}\n", results.css)
+        XCTAssertEqual("a{b:frederick}\n", results.css)
+    }
+
+    private func checkRoundTrip(_ vals: [SassValue]) throws {
+        try vals.forEach {
+            let libSassVal = try $0.asLibSassValue()
+            let backVal = try libSassVal.asSassValue()
+            XCTAssertEqual($0, backVal)
+        }
+    }
+
+    func testConstants() throws {
+        try checkRoundTrip([SassConstants.true, SassConstants.false, SassConstants.null])
+    }
+
+    func testString() throws {
+        try checkRoundTrip([
+            SassString("aString"),
+            SassString("unquoted", isQuoted: false),
+            SassString("quoted", isQuoted: true)
+        ])
     }
 }
 

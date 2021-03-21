@@ -440,6 +440,22 @@ enum LibSass {
         }
         var boolValue: Bool { sass_boolean_get_value(ptr) }
 
+        // string
+        init(string: String, isQuoted: Bool) {
+            self.ptr = sass_make_string(string, isQuoted)
+            self.owned = true
+        }
+        var stringValue: String { String(safeCString: sass_string_get_value(ptr)) }
+        var stringIsQuoted: Bool { sass_string_is_quoted(ptr) }
+
+        // number
+        init(number: Double, units: String) {
+            self.ptr = sass_make_number(number, units)
+            self.owned = true
+        }
+        var numberValue: Double { sass_number_get_value(ptr) }
+        var numberUnits: String { String(safeCString: sass_number_get_unit(ptr)) }
+
         // list
         init(values: [Value], hasBrackets: Bool, separator: SassSeparator) {
             self.ptr = sass_make_list(separator, hasBrackets)
