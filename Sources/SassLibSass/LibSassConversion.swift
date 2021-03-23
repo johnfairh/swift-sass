@@ -195,11 +195,8 @@ extension LibSass.Compiler {
                 // LibSass always builds a list to put the args in.
                 // We do this level of unpacking for the client.
                 precondition(args.kind == SASS_LIST, "LibSass didn't put function args in a list?")
-                var argsArray = [SassValue]()
-                for idx in 0..<args.listSize {
-                    argsArray.append(try args[idx].asSassValue())
-                }
-                return try callback(argsArray).asLibSassValue()
+                let argsArray = try args.toSassValueList()
+                return try callback(argsArray).toLibSassValue()
             } catch {
                 return LibSass.Value(error: String(describing: error))
             }
@@ -210,12 +207,34 @@ extension LibSass.Compiler {
 
 // Values
 
+extension SassSeparator {
+    func toSeparator() throws -> SassList.Separator {
+        switch self {
+        case SASS_COMMA: return .comma
+        case SASS_SPACE: return .space
+        case SASS_UNDEF: return .undecided
+        default: throw Error()
+        }
+    }
+}
+
+extension SassList.Separator {
+    func toLibSass() throws -> SassSeparator {
+        switch self {
+        case .comma: return SASS_COMMA
+        case .space: return SASS_SPACE
+        case .undecided: return SASS_UNDEF
+        case .slash: throw Error()
+        }
+    }
+}
+
 // figure this out...
 struct Error: Swift.Error {
 }
 
 extension LibSass.Value {
-    func asSassValue() throws -> SassValue {
+    func toSassValue() throws -> SassValue {
         switch kind {
         case SASS_BOOLEAN:
             return boolValue ? SassConstants.true : SassConstants.false
@@ -230,9 +249,34 @@ extension LibSass.Value {
             let units = numberUnits.parseUnits()
             return try SassNumber(numberValue, numeratorUnits: units.0, denominatorUnits: units.1)
 
+        case SASS_COLOR:
+            return try SassColor(red: Int(colorRed), green: Int(colorGreen), blue: Int(colorBlue), alpha: colorAlpha)
+
+        case SASS_LIST:
+            return SassList(try toSassValueList(),
+                            separator: try listSeparator.toSeparator(),
+                            hasBrackets: listHasBrackets)
+
+        case SASS_MAP:
+            return SassMap(try toSassValueDictionary())
+
         default:
             throw Error()
         }
+    }
+
+    func toSassValueList() throws -> [SassValue] {
+        try (0..<listSize).map { try self[$0].toSassValue() }
+    }
+
+    func toSassValueDictionary() throws -> [SassValue : SassValue] {
+        var dict = [SassValue : SassValue]()
+        let it = mapIterator
+        while !it.isExhausted {
+            dict[try it.key.toSassValue()] = try it.value.toSassValue()
+            it.next()
+        }
+        return dict
     }
 }
 
@@ -246,15 +290,22 @@ struct LibSassVisitor: SassValueVisitor {
     }
 
     func visit(color: SassColor) throws -> LibSass.Value {
-        throw Error()
+        LibSass.Value(red: Double(color.red),
+                      green: Double(color.green),
+                      blue: Double(color.blue),
+                      alpha: color.alpha)
     }
 
     func visit(list: SassList) throws -> LibSass.Value {
-        throw Error()
+        LibSass.Value(values: try list.map { try $0.toLibSassValue() },
+                      hasBrackets: list.hasBrackets,
+                      separator: try list.separator.toLibSass())
     }
 
     func visit(map: SassMap) throws -> LibSass.Value {
-        throw Error()
+        LibSass.Value(pairs: try map.dictionary.map {
+            (try $0.key.toLibSassValue(), try $0.value.toLibSassValue())
+        })
     }
 
     func visit(bool: SassBool) throws -> LibSass.Value {
@@ -277,7 +328,7 @@ struct LibSassVisitor: SassValueVisitor {
 private let visitor = LibSassVisitor()
 
 extension SassValue {
-    func asLibSassValue() throws -> LibSass.Value {
+    func toLibSassValue() throws -> LibSass.Value {
         try accept(visitor: visitor)
     }
 }

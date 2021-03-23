@@ -456,6 +456,16 @@ enum LibSass {
         var numberValue: Double { sass_number_get_value(ptr) }
         var numberUnits: String { String(safeCString: sass_number_get_unit(ptr)) }
 
+        // color
+        init(red: Double, green: Double, blue: Double, alpha: Double) {
+            self.ptr = sass_make_color(red, green, blue, alpha)
+            self.owned = true
+        }
+        var colorRed: Double { sass_color_get_r(ptr) }
+        var colorGreen: Double { sass_color_get_g(ptr) }
+        var colorBlue: Double { sass_color_get_b(ptr) }
+        var colorAlpha: Double { sass_color_get_a(ptr) }
+
         // list
         init(values: [Value], hasBrackets: Bool, separator: SassSeparator) {
             self.ptr = sass_make_list(separator, hasBrackets)
@@ -467,6 +477,48 @@ enum LibSass {
         var listHasBrackets: Bool { sass_list_get_is_bracketed(ptr) }
         var listSeparator: SassSeparator { sass_list_get_separator(ptr) }
         subscript(index: Int) -> Value { Value(sass_list_at(ptr, index)) }
+
+        // map
+        init(pairs: [(Value, Value)]) {
+            self.ptr = sass_make_map()
+            self.owned = true
+            pairs.forEach {
+                sass_map_set(ptr, $0.0.makeUnowned(), $0.1.makeUnowned())
+            }
+        }
+
+        var mapIterator: MapIterator {
+            MapIterator(mapValue: self)
+        }
+    }
+
+    // struct SassMapIterator
+    final class MapIterator {
+        private let ptr: OpaquePointer
+
+        fileprivate init(mapValue: Value) {
+            ptr = sass_map_make_iterator(mapValue.ptr)
+        }
+
+        deinit {
+            sass_map_delete_iterator(ptr)
+        }
+
+        var isExhausted: Bool {
+            sass_map_iterator_exhausted(ptr)
+        }
+
+        func next() {
+            sass_map_iterator_next(ptr)
+        }
+
+        var key: Value {
+            Value(sass_map_iterator_get_key(ptr))
+        }
+
+        var value: Value {
+            Value(sass_map_iterator_get_value(ptr))
+        }
     }
 }
 
