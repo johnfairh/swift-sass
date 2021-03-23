@@ -490,6 +490,16 @@ enum LibSass {
         var mapIterator: MapIterator {
             MapIterator(mapValue: self)
         }
+
+        // Int passthrough (for CompilerFunction)
+        init(pointerValue: Int) {
+            self.ptr = OpaquePointer(bitPattern: pointerValue)!
+            self.owned = false
+        }
+
+        var pointerValue: Int {
+            Int(bitPattern: ptr)
+        }
     }
 
     // struct SassMapIterator

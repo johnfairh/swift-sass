@@ -8,7 +8,6 @@
 
 import LibSass4
 import Sass
-import Foundation
 
 // Helpers to flip between common Sass types and LibSass API types.
 
@@ -213,7 +212,7 @@ extension SassSeparator {
         case SASS_COMMA: return .comma
         case SASS_SPACE: return .space
         case SASS_UNDEF: return .undecided
-        default: throw Error()
+        default: throw ConversionError("Unknown LibSass separator value: \(self)")
         }
     }
 }
@@ -224,13 +223,18 @@ extension SassList.Separator {
         case .comma: return SASS_COMMA
         case .space: return SASS_SPACE
         case .undecided: return SASS_UNDEF
-        case .slash: throw Error()
+        case .slash: throw ConversionError("LibSass does not support slash-separated lists")
         }
     }
 }
 
-// figure this out...
-struct Error: Swift.Error {
+/// Thrown if something isn't representable or unknown.
+/// Messages end up failing a compilation as a custom function fails.
+fileprivate struct ConversionError: Swift.Error, CustomStringConvertible {
+    let description: String
+    init(_ text: String) {
+        description = text
+    }
 }
 
 extension LibSass.Value {
@@ -260,8 +264,12 @@ extension LibSass.Value {
         case SASS_MAP:
             return SassMap(try toSassValueDictionary())
 
+//        needs full-width SassCompilerFunction index
+//        case SASS_FUNCTION:
+//            return SassCompilerFunction(id: pointerValue)
+
         default:
-            throw Error()
+            throw ConversionError("Unknown LibSass value tag: \(kind)")
         }
     }
 
@@ -317,11 +325,13 @@ struct LibSassVisitor: SassValueVisitor {
     }
 
     func visit(compilerFunction: SassCompilerFunction) throws -> LibSass.Value {
-        throw Error()
+//        needs fullwidth SassCompilerFunction index
+//        LibSass.Value(pointerValue: compilerFunction.id)
+        throw ConversionError("TODO")
     }
 
     func visit(dynamicFunction: SassDynamicFunction) throws -> LibSass.Value {
-        throw Error()
+        throw ConversionError("LibSass does not support `SassDynamicFunction`s")
     }
 }
 
