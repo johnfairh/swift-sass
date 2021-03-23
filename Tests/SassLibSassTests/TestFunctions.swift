@@ -47,5 +47,15 @@ class TestFunctions: XCTestCase {
             SassString("quoted", isQuoted: true)
         ])
     }
+
+    func testNumbers() throws {
+        try checkRoundTrip([
+            SassNumber(42),
+            SassNumber(-102.88),
+            SassNumber(100, numeratorUnits: ["px"]),
+            SassNumber(100, denominatorUnits: ["px"]),
+            SassNumber(100, numeratorUnits: ["px", "ms"], denominatorUnits: ["deg", "fish"])
+        ])
+    }
 }
 

@@ -227,7 +227,8 @@ extension LibSass.Value {
             return SassString(stringValue, isQuoted: stringIsQuoted)
 
         case SASS_NUMBER:
-            return try SassNumber(numberValue, numeratorUnits: [], denominatorUnits: [])
+            let units = numberUnits.parseUnits()
+            return try SassNumber(numberValue, numeratorUnits: units.0, denominatorUnits: units.1)
 
         default:
             throw Error()
@@ -241,8 +242,7 @@ struct LibSassVisitor: SassValueVisitor {
     }
 
     func visit(number: SassNumber) throws -> LibSass.Value {
-        //LibSass.Value(number: number.double, units: number.)
-        throw Error()
+        LibSass.Value(number: number.double, units: number.libSassUnits)
     }
 
     func visit(color: SassColor) throws -> LibSass.Value {
@@ -279,5 +279,34 @@ private let visitor = LibSassVisitor()
 extension SassValue {
     func asLibSassValue() throws -> LibSass.Value {
         try accept(visitor: visitor)
+    }
+}
+
+// oh boy
+
+private extension String {
+    func parseUnits() -> ([String], [String]) {
+        var units = self
+        if units.hasSuffix("^-1") {
+            units.removeLast(3)
+            return ([], units.asUnitList)
+        }
+        let parts = units.split(separator: "/")
+        switch parts.count {
+        case 0, 1: return (units.asUnitList, [])
+        default: return (String(parts[0]).asUnitList, String(parts[1]).asUnitList)
+        }
+    }
+
+    var asUnitList: [String] {
+        split(whereSeparator: { c in "()*".contains(c) }).map(String.init)
+    }
+}
+
+extension SassNumber {
+    var libSassUnits: String {
+        numeratorUnits.joined(separator: "*") +
+            "/" +
+            denominatorUnits.joined(separator: "*")
     }
 }
