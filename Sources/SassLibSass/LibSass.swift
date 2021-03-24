@@ -357,7 +357,7 @@ enum LibSass {
                 let compiler = Compiler(ptr: compilerPtr)
                 let lambda = Unmanaged<CallbackGlue>.fromOpaque(cookie).takeUnretainedValue()
                 let returnValue = lambda.callback(argsValue, compiler)
-                return returnValue.makeUnowned()
+                return returnValue.ensureUnowned()
             }
 
             self.ptr = sass_make_function(signature, functionLambda, rawGlue)
@@ -393,8 +393,9 @@ enum LibSass {
             }
         }
 
-        fileprivate func makeUnowned() -> OpaquePointer {
-            precondition(owned)
+        fileprivate func ensureUnowned() -> OpaquePointer {
+            // can't assert owned here: passing opaque value
+            // back to compiler means it is never owned by us.
             owned = false
             return ptr
         }
@@ -453,7 +454,7 @@ enum LibSass {
         init(values: [Value], hasBrackets: Bool, separator: SassSeparator) {
             self.ptr = sass_make_list(separator, hasBrackets)
             self.owned = true
-            values.forEach { sass_list_push(self.ptr, $0.makeUnowned()) }
+            values.forEach { sass_list_push(self.ptr, $0.ensureUnowned()) }
         }
 
         var listSize: Int { sass_list_get_size(ptr) }
@@ -466,7 +467,7 @@ enum LibSass {
             self.ptr = sass_make_map()
             self.owned = true
             pairs.forEach {
-                sass_map_set(ptr, $0.0.makeUnowned(), $0.1.makeUnowned())
+                sass_map_set(ptr, $0.0.ensureUnowned(), $0.1.ensureUnowned())
             }
         }
 

@@ -100,7 +100,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "029D3C2E2604E89400E1B6BC"
-               BuildableName = "SassEmbeddedTests.xctest"
+               BuildableName = "SassLibSassTests.xctest"
                BlueprintName = "SassLibSassTests"
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>

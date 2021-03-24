@@ -143,7 +143,7 @@ class TestFunctions: XCTestCase {
     }
 
     // compiler functions
-    func SKIP_testSassCompilerFunction() throws {
+    func testSassCompilerFunction() throws {
         let echoFunc: SassFunction = { args in
             XCTAssertEqual(1, args.count)
             let funcVal = try args[0].asCompilerFunction()

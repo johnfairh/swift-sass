@@ -264,9 +264,8 @@ extension LibSass.Value {
         case SASS_MAP:
             return SassMap(try toSassValueDictionary())
 
-//        needs full-width SassCompilerFunction index
-//        case SASS_FUNCTION:
-//            return SassCompilerFunction(id: pointerValue)
+        case SASS_FUNCTION:
+            return SassCompilerFunction(id: pointerValue)
 
         default:
             throw ConversionError("Unknown LibSass value tag: \(kind)")
@@ -325,9 +324,7 @@ struct LibSassVisitor: SassValueVisitor {
     }
 
     func visit(compilerFunction: SassCompilerFunction) throws -> LibSass.Value {
-//        needs fullwidth SassCompilerFunction index
-//        LibSass.Value(pointerValue: compilerFunction.id)
-        throw ConversionError("TODO")
+        LibSass.Value(pointerValue: compilerFunction.id)
     }
 
     func visit(dynamicFunction: SassDynamicFunction) throws -> LibSass.Value {
