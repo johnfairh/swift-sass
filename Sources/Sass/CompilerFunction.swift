@@ -16,12 +16,12 @@
 public final class SassCompilerFunction: SassValue {
     // MARK: Properties
 
-    /// The function ID.
-    public let id: UInt32
+    /// The function ID.  Opaque to users, meaningful to Sass implementations.
+    public let id: Int
 
     /// Create a new compiler function.  Unless you're implementing or mocking an interface
     /// from a Sass compiler you don't need this. :nodoc:
-    public init(id: UInt32) {
+    public init(id: Int) {
         self.id = id
     }
 

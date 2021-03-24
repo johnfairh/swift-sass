@@ -312,7 +312,7 @@ extension Sass_EmbeddedProtocol_Value {
             }
 
         case .compilerFunction(let c):
-            return SassCompilerFunction(id: c.id)
+            return SassCompilerFunction(id: Int(c.id))
 
         case .hostFunction(let h):
             // not supposed to receive these in arguments
@@ -399,7 +399,7 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
 
     func visit(compilerFunction: SassCompilerFunction) throws -> OneOf_Value {
         .compilerFunction(.with {
-            $0.id = compilerFunction.id
+            $0.id = UInt32(compilerFunction.id)
         })
     }
 
