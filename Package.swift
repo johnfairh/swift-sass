@@ -79,12 +79,12 @@ let package = Package(
         name: "Cli",
         dependencies: ["DartSass"]),
       .systemLibrary(
-        name: "libsass4"),
+        name: "clibsass4"),
       .target(
         name: "SassLibSass",
         dependencies: [
           .target(name: "Sass"),
-          .target(name: "libsass4")
+          .target(name: "clibsass4")
         ]),
       .testTarget(
         name: "SassLibSassTests",

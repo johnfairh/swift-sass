@@ -6,7 +6,7 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import LibSass4
+import CLibSass4
 import Sass
 
 // Helpers to flip between common Sass types and LibSass API types.
@@ -42,7 +42,7 @@ extension CompilerMessageStyle {
 }
 
 extension CompilerError {
-    init(_ error: LibSass.Error, messages: [CompilerMessage]) {
+    init(_ error: LibSass4.Error, messages: [CompilerMessage]) {
         self.init(message: error.message,
                   span: Span(text: nil,
                              url: error.fileURL,
@@ -59,7 +59,7 @@ extension CompilerError {
     }
 }
 
-extension LibSass.Trace {
+extension LibSass4.Trace {
     var text: String {
         "\(fileURL.path) \(lineNumber):\(columnNumber)\(name.isEmpty ? "" : " \(name)")"
     }
@@ -68,7 +68,7 @@ extension LibSass.Trace {
 // LibSass doesn't provide structured access to warning etc. messages.
 // We do a very superficial and approximate job at decomposing its massive strings.
 
-extension LibSass.Compiler {
+extension LibSass4.Compiler {
     var messages: [CompilerMessage] {
         let warningString = self.warningString
         guard !warningString.isEmpty else {
@@ -124,7 +124,7 @@ extension CompilerMessage.Kind {
 
 // Importers
 
-extension LibSass.Import {
+extension LibSass4.Import {
     convenience init(_ importerResults: ImporterResults) {
         self.init(string: importerResults.contents,
                   fileURL: importerResults.fileURL,
@@ -132,7 +132,7 @@ extension LibSass.Import {
     }
 }
 
-extension LibSass.Compiler {
+extension LibSass4.Compiler {
     func add(importers: [ImportResolver]) {
         importers.reversed().enumerated().forEach { x in
             add(importer: x.element, priority: x.offset)
@@ -142,14 +142,14 @@ extension LibSass.Compiler {
     // Higher priority -> earlier in the internal list
     private func add(importer: ImportResolver, priority: Int) {
 
-        func makeImportList( from: () throws -> LibSass.Import?) -> LibSass.ImportList? {
+        func makeImportList( from: () throws -> LibSass4.Import?) -> LibSass4.ImportList? {
             do {
                 guard let newImport = try from() else {
                     return nil
                 }
                 return .init(newImport)
             } catch {
-                return .init(LibSass.Import(errorMessage: String(describing: error)))
+                return .init(LibSass4.Import(errorMessage: String(describing: error)))
             }
         }
 
@@ -159,20 +159,20 @@ extension LibSass.Compiler {
             add(includePath: url.path)
 
         case .importer(let client):
-            let newImporter = LibSass.Importer(priority: Double(priority)) { [unowned self] url, _ in
+            let newImporter = LibSass4.Importer(priority: Double(priority)) { [unowned self] url, _ in
                 makeImportList {
                     try client(url, self.lastImport.absPath).flatMap {
-                        LibSass.Import($0)
+                        LibSass4.Import($0)
                     }
                 }
             }
             add(customImporter: newImporter)
 
         case .fileImporter(let client):
-            let newImporter = LibSass.Importer(priority: Double(priority)) { [unowned self] url, _ in
+            let newImporter = LibSass4.Importer(priority: Double(priority)) { [unowned self] url, _ in
                 makeImportList {
                     try client(url, self.lastImport.absPath).flatMap {
-                        LibSass.Import(fileURL: $0)
+                        LibSass4.Import(fileURL: $0)
                     }
                 }
             }
@@ -183,13 +183,13 @@ extension LibSass.Compiler {
 
 // Functions
 
-extension LibSass.Compiler {
+extension LibSass4.Compiler {
     func add<S: Sequence>(functions: S) where S.Element == (key: String, value: SassFunction) {
         functions.forEach { addFunction(signature: $0.0, callback: $0.1) }
     }
 
     func addFunction(signature: String, callback: @escaping SassFunction) {
-        let fn = LibSass.Function(signature: signature) { args, _ in
+        let fn = LibSass4.Function(signature: signature) { args, _ in
             do {
                 // LibSass always builds a list to put the args in.
                 // We do this level of unpacking for the client.
@@ -197,7 +197,7 @@ extension LibSass.Compiler {
                 let argsArray = try args.toSassValueList()
                 return try callback(argsArray).toLibSassValue()
             } catch {
-                return LibSass.Value(error: String(describing: error))
+                return LibSass4.Value(error: String(describing: error))
             }
         }
         add(customFunction: fn)
@@ -237,7 +237,7 @@ fileprivate struct ConversionError: Swift.Error, CustomStringConvertible {
     }
 }
 
-extension LibSass.Value {
+extension LibSass4.Value {
     func toSassValue() throws -> SassValue {
         switch kind {
         case SASS_BOOLEAN:
@@ -288,46 +288,46 @@ extension LibSass.Value {
 }
 
 struct LibSassVisitor: SassValueVisitor {
-    func visit(string: SassString) throws -> LibSass.Value {
-        LibSass.Value(string: string.string, isQuoted: string.isQuoted)
+    func visit(string: SassString) throws -> LibSass4.Value {
+        LibSass4.Value(string: string.string, isQuoted: string.isQuoted)
     }
 
-    func visit(number: SassNumber) throws -> LibSass.Value {
-        LibSass.Value(number: number.double, units: number.libSassUnits)
+    func visit(number: SassNumber) throws -> LibSass4.Value {
+        LibSass4.Value(number: number.double, units: number.libSassUnits)
     }
 
-    func visit(color: SassColor) throws -> LibSass.Value {
-        LibSass.Value(red: Double(color.red),
+    func visit(color: SassColor) throws -> LibSass4.Value {
+        LibSass4.Value(red: Double(color.red),
                       green: Double(color.green),
                       blue: Double(color.blue),
                       alpha: color.alpha)
     }
 
-    func visit(list: SassList) throws -> LibSass.Value {
-        LibSass.Value(values: try list.map { try $0.toLibSassValue() },
+    func visit(list: SassList) throws -> LibSass4.Value {
+        LibSass4.Value(values: try list.map { try $0.toLibSassValue() },
                       hasBrackets: list.hasBrackets,
                       separator: try list.separator.toLibSass())
     }
 
-    func visit(map: SassMap) throws -> LibSass.Value {
-        LibSass.Value(pairs: try map.dictionary.map {
+    func visit(map: SassMap) throws -> LibSass4.Value {
+        LibSass4.Value(pairs: try map.dictionary.map {
             (try $0.key.toLibSassValue(), try $0.value.toLibSassValue())
         })
     }
 
-    func visit(bool: SassBool) throws -> LibSass.Value {
-        LibSass.Value(bool: bool.isTruthy)
+    func visit(bool: SassBool) throws -> LibSass4.Value {
+        LibSass4.Value(bool: bool.isTruthy)
     }
 
-    func visit(null: SassNull) throws -> LibSass.Value {
-        LibSass.Value()
+    func visit(null: SassNull) throws -> LibSass4.Value {
+        LibSass4.Value()
     }
 
-    func visit(compilerFunction: SassCompilerFunction) throws -> LibSass.Value {
-        LibSass.Value(pointerValue: compilerFunction.id)
+    func visit(compilerFunction: SassCompilerFunction) throws -> LibSass4.Value {
+        LibSass4.Value(pointerValue: compilerFunction.id)
     }
 
-    func visit(dynamicFunction: SassDynamicFunction) throws -> LibSass.Value {
+    func visit(dynamicFunction: SassDynamicFunction) throws -> LibSass4.Value {
         throw ConversionError("LibSass does not support `SassDynamicFunction`s")
     }
 }
@@ -335,7 +335,7 @@ struct LibSassVisitor: SassValueVisitor {
 private let visitor = LibSassVisitor()
 
 extension SassValue {
-    func toLibSassValue() throws -> LibSass.Value {
+    func toLibSassValue() throws -> LibSass4.Value {
         try accept(visitor: visitor)
     }
 }

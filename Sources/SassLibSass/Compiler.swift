@@ -20,7 +20,7 @@ import class Foundation.FileManager // getcwd()
 ///   If the importing stylesheet does not have a path then use the current directory.
 /// 3. Search every `.loadPath` in the order given.
 ///
-/// The most important difference between this and `EmbeddedSass.Compiler` is that here,
+/// The most important difference between this and `DartSass.Compiler` is that here,
 /// custom importers always have priority over source-relative.  Further, the full list of custom importers
 /// is always called in order: LibSass does not maintain any link between a stylesheet and the importer
 /// that produced it.
@@ -45,7 +45,7 @@ public struct Compiler {
 
     /// The version of the underlying LibSass library, in [semver](https://semver.org/spec/v2.0.0.html) format.
     public static var libVersion: String {
-        LibSass.version
+        LibSass4.version
     }
 
     /// Compile to CSS from a stylesheet file.
@@ -67,7 +67,7 @@ public struct Compiler {
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
         precondition(fileURL.isFileURL)
-        return try compile(mainImport: LibSass.Import(fileURL: fileURL),
+        return try compile(mainImport: LibSass4.Import(fileURL: fileURL),
                            outputStyle: outputStyle, createSourceMap: createSourceMap,
                            importers: importers, functions: functions)
     }
@@ -94,17 +94,17 @@ public struct Compiler {
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
         fileURL.flatMap { precondition($0.isFileURL) }
-        return try compile(mainImport: LibSass.Import(string: string, fileURL: fileURL, syntax: syntax.toLibSass),
+        return try compile(mainImport: LibSass4.Import(string: string, fileURL: fileURL, syntax: syntax.toLibSass),
                            outputStyle: outputStyle, createSourceMap: createSourceMap,
                            importers: importers, functions: functions)
     }
 
-    private func compile(mainImport: LibSass.Import,
+    private func compile(mainImport: LibSass4.Import,
                          outputStyle: CssStyle, createSourceMap: Bool,
                          importers: [ImportResolver],
                          functions: SassFunctionMap) throws -> CompilerResults {
-        let compiler = LibSass.Compiler()
-        LibSass.chdir(to: FileManager.default.currentDirectoryPath)
+        let compiler = LibSass4.Compiler()
+        LibSass4.chdir(to: FileManager.default.currentDirectoryPath)
         compiler.set(entryPoint: mainImport)
         compiler.set(style: outputStyle.toLibSass)
         compiler.set(precision: 10)

@@ -9,7 +9,7 @@
 import XCTest
 import TestHelpers
 @testable import SassLibSass
-import LibSass4
+import CLibSass4
 
 /// Custom functions, libsass-style.
 /// Most of this is validating the round-tripping between our types and libsass.
@@ -177,7 +177,7 @@ class TestFunctions: XCTestCase {
 
     // misc corners
     func testMiscErrors() throws {
-        try XCTAssertThrowsError(LibSass.Value(error: "An error").toSassValue())
+        try XCTAssertThrowsError(LibSass4.Value(error: "An error").toSassValue())
         try XCTAssertThrowsError(SassDynamicFunction(signature: "echo()", function: { _ in SassConstants.null}).toLibSassValue())
     }
 }

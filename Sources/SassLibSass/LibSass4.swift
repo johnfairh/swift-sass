@@ -1,19 +1,19 @@
 //
-//  LibSass.swift
+//  LibSass4.swift
 //  SassLibSass
 //
 //  Copyright 2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import LibSass4
+import CLibSass4
 import struct Foundation.URL
 
 // Wrappers around the C API to work around the Swift importer's disdain for
 // opaque types and to hide some of the bizarre bits of the libsass API.
 
 // Namespace
-enum LibSass {
+enum LibSass4 {
     static var version: String {
         String(safeCString: libsass_version())
     }
