@@ -1,6 +1,6 @@
 //
 //  TestProtocolErrors.swift
-//  SassEmbeddedTests
+//  DartSassTests
 //
 //  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
@@ -13,7 +13,7 @@ import NIO
 ///
 /// Tests around duff message content to & from the compiler
 ///
-class TestProtocolErrors: SassEmbeddedTestCase {
+class TestProtocolErrors: DartSassTestCase {
 
     // Deal with in-band reported protocol error, compiler reports it to us.
     func testOutboundProtocolError() throws {

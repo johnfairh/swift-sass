@@ -14,7 +14,7 @@ Embed the Dart [Sass](https://sass-lang.com) compiler in your Swift program.  Wr
 stylesheet importers and SassScript functions in Swift.
 
 This package provides a Swift language interface to a separate Sass
-implementation.  The `SassEmbedded` module lets you access
+implementation.  The `DartSass` module lets you access
 [Dart Sass](https://sass-lang.com/dart-sass),
 the most up to date implementation of the Sass language.  It runs the
 [Dart Sass compiler](https://github.com/sass/dart-sass) as a separate process
@@ -40,7 +40,7 @@ This package doesn't support LibSass right now.  [More info](#on-libsass).
 
 Minimally:
 ```swift
-import SassEmbedded
+import DartSass
 
 let compiler = try Compiler(eventLoopGroupProvider: .createNew)
 
@@ -95,7 +95,7 @@ let results = try compiler.compile(
 ```
 
 These example are written in a synchronous style for simplicity.
-`SassEmbedded` is built on
+`DartSass` is built on
 [NIO](https://github.com/apple/swift-nio) and there are corresponding
 asynchronous / non-blocking APIs.
 
@@ -141,8 +141,10 @@ However, work is underway to revive the project and it may be that LibSass 4
 emerges as an alternative Sass implementation with the same level of language
 support as Dart Sass.
 
-This may eventually be a more convenient integration path for Swift programs and
-this `swift-sass` package should support it as an alternative.
+See the experimental [libsass4 branch](https://github.com/johnfairh/swift-sass/tree/libsass4)
+for the current state of development: if LibSass itself manages to get to a
+relased V4 then this `swift-sass` package will support it as an alternative
+integration.
 
 ## Contributions
 

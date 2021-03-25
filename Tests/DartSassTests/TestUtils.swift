@@ -1,6 +1,6 @@
 //
 //  TestUtils.swift
-//  SassEmbeddedTests
+//  DartSassTests
 //
 //  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
@@ -11,7 +11,7 @@ import XCTest
 import Foundation
 @testable import DartSass
 
-class SassEmbeddedTestCase: XCTestCase {
+class DartSassTestCase: XCTestCase {
 
     var eventLoopGroup: EventLoopGroup! = nil
 

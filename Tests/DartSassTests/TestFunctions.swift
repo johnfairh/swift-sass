@@ -1,6 +1,6 @@
 //
 //  TestFunctions.swift
-//  SassEmbeddedTests
+//  DartSassTests
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
@@ -13,7 +13,7 @@ import XCTest
 /// Tests for custom functions.
 ///  - SassTests covers the base `SassValue` hierarchy.
 ///  - We don't need to test the compiler's implementation of this flow, just our side.
-class TestFunctions: SassEmbeddedTestCase {
+class TestFunctions: DartSassTestCase {
 
     // (String) values go back and forth
 

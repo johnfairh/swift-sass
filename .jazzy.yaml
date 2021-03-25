@@ -15,7 +15,7 @@ deployment_url: https://johnfairh.github.io/swift-sass/
 build_tool: spm
 modules:
   - Sass
-  - SassEmbedded
+  - DartSass
 docset_module_name: swift-sass
 title: Swift Sass v0.3.0
 module_version: 0.3.0
@@ -35,7 +35,7 @@ custom_groups:
     topics:
       - name: Compiler
         children:
-          - SassEmbedded.Compiler
+          - DartSass.Compiler
       - name: Inputs
         children:
           - Syntax
@@ -88,23 +88,23 @@ custom_groups:
   - name: Errors
     abstract: Types thrown as errors -- see `CompilerError` too.
     children:
-      - SassEmbedded.ProtocolError
-      - SassEmbedded.LifecycleError
+      - DartSass.ProtocolError
+      - DartSass.LifecycleError
       - Sass.SassFunctionError
 
 custom_defs:
-  - name: SassEmbedded.Compiler
+  - name: DartSass.Compiler
     topics:
       - name: Initializers
         children:
           - init(eventLoopGroupProvider:timeout:messageStyle:importers:functions:)
-          - init(eventLoopGroupProvider:embeddedCompilerFilePath:timeout:messageStyle:importers:functions:)
+          - init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:importers:functions:)
       - name: Compilation
         children:
           - compile(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)
-          - compile(filePath:outputStyle:createSourceMap:importers:functions:)
+          - compile(fileURL:outputStyle:createSourceMap:importers:functions:)
           - compileAsync(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)
-          - compileAsync(filePath:outputStyle:createSourceMap:importers:functions:)
+          - compileAsync(fileURL:outputStyle:createSourceMap:importers:functions:)
       - name: Lifecycle
         children:
            - compilerProcessIdentifier

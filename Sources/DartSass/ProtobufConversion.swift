@@ -1,6 +1,6 @@
 //
 //  ProtobufConversion.swift
-//  SassEmbedded
+//  DartSass
 //
 //  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
@@ -8,7 +8,7 @@
 
 // Helpers to shuffle data in and out of the protobuf types.
 
-import Foundation
+import struct Foundation.URL
 
 // MARK: PB -> Native
 

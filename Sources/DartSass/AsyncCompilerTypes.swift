@@ -1,6 +1,6 @@
 //
 //  AsyncCompilerTypes.swift
-//  SassEmbedded
+//  DartSass
 //
 //  Copyright 2020 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
@@ -12,7 +12,7 @@ import Foundation
 
 /// A version of the `Importer` protocol that allows async behavior.
 ///
-/// You can use a straight `Importer` with `SassEmbedded.Compiler` only if the method implementations
+/// You can use a straight `Importer` with `DartSass.Compiler` only if the method implementations
 /// are synchronous and non-blocking.  If they need to block or go async then use this protocol instead.
 public protocol AsyncImporter: Importer {
     /// Async version of `Importer.canonicalize(ruleURL:)`.

@@ -1,6 +1,6 @@
 //
 //  CompilerWork.swift
-//  SassEmbedded
+//  DartSass
 //
 //  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
@@ -8,7 +8,7 @@
 
 import NIO
 import Sass
-import Foundation
+import struct Foundation.URL
 
 /// The part of the compiler that deals with actual Sass things rather than process management.
 /// It understands the contents of the Sass protocol messages.

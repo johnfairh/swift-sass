@@ -1,6 +1,6 @@
 //
 //  TestResetShutdown.swift
-//  SassEmbeddedTests
+//  DartSassTests
 //
 //  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
@@ -13,7 +13,7 @@ import NIO
 ///
 /// Tests around resets, timeouts, and shutdown.
 ///
-class TestResetShutdown: SassEmbeddedTestCase {
+class TestResetShutdown: DartSassTestCase {
     // Clean restart case
     func testCleanRestart() throws {
         let compiler = try newCompiler()

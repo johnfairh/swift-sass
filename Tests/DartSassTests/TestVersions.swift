@@ -1,6 +1,6 @@
 //
 //  TestVersions.swift
-//  SassEmbeddedTests
+//  DartSassTests
 //
 //  Copyright 2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
@@ -20,7 +20,7 @@ extension Versions {
 }
 
 /// Tests for version checking
-class TestVersions: SassEmbeddedTestCase {
+class TestVersions: DartSassTestCase {
     func testCreation() {
         let vers = Versions(protocolVersionString: "1.0.3", packageVersionString: "2.0.0", compilerVersionString: "3.0.0", compilerName: "test")
         XCTAssertEqual("1", vers.protocolVersion.major)

@@ -1,6 +1,6 @@
 //
 //  TestInterface.swift
-//  SassEmbeddedTests
+//  DartSassTests
 //
 //  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
@@ -13,7 +13,7 @@ import DartSass
 /// Tests to check the normal operation of the sass compiler -- not testing the compiler itself,
 /// just that we can talk to it honestly and translate enums etc. properly.
 ///
-class TestInterface: SassEmbeddedTestCase {
+class TestInterface: DartSassTestCase {
     let scssIn = """
     div {
         a {

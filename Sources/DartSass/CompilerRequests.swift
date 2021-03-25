@@ -1,6 +1,6 @@
 //
 //  CompilerRequests.swift
-//  SassEmbedded
+//  DartSass
 //
 //  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
@@ -8,7 +8,7 @@
 
 import NIO
 import NIOConcurrencyHelpers
-import Foundation
+import struct Foundation.URL
 
 // Protocols and classes modelling compiler communication sequences
 // Debug logging, multi-message exchanges, client activity

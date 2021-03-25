@@ -1,12 +1,13 @@
 //
 //  Compiler.swift
-//  SassEmbedded
+//  DartSass
 //
 //  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 
-import Foundation
+import struct Foundation.URL
+import Dispatch
 import NIO
 import Logging
 @_exported import Sass
@@ -16,10 +17,10 @@ import Logging
 // CompilerWork -- Sass stuff, protocol, job management
 // CompilerRequest -- job state, many, managed by CompilerWork
 
-/// A Sass compiler interface that uses the Sass embedded protocol.
+/// The Dart Sass compiler running as an embedded child process.
 ///
-/// It runs the actual Sass compiler as a child process. The Dart Sass compiler is bundled with this
-/// package for macOS and Ubuntu 64-bit Linux. For other platforms you need to supply this separately, see
+/// The Dart Sass compiler is bundled with this package for macOS and Ubuntu 64-bit Linux.
+/// For other platforms you need to supply this separately, see
 /// [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md).
 ///
 /// Some debug logging is available via `Compiler.logger`.
@@ -102,7 +103,7 @@ public final class Compiler {
     /// Use the bundled Dart Sass compiler as the Sass compiler.
     ///
     /// The bundled Dart Sass compiler is built for macOS (Intel) or Ubuntu Xenial (16.04) 64-bit.
-    /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerURL:timeout:importers:functions:)`
+    /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerURL:timeout:messageStyle:importers:functions:)`
     /// supplying the path of the correct Dart Sass compiler.
     ///
     /// Initialization continues asynchronously after the initializer completes; failures are reported
@@ -186,7 +187,7 @@ public final class Compiler {
         }
     }
 
-    /// Restart the Sass embedded compiler.
+    /// Restart the embedded Sass compiler.
     ///
     /// Normally a single instance of the compiler's process persists across all invocations to
     /// `compile(...)` on this `Compiler` instance.   This method stops the current
@@ -234,7 +235,7 @@ public final class Compiler {
         try eventLoopGroup.syncShutdownGracefully()
     }
 
-    /// The process ID of the compiler process.
+    /// The process ID of the embedded Sass compiler.
     ///
     /// Not normally needed; could be used to adjust resource usage or maybe send it a signal if stuck.
     /// The process ID is reported after waiting for any [re]initialization to complete; a value of `nil`
