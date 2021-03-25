@@ -19,7 +19,7 @@ shell_linux:
 # Failures here mean `brew install swift-protobuf` or suchlike is required
 protobuf:
 	protoc --version
-	protoc --swift_out=Sources/SassEmbedded --proto_path embedded-protocol embedded_sass.proto
+	protoc --swift_out=Sources/DartSass --proto_path embedded-protocol embedded_sass.proto
 
 # Update the local copies of dart-sass-embedded 
 # Only needed when there's a new release of the compiler to pick up

@@ -8,7 +8,7 @@
 
 import XCTest
 import NIO
-@testable import SassEmbedded
+@testable import DartSass
 
 ///
 /// Tests for compiler error decoding and transmission.

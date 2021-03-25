@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import SassEmbedded
+@testable import DartSass
 
 ///
 /// Tests for importers.

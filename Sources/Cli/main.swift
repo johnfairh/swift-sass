@@ -9,7 +9,7 @@
 // Shim wrapper around the dart sass compiler for large-scale testing.  This
 // doesn't add any value over using dart-sass!
 
-import SassEmbedded
+import DartSass
 import Foundation
 
 let args = ProcessInfo.processInfo.arguments

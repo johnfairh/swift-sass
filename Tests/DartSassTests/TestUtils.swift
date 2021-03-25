@@ -9,7 +9,7 @@
 import NIO
 import XCTest
 import Foundation
-@testable import SassEmbedded
+@testable import DartSass
 
 class SassEmbeddedTestCase: XCTestCase {
 

@@ -29,8 +29,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "swift-sass::SassEmbedded"
-               BuildableName = "SassEmbedded.framework"
-               BlueprintName = "SassEmbedded"
+               BuildableName = "DartSass.framework"
+               BlueprintName = "DartSass"
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -62,8 +62,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "swift-sass::SassEmbeddedTests"
-               BuildableName = "SassEmbeddedTests.xctest"
-               BlueprintName = "SassEmbeddedTests"
+               BuildableName = "DartSassTests.xctest"
+               BlueprintName = "DartSassTests"
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -90,8 +90,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "swift-sass::SassEmbedded"
-            BuildableName = "SassEmbedded.framework"
-            BlueprintName = "SassEmbedded"
+            BuildableName = "DartSass.framework"
+            BlueprintName = "DartSass"
             ReferencedContainer = "container:swift-sass.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

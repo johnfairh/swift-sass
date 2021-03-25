@@ -9,8 +9,8 @@ let package = Package(
     ],
     products: [
       .library(
-        name: "SassEmbedded",
-        targets: ["SassEmbedded"]),
+        name: "DartSass",
+        targets: ["DartSass"]),
       .executable(
         name: "ssassc",
         targets: ["Cli"]),
@@ -36,7 +36,7 @@ let package = Package(
     targets: [
       .target(name: "Sass"),
       .target(
-        name: "SassEmbedded",
+        name: "DartSass",
         dependencies: [
           .target(name: "Sass"),
           .target(name: "DartSassEmbeddedMacOS",
@@ -56,14 +56,14 @@ let package = Package(
         name: "DartSassEmbeddedLinux",
         resources: [.copy("sass_embedded")]),
       .testTarget(
-        name: "SassEmbeddedTests",
-        dependencies: ["SassEmbedded"],
+        name: "DartSassTests",
+        dependencies: ["DartSass"],
         exclude: ["dart-sass-embedded"]),
       .testTarget(
         name: "SassTests",
         dependencies: ["Sass"]),
       .target(
         name: "Cli",
-        dependencies: ["SassEmbedded"]),
+        dependencies: ["DartSass"]),
     ]
 )

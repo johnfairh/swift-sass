@@ -8,7 +8,7 @@
 
 import NIO
 import XCTest
-@testable import SassEmbedded
+@testable import DartSass
 
 extension Versions {
     init(protocolVersionString: String) {

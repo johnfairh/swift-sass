@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import SassEmbedded
+import DartSass
 
 ///
 /// Tests to check the normal operation of the sass compiler -- not testing the compiler itself,
