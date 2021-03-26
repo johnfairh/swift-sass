@@ -18,6 +18,18 @@ build_tool: spm
 modules:
   - Sass
   - DartSass
+  - LibSass
+build_tool_arguments:
+  - "-Xcc"
+  - "-I/Users/johnf/project/swift-sass"
+  - "-Xcc"
+  - "-I/Users/johnf/project/swift-sass/libsass4/include"
+  - "-Xlinker"
+  - "-L/Users/johnf/project/swift-sass/libsass4/lib"
+  - "-Xlinker"
+  - "-rpath"
+  - "-Xlinker"
+  - "/Users/johnf/project/swift-sass/libsass4/lib"
 docset_module_name: swift-sass
 title: Swift Sass v0.8.0
 module_version: 0.8.0
@@ -38,6 +50,7 @@ custom_groups:
       - name: Compiler
         children:
           - DartSass.Compiler
+          - LibSass.Compiler
       - name: Inputs
         children:
           - Syntax
@@ -59,6 +72,10 @@ custom_groups:
           - DartSass.ImporterResults
           - DartSass.FilesystemImporter
           - DartSass.ImportResolver
+      - name: LibSass
+        children:
+          - LibSass.ImporterResults
+          - LibSass.ImportResolver
 
   - name: Custom Functions
     children:
