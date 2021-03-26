@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="css/fw2020.css">
     
     
-   <title>Errors - Swift Sass v0.3.0</title>
+   <title>Dart Sass - Swift Sass v0.3.0</title>
     
   </head>
-  <body class="j2-swift " data-root-path="./" data-doc-path="errors.html" data-assets-path="">
+  <body class="j2-swift " data-root-path="./" data-doc-path="dart-sass.html" data-assets-path="">
 
   <!-- messages for search -->
   <div hidden>
@@ -93,8 +93,13 @@
       <li class="breadcrumb-item"><a href="index.html">Index</a></li>
       
         
+          <li class="breadcrumb-item"><a href="custom-importers.html?swift">Custom Importers</a></li>
         
-          <li class="breadcrumb-item" aria-current="page">Errors</li>
+        
+      
+        
+        
+          <li class="breadcrumb-item" aria-current="page">Dart Sass</li>
         
       
     </ol>
@@ -234,8 +239,8 @@
   
   <li>
     
+  <a class="j2-nav-item active" href="#" aria-current="page">Dart Sass</a>
 
-  <a class="j2-nav-item" href="dart-sass.html?swift">Dart Sass</a>
 
 
   <ul class="j2-nav-sublist">
@@ -485,8 +490,8 @@
       
       <li class="j2-nav-group">
         
-  <a class="j2-nav-item active" href="#" aria-current="page">Errors</a>
 
+  <a class="j2-nav-item" href="errors.html?swift">Errors</a>
 
 
   <ul class="j2-nav-sublist">
@@ -538,7 +543,7 @@
             <h1 class="j2-anchor">
               
               
-              <span>Errors</span>
+              <span>Dart Sass</span>
               
             </h1>
           </header>
@@ -546,7 +551,9 @@
           
           
           
-          <p>Types thrown as errors – see <a href="sass/types/compilererror.html?swift"><code>CompilerError</code></a> too.</p>
+          <p>Write a custom importer by implementing the <a href="dartsass/types/importer3.html?swift"><code>DartSass.Importer</code></a> protocol
+and passing an instance wrapped in a <a href="dartsass/types/importresolver1.html?swift"><code>DartSass.ImportResolver</code></a> to a
+<a href="dartsass/types/compiler.html?swift"><code>DartSass.Compiler</code></a>.</p>
         </section>
 
         
@@ -561,16 +568,16 @@
   
   
   
-    <section id="protocolerror" class="j2-item j2-swift j2-always">
-    <a name="//apple_ref/cpp/Struct/struct%20ProtocolError" class="dashAnchor j2-item-dash-anchor" data-item-id="protocolerror"></a>
-    <h4 class="sr-only">struct ProtocolError</h4>
+    <section id="importer3" class="j2-item j2-swift j2-always">
+    <a name="//apple_ref/cpp/Protocol/protocol%20Importer" class="dashAnchor j2-item-dash-anchor" data-item-id="importer3"></a>
+    <h4 class="sr-only">protocol Importer</h4>
     
     
-    <a class="j2-item-title" href="#_protocolerror" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_protocolerror"><code>
-        <span class="j2-swift j2-always"><span class="j2-item-secondary">struct </span>ProtocolError</span>
+    <a class="j2-item-title" href="#_importer3" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importer3"><code>
+        <span class="j2-swift j2-always"><span class="j2-item-secondary">protocol </span>Importer</span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_protocolerror">
+    <div class="collapse  j2-item-popopen-wrapper" id="_importer3">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -583,10 +590,55 @@
               
 
 
-<p>Thrown on detecting an error communicating with the Sass embedded compiler: for example a badly
-formed or out-of-sequence message.</p>
-<p>The payload is text describing the nature of the problem.  There is probably nothing that
-a user can do about this.</p>
+<p>Methods required to implement a stylesheet importer.</p>
+<p>Importers resolve <code>@import</code>, <code>@use</code>, and <code>@forward</code> rules in
+stylesheets.  The methods are called back by the compiler during compilation.  You
+don’t need this to include the contents of a filesystem directory: see instead
+<a href="dartsass/types/importresolver1.html?swift#loadpath_"><code>ImportResolver.loadPath(_:)</code></a>.</p>
+<p>You could use this to present network resources or dynamically constructed content.</p>
+<p>An import has two steps: canonicalization and loading.</p>
+<p><a href="dartsass/types/importer3.html?swift#canonicalizeeventloopruleurl"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
+text the user has written in their rule.  The routine interprets that and returns a <em>canonical</em>
+URL that is absolute with a scheme.</p>
+<p>The compiler most likely implements a cache based on canonical URLs.  If the compiler
+does not have a stylesheet cached for the canonical URL then it calls
+<a href="dartsass/types/importer3.html?swift#loadeventloopcanonicalurl"><code>Importer.load(...)</code></a> with that URL to get at the content.</p>
+<h3 class="j2-anchor j2-heading heading" id="file-extension-rules">
+<span data-anchor-id="file-extension-rules">
+File extension rules
+</span></h3>
+<p>Sass itself handles imports from the filesystem using various filename conventions.
+Users of your importer mostly likely expect the same behavior if the URLs you
+are importing resemble filenames with extensions and directories.</p>
+<p>From the Sass embedded protocol documentation:</p>
+<p>The importer should look for stylesheets by adding the prefix <code>_</code> to the
+URL’s basename, and by adding the extensions <code>.sass</code> and <code>.scss</code> if the
+URL doesn’t already have one of those extensions. For example, given the URL
+“foo/bar/baz” the importer should look for:</p>
+<ol>
+<li><code>foo/bar/baz.sass</code></li>
+<li><code>foo/bar/baz.scss</code></li>
+<li><code>foo/bar/_baz.sass</code></li>
+<li><code>foo/bar/_baz.scss</code></li>
+</ol>
+<p>Given the URL “foo/bar/baz.scss” the importer should look for:</p>
+<ol>
+<li><code>foo/bar/baz.scss</code></li>
+<li><code>foo/bar/_baz.scss</code></li>
+</ol>
+<p>If the importer finds a stylesheet at more than one of these URLs then it
+must throw an error indicating that the import is ambiguous.</p>
+<p>If none of the possible paths are valid then the importer should perform the
+same resolution on the URL followed by <code>/index</code>. In the example above, it
+should additionally look for:</p>
+<ol>
+<li><code>foo/bar/baz/_index.sass</code></li>
+<li><code>foo/bar/baz/index.sass</code></li>
+<li><code>foo/bar/baz/_index.scss</code></li>
+<li><code>foo/bar/baz/index.scss</code></li>
+</ol>
+<p>If more than one of these implicit index resources exist then the importer must
+throw an error indicating that the import is ambiguous.</p>
 
 
 
@@ -596,7 +648,7 @@ a user can do about this.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public struct ProtocolError: <a href="https://developer.apple.com/documentation/swift/error?language=swift">Error</a>, <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a></code></pre>
+    <pre><code class="language-swift">public protocol Importer</code></pre>
   </div>
 
 
@@ -612,13 +664,13 @@ a user can do about this.</p>
             
             <span class="j2-item-nav-item">
             
-              <span class="j2-swift j2-always"><a href="dartsass/types/protocolerror.html?swift">Show members</a></span>
+              <span class="j2-swift j2-always"><a href="dartsass/types/importer3.html?swift">Show members</a></span>
             
             
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Errors.swift#L16-L24">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L96-L125">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -630,16 +682,16 @@ a user can do about this.</p>
   
   
   
-    <section id="lifecycleerror" class="j2-item j2-swift j2-always">
-    <a name="//apple_ref/cpp/Struct/struct%20LifecycleError" class="dashAnchor j2-item-dash-anchor" data-item-id="lifecycleerror"></a>
-    <h4 class="sr-only">struct LifecycleError</h4>
+    <section id="importerresults" class="j2-item j2-swift j2-always">
+    <a name="//apple_ref/cpp/Struct/struct%20ImporterResults" class="dashAnchor j2-item-dash-anchor" data-item-id="importerresults"></a>
+    <h4 class="sr-only">struct ImporterResults</h4>
     
     
-    <a class="j2-item-title" href="#_lifecycleerror" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_lifecycleerror"><code>
-        <span class="j2-swift j2-always"><span class="j2-item-secondary">struct </span>LifecycleError</span>
+    <a class="j2-item-title" href="#_importerresults" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importerresults"><code>
+        <span class="j2-swift j2-always"><span class="j2-item-secondary">struct </span>ImporterResults</span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_lifecycleerror">
+    <div class="collapse  j2-item-popopen-wrapper" id="_importerresults">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -652,7 +704,7 @@ a user can do about this.</p>
               
 
 
-<p>Thrown on detecting a usage error of the <a href="dartsass/types/compiler.html?swift"><code>Compiler</code></a> API, for example trying to use it after shutdown.</p>
+<p>The results of loading a stylesheet through an importer.</p>
 
 
 
@@ -663,7 +715,7 @@ a user can do about this.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public struct LifecycleError: <a href="https://developer.apple.com/documentation/swift/error?language=swift">Error</a>, <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a></code></pre>
+    <pre><code class="language-swift">public struct ImporterResults</code></pre>
   </div>
 
 
@@ -679,13 +731,13 @@ a user can do about this.</p>
             
             <span class="j2-item-nav-item">
             
-              <span class="j2-swift j2-always"><a href="dartsass/types/lifecycleerror.html?swift">Show members</a></span>
+              <span class="j2-swift j2-always"><a href="dartsass/types/importerresults.html?swift">Show members</a></span>
             
             
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Errors.swift#L27-L35">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L13-L38">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -697,16 +749,16 @@ a user can do about this.</p>
   
   
   
-    <section id="sassfunctionerror" class="j2-item j2-swift j2-always">
-    <a name="//apple_ref/cpp/enum/enum%20SassFunctionError" class="dashAnchor j2-item-dash-anchor" data-item-id="sassfunctionerror"></a>
-    <h4 class="sr-only">enum SassFunctionError</h4>
+    <section id="importresolver1" class="j2-item j2-swift j2-always">
+    <a name="//apple_ref/cpp/enum/enum%20ImportResolver" class="dashAnchor j2-item-dash-anchor" data-item-id="importresolver1"></a>
+    <h4 class="sr-only">enum ImportResolver</h4>
     
     
-    <a class="j2-item-title" href="#_sassfunctionerror" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassfunctionerror"><code>
-        <span class="j2-swift j2-always"><span class="j2-item-secondary">enum </span>SassFunctionError</span>
+    <a class="j2-item-title" href="#_importresolver1" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importresolver1"><code>
+        <span class="j2-swift j2-always"><span class="j2-item-secondary">enum </span>ImportResolver</span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_sassfunctionerror">
+    <div class="collapse  j2-item-popopen-wrapper" id="_importresolver1">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -719,11 +771,8 @@ a user can do about this.</p>
               
 
 
-<p>Errors thrown for common <a href="custom-functions.html?swift#sassfunction"><code>SassFunction</code></a> scenarios.</p>
-<p>Generally these are thrown from your <a href="custom-functions.html?swift#sassfunction"><code>SassFunction</code></a>s by <a href="sass/types/sassvalue7.html?swift"><code>SassValue</code></a> family
-methods in response to error scenarios, for example a user passes a number where
-you expect a string, or a number in radians where you expected a length.  Then the
-compilation fails, giving the description of the error as the failure reason.</p>
+<p>How the Sass compiler should resolve <code>@import</code>, <code>@use</code>, and <code>@forward</code> rules.</p>
+
 
 
 
@@ -733,7 +782,7 @@ compilation fails, giving the description of the error as the failure reason.</p
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public enum SassFunctionError: <a href="https://developer.apple.com/documentation/swift/error?language=swift">Error</a>, <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a></code></pre>
+    <pre><code class="language-swift">public enum ImportResolver</code></pre>
   </div>
 
 
@@ -749,13 +798,13 @@ compilation fails, giving the description of the error as the failure reason.</p
             
             <span class="j2-item-nav-item">
             
-              <span class="j2-swift j2-always"><a href="sass/types/sassfunctionerror.html?swift">Show members</a></span>
+              <span class="j2-swift j2-always"><a href="dartsass/types/importresolver1.html?swift">Show members</a></span>
             
             
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/FunctionTypes.swift#L65-L116">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L128-L133">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -778,12 +827,12 @@ compilation fails, giving the description of the error as the failure reason.</p
         <nav aria-label="paging" class="j2-pagination pb-3 pt-2">
   <div id="pagination-prev" class="flex-fill">
   
-    <a class="j2-swift" href="sass/types/sassbool.html?swift" aria-keyshortcuts="p">
-  <span aria-hidden="true">&laquo; </span>SassBool
+    <a class="j2-swift" href="custom-importers.html?swift" aria-keyshortcuts="p">
+  <span aria-hidden="true">&laquo; </span>Custom Importers
 </a>
 
-    <a class="j2-objc j2-secondary" href="sass/types/sassbool.html?swift" aria-keyshortcuts="p">
-  <span aria-hidden="true">&laquo; </span>SassBool
+    <a class="j2-objc j2-secondary" href="custom-importers.html?swift" aria-keyshortcuts="p">
+  <span aria-hidden="true">&laquo; </span>Custom Importers
 </a>
 
   
@@ -791,12 +840,12 @@ compilation fails, giving the description of the error as the failure reason.</p
   </div>
   <div id="pagination-next" class="flex-fill text-right">
   
-    <a class="j2-swift" href="dartsass/types/protocolerror.html?swift" aria-keyshortcuts="n">
-  ProtocolError<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-swift" href="dartsass/types/importer3.html?swift" aria-keyshortcuts="n">
+  Importer<span aria-hidden="true"> &raquo;</span>
 </a>
 
-    <a class="j2-objc j2-secondary" href="dartsass/types/protocolerror.html?swift" aria-keyshortcuts="n">
-  ProtocolError<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-objc j2-secondary" href="dartsass/types/importer3.html?swift" aria-keyshortcuts="n">
+  Importer<span aria-hidden="true"> &raquo;</span>
 </a>
 
   

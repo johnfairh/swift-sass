@@ -126,7 +126,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/compiler.html?swift">Compiler</a>
+  <a class="j2-nav-item" href="../../dartsass/types/compiler.html?swift">Compiler</a>
 
 
 
@@ -145,15 +145,6 @@
     
 
   <a class="j2-nav-item" href="../../sass/types/cssstyle.html?swift">CssStyle</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
-  <a class="j2-nav-item" href="../../sass/types/importresolver.html?swift">ImportResolver</a>
 
 
 
@@ -249,7 +240,15 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/importer.html?swift">Importer</a>
+  <a class="j2-nav-item" href="../../dart-sass.html?swift">Dart Sass</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../dartsass/types/importer3.html?swift">Importer</a>
 
 
 
@@ -258,7 +257,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/importerresults.html?swift">ImporterResults</a>
+  <a class="j2-nav-item" href="../../dartsass/types/importerresults.html?swift">ImporterResults</a>
 
 
 
@@ -267,7 +266,13 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/asyncimporter.html?swift">AsyncImporter</a>
+  <a class="j2-nav-item" href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>
+
+
+
+  </li>
+  
+</ul>
 
 
 
@@ -444,7 +449,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
+  <a class="j2-nav-item" href="../../dartsass/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
 
 
 
@@ -494,7 +499,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/protocolerror.html?swift">ProtocolError</a>
+  <a class="j2-nav-item" href="../../dartsass/types/protocolerror.html?swift">ProtocolError</a>
 
 
 
@@ -503,7 +508,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/lifecycleerror.html?swift">LifecycleError</a>
+  <a class="j2-nav-item" href="../../dartsass/types/lifecycleerror.html?swift">LifecycleError</a>
 
 
 
@@ -584,6 +589,7 @@ so that “1 cm” == “10 mm”.</p>
             
 
 
+
           </div>
           
           
@@ -653,6 +659,7 @@ so that “1 cm” == “10 mm”.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -696,11 +703,6 @@ so that “1 cm” == “10 mm”.</p>
 <p>For example an acceleration:</p>
 <pre><code class="language-swift">let g = SassNumber(981, numeratorUnits: [&quot;cm&quot;], denominatorUnits: [&quot;s&quot;, &quot;s&quot;])
 </code></pre>
-<div class="j2-callout j2-callout-throws aside aside-throws">
-<div class="j2-callout-title aside-title" role="heading" aria-level="6">throws</div>
-<p><a href="../../sass/types/sassfunctionerror.html?swift#uncancelledunitsnumeratordenominator"><code>SassFunctionError.uncancelledUnits(...)</code></a> if units for the same dimension are listed in
-both <a href="../../sass/types/sassnumber.html?swift#numeratorunits"><code>numeratorUnits</code></a> and <a href="../../sass/types/sassnumber.html?swift#denominatorunits"><code>denominatorUnits</code></a>.</p>
-</div>
 
 
 
@@ -740,6 +742,11 @@ both <a href="../../sass/types/sassnumber.html?swift#numeratorunits"><code>numer
       
     </tbody>
   </table>
+
+
+  <h5>Throws</h5>
+  <p><a href="../../sass/types/sassfunctionerror.html?swift#uncancelledunitsnumeratordenominator"><code>SassFunctionError.uncancelledUnits(...)</code></a> if units for the same dimension are listed in
+both <a href="../../sass/types/sassnumber.html?swift#numeratorunits"><code>numeratorUnits</code></a> and <a href="../../sass/types/sassnumber.html?swift#denominatorunits"><code>denominatorUnits</code></a>.</p>
 
 
 
@@ -828,6 +835,7 @@ themselves, not the <code>double</code>s within.  Similarly, use the <a href="..
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -882,11 +890,6 @@ themselves, not the <code>double</code>s within.  Similarly, use the <a href="..
 <p>The integer value of this number.</p>
 <p>This has the same role as <a href="https://developer.apple.com/documentation/swift/int/2885075-init?language=swift" class="j2-swift"><code>Int.init(exactly:)</code></a> but maps more floating point values to
 the same integer according to Sass rules.</p>
-<div class="j2-callout j2-callout-throws aside aside-throws">
-<div class="j2-callout-title aside-title" role="heading" aria-level="6">throws</div>
-<p><a href="../../sass/types/sassfunctionerror.html?swift#notinteger_"><code>SassFunctionError.notInteger(...)</code></a> if the number is not an integer
-according to Sass’s rounding rules.</p>
-</div>
 
 
 
@@ -903,6 +906,11 @@ according to Sass’s rounding rules.</p>
 
             </div>
             
+
+  <h5>Throws</h5>
+  <p><a href="../../sass/types/sassfunctionerror.html?swift#notinteger_"><code>SassFunctionError.notInteger(...)</code></a> if the number is not an integer
+according to Sass’s rounding rules.</p>
+
 
   <h5>Return Value</h5>
   <p>The integer that this <a href="../../sass/types/sassnumber.html?swift"><code>SassNumber</code></a> exactly represents.</p>
@@ -949,11 +957,6 @@ according to Sass’s rounding rules.</p>
 
 <p>The value of this number within a closed range.</p>
 <p>If you have an integer range than do <a href="../../sass/types/sassnumber.html?swift#asint"><code>asInt()</code></a> first and work on that.</p>
-<div class="j2-callout j2-callout-throws aside aside-throws">
-<div class="j2-callout-title aside-title" role="heading" aria-level="6">throws</div>
-<p><a href="../../sass/types/sassfunctionerror.html?swift#notinrange__"><code>SassFunctionError.notInRange(...)</code></a> if the number is not in
-the range, using Sass’s rounding rules at the ends of the range.</p>
-</div>
 
 
 
@@ -970,6 +973,11 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
 
             </div>
             
+
+  <h5>Throws</h5>
+  <p><a href="../../sass/types/sassfunctionerror.html?swift#notinrange__"><code>SassFunctionError.notInRange(...)</code></a> if the number is not in
+the range, using Sass’s rounding rules at the ends of the range.</p>
+
 
   <h5>Return Value</h5>
   <p>The <a href="https://developer.apple.com/documentation/swift/double?language=swift" class="j2-swift"><code>Double</code></a> value corresponding to this <a href="../../sass/types/sassvalue7.html?swift"><code>SassValue</code></a> in <code>range</code>.</p>
@@ -1016,11 +1024,6 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
 
 <p>The value of this number within a half-open range.</p>
 <p>If you have an integer range than do <a href="../../sass/types/sassnumber.html?swift#asint"><code>asInt()</code></a> first and work on that.</p>
-<div class="j2-callout j2-callout-throws aside aside-throws">
-<div class="j2-callout-title aside-title" role="heading" aria-level="6">throws</div>
-<p><a href="../../sass/types/sassfunctionerror.html?swift#notinrange__"><code>SassFunctionError.notInRange(...)</code></a> if the number is not in
-the range, using Sass’s rounding rules at the ends of the range.</p>
-</div>
 
 
 
@@ -1037,6 +1040,11 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
 
             </div>
             
+
+  <h5>Throws</h5>
+  <p><a href="../../sass/types/sassfunctionerror.html?swift#notinrange__"><code>SassFunctionError.notInRange(...)</code></a> if the number is not in
+the range, using Sass’s rounding rules at the ends of the range.</p>
+
 
   <h5>Return Value</h5>
   <p>The <a href="https://developer.apple.com/documentation/swift/double?language=swift" class="j2-swift"><code>Double</code></a> value corresponding to this <a href="../../sass/types/sassvalue7.html?swift"><code>SassValue</code></a> in <code>range</code>.</p>
@@ -1113,6 +1121,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -1170,6 +1179,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
 
             </div>
             
+
 
 
           
@@ -1231,6 +1241,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -1288,6 +1299,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
 
             </div>
             
+
 
 
           
@@ -1349,6 +1361,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -1408,6 +1421,7 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -1451,11 +1465,6 @@ the range, using Sass’s rounding rules at the ends of the range.</p>
 <p>Only units described in the <a href="https://www.w3.org/TR/css-values-4/#intro">CSS spec</a> as ‘convertible’
 can be converted.</p>
 <p>A number without any units can be ‘converted’ to any set of units.</p>
-<div class="j2-callout j2-callout-throws aside aside-throws">
-<div class="j2-callout-title aside-title" role="heading" aria-level="6">throws</div>
-<p><a href="../../sass/types/sassfunctionerror.html?swift"><code>SassFunctionError</code></a> If the requested units are invalid, or if the number’s units
-are not convertible to the requested units.</p>
-</div>
 
 
 
@@ -1474,6 +1483,11 @@ are not convertible to the requested units.</p>
 
             </div>
             
+
+  <h5>Throws</h5>
+  <p><a href="../../sass/types/sassfunctionerror.html?swift"><code>SassFunctionError</code></a> If the requested units are invalid, or if the number’s units
+are not convertible to the requested units.</p>
+
 
 
           
@@ -1551,6 +1565,7 @@ that are equal to 10dp.</li>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -1608,6 +1623,7 @@ that are equal to 10dp.</li>
 
             </div>
             
+
 
 
           
@@ -1670,6 +1686,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -1727,6 +1744,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
 
             </div>
             
+
 
 
           
@@ -1839,7 +1857,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.2.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.3.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

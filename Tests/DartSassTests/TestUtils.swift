@@ -102,7 +102,7 @@ extension FileManager {
 
 /// An async importer that can be stopped in `load`.
 /// Accepts all `import` URLs and returns empty documents.
-final class HangingAsyncImporter: AsyncImporter {
+final class HangingAsyncImporter: Importer {
     func canonicalize(eventLoop: EventLoop, ruleURL: String) -> EventLoopFuture<URL?> {
         return eventLoop.makeSucceededFuture(URL(string: "custom://\(ruleURL)"))
     }

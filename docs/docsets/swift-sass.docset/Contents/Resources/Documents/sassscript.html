@@ -121,7 +121,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/compiler.html?swift">Compiler</a>
+  <a class="j2-nav-item" href="dartsass/types/compiler.html?swift">Compiler</a>
 
 
 
@@ -140,15 +140,6 @@
     
 
   <a class="j2-nav-item" href="sass/types/cssstyle.html?swift">CssStyle</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
-  <a class="j2-nav-item" href="sass/types/importresolver.html?swift">ImportResolver</a>
 
 
 
@@ -244,7 +235,15 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sass/types/importer.html?swift">Importer</a>
+  <a class="j2-nav-item" href="dart-sass.html?swift">Dart Sass</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="dartsass/types/importer3.html?swift">Importer</a>
 
 
 
@@ -253,7 +252,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sass/types/importerresults.html?swift">ImporterResults</a>
+  <a class="j2-nav-item" href="dartsass/types/importerresults.html?swift">ImporterResults</a>
 
 
 
@@ -262,7 +261,13 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/asyncimporter.html?swift">AsyncImporter</a>
+  <a class="j2-nav-item" href="dartsass/types/importresolver1.html?swift">ImportResolver</a>
+
+
+
+  </li>
+  
+</ul>
 
 
 
@@ -439,7 +444,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
+  <a class="j2-nav-item" href="dartsass/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
 
 
 
@@ -489,7 +494,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/protocolerror.html?swift">ProtocolError</a>
+  <a class="j2-nav-item" href="dartsass/types/protocolerror.html?swift">ProtocolError</a>
 
 
 
@@ -498,7 +503,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/lifecycleerror.html?swift">LifecycleError</a>
+  <a class="j2-nav-item" href="dartsass/types/lifecycleerror.html?swift">LifecycleError</a>
 
 
 
@@ -611,6 +616,7 @@ like <a href="sass/types/sasscolor.html?swift"><code>SassColor</code></a>.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -687,6 +693,7 @@ containing the string value, not a sequence of scalars.</p>
 
             </div>
             
+
 
 
           
@@ -767,6 +774,7 @@ so that “1 cm” == “10 mm”.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -839,6 +847,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -903,6 +912,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
 
             </div>
             
+
 
 
           
@@ -973,6 +983,7 @@ All Sass values can be treated as lists so much list-like behavior is available 
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -1040,6 +1051,7 @@ for each key-value pair in the map.  The pairs are in no particular order.</p>
 
             </div>
             
+
 
 
           
@@ -1123,6 +1135,7 @@ type is validate that it appears when you expect it to and pass it back to the c
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -1173,8 +1186,8 @@ type is validate that it appears when you expect it to and pass it back to the c
 <p>These are Sass functions, written in Swift, that are not declared up-front to the compiler when
 starting compilation.  Instead they are returned as <a href="sass/types/sassvalue7.html?swift"><code>SassValue</code></a>s from other <a href="custom-functions.html?swift#sassfunction"><code>SassFunction</code></a>s
 (that <em>were</em> declared up-front) so the compiler can call them later on.</p>
-<p>Use <a href="sassembedded/types/sassasyncdynamicfunction.html?swift"><code>SassAsyncDynamicFunction</code></a> instead if your function is blocking and you want to use it with
-<a href="sassembedded/types/compiler.html?swift"><code>SassEmbedded.Compiler</code></a> in asynchronous mode.</p>
+<p>Use <a href="dartsass/types/sassasyncdynamicfunction.html?swift"><code>SassAsyncDynamicFunction</code></a> instead if your function is blocking and you want to use it with
+<a href="dartsass/types/compiler.html?swift"><code>DartSass.Compiler</code></a> in asynchronous mode.</p>
 
 
 
@@ -1191,6 +1204,7 @@ starting compilation.  Instead they are returned as <a href="sass/types/sassvalu
 
             </div>
             
+
 
 
           
@@ -1260,19 +1274,20 @@ be asynchronous.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             <span class="j2-item-nav-item">
             
-              <span class="j2-swift j2-always"><a href="sassembedded/types/sassasyncdynamicfunction.html?swift">Show members</a></span>
+              <span class="j2-swift j2-always"><a href="dartsass/types/sassasyncdynamicfunction.html?swift">Show members</a></span>
             
             
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/AsyncCompilerTypes.swift#L49-L64">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/AsyncFunctionTypes.swift#L22-L37">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1336,6 +1351,7 @@ be asynchronous.</p>
 
             </div>
             
+
 
 
           
@@ -1404,6 +1420,7 @@ be asynchronous.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -1469,6 +1486,7 @@ instead.</p>
 
             </div>
             
+
 
 
           
@@ -1582,7 +1600,7 @@ instead.</p>
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.2.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.3.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

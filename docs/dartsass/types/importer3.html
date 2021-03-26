@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="../../css/fw2020.css">
     
     
-   <title>ImportResolver - Swift Sass v0.3.0</title>
+   <title>Importer - Swift Sass v0.3.0</title>
     
   </head>
-  <body class="j2-swift " data-root-path="./../../" data-doc-path="sass/types/importresolver.html" data-assets-path="../../">
+  <body class="j2-swift " data-root-path="./../../" data-doc-path="dartsass/types/importer3.html" data-assets-path="../../">
 
   <!-- messages for search -->
   <div hidden>
@@ -93,13 +93,18 @@
       <li class="breadcrumb-item"><a href="../../index.html">Index</a></li>
       
         
-          <li class="breadcrumb-item"><a href="../../sass-compilation.html?swift">Sass Compilation</a></li>
+          <li class="breadcrumb-item"><a href="../../custom-importers.html?swift">Custom Importers</a></li>
+        
+        
+      
+        
+          <li class="breadcrumb-item"><a href="../../dart-sass.html?swift">Dart Sass</a></li>
         
         
       
         
         
-          <li class="breadcrumb-item" aria-current="page">Sass.ImportResolver</li>
+          <li class="breadcrumb-item" aria-current="page">DartSass.Importer</li>
         
       
     </ol>
@@ -126,7 +131,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/compiler.html?swift">Compiler</a>
+  <a class="j2-nav-item" href="../../dartsass/types/compiler.html?swift">Compiler</a>
 
 
 
@@ -145,15 +150,6 @@
     
 
   <a class="j2-nav-item" href="../../sass/types/cssstyle.html?swift">CssStyle</a>
-
-
-
-  </li>
-  
-  <li>
-    
-  <a class="j2-nav-item active" href="#" aria-current="page">ImportResolver</a>
-
 
 
 
@@ -249,7 +245,15 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/importer.html?swift">Importer</a>
+  <a class="j2-nav-item" href="../../dart-sass.html?swift">Dart Sass</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+  <a class="j2-nav-item active" href="#" aria-current="page">Importer</a>
+
 
 
 
@@ -258,7 +262,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/importerresults.html?swift">ImporterResults</a>
+  <a class="j2-nav-item" href="../../dartsass/types/importerresults.html?swift">ImporterResults</a>
 
 
 
@@ -267,7 +271,13 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/asyncimporter.html?swift">AsyncImporter</a>
+  <a class="j2-nav-item" href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>
+
+
+
+  </li>
+  
+</ul>
 
 
 
@@ -444,7 +454,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
+  <a class="j2-nav-item" href="../../dartsass/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
 
 
 
@@ -494,7 +504,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/protocolerror.html?swift">ProtocolError</a>
+  <a class="j2-nav-item" href="../../dartsass/types/protocolerror.html?swift">ProtocolError</a>
 
 
 
@@ -503,7 +513,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/lifecycleerror.html?swift">LifecycleError</a>
+  <a class="j2-nav-item" href="../../dartsass/types/lifecycleerror.html?swift">LifecycleError</a>
 
 
 
@@ -538,7 +548,7 @@
             <h1 class="j2-anchor">
               
               
-              <span>ImportResolver</span>
+              <span>Importer</span>
               
             </h1>
           </header>
@@ -549,7 +559,7 @@
             
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public enum ImportResolver</code></pre>
+    <pre><code class="language-swift">public protocol Importer</code></pre>
   </div>
 
 
@@ -564,19 +574,67 @@
             
 
 
-<p>How the Sass compiler should resolve <code>@import</code>, <code>@use</code>, and <code>@forward</code> rules.</p>
-
+<p>Methods required to implement a stylesheet importer.</p>
+<p>Importers resolve <code>@import</code>, <code>@use</code>, and <code>@forward</code> rules in
+stylesheets.  The methods are called back by the compiler during compilation.  You
+don’t need this to include the contents of a filesystem directory: see instead
+<a href="../../dartsass/types/importresolver1.html?swift#loadpath_"><code>ImportResolver.loadPath(_:)</code></a>.</p>
+<p>You could use this to present network resources or dynamically constructed content.</p>
+<p>An import has two steps: canonicalization and loading.</p>
+<p><a href="../../dartsass/types/importer3.html?swift#canonicalizeeventloopruleurl"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
+text the user has written in their rule.  The routine interprets that and returns a <em>canonical</em>
+URL that is absolute with a scheme.</p>
+<p>The compiler most likely implements a cache based on canonical URLs.  If the compiler
+does not have a stylesheet cached for the canonical URL then it calls
+<a href="../../dartsass/types/importer3.html?swift#loadeventloopcanonicalurl"><code>Importer.load(...)</code></a> with that URL to get at the content.</p>
+<h3 class="j2-anchor j2-heading heading" id="file-extension-rules">
+<span data-anchor-id="file-extension-rules">
+File extension rules
+</span></h3>
+<p>Sass itself handles imports from the filesystem using various filename conventions.
+Users of your importer mostly likely expect the same behavior if the URLs you
+are importing resemble filenames with extensions and directories.</p>
+<p>From the Sass embedded protocol documentation:</p>
+<p>The importer should look for stylesheets by adding the prefix <code>_</code> to the
+URL’s basename, and by adding the extensions <code>.sass</code> and <code>.scss</code> if the
+URL doesn’t already have one of those extensions. For example, given the URL
+“foo/bar/baz” the importer should look for:</p>
+<ol>
+<li><code>foo/bar/baz.sass</code></li>
+<li><code>foo/bar/baz.scss</code></li>
+<li><code>foo/bar/_baz.sass</code></li>
+<li><code>foo/bar/_baz.scss</code></li>
+</ol>
+<p>Given the URL “foo/bar/baz.scss” the importer should look for:</p>
+<ol>
+<li><code>foo/bar/baz.scss</code></li>
+<li><code>foo/bar/_baz.scss</code></li>
+</ol>
+<p>If the importer finds a stylesheet at more than one of these URLs then it
+must throw an error indicating that the import is ambiguous.</p>
+<p>If none of the possible paths are valid then the importer should perform the
+same resolution on the URL followed by <code>/index</code>. In the example above, it
+should additionally look for:</p>
+<ol>
+<li><code>foo/bar/baz/_index.sass</code></li>
+<li><code>foo/bar/baz/index.sass</code></li>
+<li><code>foo/bar/baz/_index.scss</code></li>
+<li><code>foo/bar/baz/index.scss</code></li>
+</ol>
+<p>If more than one of these implicit index resources exist then the importer must
+throw an error indicating that the import is ambiguous.</p>
 
 
 
             
 
 
+
           </div>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/ImporterTypes.swift#L132-L138">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L96-L125">Show on GitHub</a>
           </nav>
           
           
@@ -594,16 +652,16 @@
   
   
   
-    <section id="loadpath_" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Case/case%20loadPath(URL)" class="dashAnchor j2-item-dash-anchor" data-item-id="loadpath_"></a>
-    <h4 class="sr-only">case loadPath(URL)</h4>
+    <section id="canonicalizeeventloopruleurl" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20canonicalize(eventLoop%3A%20EventLoop,%20ruleURL%3A%20String)%20-%3E%20EventLoopFuture%3CURL%3F%3E" class="dashAnchor j2-item-dash-anchor" data-item-id="canonicalizeeventloopruleurl"></a>
+    <h4 class="sr-only">func canonicalize(eventLoop: EventLoop, ruleURL: String) -&gt; EventLoopFuture&lt;URL?&gt;</h4>
     
     
-    <a class="j2-item-title" href="#_loadpath_" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_loadpath_"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">case </span>loadPath<span class="j2-item-secondary">(URL)</span></span>
+    <a class="j2-item-title" href="#_canonicalizeeventloopruleurl" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_canonicalizeeventloopruleurl"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>canonicalize<span class="j2-item-secondary">(</span>eventLoop<span class="j2-item-secondary">: EventLoop, </span>ruleURL<span class="j2-item-secondary">: String) -&gt; EventLoopFuture&lt;URL?&gt;</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_loadpath_">
+    <div class="collapse  j2-item-popopen-wrapper" id="_canonicalizeeventloopruleurl">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -616,8 +674,10 @@
               
 
 
-<p>Search a filesystem directory to resolve the rule.  See <a href="https://sass-lang.com/documentation/at-rules/import#load-paths">the Sass docs</a>.</p>
-
+<p>Convert an imported URL to its canonical format.</p>
+<p>The returned URL must be absolute and include a scheme.  If the routine
+happens to be called with a resource’s canonical URL (including something
+the routine previously returned) then it must be returned unchanged.</p>
 
 
 
@@ -627,13 +687,45 @@
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">case loadPath(<a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>)</code></pre>
+    <pre><code class="language-swift">func canonicalize(eventLoop: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Protocols/EventLoop.html">EventLoop</a>, ruleURL: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>) -&gt; <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;
+    <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?
+&gt;</code></pre>
   </div>
 
 
 
             </div>
             
+  <h5>Parameters</h5>
+  <table class="j2-param-table">
+    <tbody>
+      
+      <tr>
+        <td><code>eventLoop</code></td>
+        <td><p>The current event loop.</p></td>
+      </tr>
+      
+      <tr>
+        <td><code>ruleURL</code></td>
+        <td><p>The text following <code>@import</code> or <code>@use</code> in
+a stylesheet.</p></td>
+      </tr>
+      
+    </tbody>
+  </table>
+
+
+  <h5>Throws</h5>
+  <p>Only when <code>importURL</code> cannot be canonicalized: it is definitely
+this importer’s responsibility to do so, but it can’t.  For example, if the request is
+“foo” but both <code>foo.sass</code> and <code>foo.css</code> are available.  If “foo” didn’t match
+anything then the importer should return <code>nil</code> instead.</p>
+<p>Compilation will stop, quoting the description of the error thrown as the reason.</p>
+
+
+  <h5>Return Value</h5>
+  <p>The canonical absolute URL, or <code>nil</code> if the importer doesn’t recognize the
+import request to have the compiler try the next importer.</p>
 
 
           
@@ -641,7 +733,7 @@
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/ImporterTypes.swift#L134">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L114">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -653,16 +745,16 @@
   
   
   
-    <section id="importer_" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Case/case%20importer(Importer)" class="dashAnchor j2-item-dash-anchor" data-item-id="importer_"></a>
-    <h4 class="sr-only">case importer(Importer)</h4>
+    <section id="loadeventloopcanonicalurl" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20load(eventLoop%3A%20EventLoop,%20canonicalURL%3A%20URL)%20-%3E%20EventLoopFuture%3CImporterResults%3E" class="dashAnchor j2-item-dash-anchor" data-item-id="loadeventloopcanonicalurl"></a>
+    <h4 class="sr-only">func load(eventLoop: EventLoop, canonicalURL: URL) -&gt; EventLoopFuture&lt;ImporterResults&gt;</h4>
     
     
-    <a class="j2-item-title" href="#_importer_" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importer_"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">case </span>importer<span class="j2-item-secondary">(Importer)</span></span>
+    <a class="j2-item-title" href="#_loadeventloopcanonicalurl" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_loadeventloopcanonicalurl"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>load<span class="j2-item-secondary">(</span>eventLoop<span class="j2-item-secondary">: EventLoop, </span>canonicalURL<span class="j2-item-secondary">: URL) -&gt; EventLoopFuture&lt;ImporterResults&gt;</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_importer_">
+    <div class="collapse  j2-item-popopen-wrapper" id="_loadeventloopcanonicalurl">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -675,8 +767,7 @@
               
 
 
-<p>Call back through the <a href="../../sass/types/importer.html?swift"><code>Importer</code></a> to resolve the rule.  This can be an <a href="../../sassembedded/types/asyncimporter.html?swift"><code>AsyncImporter</code></a> if
-the compiler implementation accepts asynchronous importers.</p>
+<p>Load a stylesheet from a canonical URL</p>
 
 
 
@@ -687,13 +778,41 @@ the compiler implementation accepts asynchronous importers.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">case importer(<a href="../../sass/types/importer.html?swift">Importer</a>)</code></pre>
+    <pre><code class="language-swift">func load(eventLoop: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Protocols/EventLoop.html">EventLoop</a>, canonicalURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>) -&gt; <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;
+    <a href="../../dartsass/types/importerresults.html?swift">ImporterResults</a>
+&gt;</code></pre>
   </div>
 
 
 
             </div>
             
+  <h5>Parameters</h5>
+  <table class="j2-param-table">
+    <tbody>
+      
+      <tr>
+        <td><code>eventLoop</code></td>
+        <td><p>The current event loop.</p></td>
+      </tr>
+      
+      <tr>
+        <td><code>canonicalURL</code></td>
+        <td><p>A URL previously returned by
+<a href="../../dartsass/types/importer3.html?swift#canonicalizeeventloopruleurl"><code>canonicalize(...)</code></a> during this compilation.</p></td>
+      </tr>
+      
+    </tbody>
+  </table>
+
+
+  <h5>Throws</h5>
+  <p>If the stylesheet cannot be loaded.  Compilation will stop, quoting
+the description of this error as the reason.</p>
+
+
+  <h5>Return Value</h5>
+  <p>The stylesheet and optional source map.</p>
 
 
           
@@ -701,7 +820,7 @@ the compiler implementation accepts asynchronous importers.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/ImporterTypes.swift#L137">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L124">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -724,12 +843,12 @@ the compiler implementation accepts asynchronous importers.</p>
         <nav aria-label="paging" class="j2-pagination pb-3 pt-2">
   <div id="pagination-prev" class="flex-fill">
   
-    <a class="j2-swift" href="../../sass/types/cssstyle.html?swift" aria-keyshortcuts="p">
-  <span aria-hidden="true">&laquo; </span>CssStyle
+    <a class="j2-swift" href="../../dart-sass.html?swift" aria-keyshortcuts="p">
+  <span aria-hidden="true">&laquo; </span>Dart Sass
 </a>
 
-    <a class="j2-objc j2-secondary" href="../../sass/types/cssstyle.html?swift" aria-keyshortcuts="p">
-  <span aria-hidden="true">&laquo; </span>CssStyle
+    <a class="j2-objc j2-secondary" href="../../dart-sass.html?swift" aria-keyshortcuts="p">
+  <span aria-hidden="true">&laquo; </span>Dart Sass
 </a>
 
   
@@ -737,12 +856,12 @@ the compiler implementation accepts asynchronous importers.</p>
   </div>
   <div id="pagination-next" class="flex-fill text-right">
   
-    <a class="j2-swift" href="../../sass/types/compilermessagestyle.html?swift" aria-keyshortcuts="n">
-  CompilerMessageStyle<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-swift" href="../../dartsass/types/importerresults.html?swift" aria-keyshortcuts="n">
+  ImporterResults<span aria-hidden="true"> &raquo;</span>
 </a>
 
-    <a class="j2-objc j2-secondary" href="../../sass/types/compilermessagestyle.html?swift" aria-keyshortcuts="n">
-  CompilerMessageStyle<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-objc j2-secondary" href="../../dartsass/types/importerresults.html?swift" aria-keyshortcuts="n">
+  ImporterResults<span aria-hidden="true"> &raquo;</span>
 </a>
 
   
@@ -796,7 +915,7 @@ the compiler implementation accepts asynchronous importers.</p>
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.2.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.3.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

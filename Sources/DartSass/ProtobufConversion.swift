@@ -119,7 +119,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OutputStyle {
 }
 
 extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer {
-    init(_ importer: AsyncImportResolver, id: UInt32) {
+    init(_ importer: ImportResolver, id: UInt32) {
         self.init()
         switch importer {
         case .loadPath(let url):
@@ -132,7 +132,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer {
 }
 
 extension Array where Element == Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer {
-    init(_ importers: [AsyncImportResolver], startingID: UInt32) {
+    init(_ importers: [ImportResolver], startingID: UInt32) {
         self = importers.enumerated().map {
             .init($0.1, id: UInt32($0.0) + startingID)
         }

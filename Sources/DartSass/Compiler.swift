@@ -17,7 +17,7 @@ import Logging
 // CompilerWork -- Sass stuff, protocol, job management
 // CompilerRequest -- job state, many, managed by CompilerWork
 
-/// The Dart Sass compiler running as an embedded child process.
+/// A Sass compiler that uses Dart Sass as an embedded child process.
 ///
 /// The Dart Sass compiler is bundled with this package for macOS and Ubuntu 64-bit Linux.
 /// For other platforms you need to supply this separately, see
@@ -27,6 +27,15 @@ import Logging
 ///
 /// You must shut down the compiler using `shutdownGracefully(...)`
 /// or `syncShutdownGracefully()` otherwise the program will exit.
+///
+/// ## Custom importer resolution
+///
+/// Dart Sass uses a different algorithm to LibSass for processing imports. Each stylesheet is associated
+/// with the importer that loaded it -- this may be an internal or hidden filesystem importer.  Import resolution
+/// then goes:
+/// * Consult the stylesheet's associated importer.
+/// * Consult every `DartSass.ImportResolver` given to the compiler, first the global list then the
+///   per-compilation list, in order within each list.
 public final class Compiler {
     private let eventLoopGroup: ProvidedEventLoopGroup
 
@@ -176,7 +185,7 @@ public final class Compiler {
                             resetRequest: { [unowned self] in handle(error: $0) },
                             timeout: timeout,
                             messageStyle: messageStyle,
-                            importers: .init(importers),
+                            importers: importers,
                             functions: functions)
         state.toInitializing(startCompiler())
     }
@@ -349,20 +358,19 @@ public final class Compiler {
                              functions: SassAsyncFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
         eventLoop.flatSubmit { [self] in
             defer { kickPendingCompilations() }
-            let asyncImporter = importer.flatMap { AsyncImportResolver($0) }
             return work.addPendingCompilation(
                 input: .string(.with { m in
                     m.source = string
                     m.syntax = .init(syntax)
                     url.flatMap { m.url = $0.absoluteString }
-                    asyncImporter.flatMap {
+                    importer.flatMap {
                         m.importer = .init($0, id: CompilationRequest.baseImporterID)
                     }
                 }),
                 outputStyle: outputStyle,
                 createSourceMap: createSourceMap,
-                importers: .init(importers),
-                stringImporter: asyncImporter,
+                importers: importers,
+                stringImporter: importer,
                 functions: functions)
         }
     }

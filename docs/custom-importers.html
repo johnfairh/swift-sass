@@ -121,7 +121,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/compiler.html?swift">Compiler</a>
+  <a class="j2-nav-item" href="dartsass/types/compiler.html?swift">Compiler</a>
 
 
 
@@ -140,15 +140,6 @@
     
 
   <a class="j2-nav-item" href="sass/types/cssstyle.html?swift">CssStyle</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
-  <a class="j2-nav-item" href="sass/types/importresolver.html?swift">ImportResolver</a>
 
 
 
@@ -244,7 +235,15 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sass/types/importer.html?swift">Importer</a>
+  <a class="j2-nav-item" href="dart-sass.html?swift">Dart Sass</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="dartsass/types/importer3.html?swift">Importer</a>
 
 
 
@@ -253,7 +252,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sass/types/importerresults.html?swift">ImporterResults</a>
+  <a class="j2-nav-item" href="dartsass/types/importerresults.html?swift">ImporterResults</a>
 
 
 
@@ -262,7 +261,13 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/asyncimporter.html?swift">AsyncImporter</a>
+  <a class="j2-nav-item" href="dartsass/types/importresolver1.html?swift">ImportResolver</a>
+
+
+
+  </li>
+  
+</ul>
 
 
 
@@ -439,7 +444,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
+  <a class="j2-nav-item" href="dartsass/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
 
 
 
@@ -489,7 +494,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/protocolerror.html?swift">ProtocolError</a>
+  <a class="j2-nav-item" href="dartsass/types/protocolerror.html?swift">ProtocolError</a>
 
 
 
@@ -498,7 +503,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/lifecycleerror.html?swift">LifecycleError</a>
+  <a class="j2-nav-item" href="dartsass/types/lifecycleerror.html?swift">LifecycleError</a>
 
 
 
@@ -541,266 +546,27 @@
           
           
           
-          <p>Write a custom importer by implementing one of the <a href="sass/types/importer.html?swift"><code>Importer</code></a> protocols and
-passing an instance wrapped in an <a href="sass/types/importresolver.html?swift"><code>ImportResolver</code></a> to the compiler.  A
-custom importer can be scoped either to an individual compilation or
-to all a compiler’s compilations.</p>
+          <p>Custom importers let you customize how <code>@import</code> and <code>@use</code> work.  The details
+are slightly different across the Sass implementations.  A custom importer can
+be scoped either to an individual compilation or to all a compiler’s
+compilations.</p>
         </section>
 
         
-<div class="j2-swift j2-always">
+<div class=" j2-always">
 <hr/>
 <section>
   <h1 class="sr-only">Topics</h1>
   
-  <section class="j2-swift j2-always">
+  <section class=" j2-always">
   
   
   
   
-  
-    <section id="importer" class="j2-item j2-swift j2-always">
-    <a name="//apple_ref/cpp/Protocol/protocol%20Importer" class="dashAnchor j2-item-dash-anchor" data-item-id="importer"></a>
-    <h4 class="sr-only">protocol Importer</h4>
-    
-    
-    <a class="j2-item-title" href="#_importer" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importer"><code>
-        <span class="j2-swift j2-always"><span class="j2-item-secondary">protocol </span>Importer</span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_importer">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>Methods required to implement a stylesheet importer.</p>
-<p>Importers resolve <code>@import</code>, <code>@use</code>, and <code>@forward</code> rules in
-stylesheets.  The methods are called back by the compiler during compilation.  You
-don’t need this to include the contents of a filesystem directory: see instead
-<a href="sass/types/importresolver.html?swift#loadpath_"><code>ImportResolver.loadPath(_:)</code></a>.</p>
-<p>You could use this to present network resources or dynamically constructed content.</p>
-<p>An import has two steps: canonicalization and loading.</p>
-<p><a href="sass/types/importer.html?swift#canonicalizeimporturl"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
-text the user has written in their rule.  The routine interprets that and returns a <em>canonical</em>
-URL that is absolute with a scheme.</p>
-<p>The compiler most likely implements a cache based on canonical URLs.  If the compiler
-does not have a stylesheet cached for the canonical URL then it calls
-<a href="sass/types/importer.html?swift#loadcanonicalurl"><code>Importer.load(...)</code></a> with that URL to get at the content.</p>
-<h3 class="j2-anchor j2-heading heading" id="file-extension-rules">
-<span data-anchor-id="file-extension-rules">
-File extension rules
-</span></h3>
-<p>Sass itself handles imports from the filesystem using various filename conventions.
-Users of your importer mostly likely expect the same behavior if the URLs you
-are importing resemble filenames with extensions and directories.</p>
-<p>From the Sass embedded protocol documentation:</p>
-<p>The importer should look for stylesheets by adding the prefix <code>_</code> to the
-URL’s basename, and by adding the extensions <code>.sass</code> and <code>.scss</code> if the
-URL doesn’t already have one of those extensions. For example, given the URL
-“foo/bar/baz” the importer should look for:</p>
-<ol>
-<li><code>foo/bar/baz.sass</code></li>
-<li><code>foo/bar/baz.scss</code></li>
-<li><code>foo/bar/_baz.sass</code></li>
-<li><code>foo/bar/_baz.scss</code></li>
-</ol>
-<p>Given the URL “foo/bar/baz.scss” the importer should look for:</p>
-<ol>
-<li><code>foo/bar/baz.scss</code></li>
-<li><code>foo/bar/_baz.scss</code></li>
-</ol>
-<p>If the importer finds a stylesheet at more than one of these URLs then it
-must throw an error indicating that the import is ambiguous.</p>
-<p>If none of the possible paths are valid then the importer should perform the
-same resolution on the URL followed by <code>/index</code>. In the example above, it
-should additionally look for:</p>
-<ol>
-<li><code>foo/bar/baz/_index.sass</code></li>
-<li><code>foo/bar/baz/index.sass</code></li>
-<li><code>foo/bar/baz/_index.scss</code></li>
-<li><code>foo/bar/baz/index.scss</code></li>
-</ol>
-<p>If more than one of these implicit index resources exist then the importer must
-throw an error indicating that the import is ambiguous.</p>
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift j2-always">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public protocol Importer</code></pre>
+  <div class="j2-item" id="dart-sass">
+    <a class="j2-item-title" href="dart-sass.html?swift">Dart Sass</a>
   </div>
-
-
-
-            </div>
-            
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            <span class="j2-item-nav-item">
-            
-              <span class="j2-swift j2-always"><a href="sass/types/importer.html?swift">Show members</a></span>
-            
-            
-            </span>
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/ImporterTypes.swift#L74-L101">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      <div>
-    </div>
-    
-  </section>
   
-  
-  
-  
-    <section id="importerresults" class="j2-item j2-swift j2-always">
-    <a name="//apple_ref/cpp/Struct/struct%20ImporterResults" class="dashAnchor j2-item-dash-anchor" data-item-id="importerresults"></a>
-    <h4 class="sr-only">struct ImporterResults</h4>
-    
-    
-    <a class="j2-item-title" href="#_importerresults" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importerresults"><code>
-        <span class="j2-swift j2-always"><span class="j2-item-secondary">struct </span>ImporterResults</span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_importerresults">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>The results of loading a stylesheet through an importer.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift j2-always">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public struct ImporterResults</code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            <span class="j2-item-nav-item">
-            
-              <span class="j2-swift j2-always"><a href="sass/types/importerresults.html?swift">Show members</a></span>
-            
-            
-            </span>
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/ImporterTypes.swift#L104-L129">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      <div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="asyncimporter" class="j2-item j2-swift j2-always">
-    <a name="//apple_ref/cpp/Protocol/protocol%20AsyncImporter" class="dashAnchor j2-item-dash-anchor" data-item-id="asyncimporter"></a>
-    <h4 class="sr-only">protocol AsyncImporter</h4>
-    
-    
-    <a class="j2-item-title" href="#_asyncimporter" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_asyncimporter"><code>
-        <span class="j2-swift j2-always"><span class="j2-item-secondary">protocol </span>AsyncImporter</span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_asyncimporter">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>A version of the <a href="sass/types/importer.html?swift"><code>Importer</code></a> protocol that allows async behavior.</p>
-<p>You can use a straight <a href="sass/types/importer.html?swift"><code>Importer</code></a> with <a href="sassembedded/types/compiler.html?swift"><code>SassEmbedded.Compiler</code></a> only if the method implementations
-are synchronous and non-blocking.  If they need to block or go async then use this protocol instead.</p>
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift j2-always">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public protocol AsyncImporter: <a href="sass/types/importer.html?swift">Importer</a></code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            <span class="j2-item-nav-item">
-            
-              <span class="j2-swift j2-always"><a href="sassembedded/types/asyncimporter.html?swift">Show members</a></span>
-            
-            
-            </span>
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/AsyncCompilerTypes.swift#L17-L23">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      <div>
-    </div>
-    
-  </section>
   
   
 </section>
@@ -829,12 +595,12 @@ are synchronous and non-blocking.  If they need to block or go async then use th
   </div>
   <div id="pagination-next" class="flex-fill text-right">
   
-    <a class="j2-swift" href="sass/types/importer.html?swift" aria-keyshortcuts="n">
-  Importer<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-swift" href="dart-sass.html?swift" aria-keyshortcuts="n">
+  Dart Sass<span aria-hidden="true"> &raquo;</span>
 </a>
 
-    <a class="j2-objc j2-secondary" href="sass/types/importer.html?swift" aria-keyshortcuts="n">
-  Importer<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-objc j2-secondary" href="dart-sass.html?swift" aria-keyshortcuts="n">
+  Dart Sass<span aria-hidden="true"> &raquo;</span>
 </a>
 
   
@@ -877,7 +643,7 @@ are synchronous and non-blocking.  If they need to block or go async then use th
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.2.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.3.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="../../css/fw2020.css">
     
     
-   <title>LifecycleError - Swift Sass v0.3.0</title>
+   <title>ProtocolError - Swift Sass v0.3.0</title>
     
   </head>
-  <body class="j2-swift " data-root-path="./../../" data-doc-path="sassembedded/types/lifecycleerror.html" data-assets-path="../../">
+  <body class="j2-swift " data-root-path="./../../" data-doc-path="dartsass/types/protocolerror.html" data-assets-path="../../">
 
   <!-- messages for search -->
   <div hidden>
@@ -99,7 +99,7 @@
       
         
         
-          <li class="breadcrumb-item" aria-current="page">SassEmbedded.LifecycleError</li>
+          <li class="breadcrumb-item" aria-current="page">DartSass.ProtocolError</li>
         
       
     </ol>
@@ -126,7 +126,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/compiler.html?swift">Compiler</a>
+  <a class="j2-nav-item" href="../../dartsass/types/compiler.html?swift">Compiler</a>
 
 
 
@@ -145,15 +145,6 @@
     
 
   <a class="j2-nav-item" href="../../sass/types/cssstyle.html?swift">CssStyle</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
-  <a class="j2-nav-item" href="../../sass/types/importresolver.html?swift">ImportResolver</a>
 
 
 
@@ -249,7 +240,15 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/importer.html?swift">Importer</a>
+  <a class="j2-nav-item" href="../../dart-sass.html?swift">Dart Sass</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../dartsass/types/importer3.html?swift">Importer</a>
 
 
 
@@ -258,7 +257,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/importerresults.html?swift">ImporterResults</a>
+  <a class="j2-nav-item" href="../../dartsass/types/importerresults.html?swift">ImporterResults</a>
 
 
 
@@ -267,7 +266,13 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/asyncimporter.html?swift">AsyncImporter</a>
+  <a class="j2-nav-item" href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>
+
+
+
+  </li>
+  
+</ul>
 
 
 
@@ -444,7 +449,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
+  <a class="j2-nav-item" href="../../dartsass/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
 
 
 
@@ -493,8 +498,8 @@
   
   <li>
     
+  <a class="j2-nav-item active" href="#" aria-current="page">ProtocolError</a>
 
-  <a class="j2-nav-item" href="../../sassembedded/types/protocolerror.html?swift">ProtocolError</a>
 
 
 
@@ -502,8 +507,8 @@
   
   <li>
     
-  <a class="j2-nav-item active" href="#" aria-current="page">LifecycleError</a>
 
+  <a class="j2-nav-item" href="../../dartsass/types/lifecycleerror.html?swift">LifecycleError</a>
 
 
 
@@ -538,7 +543,7 @@
             <h1 class="j2-anchor">
               
               
-              <span>LifecycleError</span>
+              <span>ProtocolError</span>
               
             </h1>
           </header>
@@ -549,7 +554,7 @@
             
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public struct LifecycleError: <a href="https://developer.apple.com/documentation/swift/error?language=swift">Error</a>, <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a></code></pre>
+    <pre><code class="language-swift">public struct ProtocolError: <a href="https://developer.apple.com/documentation/swift/error?language=swift">Error</a>, <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a></code></pre>
   </div>
 
 
@@ -564,19 +569,22 @@
             
 
 
-<p>Thrown on detecting a usage error of the <a href="../../sassembedded/types/compiler.html?swift"><code>Compiler</code></a> API, for example trying to use it after shutdown.</p>
-
+<p>Thrown on detecting an error communicating with the Sass embedded compiler: for example a badly
+formed or out-of-sequence message.</p>
+<p>The payload is text describing the nature of the problem.  There is probably nothing that
+a user can do about this.</p>
 
 
 
             
 
 
+
           </div>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Errors.swift#L27-L35">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Errors.swift#L16-L24">Show on GitHub</a>
           </nav>
           
           
@@ -594,16 +602,16 @@
   
   
   
-    <section id="description21" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20description%3A%20String" class="dashAnchor j2-item-dash-anchor" data-item-id="description21"></a>
+    <section id="description20" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20description%3A%20String" class="dashAnchor j2-item-dash-anchor" data-item-id="description20"></a>
     <h4 class="sr-only">var description: String</h4>
     
     
-    <a class="j2-item-title" href="#_description21" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description21"><code>
+    <a class="j2-item-title" href="#_description20" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description20"><code>
         <span class="j2-swift"><span class="j2-item-secondary">var </span>description<span class="j2-item-secondary">: String</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_description21">
+    <div class="collapse  j2-item-popopen-wrapper" id="_description20">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -616,7 +624,7 @@
               
 
 
-<p>Text explaining the lifecycle error.</p>
+<p>Text explaining the protocol error.</p>
 
 
 
@@ -636,12 +644,13 @@
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Errors.swift#L29">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Errors.swift#L18">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -664,12 +673,12 @@
         <nav aria-label="paging" class="j2-pagination pb-3 pt-2">
   <div id="pagination-prev" class="flex-fill">
   
-    <a class="j2-swift" href="../../sassembedded/types/protocolerror.html?swift" aria-keyshortcuts="p">
-  <span aria-hidden="true">&laquo; </span>ProtocolError
+    <a class="j2-swift" href="../../errors.html?swift" aria-keyshortcuts="p">
+  <span aria-hidden="true">&laquo; </span>Errors
 </a>
 
-    <a class="j2-objc j2-secondary" href="../../sassembedded/types/protocolerror.html?swift" aria-keyshortcuts="p">
-  <span aria-hidden="true">&laquo; </span>ProtocolError
+    <a class="j2-objc j2-secondary" href="../../errors.html?swift" aria-keyshortcuts="p">
+  <span aria-hidden="true">&laquo; </span>Errors
 </a>
 
   
@@ -677,12 +686,12 @@
   </div>
   <div id="pagination-next" class="flex-fill text-right">
   
-    <a class="j2-swift" href="../../sass/types/sassfunctionerror.html?swift" aria-keyshortcuts="n">
-  SassFunctionError<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-swift" href="../../dartsass/types/lifecycleerror.html?swift" aria-keyshortcuts="n">
+  LifecycleError<span aria-hidden="true"> &raquo;</span>
 </a>
 
-    <a class="j2-objc j2-secondary" href="../../sass/types/sassfunctionerror.html?swift" aria-keyshortcuts="n">
-  SassFunctionError<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-objc j2-secondary" href="../../dartsass/types/lifecycleerror.html?swift" aria-keyshortcuts="n">
+  LifecycleError<span aria-hidden="true"> &raquo;</span>
 </a>
 
   
@@ -736,7 +745,7 @@
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.2.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.3.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

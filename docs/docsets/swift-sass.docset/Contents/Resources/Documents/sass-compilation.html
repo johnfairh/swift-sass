@@ -121,7 +121,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/compiler.html?swift">Compiler</a>
+  <a class="j2-nav-item" href="dartsass/types/compiler.html?swift">Compiler</a>
 
 
 
@@ -140,15 +140,6 @@
     
 
   <a class="j2-nav-item" href="sass/types/cssstyle.html?swift">CssStyle</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
-  <a class="j2-nav-item" href="sass/types/importresolver.html?swift">ImportResolver</a>
 
 
 
@@ -244,7 +235,15 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sass/types/importer.html?swift">Importer</a>
+  <a class="j2-nav-item" href="dart-sass.html?swift">Dart Sass</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="dartsass/types/importer3.html?swift">Importer</a>
 
 
 
@@ -253,7 +252,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sass/types/importerresults.html?swift">ImporterResults</a>
+  <a class="j2-nav-item" href="dartsass/types/importerresults.html?swift">ImporterResults</a>
 
 
 
@@ -262,7 +261,13 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/asyncimporter.html?swift">AsyncImporter</a>
+  <a class="j2-nav-item" href="dartsass/types/importresolver1.html?swift">ImportResolver</a>
+
+
+
+  </li>
+  
+</ul>
 
 
 
@@ -439,7 +444,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
+  <a class="j2-nav-item" href="dartsass/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
 
 
 
@@ -489,7 +494,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/protocolerror.html?swift">ProtocolError</a>
+  <a class="j2-nav-item" href="dartsass/types/protocolerror.html?swift">ProtocolError</a>
 
 
 
@@ -498,7 +503,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sassembedded/types/lifecycleerror.html?swift">LifecycleError</a>
+  <a class="j2-nav-item" href="dartsass/types/lifecycleerror.html?swift">LifecycleError</a>
 
 
 
@@ -583,13 +588,25 @@
               
 
 
-<p>A Sass compiler interface that uses the Sass embedded protocol.</p>
-<p>It runs the actual Sass compiler as a child process. The Dart Sass compiler is bundled with this
-package for macOS and Ubuntu 64-bit Linux. For other platforms you need to supply this separately, see
+<p>A Sass compiler that uses Dart Sass as an embedded child process.</p>
+<p>The Dart Sass compiler is bundled with this package for macOS and Ubuntu 64-bit Linux.
+For other platforms you need to supply this separately, see
 <a href="index.html">the readme</a>.</p>
-<p>Some debug logging is available via <a href="sassembedded/types/compiler.html?swift#logger"><code>Compiler.logger</code></a>.</p>
-<p>You must shut down the compiler using <a href="sassembedded/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(...)</code></a>
-or <a href="sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> otherwise the program will exit.</p>
+<p>Some debug logging is available via <a href="dartsass/types/compiler.html?swift#logger"><code>Compiler.logger</code></a>.</p>
+<p>You must shut down the compiler using <a href="dartsass/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(...)</code></a>
+or <a href="dartsass/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> otherwise the program will exit.</p>
+<h2 class="j2-anchor j2-heading heading" id="custom-importer-resolution">
+<span data-anchor-id="custom-importer-resolution">
+Custom importer resolution
+</span></h2>
+<p>Dart Sass uses a different algorithm to Dart Sass for processing imports. Each stylesheet is associated
+with the importer that loaded it – this may be an internal or hidden filesystem importer.  Import resolution
+then goes:</p>
+<ul>
+<li>Consult the stylesheet’s associated importer.</li>
+<li>Consult every <a href="dartsass/types/importresolver1.html?swift"><code>DartSass.ImportResolver</code></a> given to the compiler, first the global list then the
+per-compilation list, in order within each list.</li>
+</ul>
 
 
 
@@ -608,19 +625,20 @@ or <a href="sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             <span class="j2-item-nav-item">
             
-              <span class="j2-swift j2-always"><a href="sassembedded/types/compiler.html?swift">Show members</a></span>
+              <span class="j2-swift j2-always"><a href="dartsass/types/compiler.html?swift">Show members</a></span>
             
             
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L29-L518">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L39-L559">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -686,6 +704,7 @@ or <a href="sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -698,7 +717,7 @@ or <a href="sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L29-L38">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L37-L46">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -752,6 +771,7 @@ or <a href="sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -764,73 +784,7 @@ or <a href="sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L19-L26">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      <div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="importresolver" class="j2-item j2-swift j2-always">
-    <a name="//apple_ref/cpp/enum/enum%20ImportResolver" class="dashAnchor j2-item-dash-anchor" data-item-id="importresolver"></a>
-    <h4 class="sr-only">enum ImportResolver</h4>
-    
-    
-    <a class="j2-item-title" href="#_importresolver" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importresolver"><code>
-        <span class="j2-swift j2-always"><span class="j2-item-secondary">enum </span>ImportResolver</span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_importresolver">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>How the Sass compiler should resolve <code>@import</code>, <code>@use</code>, and <code>@forward</code> rules.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift j2-always">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public enum ImportResolver</code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            <span class="j2-item-nav-item">
-            
-              <span class="j2-swift j2-always"><a href="sass/types/importresolver.html?swift">Show members</a></span>
-            
-            
-            </span>
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/ImporterTypes.swift#L132-L138">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L19-L34">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -884,6 +838,7 @@ or <a href="sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -896,7 +851,7 @@ or <a href="sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L211-L217">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L218-L224">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -962,6 +917,7 @@ or <a href="sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -974,7 +930,7 @@ or <a href="sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L41-L57">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L49-L65">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1029,6 +985,7 @@ from succeeding.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -1041,7 +998,7 @@ from succeeding.</p>
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L164-L208">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L171-L215">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1095,6 +1052,7 @@ from succeeding.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -1107,7 +1065,7 @@ from succeeding.</p>
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L60-L86">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L68-L94">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1161,6 +1119,7 @@ from succeeding.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
@@ -1173,7 +1132,7 @@ from succeeding.</p>
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L89-L158">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L97-L165">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1205,11 +1164,11 @@ from succeeding.</p>
   </div>
   <div id="pagination-next" class="flex-fill text-right">
   
-    <a class="j2-swift" href="sassembedded/types/compiler.html?swift" aria-keyshortcuts="n">
+    <a class="j2-swift" href="dartsass/types/compiler.html?swift" aria-keyshortcuts="n">
   Compiler<span aria-hidden="true"> &raquo;</span>
 </a>
 
-    <a class="j2-objc j2-secondary" href="sassembedded/types/compiler.html?swift" aria-keyshortcuts="n">
+    <a class="j2-objc j2-secondary" href="dartsass/types/compiler.html?swift" aria-keyshortcuts="n">
   Compiler<span aria-hidden="true"> &raquo;</span>
 </a>
 
@@ -1268,7 +1227,7 @@ from succeeding.</p>
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.2.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.3.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

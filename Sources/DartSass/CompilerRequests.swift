@@ -155,7 +155,7 @@ final class CompilationRequest: ManagedCompilerRequest {
 
     // Compilation-specific
     let compileReq: Sass_EmbeddedProtocol_InboundMessage.CompileRequest
-    private let importers: [AsyncImportResolver]
+    private let importers: [ImportResolver]
     private let functions: SassAsyncFunctionMap
     private var messages: [CompilerMessage]
 
@@ -178,8 +178,8 @@ final class CompilationRequest: ManagedCompilerRequest {
          outputStyle: CssStyle,
          createSourceMap: Bool,
          messageStyle: CompilerMessageStyle,
-         importers: [AsyncImportResolver],
-         stringImporter: AsyncImportResolver?,
+         importers: [ImportResolver],
+         stringImporter: ImportResolver?,
          functionsMap: [SassFunctionSignature : (String, SassAsyncFunction)]) {
         var firstFreeImporterID = CompilationRequest.baseImporterID
         if let stringImporter = stringImporter {
@@ -269,7 +269,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     static let baseImporterID = UInt32(4000)
 
     /// Helper
-    private func getImporter(importerID: UInt32) throws -> AsyncImporter {
+    private func getImporter(importerID: UInt32) throws -> Importer {
         let minImporterID = CompilationRequest.baseImporterID
         let maxImporterID = minImporterID + UInt32(importers.count) - 1
         guard importerID >= minImporterID, importerID <= maxImporterID else {
@@ -385,8 +385,8 @@ final class CompilationRequest: ManagedCompilerRequest {
     }
 }
 
-private extension AsyncImportResolver {
-    var importer: AsyncImporter? {
+private extension ImportResolver {
+    var importer: Importer? {
         switch self {
         case .loadPath(_): return nil
         case .importer(let i): return i

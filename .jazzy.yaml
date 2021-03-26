@@ -40,7 +40,6 @@ custom_groups:
         children:
           - Syntax
           - CssStyle
-          - ImportResolver
           - CompilerMessageStyle
       - name: Outputs
         children:
@@ -51,9 +50,11 @@ custom_groups:
 
   - name: Custom Importers
     children:
-      - Importer
-      - ImporterResults
-      - AsyncImporter
+      - name: Dart Sass
+        children:
+          - DartSass.Importer
+          - DartSass.ImporterResults
+          - DartSass.ImportResolver
 
   - name: Custom Functions
     children:

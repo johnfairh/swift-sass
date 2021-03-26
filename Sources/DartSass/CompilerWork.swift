@@ -26,7 +26,7 @@ final class CompilerWork {
     /// Message formatting style, for all compilations
     private let messageStyle: CompilerMessageStyle
     /// Configured global importer rules, for all compilations
-    private let globalImporters: [AsyncImportResolver]
+    private let globalImporters: [ImportResolver]
     /// Configured functions, for all compilations
     private let globalFunctions: SassAsyncFunctionMap
 
@@ -41,7 +41,7 @@ final class CompilerWork {
          resetRequest: @escaping (Error) -> Void,
          timeout: Int,
          messageStyle: CompilerMessageStyle,
-         importers: [AsyncImportResolver],
+         importers: [ImportResolver],
          functions: SassAsyncFunctionMap) {
         self.eventLoop = eventLoop
         self.resetRequest = resetRequest
@@ -68,8 +68,8 @@ final class CompilerWork {
     func addPendingCompilation(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
                                outputStyle: CssStyle,
                                createSourceMap: Bool,
-                               importers: [AsyncImportResolver],
-                               stringImporter: AsyncImportResolver? = nil,
+                               importers: [ImportResolver],
+                               stringImporter: ImportResolver? = nil,
                                functions: SassAsyncFunctionMap) -> EventLoopFuture<CompilerResults> {
         eventLoop.preconditionInEventLoop()
 

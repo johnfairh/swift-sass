@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import NIO
 @testable import DartSass
 
 ///
@@ -98,31 +99,31 @@ class TestImporters: DartSassTestCase {
         var claimRequest: Bool = true
         var unclaimedRequestCount = 0
 
-        func canonicalize(ruleURL: String) throws -> URL? {
+        func canonicalize(eventLoop: EventLoop, ruleURL: String) -> EventLoopFuture<URL?> {
             if let failNextCanon = failNextCanon {
                 failedCanonCount += 1
-                throw Error(message: failNextCanon)
+                return eventLoop.makeFailedFuture(Error(message: failNextCanon))
             }
             guard claimRequest else {
                 unclaimedRequestCount += 1
-                return nil
+                return eventLoop.makeSucceededFuture(nil)
             }
             if ruleURL.starts(with: "test://") {
-                return URL(string: ruleURL)
+                return eventLoop.makeSucceededFuture(URL(string: ruleURL))
             }
-            return URL(string: "test://\(ruleURL)")
+            return eventLoop.makeSucceededFuture(URL(string: "test://\(ruleURL)"))
         }
 
         /// Fail the next import
         var failNextImport: String? = nil
         var failedImportCount = 0
 
-        func load(canonicalURL: URL) throws -> ImporterResults {
+        func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
             if let failNextImport = failNextImport {
                 failedImportCount += 1
-                throw Error(message: failNextImport)
+                return eventLoop.makeFailedFuture(Error(message: failNextImport))
             }
-            return ImporterResults(css, syntax: .css, sourceMapURL: canonicalURL)
+            return eventLoop.makeSucceededFuture(ImporterResults(css, syntax: .css, sourceMapURL: canonicalURL))
         }
     }
 

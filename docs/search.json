@@ -19,6 +19,159 @@
     "abstract" : "A Sass function signature.",
     "name" : "SassFunctionSignature"
   },
+  "dartsass\/types\/compiler.html?swift" : {
+    "abstract" : "A Sass compiler that uses Dart Sass as an embedded child process.",
+    "name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#compileasyncfileurloutputstylecreatesourcemapimportersfunctions" : {
+    "abstract" : "Asynchronous version of compile(fileURL:outputStyle:createSourceMap:importers:functions:).",
+    "name" : "compileAsync(fileURL:outputStyle:createSourceMap:importers:functions:)",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#compileasyncstringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions" : {
+    "abstract" : "Asynchronous version of compile(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:).",
+    "name" : "compileAsync(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#compilefileurloutputstylecreatesourcemapimportersfunctions" : {
+    "abstract" : "Compile to CSS from a stylesheet file.",
+    "name" : "compile(fileURL:outputStyle:createSourceMap:importers:functions:)",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#compilername" : {
+    "abstract" : "The name of the underlying Sass implementation.  nil if unknown.",
+    "name" : "compilerName",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#compilerprocessidentifier" : {
+    "abstract" : "The process ID of the embedded Sass compiler.",
+    "name" : "compilerProcessIdentifier",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#compilerversion" : {
+    "abstract" : "The version of the underlying Sass implementation.  For Dart Sass and LibSass this is in\nsemver format. nil if unknown (never got a version).",
+    "name" : "compilerVersion",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#compilestringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions" : {
+    "abstract" : "Compile to CSS from an inline stylesheet.",
+    "name" : "compile(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleimportersfunctions" : {
+    "abstract" : "Use a program as the Sass embedded compiler.",
+    "name" : "init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:importers:functions:)",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#initeventloopgroupprovidertimeoutmessagestyleimportersfunctions" : {
+    "abstract" : "Use the bundled Dart Sass compiler as the Sass compiler.",
+    "name" : "init(eventLoopGroupProvider:timeout:messageStyle:importers:functions:)",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#logger" : {
+    "abstract" : "Logger for the module.",
+    "name" : "logger",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#reinit" : {
+    "abstract" : "Restart the embedded Sass compiler.",
+    "name" : "reinit()",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#shutdowngracefullyqueue_" : {
+    "abstract" : "Shut down the compiler asynchronously.",
+    "name" : "shutdownGracefully(queue:_:)",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#syncshutdowngracefully" : {
+    "abstract" : "Shut down the compiler synchronously.",
+    "name" : "syncShutdownGracefully()",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/importer3.html?swift" : {
+    "abstract" : "Methods required to implement a stylesheet importer.",
+    "name" : "Importer"
+  },
+  "dartsass\/types\/importer3.html?swift#canonicalizeeventloopruleurl" : {
+    "abstract" : "Convert an imported URL to its canonical format.",
+    "name" : "canonicalize(eventLoop:ruleURL:)",
+    "parent_name" : "Importer"
+  },
+  "dartsass\/types\/importer3.html?swift#loadeventloopcanonicalurl" : {
+    "abstract" : "Load a stylesheet from a canonical URL",
+    "name" : "load(eventLoop:canonicalURL:)",
+    "parent_name" : "Importer"
+  },
+  "dartsass\/types\/importerresults.html?swift" : {
+    "abstract" : "The results of loading a stylesheet through an importer.",
+    "name" : "ImporterResults"
+  },
+  "dartsass\/types\/importerresults.html?swift#contents" : {
+    "abstract" : "The contents of the stylesheet.",
+    "name" : "contents",
+    "parent_name" : "ImporterResults"
+  },
+  "dartsass\/types\/importerresults.html?swift#init_syntaxsourcemapurl" : {
+    "abstract" : "Initialize a new ImporterResults.",
+    "name" : "init(_:syntax:sourceMapURL:)",
+    "parent_name" : "ImporterResults"
+  },
+  "dartsass\/types\/importerresults.html?swift#sourcemapurl" : {
+    "abstract" : "URL used to reference the stylesheet from a source map.",
+    "name" : "sourceMapURL",
+    "parent_name" : "ImporterResults"
+  },
+  "dartsass\/types\/importerresults.html?swift#syntax1" : {
+    "abstract" : "The syntax of the stylesheet.",
+    "name" : "syntax",
+    "parent_name" : "ImporterResults"
+  },
+  "dartsass\/types\/importresolver1.html?swift" : {
+    "abstract" : "How the Sass compiler should resolve @import, @use, and @forward rules.",
+    "name" : "ImportResolver"
+  },
+  "dartsass\/types\/importresolver1.html?swift#importer_" : {
+    "abstract" : "Call back through the Importer to resolve the rule.",
+    "name" : "importer(_:)",
+    "parent_name" : "ImportResolver"
+  },
+  "dartsass\/types\/importresolver1.html?swift#loadpath_" : {
+    "abstract" : "Search a filesystem directory to resolve the rule.  See the Sass docs.",
+    "name" : "loadPath(_:)",
+    "parent_name" : "ImportResolver"
+  },
+  "dartsass\/types\/lifecycleerror.html?swift" : {
+    "abstract" : "Thrown on detecting a usage error of the Compiler API, for example trying to use it after shutdown.",
+    "name" : "LifecycleError"
+  },
+  "dartsass\/types\/lifecycleerror.html?swift#description21" : {
+    "abstract" : "Text explaining the lifecycle error.",
+    "name" : "description",
+    "parent_name" : "LifecycleError"
+  },
+  "dartsass\/types\/protocolerror.html?swift" : {
+    "abstract" : "Thrown on detecting an error communicating with the Sass embedded compiler: for example a badly\nformed or out-of-sequence message.",
+    "name" : "ProtocolError"
+  },
+  "dartsass\/types\/protocolerror.html?swift#description20" : {
+    "abstract" : "Text explaining the protocol error.",
+    "name" : "description",
+    "parent_name" : "ProtocolError"
+  },
+  "dartsass\/types\/sassasyncdynamicfunction.html?swift" : {
+    "abstract" : "A  dynamic Sass function that can run asynchronously.",
+    "name" : "SassAsyncDynamicFunction"
+  },
+  "dartsass\/types\/sassasyncdynamicfunction.html?swift#asyncfunction" : {
+    "abstract" : "The actual function.",
+    "name" : "asyncFunction",
+    "parent_name" : "SassAsyncDynamicFunction"
+  },
+  "dartsass\/types\/sassasyncdynamicfunction.html?swift#initsignaturefunction1" : {
+    "abstract" : "Create a new asynchronous dynamic function.",
+    "name" : "init(signature:function:)",
+    "parent_name" : "SassAsyncDynamicFunction"
+  },
   "sass\/types\/compilererror.html?swift" : {
     "abstract" : "Thrown as an error after a failed compilation.",
     "name" : "CompilerError"
@@ -134,6 +287,11 @@
     "abstract" : "How the Sass compiler should format the CSS it produces.",
     "name" : "CssStyle"
   },
+  "sass\/types\/cssstyle.html?swift#compact" : {
+    "abstract" : "Each CSS rule is written on its own single line, along with all its\ndeclarations.",
+    "name" : "compact",
+    "parent_name" : "CssStyle"
+  },
   "sass\/types\/cssstyle.html?swift#compressed" : {
     "abstract" : "The entire stylesheet is written on a single line, with as few\ncharacters as possible.",
     "name" : "compressed",
@@ -144,57 +302,10 @@
     "name" : "expanded",
     "parent_name" : "CssStyle"
   },
-  "sass\/types\/importer.html?swift" : {
-    "abstract" : "Methods required to implement a stylesheet importer.",
-    "name" : "Importer"
-  },
-  "sass\/types\/importer.html?swift#canonicalizeimporturl" : {
-    "abstract" : "Convert an imported URL to its canonical format.",
-    "name" : "canonicalize(importURL:)",
-    "parent_name" : "Importer"
-  },
-  "sass\/types\/importer.html?swift#loadcanonicalurl" : {
-    "abstract" : "Load a stylesheet from a canonical URL",
-    "name" : "load(canonicalURL:)",
-    "parent_name" : "Importer"
-  },
-  "sass\/types\/importerresults.html?swift" : {
-    "abstract" : "The results of loading a stylesheet through an importer.",
-    "name" : "ImporterResults"
-  },
-  "sass\/types\/importerresults.html?swift#contents" : {
-    "abstract" : "The contents of the stylesheet.",
-    "name" : "contents",
-    "parent_name" : "ImporterResults"
-  },
-  "sass\/types\/importerresults.html?swift#init_syntaxsourcemapurl" : {
-    "abstract" : "Initialize a new ImporterResults.",
-    "name" : "init(_:syntax:sourceMapURL:)",
-    "parent_name" : "ImporterResults"
-  },
-  "sass\/types\/importerresults.html?swift#sourcemapurl" : {
-    "abstract" : "URL used to reference the stylesheet from a source map.",
-    "name" : "sourceMapURL",
-    "parent_name" : "ImporterResults"
-  },
-  "sass\/types\/importerresults.html?swift#syntax1" : {
-    "abstract" : "The syntax of the stylesheet.",
-    "name" : "syntax",
-    "parent_name" : "ImporterResults"
-  },
-  "sass\/types\/importresolver.html?swift" : {
-    "abstract" : "How the Sass compiler should resolve @import, @use, and @forward rules.",
-    "name" : "ImportResolver"
-  },
-  "sass\/types\/importresolver.html?swift#importer_" : {
-    "abstract" : "Call back through the Importer to resolve the rule.  This can be an AsyncImporter if\nthe compiler implementation accepts asynchronous importers.",
-    "name" : "importer(_:)",
-    "parent_name" : "ImportResolver"
-  },
-  "sass\/types\/importresolver.html?swift#loadpath_" : {
-    "abstract" : "Search a filesystem directory to resolve the rule.  See the Sass docs.",
-    "name" : "loadPath(_:)",
-    "parent_name" : "ImportResolver"
+  "sass\/types\/cssstyle.html?swift#nested" : {
+    "abstract" : "CSS rules and declarations are indented to match the nesting of the\nSass source.",
+    "name" : "nested",
+    "parent_name" : "CssStyle"
   },
   "sass\/types\/sassbool.html?swift" : {
     "abstract" : "A Sass boolean value.",
@@ -334,7 +445,7 @@
     "parent_name" : "SassCompilerFunction"
   },
   "sass\/types\/sasscompilerfunction.html?swift#id" : {
-    "abstract" : "The function ID.",
+    "abstract" : "The function ID.  Opaque to users, meaningful to Sass implementations.",
     "name" : "id",
     "parent_name" : "SassCompilerFunction"
   },
@@ -952,17 +1063,17 @@
     "parent_name" : "Span"
   },
   "sass\/types\/span1\/location.html?swift#column" : {
-    "abstract" : "The 0-based column number of this location within its line.",
+    "abstract" : "The 1-based column number of this location within its line.",
     "name" : "column",
     "parent_name" : "Location"
   },
   "sass\/types\/span1\/location.html?swift#description6" : {
-    "abstract" : "A short description of the location.  Uses 1-based counting!",
+    "abstract" : "A short description of the location.",
     "name" : "description",
     "parent_name" : "Location"
   },
   "sass\/types\/span1\/location.html?swift#line" : {
-    "abstract" : "The 0-based line number of this location within the stylesheet.",
+    "abstract" : "The 1-based line number of this location within the stylesheet.",
     "name" : "line",
     "parent_name" : "Location"
   },
@@ -994,130 +1105,5 @@
     "abstract" : "The CSS-superset .scss syntax.",
     "name" : "scss",
     "parent_name" : "Syntax"
-  },
-  "sassembedded\/types\/asyncimporter.html?swift" : {
-    "abstract" : "A version of the Importer protocol that allows async behavior.",
-    "name" : "AsyncImporter"
-  },
-  "sassembedded\/types\/asyncimporter.html?swift#canonicalizeeventloopimporturl" : {
-    "abstract" : "Async version of Importer.canonicalize(importURL:).",
-    "name" : "canonicalize(eventLoop:importURL:)",
-    "parent_name" : "AsyncImporter"
-  },
-  "sassembedded\/types\/asyncimporter.html?swift#canonicalizeimporturl1" : {
-    "abstract" : "Default implementation - is never called.",
-    "name" : "canonicalize(importURL:)",
-    "parent_name" : "AsyncImporter"
-  },
-  "sassembedded\/types\/asyncimporter.html?swift#loadcanonicalurl1" : {
-    "abstract" : "Default implementation - is never called.",
-    "name" : "load(canonicalURL:)",
-    "parent_name" : "AsyncImporter"
-  },
-  "sassembedded\/types\/asyncimporter.html?swift#loadeventloopcanonicalurl" : {
-    "abstract" : "Async version of Importer.load(canonicalURL:).",
-    "name" : "load(eventLoop:canonicalURL:)",
-    "parent_name" : "AsyncImporter"
-  },
-  "sassembedded\/types\/compiler.html?swift" : {
-    "abstract" : "A Sass compiler interface that uses the Sass embedded protocol.",
-    "name" : "Compiler"
-  },
-  "sassembedded\/types\/compiler.html?swift#compileasyncfileurloutputstylecreatesourcemapimportersfunctions" : {
-    "abstract" : "Asynchronous version of compile(fileURL:outputStyle:createSourceMap:importers:functions:).",
-    "name" : "compileAsync(fileURL:outputStyle:createSourceMap:importers:functions:)",
-    "parent_name" : "Compiler"
-  },
-  "sassembedded\/types\/compiler.html?swift#compileasynctextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions" : {
-    "abstract" : "Asynchronous version of compile(text:syntax:url:importer:outputStyle:createSourceMap:importers:functions:).",
-    "name" : "compileAsync(text:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)",
-    "parent_name" : "Compiler"
-  },
-  "sassembedded\/types\/compiler.html?swift#compilefileurloutputstylecreatesourcemapimportersfunctions1" : {
-    "abstract" : "Compile to CSS from a stylesheet file.",
-    "name" : "compile(fileURL:outputStyle:createSourceMap:importers:functions:)",
-    "parent_name" : "Compiler"
-  },
-  "sassembedded\/types\/compiler.html?swift#compilername" : {
-    "abstract" : "The name of the underlying Sass implementation.  nil if unknown.",
-    "name" : "compilerName",
-    "parent_name" : "Compiler"
-  },
-  "sassembedded\/types\/compiler.html?swift#compilerprocessidentifier" : {
-    "abstract" : "The process ID of the compiler process.",
-    "name" : "compilerProcessIdentifier",
-    "parent_name" : "Compiler"
-  },
-  "sassembedded\/types\/compiler.html?swift#compilerversion" : {
-    "abstract" : "The version of the underlying Sass implementation.  For Dart Sass and LibSass this is in\nsemver format. nil if unknown (never got a version).",
-    "name" : "compilerVersion",
-    "parent_name" : "Compiler"
-  },
-  "sassembedded\/types\/compiler.html?swift#compiletextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions1" : {
-    "abstract" : "Compile to CSS from an inline stylesheet.",
-    "name" : "compile(text:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)",
-    "parent_name" : "Compiler"
-  },
-  "sassembedded\/types\/compiler.html?swift#initeventloopgroupproviderembeddedcompilerurltimeoutmessagestyleimportersfunctions" : {
-    "abstract" : "Use a program as the Sass embedded compiler.",
-    "name" : "init(eventLoopGroupProvider:embeddedCompilerURL:timeout:messageStyle:importers:functions:)",
-    "parent_name" : "Compiler"
-  },
-  "sassembedded\/types\/compiler.html?swift#initeventloopgroupprovidertimeoutmessagestyleimportersfunctions" : {
-    "abstract" : "Use the bundled Dart Sass compiler as the Sass compiler.",
-    "name" : "init(eventLoopGroupProvider:timeout:messageStyle:importers:functions:)",
-    "parent_name" : "Compiler"
-  },
-  "sassembedded\/types\/compiler.html?swift#logger" : {
-    "abstract" : "Logger for the module.",
-    "name" : "logger",
-    "parent_name" : "Compiler"
-  },
-  "sassembedded\/types\/compiler.html?swift#reinit" : {
-    "abstract" : "Restart the Sass embedded compiler.",
-    "name" : "reinit()",
-    "parent_name" : "Compiler"
-  },
-  "sassembedded\/types\/compiler.html?swift#shutdowngracefullyqueue_" : {
-    "abstract" : "Shut down the compiler asynchronously.",
-    "name" : "shutdownGracefully(queue:_:)",
-    "parent_name" : "Compiler"
-  },
-  "sassembedded\/types\/compiler.html?swift#syncshutdowngracefully" : {
-    "abstract" : "Shut down the compiler synchronously.",
-    "name" : "syncShutdownGracefully()",
-    "parent_name" : "Compiler"
-  },
-  "sassembedded\/types\/lifecycleerror.html?swift" : {
-    "abstract" : "Thrown on detecting a usage error of the Compiler API, for example trying to use it after shutdown.",
-    "name" : "LifecycleError"
-  },
-  "sassembedded\/types\/lifecycleerror.html?swift#description21" : {
-    "abstract" : "Text explaining the lifecycle error.",
-    "name" : "description",
-    "parent_name" : "LifecycleError"
-  },
-  "sassembedded\/types\/protocolerror.html?swift" : {
-    "abstract" : "Thrown on detecting an error communicating with the Sass embedded compiler: for example a badly\nformed or out-of-sequence message.",
-    "name" : "ProtocolError"
-  },
-  "sassembedded\/types\/protocolerror.html?swift#description20" : {
-    "abstract" : "Text explaining the protocol error.",
-    "name" : "description",
-    "parent_name" : "ProtocolError"
-  },
-  "sassembedded\/types\/sassasyncdynamicfunction.html?swift" : {
-    "abstract" : "A  dynamic Sass function that can run asynchronously.",
-    "name" : "SassAsyncDynamicFunction"
-  },
-  "sassembedded\/types\/sassasyncdynamicfunction.html?swift#asyncfunction" : {
-    "abstract" : "The actual function.",
-    "name" : "asyncFunction",
-    "parent_name" : "SassAsyncDynamicFunction"
-  },
-  "sassembedded\/types\/sassasyncdynamicfunction.html?swift#initsignaturefunction1" : {
-    "abstract" : "Create a new asynchronous dynamic function.",
-    "name" : "init(signature:function:)",
-    "parent_name" : "SassAsyncDynamicFunction"
   }
 }

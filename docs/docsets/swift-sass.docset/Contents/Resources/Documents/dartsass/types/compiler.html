@@ -10,7 +10,7 @@
    <title>Compiler - Swift Sass v0.3.0</title>
     
   </head>
-  <body class="j2-swift " data-root-path="./../../" data-doc-path="sassembedded/types/compiler.html" data-assets-path="../../">
+  <body class="j2-swift " data-root-path="./../../" data-doc-path="dartsass/types/compiler.html" data-assets-path="../../">
 
   <!-- messages for search -->
   <div hidden>
@@ -99,7 +99,7 @@
       
         
         
-          <li class="breadcrumb-item" aria-current="page">SassEmbedded.Compiler</li>
+          <li class="breadcrumb-item" aria-current="page">DartSass.Compiler</li>
         
       
     </ol>
@@ -145,15 +145,6 @@
     
 
   <a class="j2-nav-item" href="../../sass/types/cssstyle.html?swift">CssStyle</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
-  <a class="j2-nav-item" href="../../sass/types/importresolver.html?swift">ImportResolver</a>
 
 
 
@@ -249,7 +240,15 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/importer.html?swift">Importer</a>
+  <a class="j2-nav-item" href="../../dart-sass.html?swift">Dart Sass</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../dartsass/types/importer3.html?swift">Importer</a>
 
 
 
@@ -258,7 +257,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/importerresults.html?swift">ImporterResults</a>
+  <a class="j2-nav-item" href="../../dartsass/types/importerresults.html?swift">ImporterResults</a>
 
 
 
@@ -267,7 +266,13 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/asyncimporter.html?swift">AsyncImporter</a>
+  <a class="j2-nav-item" href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>
+
+
+
+  </li>
+  
+</ul>
 
 
 
@@ -444,7 +449,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
+  <a class="j2-nav-item" href="../../dartsass/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
 
 
 
@@ -494,7 +499,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/protocolerror.html?swift">ProtocolError</a>
+  <a class="j2-nav-item" href="../../dartsass/types/protocolerror.html?swift">ProtocolError</a>
 
 
 
@@ -503,7 +508,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sassembedded/types/lifecycleerror.html?swift">LifecycleError</a>
+  <a class="j2-nav-item" href="../../dartsass/types/lifecycleerror.html?swift">LifecycleError</a>
 
 
 
@@ -564,24 +569,37 @@
             
 
 
-<p>A Sass compiler interface that uses the Sass embedded protocol.</p>
-<p>It runs the actual Sass compiler as a child process. The Dart Sass compiler is bundled with this
-package for macOS and Ubuntu 64-bit Linux. For other platforms you need to supply this separately, see
+<p>A Sass compiler that uses Dart Sass as an embedded child process.</p>
+<p>The Dart Sass compiler is bundled with this package for macOS and Ubuntu 64-bit Linux.
+For other platforms you need to supply this separately, see
 <a href="../../index.html">the readme</a>.</p>
-<p>Some debug logging is available via <a href="../../sassembedded/types/compiler.html?swift#logger"><code>Compiler.logger</code></a>.</p>
-<p>You must shut down the compiler using <a href="../../sassembedded/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(...)</code></a>
-or <a href="../../sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> otherwise the program will exit.</p>
+<p>Some debug logging is available via <a href="../../dartsass/types/compiler.html?swift#logger"><code>Compiler.logger</code></a>.</p>
+<p>You must shut down the compiler using <a href="../../dartsass/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(...)</code></a>
+or <a href="../../dartsass/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> otherwise the program will exit.</p>
+<h2 class="j2-anchor j2-heading heading" id="custom-importer-resolution">
+<span data-anchor-id="custom-importer-resolution">
+Custom importer resolution
+</span></h2>
+<p>Dart Sass uses a different algorithm to Dart Sass for processing imports. Each stylesheet is associated
+with the importer that loaded it – this may be an internal or hidden filesystem importer.  Import resolution
+then goes:</p>
+<ul>
+<li>Consult the stylesheet’s associated importer.</li>
+<li>Consult every <a href="../../dartsass/types/importresolver1.html?swift"><code>DartSass.ImportResolver</code></a> given to the compiler, first the global list then the
+per-compilation list, in order within each list.</li>
+</ul>
 
 
 
             
 
 
+
           </div>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L29-L518">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L39-L559">Show on GitHub</a>
           </nav>
           
           
@@ -628,16 +646,12 @@ or <a href="../../sassembedded/types/compiler.html?swift#syncshutdowngracefully"
 
 <p>Use the bundled Dart Sass compiler as the Sass compiler.</p>
 <p>The bundled Dart Sass compiler is built for macOS (Intel) or Ubuntu Xenial (16.04) 64-bit.
-If you are running on another operating system then use <code>init(eventLoopGroupProvider:embeddedCompilerURL:timeout:importers:functions:)</code>
+If you are running on another operating system then use <code>init(eventLoopGroupProvider:embeddedCompilerURL:timeout:messageStyle:importers:functions:)</code>
 supplying the path of the correct Dart Sass compiler.</p>
 <p>Initialization continues asynchronously after the initializer completes; failures are reported
 when the compiler is next used.</p>
-<p>You must shut down the compiler with <a href="../../sassembedded/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(queue:_:)</code></a> or
-<a href="../../sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> before letting it go out of scope.</p>
-<div class="j2-callout j2-callout-throws aside aside-throws">
-<div class="j2-callout-title aside-title" role="heading" aria-level="6">throws</div>
-<p><a href="../../sassembedded/types/lifecycleerror.html?swift"><code>LifecycleError</code></a> if the program can’t be found.</p>
-</div>
+<p>You must shut down the compiler with <a href="../../dartsass/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(queue:_:)</code></a> or
+<a href="../../dartsass/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> before letting it go out of scope.</p>
 
 
 
@@ -651,7 +665,7 @@ when the compiler is next used.</p>
     eventLoopGroupProvider: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Enums/NIOEventLoopGroupProvider.html">NIOEventLoopGroupProvider</a>,
     timeout: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> = 60,
     messageStyle: <a href="../../sass/types/compilermessagestyle.html?swift">CompilerMessageStyle</a> = .plain,
-    importers: [<a href="../../sass/types/importresolver.html?swift">ImportResolver</a>] = [],
+    importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:]) throws</code></pre>
   </div>
 
@@ -696,13 +710,17 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   </table>
 
 
+  <h5>Throws</h5>
+  <p><a href="../../dartsass/types/lifecycleerror.html?swift"><code>LifecycleError</code></a> if the program can’t be found.</p>
+
+
 
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L124-L136">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L134-L146">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -714,16 +732,16 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   
   
   
-    <section id="initeventloopgroupproviderembeddedcompilerurltimeoutmessagestyleimportersfunctions" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Constructor/init(eventLoopGroupProvider%3A%20NIOEventLoopGroupProvider,%20embeddedCompilerURL%3A%20URL,%20timeout%3A%20Int,%20messageStyle%3A%20CompilerMessageStyle,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassAsyncFunctionMap)" class="dashAnchor j2-item-dash-anchor" data-item-id="initeventloopgroupproviderembeddedcompilerurltimeoutmessagestyleimportersfunctions"></a>
-    <h4 class="sr-only">init(eventLoopGroupProvider: NIOEventLoopGroupProvider, embeddedCompilerURL: URL, timeout: Int, messageStyle: CompilerMessageStyle, importers: [ImportResolver], functions: SassAsyncFunctionMap)</h4>
+    <section id="initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleimportersfunctions" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Constructor/init(eventLoopGroupProvider%3A%20NIOEventLoopGroupProvider,%20embeddedCompilerFileURL%3A%20URL,%20timeout%3A%20Int,%20messageStyle%3A%20CompilerMessageStyle,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassAsyncFunctionMap)" class="dashAnchor j2-item-dash-anchor" data-item-id="initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleimportersfunctions"></a>
+    <h4 class="sr-only">init(eventLoopGroupProvider: NIOEventLoopGroupProvider, embeddedCompilerFileURL: URL, timeout: Int, messageStyle: CompilerMessageStyle, importers: [ImportResolver], functions: SassAsyncFunctionMap)</h4>
     
     
-    <a class="j2-item-title" href="#_initeventloopgroupproviderembeddedcompilerurltimeoutmessagestyleimportersfunctions" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_initeventloopgroupproviderembeddedcompilerurltimeoutmessagestyleimportersfunctions"><code>
-        <span class="j2-swift">init<span class="j2-item-secondary">(</span>eventLoopGroupProvider<span class="j2-item-secondary">: NIOEventLoopGroupProvider, </span>embeddedCompilerURL<span class="j2-item-secondary">: URL, </span>timeout<span class="j2-item-secondary">: Int, </span>messageStyle<span class="j2-item-secondary">: CompilerMessageStyle, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassAsyncFunctionMap)</span></span>
+    <a class="j2-item-title" href="#_initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleimportersfunctions" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleimportersfunctions"><code>
+        <span class="j2-swift">init<span class="j2-item-secondary">(</span>eventLoopGroupProvider<span class="j2-item-secondary">: NIOEventLoopGroupProvider, </span>embeddedCompilerFileURL<span class="j2-item-secondary">: URL, </span>timeout<span class="j2-item-secondary">: Int, </span>messageStyle<span class="j2-item-secondary">: CompilerMessageStyle, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassAsyncFunctionMap)</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_initeventloopgroupproviderembeddedcompilerurltimeoutmessagestyleimportersfunctions">
+    <div class="collapse  j2-item-popopen-wrapper" id="_initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleimportersfunctions">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -739,8 +757,8 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
 <p>Use a program as the Sass embedded compiler.</p>
 <p>Initialization continues asynchronously after the initializer completes; failures are reported
 when the compiler is next used.</p>
-<p>You must shut down the compiler with <a href="../../sassembedded/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(queue:_:)</code></a> or
-<a href="../../sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> before letting it go out of scope.</p>
+<p>You must shut down the compiler with <a href="../../dartsass/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(queue:_:)</code></a> or
+<a href="../../dartsass/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> before letting it go out of scope.</p>
 
 
 
@@ -752,10 +770,10 @@ when the compiler is next used.</p>
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public init(
     eventLoopGroupProvider: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Enums/NIOEventLoopGroupProvider.html">NIOEventLoopGroupProvider</a>,
-    embeddedCompilerURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>,
+    embeddedCompilerFileURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>,
     timeout: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> = 60,
     messageStyle: <a href="../../sass/types/compilermessagestyle.html?swift">CompilerMessageStyle</a> = .plain,
-    importers: [<a href="../../sass/types/importresolver.html?swift">ImportResolver</a>] = [],
+    importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:])</code></pre>
   </div>
 
@@ -774,8 +792,8 @@ an existing group or <code>.createNew</code> to create and manage a new event lo
       </tr>
       
       <tr>
-        <td><code>embeddedCompilerURL</code></td>
-        <td><p>The file URL to <code>dart-sass-embedded</code>
+        <td><code>embeddedCompilerFileURL</code></td>
+        <td><p>The path of <code>dart-sass-embedded</code>
 or something else that speaks the Sass embedded protocol.  Check <a href="../../index.html">the readme</a>
 for the supported protocol versions.</p></td>
       </tr>
@@ -808,12 +826,13 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
 
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L158-L181">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L168-L191">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -837,16 +856,16 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   
   
   
-    <section id="compiletextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions1" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20compile(text%3A%20String,%20syntax%3A%20Syntax,%20url%3A%20URL%3F,%20importer%3A%20ImportResolver%3F,%20outputStyle%3A%20CssStyle,%20createSourceMap%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassFunctionMap)%20-%3E%20CompilerResults" class="dashAnchor j2-item-dash-anchor" data-item-id="compiletextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions1"></a>
-    <h4 class="sr-only">func compile(text: String, syntax: Syntax, url: URL?, importer: ImportResolver?, outputStyle: CssStyle, createSourceMap: Bool, importers: [ImportResolver], functions: SassFunctionMap) -&gt; CompilerResults</h4>
+    <section id="compilestringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20compile(string%3A%20String,%20syntax%3A%20Syntax,%20url%3A%20URL%3F,%20importer%3A%20ImportResolver%3F,%20outputStyle%3A%20CssStyle,%20createSourceMap%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassFunctionMap)%20-%3E%20CompilerResults" class="dashAnchor j2-item-dash-anchor" data-item-id="compilestringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions"></a>
+    <h4 class="sr-only">func compile(string: String, syntax: Syntax, url: URL?, importer: ImportResolver?, outputStyle: CssStyle, createSourceMap: Bool, importers: [ImportResolver], functions: SassFunctionMap) -&gt; CompilerResults</h4>
     
     
-    <a class="j2-item-title" href="#_compiletextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions1" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_compiletextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions1"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>compile<span class="j2-item-secondary">(</span>text<span class="j2-item-secondary">: String, </span>syntax<span class="j2-item-secondary">: Syntax, </span>url<span class="j2-item-secondary">: URL?, </span>importer<span class="j2-item-secondary">: ImportResolver?, </span>outputStyle<span class="j2-item-secondary">: CssStyle, </span>createSourceMap<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassFunctionMap) -&gt; CompilerResults</span></span>
+    <a class="j2-item-title" href="#_compilestringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_compilestringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>compile<span class="j2-item-secondary">(</span>string<span class="j2-item-secondary">: String, </span>syntax<span class="j2-item-secondary">: Syntax, </span>url<span class="j2-item-secondary">: URL?, </span>importer<span class="j2-item-secondary">: ImportResolver?, </span>outputStyle<span class="j2-item-secondary">: CssStyle, </span>createSourceMap<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassFunctionMap) -&gt; CompilerResults</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_compiletextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions1">
+    <div class="collapse  j2-item-popopen-wrapper" id="_compilestringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -860,10 +879,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
 
 
 <p>Compile to CSS from an inline stylesheet.</p>
-<div class="j2-callout j2-callout-throws aside aside-throws">
-<div class="j2-callout-title aside-title" role="heading" aria-level="6">throws</div>
-<p><a href="../../sass/types/compilererror.html?swift"><code>CompilerError</code></a> if there is a critical error with the input, for example a syntax error. Some other kind of error if something goes wrong  with the compiler infrastructure itself.</p>
-</div>
+
 
 
 
@@ -874,13 +890,13 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public func compile(
-    text: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>,
+    string: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>,
     syntax: <a href="../../sass/types/syntax.html?swift">Syntax</a> = .scss,
     url: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>? = nil,
-    importer: <a href="../../sass/types/importresolver.html?swift">ImportResolver</a>? = nil,
+    importer: <a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>? = nil,
     outputStyle: <a href="../../sass/types/cssstyle.html?swift">CssStyle</a> = .expanded,
     createSourceMap: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
-    importers: [<a href="../../sass/types/importresolver.html?swift">ImportResolver</a>] = [],
+    importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassfunctionmap">SassFunctionMap</a> = [:]
 ) throws -&gt; <a href="../../sass/types/compilerresults.html?swift">CompilerResults</a></code></pre>
   </div>
@@ -894,7 +910,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
     <tbody>
       
       <tr>
-        <td><code>text</code></td>
+        <td><code>string</code></td>
         <td><p>The stylesheet text to compile.</p></td>
       </tr>
       
@@ -905,12 +921,14 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
       
       <tr>
         <td><code>url</code></td>
-        <td><p>The absolute URL to associate with <code>text</code>.  Default <code>nil</code> meaning unknown.</p></td>
+        <td><p>The absolute URL to associate with <code>string</code>, from where it was loaded.
+Default <code>nil</code> meaning unknown.</p></td>
       </tr>
       
       <tr>
         <td><code>importer</code></td>
-        <td><p>Rule to resolve <code>@import</code> etc. from <code>text</code> relative to <code>url</code>.  Default <code>nil</code> meaning the current filesystem directory is used.</p></td>
+        <td><p>Rule to resolve <code>@import</code> etc. from <code>string</code> relative to <code>url</code>.  Default <code>nil</code>
+meaning the current filesystem directory is used.</p></td>
       </tr>
       
       <tr>
@@ -925,16 +943,23 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
       
       <tr>
         <td><code>importers</code></td>
-        <td><p>Rules for resolving <code>@import</code> etc. for this compilation, used in order after any set globally.  Default none.</p></td>
+        <td><p>Rules for resolving <code>@import</code> etc. for this compilation, used in order after
+any set globally.  Default none.</p></td>
       </tr>
       
       <tr>
         <td><code>functions</code></td>
-        <td><p>Functions for this compilation, overriding any with the same name previously set globally.  Default none.</p></td>
+        <td><p>Functions for this compilation, overriding any with the same name previously
+set globally.  Default none.</p></td>
       </tr>
       
     </tbody>
   </table>
+
+
+  <h5>Throws</h5>
+  <p><a href="../../sass/types/compilererror.html?swift"><code>CompilerError</code></a> if there is a critical error with the input, for example a syntax error.
+Some other kind of error if something goes wrong  with the compiler infrastructure itself.</p>
 
 
   <h5>Return Value</h5>
@@ -946,7 +971,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L355-L371">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L396-L412">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -958,16 +983,16 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   
   
   
-    <section id="compilefileurloutputstylecreatesourcemapimportersfunctions1" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20compile(fileURL%3A%20URL,%20outputStyle%3A%20CssStyle,%20createSourceMap%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassFunctionMap)%20-%3E%20CompilerResults" class="dashAnchor j2-item-dash-anchor" data-item-id="compilefileurloutputstylecreatesourcemapimportersfunctions1"></a>
+    <section id="compilefileurloutputstylecreatesourcemapimportersfunctions" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20compile(fileURL%3A%20URL,%20outputStyle%3A%20CssStyle,%20createSourceMap%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassFunctionMap)%20-%3E%20CompilerResults" class="dashAnchor j2-item-dash-anchor" data-item-id="compilefileurloutputstylecreatesourcemapimportersfunctions"></a>
     <h4 class="sr-only">func compile(fileURL: URL, outputStyle: CssStyle, createSourceMap: Bool, importers: [ImportResolver], functions: SassFunctionMap) -&gt; CompilerResults</h4>
     
     
-    <a class="j2-item-title" href="#_compilefileurloutputstylecreatesourcemapimportersfunctions1" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_compilefileurloutputstylecreatesourcemapimportersfunctions1"><code>
+    <a class="j2-item-title" href="#_compilefileurloutputstylecreatesourcemapimportersfunctions" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_compilefileurloutputstylecreatesourcemapimportersfunctions"><code>
         <span class="j2-swift"><span class="j2-item-secondary">func </span>compile<span class="j2-item-secondary">(</span>fileURL<span class="j2-item-secondary">: URL, </span>outputStyle<span class="j2-item-secondary">: CssStyle, </span>createSourceMap<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassFunctionMap) -&gt; CompilerResults</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_compilefileurloutputstylecreatesourcemapimportersfunctions1">
+    <div class="collapse  j2-item-popopen-wrapper" id="_compilefileurloutputstylecreatesourcemapimportersfunctions">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -981,10 +1006,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
 
 
 <p>Compile to CSS from a stylesheet file.</p>
-<div class="j2-callout j2-callout-throws aside aside-throws">
-<div class="j2-callout-title aside-title" role="heading" aria-level="6">throws</div>
-<p><a href="../../sass/types/compilererror.html?swift"><code>CompilerError</code></a> if there is a critical error with the input, for example a syntax error. Some other kind of error if something goes wrong  with the compiler infrastructure itself.</p>
-</div>
+
 
 
 
@@ -998,7 +1020,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
     fileURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>,
     outputStyle: <a href="../../sass/types/cssstyle.html?swift">CssStyle</a> = .expanded,
     createSourceMap: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
-    importers: [<a href="../../sass/types/importresolver.html?swift">ImportResolver</a>] = [],
+    importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassfunctionmap">SassFunctionMap</a> = [:]
 ) throws -&gt; <a href="../../sass/types/compilerresults.html?swift">CompilerResults</a></code></pre>
   </div>
@@ -1013,7 +1035,8 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
       
       <tr>
         <td><code>fileURL</code></td>
-        <td><p>The <code>file:</code> URL to compile.  The file extension determines the expected syntax of the contents, so it must be css/scss/sass.</p></td>
+        <td><p>The URL of the file to compile.  The file extension determines the
+expected syntax of the contents, so it must be css/scss/sass.</p></td>
       </tr>
       
       <tr>
@@ -1028,16 +1051,23 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
       
       <tr>
         <td><code>importers</code></td>
-        <td><p>Rules for resolving <code>@import</code> etc. for this compilation, used in order after <code>sourceFileURL</code>’s directory and any set globally..  Default none.</p></td>
+        <td><p>Rules for resolving <code>@import</code> etc. for this compilation, used in order after
+<code>sourceFileURL</code>’s directory and any set globally..  Default none.</p></td>
       </tr>
       
       <tr>
         <td><code>functions</code></td>
-        <td><p>Functions for this compilation, overriding any with the same name previously set globally. Default none.</p></td>
+        <td><p>Functions for this compilation, overriding any with the same name previously
+set globally. Default none.</p></td>
       </tr>
       
     </tbody>
   </table>
+
+
+  <h5>Throws</h5>
+  <p><a href="../../sass/types/compilererror.html?swift"><code>CompilerError</code></a> if there is a critical error with the input, for example a syntax error.
+Some other kind of error if something goes wrong  with the compiler infrastructure itself.</p>
 
 
   <h5>Return Value</h5>
@@ -1049,7 +1079,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L314-L324">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L338-L348">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1061,16 +1091,16 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   
   
   
-    <section id="compileasynctextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20compileAsync(text%3A%20String,%20syntax%3A%20Syntax,%20url%3A%20URL%3F,%20importer%3A%20ImportResolver%3F,%20outputStyle%3A%20CssStyle,%20createSourceMap%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassAsyncFunctionMap)%20-%3E%20EventLoopFuture%3CCompilerResults%3E" class="dashAnchor j2-item-dash-anchor" data-item-id="compileasynctextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions"></a>
-    <h4 class="sr-only">func compileAsync(text: String, syntax: Syntax, url: URL?, importer: ImportResolver?, outputStyle: CssStyle, createSourceMap: Bool, importers: [ImportResolver], functions: SassAsyncFunctionMap) -&gt; EventLoopFuture&lt;CompilerResults&gt;</h4>
+    <section id="compileasyncstringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20compileAsync(string%3A%20String,%20syntax%3A%20Syntax,%20url%3A%20URL%3F,%20importer%3A%20ImportResolver%3F,%20outputStyle%3A%20CssStyle,%20createSourceMap%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassAsyncFunctionMap)%20-%3E%20EventLoopFuture%3CCompilerResults%3E" class="dashAnchor j2-item-dash-anchor" data-item-id="compileasyncstringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions"></a>
+    <h4 class="sr-only">func compileAsync(string: String, syntax: Syntax, url: URL?, importer: ImportResolver?, outputStyle: CssStyle, createSourceMap: Bool, importers: [ImportResolver], functions: SassAsyncFunctionMap) -&gt; EventLoopFuture&lt;CompilerResults&gt;</h4>
     
     
-    <a class="j2-item-title" href="#_compileasynctextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_compileasynctextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>compileAsync<span class="j2-item-secondary">(</span>text<span class="j2-item-secondary">: String, </span>syntax<span class="j2-item-secondary">: Syntax, </span>url<span class="j2-item-secondary">: URL?, </span>importer<span class="j2-item-secondary">: ImportResolver?, </span>outputStyle<span class="j2-item-secondary">: CssStyle, </span>createSourceMap<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassAsyncFunctionMap) -&gt; EventLoopFuture&lt;CompilerResults&gt;</span></span>
+    <a class="j2-item-title" href="#_compileasyncstringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_compileasyncstringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>compileAsync<span class="j2-item-secondary">(</span>string<span class="j2-item-secondary">: String, </span>syntax<span class="j2-item-secondary">: Syntax, </span>url<span class="j2-item-secondary">: URL?, </span>importer<span class="j2-item-secondary">: ImportResolver?, </span>outputStyle<span class="j2-item-secondary">: CssStyle, </span>createSourceMap<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassAsyncFunctionMap) -&gt; EventLoopFuture&lt;CompilerResults&gt;</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_compileasynctextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions">
+    <div class="collapse  j2-item-popopen-wrapper" id="_compileasyncstringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -1083,7 +1113,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
               
 
 
-<p>Asynchronous version of <a href="../../sassembedded/types/compiler.html?swift#compiletextsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions1"><code>compile(text:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)</code></a>.</p>
+<p>Asynchronous version of <a href="../../dartsass/types/compiler.html?swift#compilestringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions"><code>compile(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)</code></a>.</p>
 
 
 
@@ -1095,13 +1125,13 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public func compileAsync(
-    text: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>,
+    string: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>,
     syntax: <a href="../../sass/types/syntax.html?swift">Syntax</a> = .scss,
     url: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>? = nil,
-    importer: <a href="../../sass/types/importresolver.html?swift">ImportResolver</a>? = nil,
+    importer: <a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>? = nil,
     outputStyle: <a href="../../sass/types/cssstyle.html?swift">CssStyle</a> = .expanded,
     createSourceMap: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
-    importers: [<a href="../../sass/types/importresolver.html?swift">ImportResolver</a>] = [],
+    importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:]
 ) -&gt; <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;<a href="../../sass/types/compilerresults.html?swift">CompilerResults</a>&gt;</code></pre>
   </div>
@@ -1112,12 +1142,13 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L327-L353">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L351-L376">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1151,7 +1182,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
               
 
 
-<p>Asynchronous version of <a href="../../sassembedded/types/compiler.html?swift#compilefileurloutputstylecreatesourcemapimportersfunctions1"><code>compile(fileURL:outputStyle:createSourceMap:importers:functions:)</code></a>.</p>
+<p>Asynchronous version of <a href="../../dartsass/types/compiler.html?swift#compilefileurloutputstylecreatesourcemapimportersfunctions"><code>compile(fileURL:outputStyle:createSourceMap:importers:functions:)</code></a>.</p>
 
 
 
@@ -1166,7 +1197,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
     fileURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>,
     outputStyle: <a href="../../sass/types/cssstyle.html?swift">CssStyle</a> = .expanded,
     createSourceMap: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
-    importers: [<a href="../../sass/types/importresolver.html?swift">ImportResolver</a>] = [],
+    importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:]
 ) -&gt; <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;<a href="../../sass/types/compilerresults.html?swift">CompilerResults</a>&gt;</code></pre>
   </div>
@@ -1177,12 +1208,13 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L298-L312">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L308-L322">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1228,7 +1260,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
               
 
 
-<p>The process ID of the compiler process.</p>
+<p>The process ID of the embedded Sass compiler.</p>
 <p>Not normally needed; could be used to adjust resource usage or maybe send it a signal if stuck.
 The process ID is reported after waiting for any [re]initialization to complete; a value of <code>nil</code>
 means that the compiler is broken or shutdown.</p>
@@ -1250,12 +1282,13 @@ means that the compiler is broken or shutdown.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L242-L255">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L252-L265">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1309,12 +1342,13 @@ means that the compiler is broken or shutdown.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L258-L260">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L268-L270">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1369,12 +1403,13 @@ means that the compiler is broken or shutdown.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L264-L266">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L274-L276">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1408,9 +1443,9 @@ means that the compiler is broken or shutdown.</p>
               
 
 
-<p>Restart the Sass embedded compiler.</p>
+<p>Restart the embedded Sass compiler.</p>
 <p>Normally a single instance of the compiler’s process persists across all invocations to
-<a href="../../sassembedded/types/compiler.html?swift#compilefileurloutputstylecreatesourcemapimportersfunctions1"><code>compile(...)</code></a> on this <a href="../../sassembedded/types/compiler.html?swift"><code>Compiler</code></a> instance.   This method stops the current
+<a href="../../dartsass/types/compiler.html?swift#compilefileurloutputstylecreatesourcemapimportersfunctions"><code>compile(...)</code></a> on this <a href="../../dartsass/types/compiler.html?swift"><code>Compiler</code></a> instance.   This method stops the current
 compiler process and starts a new one: the intended use is for compilers whose
 resource usage escalates over time and need calming down.  You probably don’t need to
 call it.</p>
@@ -1433,12 +1468,13 @@ call it.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L198-L202">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L208-L212">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1473,8 +1509,8 @@ call it.</p>
 
 
 <p>Shut down the compiler asynchronously.</p>
-<p>You must call this (or <a href="../../sassembedded/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> before the last reference to the
-<a href="../../sassembedded/types/compiler.html?swift"><code>Compiler</code></a> is released.</p>
+<p>You must call this (or <a href="../../dartsass/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> before the last reference to the
+<a href="../../dartsass/types/compiler.html?swift"><code>Compiler</code></a> is released.</p>
 <p>Waits for work to wind down naturally and shuts down internal threads.  There’s no way back
 from this state: to do more compilation you will need a new object.</p>
 <p>This resolves on a dispatch queue because of internal event queue shutdown; make sure the
@@ -1498,12 +1534,13 @@ queue is being run.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L214-L222">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L224-L232">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1538,7 +1575,7 @@ queue is being run.</p>
 
 
 <p>Shut down the compiler synchronously.</p>
-<p>See <a href="../../sassembedded/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(queue:_:)</code></a>.</p>
+<p>See <a href="../../dartsass/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(queue:_:)</code></a>.</p>
 <p>Do not call this from an event loop thread.</p>
 
 
@@ -1558,12 +1595,13 @@ queue is being run.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L229-L235">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L239-L245">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1632,12 +1670,13 @@ approx 300 bytes per compile request.</p>
             
 
 
+
           
 
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/SassEmbedded/Compiler.swift#L291">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L301">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1740,7 +1779,7 @@ approx 300 bytes per compile request.</p>
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.2.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.3.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>
