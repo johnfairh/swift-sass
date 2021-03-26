@@ -1,6 +1,6 @@
 //
 //  TestGoodpath.swift
-//  SassLibSassTests
+//  LibSassTests
 //
 //  Copyright 2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
@@ -8,7 +8,7 @@
 
 import XCTest
 import TestHelpers
-import SassLibSass
+import LibSass
 
 /// Basic in/out format style no errors or fanciness
 ///

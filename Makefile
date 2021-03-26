@@ -19,7 +19,7 @@ test:
 	swift test ${swifttestflags} ${libsass4flags}
 
 test_libsass:
-	swift test ${swifttestflags} --filter SassLibSassTests ${libsass4flags}
+	swift test ${swifttestflags} --filter LibSassTests ${libsass4flags}
 
 test_linux:
 	docker run -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:5.5 make test

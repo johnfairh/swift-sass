@@ -1,6 +1,6 @@
 //
 //  TestApiCorners.swift
-//  SassLibSassTests
+//  LibSassTests
 //
 //  Copyright 2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
@@ -8,7 +8,7 @@
 
 import XCTest
 import TestHelpers
-@testable import SassLibSass
+@testable import LibSass
 
 // Dumb tests that the RAII bits work.
 // Or at least, don't crash.  Can't validate on the C side; Xcode 11.4 coverage doesn't

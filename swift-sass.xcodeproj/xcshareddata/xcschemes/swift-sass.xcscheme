@@ -57,8 +57,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "02B1C8CB25EFB8180053920D"
-               BuildableName = "SassLibSass.framework"
-               BlueprintName = "SassLibSass"
+               BuildableName = "LibSass.framework"
+               BlueprintName = "LibSass"
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -100,8 +100,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "029D3C2E2604E89400E1B6BC"
-               BuildableName = "SassLibSassTests.xctest"
-               BlueprintName = "SassLibSassTests"
+               BuildableName = "LibSassTests.xctest"
+               BlueprintName = "LibSassTests"
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
          </TestableReference>
