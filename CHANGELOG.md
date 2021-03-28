@@ -12,6 +12,12 @@
 
 * None
 
+# 0.4.0
+
+* Rename module `SassEmbedded` to `DartSass`
+* Move various importer types from `Sass` into `DartSass`
+* Always use host process's view of current directory
+
 # 0.3.0
 
 * Bundle the 1.0.0-beta.7 `dart_sass_embedded` binaries

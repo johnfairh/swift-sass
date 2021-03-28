@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/fw2020.css">
     
     
-   <title>SassScript - Swift Sass v0.3.0</title>
+   <title>SassScript - Swift Sass v0.4.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./" data-doc-path="sassscript.html" data-assets-path="">
@@ -31,7 +31,7 @@
       
       <a href="index.html">
       
-      Swift Sass v0.3.0</a>
+      Swift Sass v0.4.0</a>
     </div>
     
     <span class="navbar-text j2-coverage font-weight-slightly-bold small d-none d-lg-inline-block mr-2">(100% documented)</span>
@@ -1187,7 +1187,7 @@ type is validate that it appears when you expect it to and pass it back to the c
 starting compilation.  Instead they are returned as <a href="sass/types/sassvalue7.html?swift"><code>SassValue</code></a>s from other <a href="custom-functions.html?swift#sassfunction"><code>SassFunction</code></a>s
 (that <em>were</em> declared up-front) so the compiler can call them later on.</p>
 <p>Use <a href="dartsass/types/sassasyncdynamicfunction.html?swift"><code>SassAsyncDynamicFunction</code></a> instead if your function is blocking and you want to use it with
-<a href="dartsass/types/compiler.html?swift"><code>DartSass.Compiler</code></a> in asynchronous mode.</p>
+<a href="dartsass/types/compiler.html?swift"><code>DartSass.Compiler</code></a>.</p>
 
 
 
@@ -1254,8 +1254,8 @@ starting compilation.  Instead they are returned as <a href="sass/types/sassvalu
 
 
 <p>A  dynamic Sass function that can run asynchronously.</p>
-<p>Use instead of <a href="sass/types/sassdynamicfunction.html?swift"><code>SassDynamicFunction</code></a> if your dynamic function needs to block or
-be asynchronous.</p>
+<p>Use instead of <a href="sass/types/sassdynamicfunction.html?swift"><code>SassDynamicFunction</code></a> with <a href="dartsass/types/compiler.html?swift"><code>DartSass.Compiler</code></a> if your dynamic function
+needs to block or be asynchronous.</p>
 
 
 

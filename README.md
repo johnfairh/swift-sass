@@ -29,13 +29,6 @@ as alphas.
 
 This package doesn't support LibSass right now.  [More info](#on-libsass).
 
-* [Examples](#examples)
-* [Documentation](#documentation)
-* [Requirements](#requirements)
-* [Installation](#installation)
-* [Contributions](#contributions)
-* [License](#license)
-
 ## Examples
 
 Minimally:
@@ -107,17 +100,24 @@ asynchronous / non-blocking APIs.
 ## Requirements
 
 * Swift 5.3
-* macOS 10.15+ (tested on macOS 10.15.7, macOS 11.0 IA64)
+* macOS 11 (tested on macOS 11.0 IA64)
 * Linux (tested on Ubuntu 18.04.5)
 * Embedded Sass Protocol version 1.0.0-beta.8
 
 ## Installation
 
 Only with Swift Package Manager, via Xcode or directly:
+
+Package dependency:
 ```swift
 .package(name: "swift-sass",
          url: "https://github.com/johnfairh/swift-sass.git",
-         from: "0.3.0")
+         from: "0.4.0")
+```
+
+Target dependency:
+```swift
+.product(name: "DartSass", package: "swift-sass"),
 ```
 
 The Swift package bundles the embedded Dart Sass compiler for macOS and Linux

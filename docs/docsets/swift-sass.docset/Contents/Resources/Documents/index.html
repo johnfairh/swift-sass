@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/fw2020.css">
     
     
-   <title>Swift Sass v0.3.0</title>
+   <title>Swift Sass v0.4.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./" data-doc-path="index.html" data-assets-path="">
@@ -31,7 +31,7 @@
       
       <a href="index.html">
       
-      Swift Sass v0.3.0</a>
+      Swift Sass v0.4.0</a>
     </div>
     
     <span class="navbar-text j2-coverage font-weight-slightly-bold small d-none d-lg-inline-block mr-2">(100% documented)</span>
@@ -648,9 +648,13 @@ Requirements
 Installation
 </span></h2>
 <p>Only with Swift Package Manager, via Xcode or directly:</p>
+<p>Package dependency:</p>
 <pre><code class="language-swift">.package(name: &quot;swift-sass&quot;,
          url: &quot;https://github.com/johnfairh/swift-sass.git&quot;,
-         from: &quot;0.3.0&quot;)
+         from: &quot;0.4.0&quot;)
+</code></pre>
+<p>Target dependency:</p>
+<pre><code class="language-swift">.product(name: &quot;DartSass&quot;, package: &quot;swift-sass&quot;),
 </code></pre>
 <p>The Swift package bundles the embedded Dart Sass compiler for macOS and Linux
 (specifically Ubuntu Xenial/16.04 64-bit).  For other platforms you will need
