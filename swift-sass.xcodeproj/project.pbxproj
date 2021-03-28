@@ -23,6 +23,7 @@
 		025C624F255D2C9300AEA420 /* BinaryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C624E255D2C9300AEA420 /* BinaryProtocol.swift */; };
 		025C6252255D54C000AEA420 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6251255D54C000AEA420 /* Errors.swift */; };
 		026E4D39260E103E00E916BF /* Importers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 026E4D38260E103E00E916BF /* Importers.swift */; };
+		026E4D4C2610E43400E916BF /* LibSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02B1C8CC25EFB8180053920D /* LibSass.framework */; };
 		0285E828256C4C2900956F18 /* TestFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E827256C4C2900956F18 /* TestFunctions.swift */; };
 		0285E82B256D9ABB00956F18 /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E82A256D9ABB00956F18 /* List.swift */; };
 		0285E82E256EDB6700956F18 /* TestList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E82D256EDB6700956F18 /* TestList.swift */; };
@@ -95,6 +96,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = "swift-sass::DartSass";
 			remoteInfo = DartSass;
+		};
+		026E4D4E2610E43400E916BF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 02B1C8CB25EFB8180053920D;
+			remoteInfo = LibSass;
 		};
 		0289BB2425666BA70004544A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -280,6 +288,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				026E4D4C2610E43400E916BF /* LibSass.framework in Frameworks */,
 				02A3BC172585329C00BBF99E /* DartSass.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -620,6 +629,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				026E4D4F2610E43400E916BF /* PBXTargetDependency */,
 			);
 			name = Cli;
 			productName = Cli;
@@ -925,6 +935,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		026E4D4F2610E43400E916BF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 02B1C8CB25EFB8180053920D /* LibSass */;
+			targetProxy = 026E4D4E2610E43400E916BF /* PBXContainerItemProxy */;
+		};
 		0289BB2525666BA70004544A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 0289BB1725666B060004544A /* Sass */;
@@ -1368,6 +1383,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Sources/clibsass4",
+					"$(SRCROOT)/libsass4/include",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -1421,6 +1440,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Sources/clibsass4",
+					"$(SRCROOT)/libsass4/include",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
