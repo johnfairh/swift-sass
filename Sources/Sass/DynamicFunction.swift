@@ -54,7 +54,7 @@ public func _lookUpDynamicFunction(id: UInt32) -> SassDynamicFunction? {
 /// (that _were_ declared up-front) so the compiler can call them later on.
 ///
 /// Use `SassAsyncDynamicFunction` instead if your function is blocking and you want to use it with
-/// `DartSass.Compiler` in asynchronous mode.
+/// `DartSass.Compiler`.
 open class SassDynamicFunction: SassValue {
     // MARK: Initializers
 

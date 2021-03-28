@@ -17,8 +17,8 @@ public typealias SassAsyncFunctionMap = [SassFunctionSignature : SassAsyncFuncti
 
 /// A  dynamic Sass function that can run asynchronously.
 ///
-/// Use instead of `SassDynamicFunction` if your dynamic function needs to block or
-/// be asynchronous.
+/// Use instead of `SassDynamicFunction` with `DartSass.Compiler` if your dynamic function
+/// needs to block or be asynchronous.
 public class SassAsyncDynamicFunction: SassDynamicFunction {
     // MARK: Initializers
 
