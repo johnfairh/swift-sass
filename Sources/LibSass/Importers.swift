@@ -45,10 +45,9 @@ public enum ImportResolver {
     /// - `ruleURL` is the text following the `@import` as written in the rule.
     /// - `contextFileURL` is the URL of the stylesheet that contains the rule being processed.
     ///
-    /// The routine must either:
+    /// The routine must do one of:
     /// - return `nil` to indicate that this importer cannot resolve the required URL.  The Sass compiler
     ///   will try the next importer.
-    ///   compiler to try the next importer.
     /// - return a filled-in `ImporterResults` with the stylesheet to be imported.
     /// - throw an error of some kind indicating either that the import is ambiguous or some other kind
     ///   of serious error condition exists.  The Sass compiler will error out.
@@ -56,15 +55,18 @@ public enum ImportResolver {
 
     /// Interpret the rule and return the filesystem location of a stylesheet.
     ///
+    /// This is useful over `importer(...)` to take advantage of the filename searching and loading
+    /// functions in LibSass.
+    ///
     /// - `ruleURL` is the text following the `@import` as written in the rule.
     /// - `contextFileURL` is the URL of the stylesheet that contains the rule being processed.
     ///
-    /// The routine must either:
+    /// The routine must do one of:
     /// - return `nil` to indicate that this importer cannot resolve the required URL.  The Sass compiler
     ///   will try the next importer.
     /// - return the URL of the stylesheet to import.  The compiler performs standard Sass file resolution
     ///   on this, which in particular means you can return a directory path here as a dynamic version of
-    ///   `.loadPath`.
+    ///   `loadPath(...)`.
     /// - throw an error of some kind indicating either that the import is ambiguous or some other kind
     ///   of serious error condition exists.  The Sass compiler will error out.
     case fileImporter((_ ruleURL: String, _ contextFileURL: URL) throws -> URL?)

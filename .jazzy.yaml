@@ -45,9 +45,9 @@ rewrite_link_urls:
   - https://github.com/johnfairh/swift-sass/blob/main
 custom_groups:
   - name: Sass Compilation
-    abstract: Main types for using the Sass compiler.
+    abstract: Main types for using the Sass compilers.
     topics:
-      - name: Compiler
+      - name: Compilers
         children:
           - DartSass.Compiler
           - LibSass.Compiler
