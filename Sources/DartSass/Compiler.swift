@@ -7,6 +7,7 @@
 //
 
 import struct Foundation.URL
+import class Foundation.FileManager // cwd
 import Dispatch
 import NIO
 import Logging
@@ -363,9 +364,8 @@ public final class Compiler {
                     m.source = string
                     m.syntax = .init(syntax)
                     url.flatMap { m.url = $0.absoluteString }
-                    importer.flatMap {
-                        m.importer = .init($0, id: CompilationRequest.baseImporterID)
-                    }
+                    m.importer = .init(findImplicitImporter(importer: importer),
+                                       id: CompilationRequest.baseImporterID)
                 }),
                 outputStyle: outputStyle,
                 createSourceMap: createSourceMap,
@@ -373,6 +373,12 @@ public final class Compiler {
                 stringImporter: importer,
                 functions: functions)
         }
+    }
+
+    // Compile from string, no importer given, supposed to try the current directory.
+    // but the child process's CWD could be different to ours - so we can't let it resolve.
+    private func findImplicitImporter(importer: ImportResolver?) -> ImportResolver {
+        importer ?? .loadPath(URL(fileURLWithPath: FileManager.default.currentDirectoryPath))
     }
 
     /// Compile to CSS from an inline stylesheet.

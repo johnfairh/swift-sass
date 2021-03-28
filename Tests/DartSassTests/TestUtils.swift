@@ -98,6 +98,25 @@ extension FileManager {
         try createDirectory(at: directoryURL, withIntermediateDirectories: false)
         return directoryURL
     }
+
+    public static func preservingCurrentDirectory<T>(_ code: () throws -> T) rethrows -> T {
+        let fileManager = FileManager.default
+        let cwd = fileManager.currentDirectoryPath
+        defer {
+            let rc = fileManager.changeCurrentDirectoryPath(cwd)
+            precondition(rc)
+        }
+        return try code()
+    }
+}
+
+extension URL {
+    public func withCurrentDirectory<T>(code: () throws -> T) throws -> T {
+        try FileManager.preservingCurrentDirectory {
+            FileManager.default.changeCurrentDirectoryPath(path)
+            return try code()
+        }
+    }
 }
 
 /// An async importer that can be stopped in `load`.
