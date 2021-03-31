@@ -23,15 +23,15 @@ class TestBadpath: XCTestCase {
 
     let badSassError = """
     Error: "Property top must be either left or right."
-      ,
-    3 |     @error "Property #{$property} must be either left or right."
-      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      '
+      ╷
+    3 │     @error "Property #{$property} must be either left or right."
+      │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      ╵
       file.sass 3:5  reflexive-position()
-      ,
-    6 |   @include reflexive-position(top, 12px)
-      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      '
+      ╷
+    6 │   @include reflexive-position(top, 12px)
+      │   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      ╵
       file.sass 6:3  root stylesheet
 
 
@@ -49,7 +49,7 @@ class TestBadpath: XCTestCase {
             let results = try compiler.compile(string: badSass, syntax: .sass, fileURL: URL(fileURLWithPath: "file.sass"))
             XCTFail("Managed to compile, got: \(results.css)")
         } catch let error as CompilerError {
-            XCTAssertTrue(error.message.isEmpty) // This is a libsass bug
+            XCTAssertEqual(#""Property top must be either left or right.""#, error.message)
             let span = try XCTUnwrap(error.span)
             XCTAssertEqual(3, span.start.line)
             XCTAssertEqual(5, span.start.column)
@@ -75,7 +75,7 @@ class TestBadpath: XCTestCase {
         } catch let error as CompilerError {
             let span = try XCTUnwrap(error.span)
             XCTAssertNil(span.url)
-            XCTAssertTrue(error.message.isEmpty) // Probably a bug
+            XCTAssertEqual("File to read not found or unreadable.", error.message)
             XCTAssertEqual("Error: File to read not found or unreadable.\n", error.description)
         } catch {
             XCTFail("Unexpected error: \(error)")
@@ -84,8 +84,8 @@ class TestBadpath: XCTestCase {
 
     let badSassInlineColorError = """
     Error: "Property top must be either left or right."
-    \u{001b}[34m  ╷\u{001b}[0m
-    \u{001b}[34m6 │\u{001b}[0m   \u{001b}[31m@include reflexive-position(top, 12px)\u{001b}[0m
+    \u{001b}[34m  ╷\u{001b}[m
+    \u{001b}[34m3 │\u{001b}[m     \u{001b}[31m@error "Property #{$property} must be either left or right."\u{001b}[m
     """
 
     func testColorCompilerError() throws {
@@ -94,7 +94,7 @@ class TestBadpath: XCTestCase {
             let results = try compiler.compile(string: badSass, syntax: .sass, fileURL: URL(fileURLWithPath: "file.sass"))
             XCTFail("Managed to compile, got: \(results.css)")
         } catch let error as CompilerError {
-            XCTAssertEqual(badSassError, error.description) // This is a libsass bug
+            XCTAssertTrue(error.description.hasPrefix(badSassInlineColorError))
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
@@ -168,7 +168,7 @@ class TestBadpath: XCTestCase {
 
     let badWarningScss = """
     @warn "Warning";
-    @error "Stop";
+    @error Stop;
     """
 
     // Compiler error and a warning
@@ -181,7 +181,7 @@ class TestBadpath: XCTestCase {
             XCTAssertEqual(1, error.messages.count)
             XCTAssertEqual(.warning, error.messages[0].kind)
             XCTAssertTrue(error.description.contains("Stop"))
-            XCTAssertEqual("", error.message) // libsass bug
+            XCTAssertEqual("Stop", error.message) // libsass bug
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
