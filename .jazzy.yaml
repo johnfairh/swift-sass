@@ -21,15 +21,15 @@ modules:
   - LibSass
 build_tool_arguments:
   - "-Xcc"
-  - "-I/Users/johnf/project/swift-sass"
+  - "-I${PWD}"
   - "-Xcc"
-  - "-I/Users/johnf/project/swift-sass/libsass4/include"
+  - "-I${PWD}/libsass4/include"
   - "-Xlinker"
-  - "-L/Users/johnf/project/swift-sass/libsass4/lib"
+  - "-L${PWD}/libsass4/lib"
   - "-Xlinker"
   - "-rpath"
   - "-Xlinker"
-  - "/Users/johnf/project/swift-sass/libsass4/lib"
+  - "${PWD}/libsass4/lib"
 docset_module_name: swift-sass
 title: Swift Sass v0.8.0
 module_version: 0.8.0
@@ -45,12 +45,11 @@ rewrite_link_urls:
   - https://github.com/johnfairh/swift-sass/blob/main
 custom_groups:
   - name: Sass Compilation
-    abstract: Main types for using the Sass compilers.
     topics:
       - name: Compilers
         children:
-          - DartSass.Compiler
-          - LibSass.Compiler
+          - DartSass.Compiler [Compiler (Dart)]
+          - LibSass.Compiler [Compiler (LibSass)]
       - name: Inputs
         children:
           - Syntax
