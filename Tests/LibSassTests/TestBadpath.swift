@@ -8,10 +8,12 @@
 
 import XCTest
 import TestHelpers
-import LibSass
+@testable import LibSass
 
 /// Compiler errors and warnings
 class TestBadpath: XCTestCase {
+    override func tearDown() { LibSass4.dumpMemLeaks() }
+
     let badSass = """
     @mixin reflexive-position($property, $value)
       @if $property != left and $property != right

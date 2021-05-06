@@ -14,6 +14,8 @@ import TestHelpers
 // Or at least, don't crash.  Can't validate on the C side; Xcode 11.4 coverage doesn't
 // seem to work properly in `deinit` either.
 class TestApiCorners: XCTestCase {
+    override func tearDown() { LibSass4.dumpMemLeaks() }
+
     func testImport() {
         let myImport = LibSass4.Import(fileURL: URL(fileURLWithPath: "file.scss"))
         print(myImport)

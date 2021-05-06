@@ -14,6 +14,8 @@ import CLibSass4
 /// Custom functions, libsass-style.
 /// Most of this is validating the round-tripping between our types and libsass.
 class TestFunctions: XCTestCase {
+    override func tearDown() { LibSass4.dumpMemLeaks() }
+
     let functions: SassFunctionMap = [
         "myEcho($param)" : { args in
             return args[0]
@@ -31,8 +33,8 @@ class TestFunctions: XCTestCase {
         XCTAssertEqual("a{b:frederick,22}\n", results.css)
 
         let results2 = try compiler.compile(string: "a { b: myAdd(100, 25) }",
-                                           outputStyle: .compressed,
-                                           functions: functions)
+                                            outputStyle: .compressed,
+                                            functions: functions)
         XCTAssertEqual("a{b:125}\n", results2.css)
     }
 

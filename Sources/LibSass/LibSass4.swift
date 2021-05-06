@@ -51,7 +51,7 @@ enum LibSass4 {
         // set-only and we don't need the getters for those that do have them.
 
         func set(entryPoint mainImport: Import) {
-            sass_compiler_set_entry_point(ptr, mainImport.makeUnowned())
+            sass_compiler_set_entry_point(ptr, mainImport.ptr) // does not take ownership
         }
 
         func set(style: SassOutputStyle) {
@@ -134,7 +134,7 @@ enum LibSass4 {
 
     /// struct SassImport
     final class Import {
-        private let ptr: OpaquePointer
+        fileprivate let ptr: OpaquePointer
         private var owned: Bool
 
         init(string: String, fileURL: URL?, syntax: SassImportSyntax) {
@@ -458,7 +458,7 @@ enum LibSass4 {
         init(values: [Value], hasBrackets: Bool, separator: SassSeparator) {
             self.ptr = sass_make_list(separator, hasBrackets)
             self.owned = true
-            values.forEach { sass_list_push(self.ptr, $0.ensureUnowned()) }
+            values.forEach { sass_list_push(self.ptr, $0.ptr) }
         }
 
         var listSize: Int { sass_list_get_size(ptr) }
@@ -470,9 +470,7 @@ enum LibSass4 {
         init(pairs: [(Value, Value)]) {
             self.ptr = sass_make_map()
             self.owned = true
-            pairs.forEach {
-                sass_map_set(ptr, $0.0.ensureUnowned(), $0.1.ensureUnowned())
-            }
+            pairs.forEach { sass_map_set(ptr, $0.0.ptr, $0.1.ptr) }
         }
 
         var mapIterator: MapIterator {
@@ -517,6 +515,10 @@ enum LibSass4 {
         var value: Value {
             Value(sass_map_iterator_get_value(ptr))
         }
+    }
+
+    static func dumpMemLeaks() {
+        // sass_dump_mem_leaks()
     }
 }
 

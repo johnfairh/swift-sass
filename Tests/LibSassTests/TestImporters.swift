@@ -8,10 +8,12 @@
 
 import XCTest
 import TestHelpers
-import LibSass
+@testable import LibSass
 
 /// Custom importers, libsass-style
 class TestImporters: XCTestCase {
+    override func tearDown() { LibSass4.dumpMemLeaks() }
+
 
     class StaticImporter {
         private let content: String

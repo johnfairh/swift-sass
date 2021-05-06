@@ -8,7 +8,7 @@
 
 import XCTest
 import TestHelpers
-import LibSass
+@testable import LibSass
 import SourceMapper
 
 /// Basic in/out format style no errors or fanciness
@@ -18,6 +18,8 @@ import SourceMapper
 /// - 'compressed' format is too ambitious, no space after 'div'
 /// - trailing newline on everything.
 class TestGoodpath: XCTestCase {
+    override func tearDown() { LibSass4.dumpMemLeaks() }
+
     let scssIn = """
     div {
         a {
