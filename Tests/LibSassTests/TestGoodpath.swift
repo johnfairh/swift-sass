@@ -9,6 +9,7 @@
 import XCTest
 import TestHelpers
 import LibSass
+import SourceMapper
 
 /// Basic in/out format style no errors or fanciness
 ///
@@ -123,16 +124,16 @@ class TestGoodpath: XCTestCase {
         XCTAssertEqual(scssOutNested, results.css)
 
         let json = try XCTUnwrap(results.sourceMap)
-        // Check we have a reasonable-looking source map, details don't matter
-        let map = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!) as! [String:Any]
-        XCTAssertEqual(3, map["version"] as? Int)
-        XCTAssertNil(map["sourcesContent"])
-        let mappings = try XCTUnwrap(map["mappings"] as? String)
+
+        let sourceMap = try SourceMap(string: json)
+        XCTAssertEqual(SourceMap.VERSION, sourceMap.version)
         // oh boy libsass is doing sourcemaps all wrong
-        XCTAssertTrue(mappings == "AACI;EACI,OAAO" || mappings == "AAAA,AACI;EACI,OAAO")
-        let sources = try XCTUnwrap(map["sources"] as? Array<String>)
-        XCTAssertEqual("custom/bar", sources[0])
-        XCTAssertEqual("custom/bar.css", map["file"] as? String)
+        XCTAssertTrue(sourceMap.mappings == "AACI;EACI,OAAO" || sourceMap.mappings == "AAAA,AACI;EACI,OAAO")
+        print(try sourceMap.getSegmentsDescription())
+        XCTAssertEqual(1, sourceMap.sources.count)
+        XCTAssertEqual("custom/bar", sourceMap.sources[0].url)
+        XCTAssertNil(sourceMap.sources[0].content)
+        XCTAssertEqual("custom/bar.css", sourceMap.file)
     }
 
     /// Is outputstyle enum translated OK
