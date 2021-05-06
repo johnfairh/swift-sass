@@ -22,7 +22,7 @@ class TestBadpath: XCTestCase {
     """
 
     let badSassError = """
-    Error: "Property top must be either left or right."
+    Error: "Property top must be either left or right." \("")
       ╷
     3 │     @error "Property #{$property} must be either left or right."
       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -75,15 +75,15 @@ class TestBadpath: XCTestCase {
         } catch let error as CompilerError {
             let span = try XCTUnwrap(error.span)
             XCTAssertNil(span.url)
-            XCTAssertEqual("File to read not found or unreadable.", error.message)
-            XCTAssertEqual("Error: File to read not found or unreadable.\n", error.description)
+            XCTAssertTrue(error.message.hasPrefix("File not found or unreadable"))
+            XCTAssertTrue(error.description.hasPrefix("Error: File not found or unreadable"))
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
     }
 
     let badSassInlineColorError = """
-    Error: "Property top must be either left or right."
+    Error: "Property top must be either left or right." \("")
     \u{001b}[34m  ╷\u{001b}[m
     \u{001b}[34m3 │\u{001b}[m     \u{001b}[31m@error "Property #{$property} must be either left or right."\u{001b}[m
     """

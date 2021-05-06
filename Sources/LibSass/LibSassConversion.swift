@@ -32,15 +32,6 @@ extension Sass.CssStyle {
     }
 }
 
-extension CompilerMessageStyle {
-    var toLibSass: SassLoggerStyle {
-        switch self {
-        case .plain: return SASS_LOGGER_UNICODE_MONO
-        case .terminalColored: return SASS_LOGGER_UNICODE_COLOR
-        }
-    }
-}
-
 extension CompilerError {
     init(_ error: LibSass4.Error, messages: [CompilerMessage]) {
         self.init(message: error.message,

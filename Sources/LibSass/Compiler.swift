@@ -113,7 +113,8 @@ public final class Compiler {
         compiler.set(entryPoint: mainImport)
         compiler.set(style: outputStyle.toLibSass)
         compiler.set(precision: 10)
-        compiler.set(loggerStyle: messageStyle.toLibSass)
+        compiler.set(loggerUnicode: true)
+        compiler.set(loggerColors: messageStyle == .terminalColored)
         if createSourceMap {
             compiler.enableSourceMap()
             compiler.set(sourceMapEmbedContents: false) // to match embedded-sass API

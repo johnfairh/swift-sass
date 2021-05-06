@@ -70,8 +70,12 @@ enum LibSass4 {
             sass_compiler_set_precision(ptr, precision)
         }
 
-        func set(loggerStyle: SassLoggerStyle) {
-            sass_compiler_set_logger_style(ptr, loggerStyle)
+        func set(loggerColors enable: Bool) {
+            sass_compiler_set_logger_colors(ptr, enable)
+        }
+
+        func set(loggerUnicode enable: Bool) {
+            sass_compiler_set_logger_unicode(ptr, enable)
         }
 
         func set(outputPath: URL) {
