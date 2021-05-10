@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.4
 
 import PackageDescription
 
@@ -62,7 +62,7 @@ let package = Package(
       .testTarget(
         name: "SassTests",
         dependencies: ["Sass"]),
-      .target(
+      .executableTarget(
         name: "Cli",
         dependencies: ["DartSass"]),
     ]

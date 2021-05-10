@@ -6,13 +6,13 @@ build:
 	swift build
 
 test:
-	swift test --enable-test-discovery --enable-code-coverage
+	swift test --enable-code-coverage
 
 test_linux:
-	docker run -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:5.3 make test
+	docker run -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:5.4 make test
 
 shell_linux:
-	docker run -it -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:5.3 /bin/bash
+	docker run -it -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:5.4 /bin/bash
 
 # Regenerate the protocol buffer structures.
 # Only needed when the embedded-protocol submodule is changed.
