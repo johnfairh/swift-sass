@@ -99,8 +99,8 @@ asynchronous / non-blocking APIs.
 
 ## Requirements
 
-* Swift 5.3
-* macOS 11 (tested on macOS 11.0 IA64)
+* Swift 5.4
+* macOS 11 (tested on macOS 11.3 IA64)
 * Linux (tested on Ubuntu 18.04.5)
 * Embedded Sass Protocol version 1.0.0-beta.8
 
