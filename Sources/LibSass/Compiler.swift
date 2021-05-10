@@ -118,15 +118,18 @@ public final class Compiler {
         if createSourceMap {
             compiler.enableSourceMap()
             compiler.set(sourceMapEmbedContents: false) // to match embedded-sass API
-            // sourceRoot - dart sets an empty string.  libsass just ignores the field if empty.
         }
 
-        // Workaround LibSass bug: outputPath is not inferred properly.
+        // sourcemap 'file' field: really we'll fix it up post-compile, but LibSass
+        // attempts to infer the right answer if allowed to, and does a not-great job.
         if case let mainURL = mainImport.absPath,
            mainURL.isFileURL {
-            compiler.set(outputPath: mainURL.deletingPathExtension().appendingPathExtension("css"))
+            var outputURL = mainURL.deletingPathExtension()
+            if outputURL.pathExtension != "css" {
+                outputURL.appendPathExtension("css")
+            }
+            compiler.set(outputPath: outputURL)
         }
-        // End workaround
 
         // Importers
         compiler.add(importers: globalImporters + importers)

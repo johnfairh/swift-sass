@@ -11,8 +11,8 @@ import TestHelpers
 @testable import LibSass
 
 // Dumb tests that the RAII bits work.
-// Or at least, don't crash.  Can't validate on the C side; Xcode 11.4 coverage doesn't
-// seem to work properly in `deinit` either.
+// Or at least, don't crash: Xcode coverage doesn't work properly in `deinit`.
+// Tested for leaks manually using libsass4 patch and DEBUG_SHARED_PTR.
 class TestApiCorners: XCTestCase {
     override func tearDown() { LibSass4.dumpMemLeaks() }
 
