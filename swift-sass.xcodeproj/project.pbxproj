@@ -33,7 +33,6 @@
 		0285E85625756B1500956F18 /* TestColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E85525756B1400956F18 /* TestColor.swift */; };
 		0289BB2225666BA70004544A /* Sass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0289BB1825666B060004544A /* Sass.framework */; };
 		0289BB2F25666C940004544A /* CompilerTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB2B25666C8F0004544A /* CompilerTypes.swift */; };
-		0289BB3425669E610004544A /* ImporterTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB3325669E610004544A /* ImporterTypes.swift */; };
 		0289BB372566A62B0004544A /* TestImporters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB362566A62B0004544A /* TestImporters.swift */; };
 		0289BB3A2568471D0004544A /* ProtobufConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB392568471D0004544A /* ProtobufConversion.swift */; };
 		0289BB3D256BD3BE0004544A /* Value.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB3C256BD3BE0004544A /* Value.swift */; };
@@ -145,7 +144,6 @@
 		0285E85525756B1400956F18 /* TestColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestColor.swift; sourceTree = "<group>"; };
 		0289BB1825666B060004544A /* Sass.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Sass.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0289BB2B25666C8F0004544A /* CompilerTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerTypes.swift; sourceTree = "<group>"; };
-		0289BB3325669E610004544A /* ImporterTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImporterTypes.swift; sourceTree = "<group>"; };
 		0289BB362566A62B0004544A /* TestImporters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestImporters.swift; sourceTree = "<group>"; };
 		0289BB392568471D0004544A /* ProtobufConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtobufConversion.swift; sourceTree = "<group>"; };
 		0289BB3C256BD3BE0004544A /* Value.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Value.swift; sourceTree = "<group>"; };
@@ -243,7 +241,6 @@
 			isa = PBXGroup;
 			children = (
 				0289BB2B25666C8F0004544A /* CompilerTypes.swift */,
-				0289BB3325669E610004544A /* ImporterTypes.swift */,
 				0285E836256FAD9200956F18 /* FunctionTypes.swift */,
 				0289BB3C256BD3BE0004544A /* Value.swift */,
 				02440A1E2576B24B008F0862 /* ValueConvertible.swift */,
@@ -570,7 +567,6 @@
 				02440A1F2576B24B008F0862 /* ValueConvertible.swift in Sources */,
 				0285E82B256D9ABB00956F18 /* List.swift in Sources */,
 				0289BB3D256BD3BE0004544A /* Value.swift in Sources */,
-				0289BB3425669E610004544A /* ImporterTypes.swift in Sources */,
 				0285E84F257266D800956F18 /* Units.swift in Sources */,
 				02440A1625765786008F0862 /* CompilerFunction.swift in Sources */,
 				0285E831256EE56E00956F18 /* Constants.swift in Sources */,

@@ -19,7 +19,7 @@ public struct ProtocolError: Error, CustomStringConvertible {
 
     init(_ text: String) {
         description = text
-        Compiler.logger.error(.init(stringLiteral: text))
+        Compiler.logger.debug("protocol_error: \(text)")
     }
 }
 
@@ -30,7 +30,7 @@ public struct LifecycleError: Error, CustomStringConvertible {
 
     init(_ text: String) {
         description = text
-        Compiler.logger.error(.init(stringLiteral: text))
+        Compiler.logger.debug("lifecycle_error: \(text)")
     }
 }
 

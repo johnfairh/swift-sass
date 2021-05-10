@@ -298,8 +298,9 @@ public final class Compiler {
     /// Produces goodpath protocol and compiler lifecycle tracing at `Logger.Level.debug` log level,
     /// approx 300 bytes per compile request.
     ///
-    /// Produces protocol and lifecycle error reporting at `Logger.Level.error` log level.
-    public static var logger = Logger(label: "sass-embedded")
+    /// Produces protocol and lifecycle error reporting at `Logger.Level.debug` log level for conditions
+    /// that are also reported through errors thrown from some API.
+    public static var logger = Logger(label: "dart-sass")
 
     private func debug(_ msg: @autoclosure () -> String) {
         Compiler.logger.debug(.init(stringLiteral: msg()))
