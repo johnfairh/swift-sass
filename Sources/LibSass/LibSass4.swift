@@ -82,10 +82,6 @@ enum LibSass4 {
             sass_compiler_set_output_path(ptr, outputPath.path)
         }
 
-//        func set(sourceMapSourceRoot root: String) {
-//            sass_compiler_set_srcmap_root(ptr, root)
-//        }
-
         func parseCompileRender() {
             sass_compiler_parse(ptr)
             sass_compiler_compile(ptr)

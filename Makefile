@@ -47,4 +47,7 @@ dart_sass_embedded:
 # Rebuild the alpha libsass4
 # Only needed when the libsass4 submodule is bumped
 libsass4:
+	cd libsass4 && CXXFLAGS="-Wall -mmacosx-version-min=10.15" LDFLAGS="-Wall -mmacosx-version-min=10.15" BUILD="shared" LIBSASS_VERSION=4.0.0-beta.johnf make -j5
+
+libsass4_debug:
 	cd libsass4 && CXXFLAGS="-Wall -mmacosx-version-min=10.15 -DDEBUG_SHARED_PTR" LDFLAGS="-Wall -mmacosx-version-min=10.15" BUILD="shared" DEBUG=1 LIBSASS_VERSION=4.0.0-beta.johnf make -j5

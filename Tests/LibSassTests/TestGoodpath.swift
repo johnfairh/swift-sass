@@ -129,8 +129,7 @@ class TestGoodpath: XCTestCase {
 
         let sourceMap = try SourceMap(string: json)
         XCTAssertEqual(SourceMap.VERSION, sourceMap.version)
-        // oh boy libsass is doing sourcemaps all wrong
-        XCTAssertTrue(sourceMap.mappings == "AACI;EACI,OAAO" || sourceMap.mappings == "AAAA,AACI;EACI,OAAO")
+        XCTAssertEqual("AACI;EACI,OAAO", sourceMap.mappings)
         print(try sourceMap.getSegmentsDescription())
         XCTAssertEqual(1, sourceMap.sources.count)
         XCTAssertEqual("custom/bar", sourceMap.sources[0].url)
