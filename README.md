@@ -128,7 +128,7 @@ it manually, ship it as part of your program's distribution, and use
 [this initializer](https://johnfairh.github.io/swift-sass/sassembedded/types/compiler.html?swift#initeventloopgroupprovidertimeoutimportersfunctions).
 
 There is no need to install a Dart runtime or SDK as part of this, the
-`dart-embedded-sass` program is standalone.  The version required is
+`dart-sass-embedded` program is standalone.  The version required is
 `1.0.0-beta.7`.
 
 ## On LibSass

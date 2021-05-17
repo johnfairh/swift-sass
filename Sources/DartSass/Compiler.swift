@@ -113,7 +113,7 @@ public final class Compiler {
     /// Use the bundled Dart Sass compiler as the Sass compiler.
     ///
     /// The bundled Dart Sass compiler is built for macOS (Intel) or Ubuntu Xenial (16.04) 64-bit.
-    /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerURL:timeout:messageStyle:importers:functions:)`
+    /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:importers:functions:)`
     /// supplying the path of the correct Dart Sass compiler.
     ///
     /// Initialization continues asynchronously after the initializer completes; failures are reported
