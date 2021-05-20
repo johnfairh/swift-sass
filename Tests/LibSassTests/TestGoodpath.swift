@@ -71,17 +71,17 @@ class TestGoodpath: XCTestCase {
     /// Does it work, goodpath, no imports, scss/sass/css inline input
     func testCoreInline() throws {
         let compiler = Compiler()
-        let results1 = try compiler.compile(string: scssIn)
+        let results1 = try compiler.compile(string: scssIn, sourceMapStyle: .none)
         XCTAssertNil(results1.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(scssOutNested, results1.css)
 
-        let results2 = try compiler.compile(string: sassIn, syntax: .sass)
+        let results2 = try compiler.compile(string: sassIn, syntax: .sass, sourceMapStyle: .none)
         XCTAssertNil(results2.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(sassOutNested, results2.css)
 
-        let results3 = try compiler.compile(string: sassOutNested, syntax: .css)
+        let results3 = try compiler.compile(string: sassOutNested, syntax: .css, sourceMapStyle: .none)
         XCTAssertNil(results3.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(sassOutNested, results3.css)
@@ -122,19 +122,29 @@ class TestGoodpath: XCTestCase {
     func testSourceMap() throws {
         let compiler = Compiler()
 
-        let results = try compiler.compile(string: scssIn, fileURL: URL(fileURLWithPath: "custom/bar"), createSourceMap: true)
-        XCTAssertEqual(scssOutNested, results.css)
+        try [SourceMapStyle.separateSources, SourceMapStyle.embeddedSources].forEach { mapStyle in
+            let results = try compiler.compile(string: scssIn,
+                                               fileURL: URL(fileURLWithPath: "custom/bar"),
+                                               sourceMapStyle: mapStyle)
+            XCTAssertEqual(scssOutNested, results.css)
 
-        let json = try XCTUnwrap(results.sourceMap)
+            let json = try XCTUnwrap(results.sourceMap)
 
-        let sourceMap = try SourceMap(string: json)
-        XCTAssertEqual(SourceMap.VERSION, sourceMap.version)
-        XCTAssertEqual("AACI;EACI,OAAO", sourceMap.mappings)
-        print(try sourceMap.getSegmentsDescription())
-        XCTAssertEqual(1, sourceMap.sources.count)
-        XCTAssertEqual("custom/bar", sourceMap.sources[0].url)
-        XCTAssertNil(sourceMap.sources[0].content)
-        XCTAssertEqual("custom/bar.css", sourceMap.file)
+            let sourceMap = try SourceMap(string: json)
+            XCTAssertEqual(SourceMap.VERSION, sourceMap.version)
+            XCTAssertEqual("AACI;EACI,OAAO", sourceMap.mappings)
+            print(try sourceMap.getSegmentsDescription())
+            XCTAssertEqual(1, sourceMap.sources.count)
+            XCTAssertEqual("custom/bar", sourceMap.sources[0].url)
+            if !mapStyle.toLibSassEmbedded {
+                XCTAssertNil(sourceMap.sources[0].content)
+            } else {
+                let content = try XCTUnwrap(sourceMap.sources[0].content)
+                XCTAssertEqual(scssIn, content)
+            }
+
+            XCTAssertEqual("custom/bar.css", sourceMap.file)
+        }
     }
 
     /// Is outputstyle enum translated OK

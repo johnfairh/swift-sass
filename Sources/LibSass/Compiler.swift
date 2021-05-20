@@ -59,7 +59,7 @@ public final class Compiler {
     ///   - fileURL: The URL of the file to compile.  The file extension determines the
     ///     expected syntax of the contents, so it must be css/scss/sass.
     ///   - outputStyle: How to format the produced CSS.  Default `.nested`.
-    ///   - createSourceMap: Create a JSON source map for the CSS.  Default `false`.
+    ///   - sourceMapStyle: Kind of source map to create for the CSS.  Default `.separateSources`.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
     ///     `sourceFileURL`'s directory and any set globally.  Default none.
     ///   - functions: Custom functions for this compilation, overriding any with the same name
@@ -68,12 +68,12 @@ public final class Compiler {
     /// - returns: `CompilerResults` with CSS and optional source map.
     public func compile(fileURL: URL,
                         outputStyle: CssStyle = .nested,
-                        createSourceMap: Bool = false,
+                        sourceMapStyle: SourceMapStyle = .separateSources,
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
         precondition(fileURL.isFileURL)
         return try compile(mainImport: LibSass4.Import(fileURL: fileURL),
-                           outputStyle: outputStyle, createSourceMap: createSourceMap,
+                           outputStyle: outputStyle, sourceMapStyle: sourceMapStyle,
                            importers: importers, functions: functions)
     }
 
@@ -86,7 +86,7 @@ public final class Compiler {
     ///     Default `nil` meaning unknown, though it is best to avoid this if possible: LibSass substitutes
     ///     something like `stream://stdin` where necessary which is usually unhelpful.
     ///   - outputStyle: How to format the produced CSS.  Default `.nested`.
-    ///   - createSourceMap: Create a JSON source map for the CSS.  Default `false`.
+    ///   - sourceMapStyle: Kind of source map to create for the CSS.  Default `.separateSources`.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
     ///     any set globally.  Default none.
     ///   - functions: Custom functions for this compilation, overriding any with the same name
@@ -95,17 +95,18 @@ public final class Compiler {
     /// - returns: `CompilerResults` with CSS and optional source map.
     public func compile(string: String, syntax: Syntax = .scss, fileURL: URL? = nil,
                         outputStyle: CssStyle = .nested,
-                        createSourceMap: Bool = false,
+                        sourceMapStyle: SourceMapStyle = .separateSources,
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
         fileURL.flatMap { precondition($0.isFileURL) }
         return try compile(mainImport: LibSass4.Import(string: string, fileURL: fileURL, syntax: syntax.toLibSass),
-                           outputStyle: outputStyle, createSourceMap: createSourceMap,
+                           outputStyle: outputStyle, sourceMapStyle: sourceMapStyle,
                            importers: importers, functions: functions)
     }
 
     private func compile(mainImport: LibSass4.Import,
-                         outputStyle: CssStyle, createSourceMap: Bool,
+                         outputStyle: CssStyle,
+                         sourceMapStyle: SourceMapStyle,
                          importers: [ImportResolver],
                          functions: SassFunctionMap) throws -> CompilerResults {
         let compiler = LibSass4.Compiler()
@@ -115,10 +116,8 @@ public final class Compiler {
         compiler.set(precision: 10)
         compiler.set(loggerUnicode: true)
         compiler.set(loggerColors: messageStyle == .terminalColored)
-        if createSourceMap {
-            compiler.enableSourceMap()
-            compiler.set(sourceMapEmbedContents: false) // to match embedded-sass API
-        }
+        compiler.set(sourceMapMode: sourceMapStyle.toLibSassMode)
+        compiler.set(sourceMapEmbedContents: sourceMapStyle.toLibSassEmbedded)
 
         // sourcemap 'file' field: really we'll fix it up post-compile, but LibSass
         // attempts to infer the right answer if allowed to, and does a not-great job.

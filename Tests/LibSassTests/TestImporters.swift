@@ -162,7 +162,6 @@ class TestImporters: XCTestCase {
         let compiler = Compiler()
         let results = try compiler.compile(string: "@import 'one';\n@import 'two';",
                                            fileURL: URL(fileURLWithPath: "main.scss"),
-                                           createSourceMap: true,
                                            importers: [
                                             .importer( { try importer1.load($0, $1) }),
                                             .importer(

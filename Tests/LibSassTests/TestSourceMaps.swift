@@ -20,7 +20,7 @@ class TestSourceMaps: XCTestCase {
         let compiler = Compiler()
 
         try ["foo.scss", "foo", "foo.css.scss"].forEach { inputName in
-            let results = try compiler.compile(string: "", fileURL: URL(fileURLWithPath: inputName), createSourceMap: true)
+            let results = try compiler.compile(string: "", fileURL: URL(fileURLWithPath: inputName))
             XCTAssertEqual("", results.css)
             let map = try SourceMap(string: XCTUnwrap(results.sourceMap))
             XCTAssertEqual("foo.css", map.file)

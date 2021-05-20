@@ -58,8 +58,8 @@ enum LibSass4 {
             sass_compiler_set_output_style(ptr, style)
         }
 
-        func enableSourceMap() {
-            sass_compiler_set_srcmap_mode(ptr, SASS_SRCMAP_CREATE)
+        func set(sourceMapMode value: SassSrcMapMode) {
+            sass_compiler_set_srcmap_mode(ptr, value)
         }
 
         func set(sourceMapEmbedContents value: Bool) {

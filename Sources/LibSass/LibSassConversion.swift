@@ -32,6 +32,16 @@ extension Sass.CssStyle {
     }
 }
 
+extension Sass.SourceMapStyle {
+    var toLibSassMode: SassSrcMapMode {
+        self == .none ? SASS_SRCMAP_NONE : SASS_SRCMAP_CREATE
+    }
+
+    var toLibSassEmbedded: Bool {
+        self == .embeddedSources
+    }
+}
+
 extension CompilerError {
     init(_ error: LibSass4.Error, messages: [CompilerMessage]) {
         self.init(message: error.message,

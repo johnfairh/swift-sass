@@ -27,7 +27,7 @@ func compileWithDartSass(input: URL) throws -> CompilerResults {
 
 func compileWithLibSass(input: URL) throws -> CompilerResults {
     let compiler = LibSass.Compiler(messageStyle: .terminalColored)
-    return try compiler.compile(fileURL: input, createSourceMap: true)
+    return try compiler.compile(fileURL: input)
 }
 
 let compilers = ["dart": compileWithDartSass,
