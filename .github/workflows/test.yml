@@ -13,13 +13,19 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Swift version
+        id: swift-version
+        run: |
+          echo "::set-output name=version::$(swift --version)"
+        shell: bash
+
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
           path: |
             .build
             Tests/EmbeddedSassTests/dart-sass-embedded
-          key: ${{ runner.os }}-spm4-${{ hashFiles('Package.resolved', 'Makefile') }}
+          key: ${{ runner.os }}-spm4-${{ steps.swift-version.outputs.version }}-${{ hashFiles('Package.resolved', 'Makefile') }}
 
       - name: Run tests
         run: make test
