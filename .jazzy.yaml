@@ -40,6 +40,7 @@ custom_groups:
         children:
           - Syntax
           - CssStyle
+          - SourceMapStyle
           - CompilerMessageStyle
       - name: Outputs
         children:
@@ -102,10 +103,10 @@ custom_defs:
           - init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:importers:functions:)
       - name: Compilation
         children:
-          - compile(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)
-          - compile(fileURL:outputStyle:createSourceMap:importers:functions:)
-          - compileAsync(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)
-          - compileAsync(fileURL:outputStyle:createSourceMap:importers:functions:)
+          - compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)
+          - compile(fileURL:outputStyle:sourceMapStyle:importers:functions:)
+          - compileAsync(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)
+          - compileAsync(fileURL:outputStyle:sourceMapStyle:importers:functions:)
       - name: Lifecycle
         children:
            - compilerProcessIdentifier

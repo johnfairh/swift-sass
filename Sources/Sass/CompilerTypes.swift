@@ -45,12 +45,24 @@ public enum Syntax {
     case css
 }
 
+/// The kind of source map to generate for the stylesheet, returned in `CompilerResults.sourceMap`.
+public enum SourceMapStyle {
+    /// Do not generate a source map.
+    case none
+
+    /// Generate a source map that references sources by URL only.
+    case separateSources
+
+    /// Generate a source map with embedded sources.
+    case embeddedSources
+}
+
 /// The output from a successful compilation.
 public struct CompilerResults {
     /// The  CSS produced by the Sass compiler.
     public let css: String
 
-    /// The JSON sourcemap, provided only if requested at compile time.
+    /// The JSON sourcemap for `css`, style according to the `SourceMapStyle` provided at compile time.
     public let sourceMap: String?
 
     /// Any compiler warnings and debug statements.

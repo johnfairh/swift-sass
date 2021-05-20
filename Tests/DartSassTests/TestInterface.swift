@@ -48,17 +48,17 @@ class TestInterface: DartSassTestCase {
     /// Does it work, goodpath, no imports, scss/sass/css inline input
     func testCoreInline() throws {
         let compiler = try newCompiler()
-        let results1 = try compiler.compile(string: scssIn)
+        let results1 = try compiler.compile(string: scssIn, sourceMapStyle: .none)
         XCTAssertNil(results1.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(scssOutExpanded, results1.css)
 
-        let results2 = try compiler.compile(string: sassIn, syntax: .sass)
+        let results2 = try compiler.compile(string: sassIn, syntax: .sass, sourceMapStyle: .none)
         XCTAssertNil(results2.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(sassOutExpanded, results2.css)
 
-        let results3 = try compiler.compile(string: sassOutExpanded, syntax: .css)
+        let results3 = try compiler.compile(string: sassOutExpanded, syntax: .css, sourceMapStyle: .none)
         XCTAssertNil(results3.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
         XCTAssertEqual(sassOutExpanded, results3.css)
@@ -81,16 +81,19 @@ class TestInterface: DartSassTestCase {
     func testSourceMap() throws {
         let compiler = try newCompiler()
 
-        let results = try compiler.compile(string: scssIn, url: URL(string: "custom://bar"), createSourceMap: true)
-        XCTAssertEqual(scssOutExpanded, results.css)
+        // dart sass can't embed source map sources yet
+        try [SourceMapStyle.separateSources, SourceMapStyle.embeddedSources].forEach { style in
+            let results = try compiler.compile(string: scssIn, url: URL(string: "custom://bar"), sourceMapStyle: style)
+            XCTAssertEqual(scssOutExpanded, results.css)
 
-        let json = try XCTUnwrap(results.sourceMap)
-        // Check we have a reasonable-looking source map, details don't matter
-        let map = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!) as! [String:Any]
-        XCTAssertEqual(3, map["version"] as? Int)
-        XCTAssertEqual("AACI;EACI", map["mappings"] as? String)
-        let sources = try XCTUnwrap(map["sources"] as? Array<String>)
-        XCTAssertEqual("custom://bar", sources[0])
+            let json = try XCTUnwrap(results.sourceMap)
+            // Check we have a reasonable-looking source map, details don't matter
+            let map = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!) as! [String:Any]
+            XCTAssertEqual(3, map["version"] as? Int)
+            XCTAssertEqual("AACI;EACI", map["mappings"] as? String)
+            let sources = try XCTUnwrap(map["sources"] as? Array<String>)
+            XCTAssertEqual("custom://bar", sources[0])
+        }
     }
 
     /// Is outputstyle enum translated OK

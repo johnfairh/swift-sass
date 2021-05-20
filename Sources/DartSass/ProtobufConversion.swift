@@ -148,6 +148,15 @@ extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse {
     }
 }
 
+extension Bool {
+    init(_ sourceMapStyle: SourceMapStyle) {
+        switch sourceMapStyle {
+        case .none: self = false
+        case .embeddedSources, .separateSources: self = true
+        }
+    }
+}
+
 // MARK: Inbound message polymorphism
 
 extension Sass_EmbeddedProtocol_OutboundMessage {

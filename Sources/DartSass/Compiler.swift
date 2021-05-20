@@ -306,10 +306,10 @@ public final class Compiler {
         Compiler.logger.debug(.init(stringLiteral: msg()))
     }
 
-    /// Asynchronous version of `compile(fileURL:outputStyle:createSourceMap:importers:functions:)`.
+    /// Asynchronous version of `compile(fileURL:outputStyle:sourceMapStyle:importers:functions:)`.
     public func compileAsync(fileURL: URL,
                              outputStyle: CssStyle = .expanded,
-                             createSourceMap: Bool = false,
+                             sourceMapStyle: SourceMapStyle = .separateSources,
                              importers: [ImportResolver] = [],
                              functions: SassAsyncFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
         eventLoop.flatSubmit { [self] in
@@ -317,7 +317,7 @@ public final class Compiler {
             return work.addPendingCompilation(
                 input: .path(fileURL.path),
                 outputStyle: outputStyle,
-                createSourceMap: createSourceMap,
+                sourceMapStyle: sourceMapStyle,
                 importers: .init(importers),
                 functions: functions)
         }
@@ -329,7 +329,7 @@ public final class Compiler {
     ///   - fileURL: The URL of the file to compile.  The file extension determines the
     ///     expected syntax of the contents, so it must be css/scss/sass.
     ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
-    ///   - createSourceMap: Create a JSON source map for the CSS.  Default `false`.
+    ///   - sourceMapStyle: Kind of source map to create for the CSS.  Default `.separateSources`.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
     ///     `sourceFileURL`'s directory and any set globally..  Default none.
     ///   - functions: Functions for this compilation, overriding any with the same name previously
@@ -339,23 +339,23 @@ public final class Compiler {
     /// - returns: `CompilerResults` with CSS and optional source map.
     public func compile(fileURL: URL,
                         outputStyle: CssStyle = .expanded,
-                        createSourceMap: Bool = false,
+                        sourceMapStyle: SourceMapStyle = .separateSources,
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
         try compileAsync(fileURL: fileURL,
                          outputStyle: outputStyle,
-                         createSourceMap: createSourceMap,
+                         sourceMapStyle: sourceMapStyle,
                          importers: importers,
                          functions: .init(functions)).wait()
     }
 
-    /// Asynchronous version of `compile(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)`.
+    /// Asynchronous version of `compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)`.
     public func compileAsync(string: String,
                              syntax: Syntax = .scss,
                              url: URL? = nil,
                              importer: ImportResolver? = nil,
                              outputStyle: CssStyle = .expanded,
-                             createSourceMap: Bool = false,
+                             sourceMapStyle: SourceMapStyle = .separateSources,
                              importers: [ImportResolver] = [],
                              functions: SassAsyncFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
         eventLoop.flatSubmit { [self] in
@@ -369,7 +369,7 @@ public final class Compiler {
                                        id: CompilationRequest.baseImporterID)
                 }),
                 outputStyle: outputStyle,
-                createSourceMap: createSourceMap,
+                sourceMapStyle: sourceMapStyle,
                 importers: importers,
                 stringImporter: importer,
                 functions: functions)
@@ -392,7 +392,7 @@ public final class Compiler {
     ///   - importer: Rule to resolve `@import` etc. from `string` relative to `url`.  Default `nil`
     ///     meaning the current filesystem directory is used.
     ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
-    ///   - createSourceMap: Create a JSON source map for the CSS.  Default `false`.
+    ///   - sourceMapStyle: Kind of source map to create for the CSS.  Default `.separateSources`.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
     ///     any set globally.  Default none.
     ///   - functions: Functions for this compilation, overriding any with the same name previously
@@ -405,7 +405,7 @@ public final class Compiler {
                         url: URL? = nil,
                         importer: ImportResolver? = nil,
                         outputStyle: CssStyle = .expanded,
-                        createSourceMap: Bool = false,
+                        sourceMapStyle: SourceMapStyle = .separateSources,
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
         try compileAsync(string: string,
@@ -413,7 +413,7 @@ public final class Compiler {
                          url: url,
                          importer: importer,
                          outputStyle: outputStyle,
-                         createSourceMap: createSourceMap,
+                         sourceMapStyle: sourceMapStyle,
                          importers: importers,
                          functions: .init(functions)).wait()
     }

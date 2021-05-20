@@ -67,7 +67,7 @@ final class CompilerWork {
     /// Return the future for the job.
     func addPendingCompilation(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
                                outputStyle: CssStyle,
-                               createSourceMap: Bool,
+                               sourceMapStyle: SourceMapStyle,
                                importers: [ImportResolver],
                                stringImporter: ImportResolver? = nil,
                                functions: SassAsyncFunctionMap) -> EventLoopFuture<CompilerResults> {
@@ -85,7 +85,7 @@ final class CompilerWork {
             promise: promise,
             input: input,
             outputStyle: outputStyle,
-            createSourceMap: createSourceMap,
+            sourceMapStyle: sourceMapStyle,
             messageStyle: messageStyle,
             importers: globalImporters + importers,
             stringImporter: stringImporter,

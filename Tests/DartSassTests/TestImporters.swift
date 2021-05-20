@@ -206,8 +206,7 @@ class TestImporters: DartSassTestCase {
         let results = try compiler.compile(string: "@import 'something';",
                                            url: URL(string: "test://vfs"),
                                            importer: .importer(importer),
-                                           outputStyle: .compressed,
-                                           createSourceMap: true)
+                                           outputStyle: .compressed)
         XCTAssertEqual("a{color:red}", results.css)
         let json = try XCTUnwrap(results.sourceMap)
         let map = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!) as! [String:Any]

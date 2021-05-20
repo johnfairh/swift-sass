@@ -176,7 +176,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     init(promise: EventLoopPromise<CompilerResults>,
          input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
          outputStyle: CssStyle,
-         createSourceMap: Bool,
+         sourceMapStyle: SourceMapStyle,
          messageStyle: CompilerMessageStyle,
          importers: [ImportResolver],
          stringImporter: ImportResolver?,
@@ -193,7 +193,7 @@ final class CompilationRequest: ManagedCompilerRequest {
             msg.id = Self.nextCompilationID
             msg.input = input
             msg.style = .init(outputStyle)
-            msg.sourceMap = createSourceMap
+            msg.sourceMap = .init(sourceMapStyle)
             msg.importers = .init(importers, startingID: firstFreeImporterID)
             msg.globalFunctions = functionsMap.values.map { $0.0 }
             msg.alertAscii = false
