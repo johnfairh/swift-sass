@@ -22,7 +22,7 @@ func compileWithDartSass(input: URL) throws -> CompilerResults {
     let compiler = try DartSass.Compiler(messageStyle: .terminalColored)
     defer { try? compiler.syncShutdownGracefully() }
 
-    return try compiler.compile(fileURL: input, createSourceMap: true)
+    return try compiler.compile(fileURL: input)
 }
 
 func compileWithLibSass(input: URL) throws -> CompilerResults {
