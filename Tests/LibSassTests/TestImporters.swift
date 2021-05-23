@@ -9,6 +9,7 @@
 import XCTest
 import TestHelpers
 @testable import LibSass
+import SourceMapper
 
 /// Custom importers, libsass-style
 class TestImporters: XCTestCase {
@@ -169,12 +170,10 @@ class TestImporters: XCTestCase {
                                                     ImporterResults("span { a: b }", fileURL: URL(fileURLWithPath: "imported.scss"))
                                                 }),
                                            ])
-        let json = try XCTUnwrap(results.sourceMap)
-        // Check we have a reasonable-looking source map, details don't matter
-        let map = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!) as! [String:Any]
-        let sources = try XCTUnwrap(map["sources"] as? Array<String>)
-        XCTAssertEqual("main.scss", sources[0])
-        XCTAssertEqual("imported.scss", sources[1])
-        XCTAssertEqual("x", sources[2])
+        let srcmap = try SourceMap(string: XCTUnwrap(results.sourceMap), checkMappings: true)
+        XCTAssertEqual(3, srcmap.sources.count)
+        XCTAssertEqual("main.scss", srcmap.sources[0].url)
+        XCTAssertEqual("imported.scss", srcmap.sources[1].url)
+        XCTAssertEqual("x", srcmap.sources[2].url)
     }
 }

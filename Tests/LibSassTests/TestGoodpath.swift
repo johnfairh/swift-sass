@@ -128,9 +128,7 @@ class TestGoodpath: XCTestCase {
                                                sourceMapStyle: mapStyle)
             XCTAssertEqual(scssOutNested, results.css)
 
-            let json = try XCTUnwrap(results.sourceMap)
-
-            let sourceMap = try SourceMap(string: json)
+            let sourceMap = try SourceMap(string: XCTUnwrap(results.sourceMap))
             XCTAssertEqual(SourceMap.VERSION, sourceMap.version)
             XCTAssertEqual("AACI;EACI,OAAO", sourceMap.mappings)
             print(try sourceMap.getSegmentsDescription())
