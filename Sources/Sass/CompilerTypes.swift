@@ -57,25 +57,6 @@ public enum SourceMapStyle {
     case embeddedSources
 }
 
-/// The output from a successful compilation.
-public struct CompilerResults {
-    /// The  CSS produced by the Sass compiler.
-    public let css: String
-
-    /// The JSON sourcemap for `css`, style according to the `SourceMapStyle` provided at compile time.
-    public let sourceMap: String?
-
-    /// Any compiler warnings and debug statements.
-    public let messages: [CompilerMessage]
-
-    /// :nodoc:
-    public init(css: String, sourceMap: String?, messages: [CompilerMessage]) {
-        self.css = css
-        self.sourceMap = sourceMap
-        self.messages = messages
-    }
-}
-
 /// Thrown as an error after a failed compilation.
 public struct CompilerError: Swift.Error, CustomStringConvertible {
     /// A message describing the reason for the failure.

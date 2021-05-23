@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "SourceMapper",
+        "repositoryURL": "https://github.com/johnfairh/SourceMapper.git",
+        "state": {
+          "branch": null,
+          "revision": "c190c938a66148ad6965b87cd1329c600aef0a5e",
+          "version": "1.0.0"
+        }
+      },
+      {
         "package": "swift-log",
         "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {

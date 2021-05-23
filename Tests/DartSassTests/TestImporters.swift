@@ -9,6 +9,7 @@
 import XCTest
 import NIO
 @testable import DartSass
+import SourceMapper
 
 ///
 /// Tests for importers.
@@ -208,9 +209,8 @@ class TestImporters: DartSassTestCase {
                                            importer: .importer(importer),
                                            outputStyle: .compressed)
         XCTAssertEqual("a{color:red}", results.css)
-        let json = try XCTUnwrap(results.sourceMap)
-        let map = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!) as! [String:Any]
-        let sources = try XCTUnwrap(map["sources"] as? Array<String>)
-        XCTAssertEqual("test://vfs/something", sources[0])
+        let srcmap = try SourceMap(string: XCTUnwrap(results.sourceMap), checkMappings: true)
+        XCTAssertEqual(1, srcmap.sources.count)
+        XCTAssertEqual("test://vfs/something", srcmap.sources[0].url)
     }
 }

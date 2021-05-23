@@ -32,9 +32,15 @@ let package = Package(
         name: "Semver",
         url: "https://github.com/johnfairh/Semver.swift.git",
         from: "1.2.2"),
+      .package(
+        name: "SourceMapper",
+        url: "https://github.com/johnfairh/SourceMapper.git",
+        from: "1.0.0"),
     ],
     targets: [
-      .target(name: "Sass"),
+      .target(
+        name: "Sass",
+        dependencies: ["SourceMapper"]),
       .target(
         name: "DartSass",
         dependencies: [

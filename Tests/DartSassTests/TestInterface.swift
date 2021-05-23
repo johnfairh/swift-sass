@@ -8,6 +8,7 @@
 
 import XCTest
 import DartSass
+import SourceMapper
 
 ///
 /// Tests to check the normal operation of the sass compiler -- not testing the compiler itself,
@@ -81,18 +82,17 @@ class TestInterface: DartSassTestCase {
     func testSourceMap() throws {
         let compiler = try newCompiler()
 
-        // dart sass can't embed source map sources yet
         try [SourceMapStyle.separateSources, SourceMapStyle.embeddedSources].forEach { style in
             let results = try compiler.compile(string: scssIn, url: URL(string: "custom://bar"), sourceMapStyle: style)
             XCTAssertEqual(scssOutExpanded, results.css)
 
-            let json = try XCTUnwrap(results.sourceMap)
-            // Check we have a reasonable-looking source map, details don't matter
-            let map = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!) as! [String:Any]
-            XCTAssertEqual(3, map["version"] as? Int)
-            XCTAssertEqual("AACI;EACI", map["mappings"] as? String)
-            let sources = try XCTUnwrap(map["sources"] as? Array<String>)
-            XCTAssertEqual("custom://bar", sources[0])
+            let srcmap = try SourceMap(string: XCTUnwrap(results.sourceMap), checkMappings: true)
+            XCTAssertEqual(SourceMap.VERSION, srcmap.version)
+            XCTAssertEqual("AACI;EACI", srcmap.mappings)
+            XCTAssertEqual(1, srcmap.sources.count)
+            XCTAssertEqual("custom://bar", srcmap.sources[0].url)
+            // dart sass can't embed source map sources yet
+            XCTAssertNil(srcmap.sources[0].content)
         }
     }
 
