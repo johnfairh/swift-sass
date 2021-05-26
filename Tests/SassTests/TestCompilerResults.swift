@@ -9,7 +9,7 @@
 import Foundation
 import XCTest
 import SourceMapper
-import Sass
+@testable import Sass
 
 /// CompilerResults URL mangling -- all running against dummy css.
 /// passed through unchanged here without looking at / touching mappings at all
@@ -21,9 +21,11 @@ class TestCompilerResults: XCTestCase {
         XCTAssertEqual(sourceMapURL, matches[1])
     }
 
-    func checkSourceMap(_ mapStr: String, file: String, sourceRoot: String? = nil, sources: [String] = []) throws {
+    func checkSourceMap(_ mapStr: String, file: String? = nil, sourceRoot: String? = nil, sources: [String] = []) throws {
         let map = try SourceMap(string: mapStr)
-        XCTAssertEqual(file, map.file)
+        if let file = file {
+            XCTAssertEqual(file, map.file)
+        }
         XCTAssertEqual(sourceRoot, map.sourceRoot)
         XCTAssertEqual(sources, map.sources.map(\.url))
     }
@@ -33,6 +35,62 @@ class TestCompilerResults: XCTestCase {
         map.sources = sources.map { .init(url: $0) }
         return CompilerResults(css: "Some CSS\n", sourceMap: try! map.encodeString(), messages: [])
     }
+
+    // MARK: Path xforms
+
+    func testSourceMapURL() throws {
+        let cssURL = URL(fileURLWithPath: "out.css")
+        let mapURL = URL(fileURLWithPath: "out.css.map")
+
+        let styles: [CompilerResults.URLStyle] = [.allAbsolute, .relative, .relativeSourceRoot("../sources"), .sourcesAbsolute]
+        try styles.forEach { style in
+            let results = try makeCompilerResults()
+                .withFileLocations(cssFileURL: cssURL,
+                                   sourceMapFileURL: mapURL,
+                                   style: style)
+
+            let expectedMapURL: String
+
+            switch style {
+            case .allAbsolute:
+                expectedMapURL = mapURL.absoluteString
+            case .relative, .relativeSourceRoot(_), .sourcesAbsolute:
+                expectedMapURL = mapURL.lastPathComponent
+            }
+
+            try checkSourceMap(try XCTUnwrap(results.sourceMap), file: "out.css", sourceRoot: style.sourceRoot)
+            try checkCss(results.css, sourceMapURL: expectedMapURL)
+        }
+    }
+
+    func testSourcesURLs() throws {
+        let sources = [
+            "file:///a/b/c.scss",
+            "file:///a/d/e.scss",
+            "https://my.site.com/resources/core.scss",
+            "custom://bar.scss"
+        ]
+
+        let styles: [CompilerResults.URLStyle] = [.allAbsolute, .relative, .relativeSourceRoot("../sources"), .sourcesAbsolute]
+        try styles.forEach { style in
+            let results = try makeCompilerResults(sources: sources)
+                .withFileLocations(cssFileURL: URL(fileURLWithPath: "/a/b/q.css"),
+                                   sourceMapFileURL: URL(fileURLWithPath: "/a/b/q.css.map"),
+                                   style: style)
+
+            var expectedSources = sources
+            switch style {
+            case .relative, .relativeSourceRoot(_):
+                expectedSources[0] = "c.scss"
+                expectedSources[1] = "../d/e.scss"
+            case .allAbsolute, .sourcesAbsolute:
+                break
+            }
+            try checkSourceMap(try XCTUnwrap(results.sourceMap), sourceRoot: style.sourceRoot, sources: expectedSources)
+        }
+    }
+
+    // MARK: Corners
 
     func testNoSourceMap() throws {
         let results = CompilerResults(css: dummyCSS, sourceMap: nil, messages: [])
@@ -47,23 +105,31 @@ class TestCompilerResults: XCTestCase {
         }
     }
 
-    func testAllAbsolute() throws {
-        let cssURL = URL(fileURLWithPath: "out.css")
-        let mapURL = URL(fileURLWithPath: "out.css.map")
-        let results = try makeCompilerResults()
-            .withFileLocations(cssFileURL: cssURL,
-                               sourceMapFileURL: mapURL,
-                               style: .allAbsolute)
+    // MARK: utility
 
-        try checkCss(results.css, sourceMapURL: mapURL.absoluteString)
-        try checkSourceMap(try XCTUnwrap(results.sourceMap), file: "out.css")
+    func checkRelativePath(_ from: String, _ to: String, _ expected: String) {
+        let fromURL = URL(fileURLWithPath: from)
+        let toURL = URL(fileURLWithPath: to)
+        XCTAssertEqual(expected, toURL.asRelativeURL(from: fromURL))
+    }
+
+    func testRelativePaths() throws {
+        checkRelativePath("/a", "/b", "b")
+        checkRelativePath("/a/b", "/a/c", "c")
+        checkRelativePath("/a/b", "/b/c", "../b/c")
+        checkRelativePath("/a/b/c", "/a/b/d/e", "d/e")
+
+        let netURL = try XCTUnwrap(URL(string: "http://foo.com/bar/baz"))
+        let fileURL = URL(fileURLWithPath: "/a/b/c")
+        XCTAssertEqual(netURL.absoluteString, netURL.asRelativeURL(from: fileURL))
+        XCTAssertEqual(fileURL.absoluteString, fileURL.asRelativeURL(from: netURL))
     }
 }
 
 // quickly grabbed and chopped up RE lib from bebop...
 
 /// Provide concise aliases for regexp options
-extension NSRegularExpression.Options {
+fileprivate extension NSRegularExpression.Options {
     /// Case insensitive
     static let i = Self.caseInsensitive
     /// Comments
@@ -76,7 +142,7 @@ extension NSRegularExpression.Options {
     static let w = Self.useUnicodeWordBoundaries
 }
 
-extension String {
+fileprivate extension String {
     /// Regex match result data
     ///
     /// This is more than an array of strings because of named capture groups
@@ -119,5 +185,14 @@ extension String {
     /// And this too...
     private func from(nsRange: NSRange) -> Substring? {
         Range(nsRange, in: self).flatMap { self[$0] }
+    }
+}
+
+extension CompilerResults.URLStyle {
+    var sourceRoot: String? {
+        switch self {
+        case .relativeSourceRoot(let r): return r
+        case .allAbsolute, .sourcesAbsolute, .relative: return nil
+        }
     }
 }

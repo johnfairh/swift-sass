@@ -48,7 +48,7 @@ do {
     }
 
     let results = try compiler(input)
-        .withFileLocations(cssFileURL: outputCss, sourceMapFileURL: outputSrcMap, style: .allAbsolute)
+        .withFileLocations(cssFileURL: outputCss, sourceMapFileURL: outputSrcMap)
 
     results.messages.forEach {
         print($0)
