@@ -2,11 +2,14 @@
 
 ## Breaking
 
-* None
+* Require Swift 5.4
 
 ## Enhancements
 
-* None
+* Revise swift-log levels per SSWG best practices
+* Enable source maps by default
+* Add `CompilerResults.withFileLocation(...)` to generate
+  deployable source map and css files
 
 ## Bug Fixes
 

@@ -98,7 +98,7 @@ class TestCompilerResults: XCTestCase {
             let updated = try results.withFileLocations(cssFileURL: URL(fileURLWithPath: "out.css"),
                                                         sourceMapFileURL: URL(fileURLWithPath: "out.css.map"))
             XCTFail("Worked: \(updated))")
-        } catch let error as CompilerResults.Error {
+        } catch let error as CompilerResults.NoSourceMapError {
             print(error)
         } catch {
             XCTFail("Wrong error: \(error)")
