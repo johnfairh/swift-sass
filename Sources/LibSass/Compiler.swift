@@ -118,6 +118,7 @@ public final class Compiler {
         compiler.set(loggerColors: messageStyle == .terminalColored)
         compiler.set(sourceMapMode: sourceMapStyle.toLibSassMode)
         compiler.set(sourceMapEmbedContents: sourceMapStyle.toLibSassEmbedded)
+        compiler.set(sourceMapFileURLs: true)
 
         // sourcemap 'file' field: really we'll fix it up post-compile, but LibSass
         // attempts to infer the right answer if allowed to, and does a not-great job.

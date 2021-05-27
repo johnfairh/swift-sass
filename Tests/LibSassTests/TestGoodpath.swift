@@ -123,8 +123,9 @@ class TestGoodpath: XCTestCase {
         let compiler = Compiler()
 
         try [SourceMapStyle.separateSources, SourceMapStyle.embeddedSources].forEach { mapStyle in
+            let mainURL = URL(fileURLWithPath: "custom/bar")
             let results = try compiler.compile(string: scssIn,
-                                               fileURL: URL(fileURLWithPath: "custom/bar"),
+                                               fileURL: mainURL,
                                                sourceMapStyle: mapStyle)
             XCTAssertEqual(scssOutNested, results.css)
 
@@ -133,7 +134,7 @@ class TestGoodpath: XCTestCase {
             XCTAssertEqual("AACI;EACI,OAAO", sourceMap.mappings)
             print(try sourceMap.getSegmentsDescription())
             XCTAssertEqual(1, sourceMap.sources.count)
-            XCTAssertEqual("custom/bar", sourceMap.sources[0].url)
+            XCTAssertEqual(mainURL.absoluteString, sourceMap.sources[0].url)
             if !mapStyle.toLibSassEmbedded {
                 XCTAssertNil(sourceMap.sources[0].content)
             } else {

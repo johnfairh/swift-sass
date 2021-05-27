@@ -171,9 +171,11 @@ class TestImporters: XCTestCase {
                                                 }),
                                            ])
         let srcmap = try SourceMap(string: XCTUnwrap(results.sourceMap), checkMappings: true)
+
+        let expected = ["main.scss", "imported.scss", "x"].map {
+            "file://\(FileManager.default.currentDirectoryPath)/\($0)"
+        }
         XCTAssertEqual(3, srcmap.sources.count)
-        XCTAssertEqual("main.scss", srcmap.sources[0].url)
-        XCTAssertEqual("imported.scss", srcmap.sources[1].url)
-        XCTAssertEqual("x", srcmap.sources[2].url)
+        XCTAssertEqual(expected, srcmap.sources.map(\.url))
     }
 }

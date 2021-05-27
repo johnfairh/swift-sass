@@ -282,7 +282,6 @@
 			buildActionMask = 0;
 			files = (
 				029D3C652604E93F00E1B6BC /* LibSass.framework in Frameworks */,
-				021281DF265A8352000C7256 /* SourceMapper in Frameworks */,
 				029D3C452604E89400E1B6BC /* TestHelpers.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -619,7 +618,6 @@
 			);
 			name = LibSassTests;
 			packageProductDependencies = (
-				021281DE265A8352000C7256 /* SourceMapper */,
 			);
 			productName = SassEmbeddedTests;
 			productReference = 029D3C4B2604E89400E1B6BC /* LibSassTests.xctest */;

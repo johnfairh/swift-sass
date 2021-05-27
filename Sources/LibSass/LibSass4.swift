@@ -66,6 +66,10 @@ enum LibSass4 {
             sass_compiler_set_srcmap_embed_contents(ptr, value)
         }
 
+        func set(sourceMapFileURLs value: Bool) {
+            sass_compiler_set_srcmap_file_urls(ptr, value)
+        }
+
         func set(precision: Int32) {
             sass_compiler_set_precision(ptr, precision)
         }
