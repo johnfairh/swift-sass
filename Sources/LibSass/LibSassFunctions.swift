@@ -40,6 +40,7 @@ extension SassSeparator {
         case SASS_COMMA: return .comma
         case SASS_SPACE: return .space
         case SASS_UNDEF: return .undecided
+        case SASS_DIV: return .slash
         default: throw ConversionError("Unknown LibSass separator value: \(self)")
         }
     }
@@ -51,7 +52,7 @@ extension SassList.Separator {
         case .comma: return SASS_COMMA
         case .space: return SASS_SPACE
         case .undecided: return SASS_UNDEF
-        case .slash: throw ConversionError("LibSass does not support slash-separated lists")
+        case .slash: return SASS_DIV
         }
     }
 }

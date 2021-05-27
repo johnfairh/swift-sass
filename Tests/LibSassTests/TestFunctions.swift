@@ -129,10 +129,9 @@ class TestFunctions: XCTestCase {
             SassList(list1),
             SassList(list1, separator: .comma, hasBrackets: false),
             SassList([SassConstants.false], separator: .undecided, hasBrackets: true),
-            SassList(list2)
+            SassList(list2, separator: .slash)
         ])
 
-        try XCTAssertThrowsError(SassList.Separator.slash.toLibSass())
         try XCTAssertThrowsError(SassSeparator(108).toSeparator())
     }
 

@@ -86,6 +86,10 @@ enum LibSass4 {
             sass_compiler_set_output_path(ptr, outputPath.path)
         }
 
+        func set(suppressStderr value: Bool) {
+            sass_compiler_set_suppress_stderr(ptr, value)
+        }
+
         func parseCompileRender() {
             sass_compiler_parse(ptr)
             sass_compiler_compile(ptr)

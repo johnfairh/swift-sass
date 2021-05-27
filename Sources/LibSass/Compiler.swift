@@ -119,6 +119,7 @@ public final class Compiler {
         compiler.set(sourceMapMode: sourceMapStyle.toLibSassMode)
         compiler.set(sourceMapEmbedContents: sourceMapStyle.toLibSassEmbedded)
         compiler.set(sourceMapFileURLs: true)
+        compiler.set(suppressStderr: true)
 
         // Importers
         compiler.add(importers: globalImporters + importers)
