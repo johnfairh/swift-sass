@@ -19,12 +19,12 @@
 		02440A1C2576679E008F0862 /* DynamicFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1B2576679E008F0862 /* DynamicFunction.swift */; };
 		02440A1F2576B24B008F0862 /* ValueConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1E2576B24B008F0862 /* ValueConvertible.swift */; };
 		02440A2A257957B5008F0862 /* NIOFoundationCompat in Frameworks */ = {isa = PBXBuildFile; productRef = 02440A29257957B5008F0862 /* NIOFoundationCompat */; };
-		02486F5326494FF400B8B50E /* TestSourceMaps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02486F5226494FF400B8B50E /* TestSourceMaps.swift */; };
 		02512B5E25A8755B00CB8833 /* DartSassEmbedded.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02512B5D25A8755B00CB8833 /* DartSassEmbedded.swift */; };
 		025C624F255D2C9300AEA420 /* BinaryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C624E255D2C9300AEA420 /* BinaryProtocol.swift */; };
 		025C6252255D54C000AEA420 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6251255D54C000AEA420 /* Errors.swift */; };
 		026E4D39260E103E00E916BF /* Importers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 026E4D38260E103E00E916BF /* Importers.swift */; };
 		026E4D4C2610E43400E916BF /* LibSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02B1C8CC25EFB8180053920D /* LibSass.framework */; };
+		027FEF95265FA48A008D1E17 /* LibSassFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 027FEF94265FA48A008D1E17 /* LibSassFunctions.swift */; };
 		0285E828256C4C2900956F18 /* TestFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E827256C4C2900956F18 /* TestFunctions.swift */; };
 		0285E82B256D9ABB00956F18 /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E82A256D9ABB00956F18 /* List.swift */; };
 		0285E82E256EDB6700956F18 /* TestList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E82D256EDB6700956F18 /* TestList.swift */; };
@@ -194,12 +194,12 @@
 		02440A1825765C0C008F0862 /* TestFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFunction.swift; sourceTree = "<group>"; };
 		02440A1B2576679E008F0862 /* DynamicFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicFunction.swift; sourceTree = "<group>"; };
 		02440A1E2576B24B008F0862 /* ValueConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueConvertible.swift; sourceTree = "<group>"; };
-		02486F5226494FF400B8B50E /* TestSourceMaps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSourceMaps.swift; sourceTree = "<group>"; };
 		02512B5925A7418B00CB8833 /* DartSassEmbeddedLinux.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DartSassEmbeddedLinux.swift; sourceTree = "<group>"; };
 		02512B5D25A8755B00CB8833 /* DartSassEmbedded.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DartSassEmbedded.swift; sourceTree = "<group>"; };
 		025C624E255D2C9300AEA420 /* BinaryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryProtocol.swift; sourceTree = "<group>"; };
 		025C6251255D54C000AEA420 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		026E4D38260E103E00E916BF /* Importers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Importers.swift; sourceTree = "<group>"; };
+		027FEF94265FA48A008D1E17 /* LibSassFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibSassFunctions.swift; sourceTree = "<group>"; };
 		0285E827256C4C2900956F18 /* TestFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFunctions.swift; sourceTree = "<group>"; };
 		0285E82A256D9ABB00956F18 /* List.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = List.swift; sourceTree = "<group>"; };
 		0285E82D256EDB6700956F18 /* TestList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestList.swift; sourceTree = "<group>"; };
@@ -422,6 +422,7 @@
 				029D3C802604EA8A00E1B6BC /* Importers.swift */,
 				02B1C93025F0EDEE0053920D /* LibSass4.swift */,
 				02B1C94725F243770053920D /* LibSassConversion.swift */,
+				027FEF94265FA48A008D1E17 /* LibSassFunctions.swift */,
 			);
 			name = LibSass;
 			path = Sources/LibSass;
@@ -432,7 +433,6 @@
 			children = (
 				02B1C8F525EFBD430053920D /* TestGoodpath.swift */,
 				02B1C99825F3972E0053920D /* TestBadpath.swift */,
-				02486F5226494FF400B8B50E /* TestSourceMaps.swift */,
 				029D3C2425FCD97900E1B6BC /* TestImporters.swift */,
 				029D3C862606751400E1B6BC /* TestFunctions.swift */,
 				029D3C8C260BADC300E1B6BC /* TestApiCorners.swift */,
@@ -860,7 +860,6 @@
 				029D3C372604E89400E1B6BC /* TestBadpath.swift in Sources */,
 				029D3C3F2604E89400E1B6BC /* TestImporters.swift in Sources */,
 				029D3C402604E89400E1B6BC /* TestGoodpath.swift in Sources */,
-				02486F5326494FF400B8B50E /* TestSourceMaps.swift in Sources */,
 				029D3C8D260BADC300E1B6BC /* TestApiCorners.swift in Sources */,
 				029D3C872606751400E1B6BC /* TestFunctions.swift in Sources */,
 			);
@@ -882,6 +881,7 @@
 				02B1C94825F243770053920D /* LibSassConversion.swift in Sources */,
 				02B1C93D25F23AC30053920D /* Compiler.swift in Sources */,
 				029D3C812604EA8A00E1B6BC /* Importers.swift in Sources */,
+				027FEF95265FA48A008D1E17 /* LibSassFunctions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

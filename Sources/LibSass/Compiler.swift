@@ -120,17 +120,6 @@ public final class Compiler {
         compiler.set(sourceMapEmbedContents: sourceMapStyle.toLibSassEmbedded)
         compiler.set(sourceMapFileURLs: true)
 
-        // sourcemap 'file' field: really we'll fix it up post-compile, but LibSass
-        // attempts to infer the right answer if allowed to, and does a not-great job.
-        if case let mainURL = mainImport.absPath,
-           mainURL.isFileURL {
-            var outputURL = mainURL.deletingPathExtension()
-            if outputURL.pathExtension != "css" {
-                outputURL.appendPathExtension("css")
-            }
-            compiler.set(outputPath: outputURL)
-        }
-
         // Importers
         compiler.add(importers: globalImporters + importers)
 
@@ -141,10 +130,21 @@ public final class Compiler {
         let mergedFnsNameMap = globalFnsNameMap.merging(localFnsNameMap) { g, l in l }
         compiler.add(functions: mergedFnsNameMap.values)
 
+        // Go
         compiler.parseCompileRender()
         if let error = compiler.error {
             throw CompilerError(error, messages: compiler.messages)
         }
-        return CompilerResults(css: compiler.outputString, sourceMap: compiler.sourceMapString, messages: compiler.messages)
+        return CompilerResults(css: compiler.outputString,
+                               sourceMap: compiler.sourceMapString?.withoutFile,
+                               messages: compiler.messages)
+    }
+}
+
+// Delete the 'file' key from the sourcemap to bring in line with Dart Sass - our
+// model is to figure this out later if necessary via `CompilerResults.withFileLocations(...)`.
+private extension String {
+    var withoutFile: String {
+        replacingOccurrences(of: #"\#t"file": "stream://stdout",\#n"#, with: "")
     }
 }

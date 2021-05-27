@@ -142,7 +142,7 @@ class TestGoodpath: XCTestCase {
                 XCTAssertEqual(scssIn, content)
             }
 
-            XCTAssertEqual("custom/bar.css", sourceMap.file)
+            XCTAssertNil(sourceMap.file)
         }
     }
 
