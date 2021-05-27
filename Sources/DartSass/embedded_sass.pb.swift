@@ -177,6 +177,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
 
+    /// This version request's id. Mandatory.
+    var id: UInt32 = 0
+
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
     init() {}
@@ -920,6 +923,9 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
 
+    /// This version request's id. Mandatory.
+    var id: UInt32 = 0
+
     /// The version of the embedded protocol, in semver format.
     var protocolVersion: String = String()
 
@@ -1227,6 +1233,16 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     /// That is the result of the import.
     var url: String = String()
 
+    //// Whether this request comes from an `@import` rule.
+    ////
+    //// When evaluating `@import` rules, URLs should canonicalize to an
+    //// [import-only file] if one exists for the URL being canonicalized.
+    //// Otherwise, canonicalization should be identical for `@import` and `@use`
+    //// rules.
+    ////
+    //// [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
+    var fromImport: Bool = false
+
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
     init() {}
@@ -1278,6 +1294,16 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
 
     /// The (non-canonicalized) URL of the import.
     var url: String = String()
+
+    //// Whether this request comes from an `@import` rule.
+    ////
+    //// When evaluating `@import` rules, filesystem importers should load an
+    //// [import-only file] if one exists for the URL being canonicalized.
+    //// Otherwise, canonicalization should be identical for `@import` and `@use`
+    //// rules.
+    ////
+    //// [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
+    var fromImport: Bool = false
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -1947,10 +1973,9 @@ struct Sass_EmbeddedProtocol_Value {
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
 
-    /// A unique ID for this function. This ID can be used in
-    /// `InboundRequest.FunctionCallRequest` to invoke this function. The
-    /// compiler is responsible for generating this ID and ensuring it's unique
-    /// across all functions passed to the host for this compilation. Mandatory.
+    /// A unique ID for this function. The compiler is responsible for generating
+    /// this ID and ensuring it's unique across all functions passed to the host
+    /// for this compilation. Mandatory.
     var id: UInt32 = 0
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -2036,57 +2061,81 @@ extension Sass_EmbeddedProtocol_InboundMessage: SwiftProtobuf.Message, SwiftProt
       switch fieldNumber {
       case 2: try {
         var v: Sass_EmbeddedProtocol_InboundMessage.CompileRequest?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .compileRequest(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .compileRequest(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .compileRequest(v)
+        }
       }()
       case 3: try {
         var v: Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .canonicalizeResponse(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .canonicalizeResponse(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .canonicalizeResponse(v)
+        }
       }()
       case 4: try {
         var v: Sass_EmbeddedProtocol_InboundMessage.ImportResponse?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .importResponse(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .importResponse(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .importResponse(v)
+        }
       }()
       case 5: try {
         var v: Sass_EmbeddedProtocol_InboundMessage.FileImportResponse?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .fileImportResponse(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .fileImportResponse(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .fileImportResponse(v)
+        }
       }()
       case 6: try {
         var v: Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .functionCallResponse(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .functionCallResponse(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .functionCallResponse(v)
+        }
       }()
       case 7: try {
         var v: Sass_EmbeddedProtocol_InboundMessage.VersionRequest?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .versionRequest(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .versionRequest(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .versionRequest(v)
+        }
       }()
       default: break
       }
@@ -2144,18 +2193,31 @@ extension Sass_EmbeddedProtocol_InboundMessage.Syntax: SwiftProtobuf._ProtoNameP
 
 extension Sass_EmbeddedProtocol_InboundMessage.VersionRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_InboundMessage.protoMessageName + ".VersionRequest"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap()
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "id"),
+  ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let _ = try decoder.nextFieldNumber() {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
+      default: break
+      }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.id != 0 {
+      try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_InboundMessage.VersionRequest, rhs: Sass_EmbeddedProtocol_InboundMessage.VersionRequest) -> Bool {
+    if lhs.id != rhs.id {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -2184,18 +2246,24 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
       case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
       case 2: try {
         var v: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.StringInput?
+        var hadOneofValue = false
         if let current = self.input {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .string(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.input = .string(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.input = .string(v)
+        }
       }()
       case 3: try {
-        if self.input != nil {try decoder.handleConflictingOneOf()}
         var v: String?
         try decoder.decodeSingularStringField(value: &v)
-        if let v = v {self.input = .path(v)}
+        if let v = v {
+          if self.input != nil {try decoder.handleConflictingOneOf()}
+          self.input = .path(v)
+        }
       }()
       case 4: try { try decoder.decodeSingularEnumField(value: &self.style) }()
       case 5: try { try decoder.decodeSingularBoolField(value: &self.sourceMap) }()
@@ -2333,22 +2401,28 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer: SwiftPro
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try {
-        if self.importer != nil {try decoder.handleConflictingOneOf()}
         var v: String?
         try decoder.decodeSingularStringField(value: &v)
-        if let v = v {self.importer = .path(v)}
+        if let v = v {
+          if self.importer != nil {try decoder.handleConflictingOneOf()}
+          self.importer = .path(v)
+        }
       }()
       case 2: try {
-        if self.importer != nil {try decoder.handleConflictingOneOf()}
         var v: UInt32?
         try decoder.decodeSingularUInt32Field(value: &v)
-        if let v = v {self.importer = .importerID(v)}
+        if let v = v {
+          if self.importer != nil {try decoder.handleConflictingOneOf()}
+          self.importer = .importerID(v)
+        }
       }()
       case 3: try {
-        if self.importer != nil {try decoder.handleConflictingOneOf()}
         var v: UInt32?
         try decoder.decodeSingularUInt32Field(value: &v)
-        if let v = v {self.importer = .fileImporterID(v)}
+        if let v = v {
+          if self.importer != nil {try decoder.handleConflictingOneOf()}
+          self.importer = .fileImporterID(v)
+        }
       }()
       default: break
       }
@@ -2400,16 +2474,20 @@ extension Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse: SwiftProtob
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
       case 2: try {
-        if self.result != nil {try decoder.handleConflictingOneOf()}
         var v: String?
         try decoder.decodeSingularStringField(value: &v)
-        if let v = v {self.result = .url(v)}
+        if let v = v {
+          if self.result != nil {try decoder.handleConflictingOneOf()}
+          self.result = .url(v)
+        }
       }()
       case 3: try {
-        if self.result != nil {try decoder.handleConflictingOneOf()}
         var v: String?
         try decoder.decodeSingularStringField(value: &v)
-        if let v = v {self.result = .error(v)}
+        if let v = v {
+          if self.result != nil {try decoder.handleConflictingOneOf()}
+          self.result = .error(v)
+        }
       }()
       default: break
       }
@@ -2462,18 +2540,24 @@ extension Sass_EmbeddedProtocol_InboundMessage.ImportResponse: SwiftProtobuf.Mes
       case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
       case 2: try {
         var v: Sass_EmbeddedProtocol_InboundMessage.ImportResponse.ImportSuccess?
+        var hadOneofValue = false
         if let current = self.result {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .success(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.result = .success(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.result = .success(v)
+        }
       }()
       case 3: try {
-        if self.result != nil {try decoder.handleConflictingOneOf()}
         var v: String?
         try decoder.decodeSingularStringField(value: &v)
-        if let v = v {self.result = .error(v)}
+        if let v = v {
+          if self.result != nil {try decoder.handleConflictingOneOf()}
+          self.result = .error(v)
+        }
       }()
       default: break
       }
@@ -2569,16 +2653,20 @@ extension Sass_EmbeddedProtocol_InboundMessage.FileImportResponse: SwiftProtobuf
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
       case 2: try {
-        if self.result != nil {try decoder.handleConflictingOneOf()}
         var v: String?
         try decoder.decodeSingularStringField(value: &v)
-        if let v = v {self.result = .fileURL(v)}
+        if let v = v {
+          if self.result != nil {try decoder.handleConflictingOneOf()}
+          self.result = .fileURL(v)
+        }
       }()
       case 3: try {
-        if self.result != nil {try decoder.handleConflictingOneOf()}
         var v: String?
         try decoder.decodeSingularStringField(value: &v)
-        if let v = v {self.result = .error(v)}
+        if let v = v {
+          if self.result != nil {try decoder.handleConflictingOneOf()}
+          self.result = .error(v)
+        }
       }()
       default: break
       }
@@ -2631,18 +2719,24 @@ extension Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse: SwiftProtob
       case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
       case 2: try {
         var v: Sass_EmbeddedProtocol_Value?
+        var hadOneofValue = false
         if let current = self.result {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .success(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.result = .success(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.result = .success(v)
+        }
       }()
       case 3: try {
-        if self.result != nil {try decoder.handleConflictingOneOf()}
         var v: String?
         try decoder.decodeSingularStringField(value: &v)
-        if let v = v {self.result = .error(v)}
+        if let v = v {
+          if self.result != nil {try decoder.handleConflictingOneOf()}
+          self.result = .error(v)
+        }
       }()
       default: break
       }
@@ -2699,75 +2793,107 @@ extension Sass_EmbeddedProtocol_OutboundMessage: SwiftProtobuf.Message, SwiftPro
       switch fieldNumber {
       case 1: try {
         var v: Sass_EmbeddedProtocol_ProtocolError?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .error(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .error(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .error(v)
+        }
       }()
       case 2: try {
         var v: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .compileResponse(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .compileResponse(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .compileResponse(v)
+        }
       }()
       case 3: try {
         var v: Sass_EmbeddedProtocol_OutboundMessage.LogEvent?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .logEvent(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .logEvent(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .logEvent(v)
+        }
       }()
       case 4: try {
         var v: Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .canonicalizeRequest(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .canonicalizeRequest(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .canonicalizeRequest(v)
+        }
       }()
       case 5: try {
         var v: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .importRequest(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .importRequest(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .importRequest(v)
+        }
       }()
       case 6: try {
         var v: Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .fileImportRequest(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .fileImportRequest(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .fileImportRequest(v)
+        }
       }()
       case 7: try {
         var v: Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .functionCallRequest(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .functionCallRequest(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .functionCallRequest(v)
+        }
       }()
       case 8: try {
         var v: Sass_EmbeddedProtocol_OutboundMessage.VersionResponse?
+        var hadOneofValue = false
         if let current = self.message {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .versionResponse(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.message = .versionResponse(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.message = .versionResponse(v)
+        }
       }()
       default: break
       }
@@ -2826,6 +2952,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage: SwiftProtobuf.Message, SwiftPro
 extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".VersionResponse"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    5: .same(proto: "id"),
     1: .standard(proto: "protocol_version"),
     2: .standard(proto: "compiler_version"),
     3: .standard(proto: "implementation_version"),
@@ -2842,6 +2969,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse: SwiftProtobuf.M
       case 2: try { try decoder.decodeSingularStringField(value: &self.compilerVersion) }()
       case 3: try { try decoder.decodeSingularStringField(value: &self.implementationVersion) }()
       case 4: try { try decoder.decodeSingularStringField(value: &self.implementationName) }()
+      case 5: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
       default: break
       }
     }
@@ -2860,10 +2988,14 @@ extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse: SwiftProtobuf.M
     if !self.implementationName.isEmpty {
       try visitor.visitSingularStringField(value: self.implementationName, fieldNumber: 4)
     }
+    if self.id != 0 {
+      try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 5)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_OutboundMessage.VersionResponse, rhs: Sass_EmbeddedProtocol_OutboundMessage.VersionResponse) -> Bool {
+    if lhs.id != rhs.id {return false}
     if lhs.protocolVersion != rhs.protocolVersion {return false}
     if lhs.compilerVersion != rhs.compilerVersion {return false}
     if lhs.implementationVersion != rhs.implementationVersion {return false}
@@ -2890,21 +3022,29 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse: SwiftProtobuf.M
       case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
       case 2: try {
         var v: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess?
+        var hadOneofValue = false
         if let current = self.result {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .success(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.result = .success(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.result = .success(v)
+        }
       }()
       case 3: try {
         var v: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure?
+        var hadOneofValue = false
         if let current = self.result {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .failure(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.result = .failure(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.result = .failure(v)
+        }
       }()
       default: break
       }
@@ -3105,6 +3245,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtob
     2: .standard(proto: "compilation_id"),
     3: .standard(proto: "importer_id"),
     4: .same(proto: "url"),
+    5: .same(proto: "fromImport"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3117,6 +3258,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtob
       case 2: try { try decoder.decodeSingularUInt32Field(value: &self.compilationID) }()
       case 3: try { try decoder.decodeSingularUInt32Field(value: &self.importerID) }()
       case 4: try { try decoder.decodeSingularStringField(value: &self.url) }()
+      case 5: try { try decoder.decodeSingularBoolField(value: &self.fromImport) }()
       default: break
       }
     }
@@ -3135,6 +3277,9 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtob
     if !self.url.isEmpty {
       try visitor.visitSingularStringField(value: self.url, fieldNumber: 4)
     }
+    if self.fromImport != false {
+      try visitor.visitSingularBoolField(value: self.fromImport, fieldNumber: 5)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -3143,6 +3288,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtob
     if lhs.compilationID != rhs.compilationID {return false}
     if lhs.importerID != rhs.importerID {return false}
     if lhs.url != rhs.url {return false}
+    if lhs.fromImport != rhs.fromImport {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -3205,6 +3351,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf
     2: .standard(proto: "compilation_id"),
     3: .standard(proto: "importer_id"),
     4: .same(proto: "url"),
+    5: .same(proto: "fromImport"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3217,6 +3364,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf
       case 2: try { try decoder.decodeSingularUInt32Field(value: &self.compilationID) }()
       case 3: try { try decoder.decodeSingularUInt32Field(value: &self.importerID) }()
       case 4: try { try decoder.decodeSingularStringField(value: &self.url) }()
+      case 5: try { try decoder.decodeSingularBoolField(value: &self.fromImport) }()
       default: break
       }
     }
@@ -3235,6 +3383,9 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf
     if !self.url.isEmpty {
       try visitor.visitSingularStringField(value: self.url, fieldNumber: 4)
     }
+    if self.fromImport != false {
+      try visitor.visitSingularBoolField(value: self.fromImport, fieldNumber: 5)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -3243,6 +3394,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf
     if lhs.compilationID != rhs.compilationID {return false}
     if lhs.importerID != rhs.importerID {return false}
     if lhs.url != rhs.url {return false}
+    if lhs.fromImport != rhs.fromImport {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -3267,16 +3419,20 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest: SwiftProtob
       case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
       case 2: try { try decoder.decodeSingularUInt32Field(value: &self.compilationID) }()
       case 3: try {
-        if self.identifier != nil {try decoder.handleConflictingOneOf()}
         var v: String?
         try decoder.decodeSingularStringField(value: &v)
-        if let v = v {self.identifier = .name(v)}
+        if let v = v {
+          if self.identifier != nil {try decoder.handleConflictingOneOf()}
+          self.identifier = .name(v)
+        }
       }()
       case 4: try {
-        if self.identifier != nil {try decoder.handleConflictingOneOf()}
         var v: UInt32?
         try decoder.decodeSingularUInt32Field(value: &v)
-        if let v = v {self.identifier = .functionID(v)}
+        if let v = v {
+          if self.identifier != nil {try decoder.handleConflictingOneOf()}
+          self.identifier = .functionID(v)
+        }
       }()
       case 5: try { try decoder.decodeRepeatedMessageField(value: &self.arguments) }()
       default: break
@@ -3495,81 +3651,115 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
       switch fieldNumber {
       case 1: try {
         var v: Sass_EmbeddedProtocol_Value.StringMessage?
+        var hadOneofValue = false
         if let current = self.value {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .string(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.value = .string(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .string(v)
+        }
       }()
       case 2: try {
         var v: Sass_EmbeddedProtocol_Value.Number?
+        var hadOneofValue = false
         if let current = self.value {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .number(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.value = .number(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .number(v)
+        }
       }()
       case 3: try {
         var v: Sass_EmbeddedProtocol_Value.RgbColor?
+        var hadOneofValue = false
         if let current = self.value {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .rgbColor(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.value = .rgbColor(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .rgbColor(v)
+        }
       }()
       case 4: try {
         var v: Sass_EmbeddedProtocol_Value.HslColor?
+        var hadOneofValue = false
         if let current = self.value {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .hslColor(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.value = .hslColor(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .hslColor(v)
+        }
       }()
       case 5: try {
         var v: Sass_EmbeddedProtocol_Value.List?
+        var hadOneofValue = false
         if let current = self.value {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .list(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.value = .list(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .list(v)
+        }
       }()
       case 6: try {
         var v: Sass_EmbeddedProtocol_Value.Map?
+        var hadOneofValue = false
         if let current = self.value {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .map(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.value = .map(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .map(v)
+        }
       }()
       case 7: try {
-        if self.value != nil {try decoder.handleConflictingOneOf()}
         var v: Sass_EmbeddedProtocol_Value.Singleton?
         try decoder.decodeSingularEnumField(value: &v)
-        if let v = v {self.value = .singleton(v)}
+        if let v = v {
+          if self.value != nil {try decoder.handleConflictingOneOf()}
+          self.value = .singleton(v)
+        }
       }()
       case 8: try {
         var v: Sass_EmbeddedProtocol_Value.CompilerFunction?
+        var hadOneofValue = false
         if let current = self.value {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .compilerFunction(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.value = .compilerFunction(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .compilerFunction(v)
+        }
       }()
       case 9: try {
         var v: Sass_EmbeddedProtocol_Value.HostFunction?
+        var hadOneofValue = false
         if let current = self.value {
-          try decoder.handleConflictingOneOf()
+          hadOneofValue = true
           if case .hostFunction(let m) = current {v = m}
         }
         try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {self.value = .hostFunction(v)}
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .hostFunction(v)
+        }
       }()
       default: break
       }
