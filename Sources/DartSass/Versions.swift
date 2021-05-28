@@ -47,7 +47,9 @@ import NIO
 /// Version response injection for testing and bringup until the compiler implements the request.
 
 protocol VersionsResponder {
-    func provideVersions(eventLoop: EventLoop, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void)
+    func provideVersions(eventLoop: EventLoop,
+                         msg: Sass_EmbeddedProtocol_InboundMessage,
+                         callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void)
 }
 
 struct DefaultVersionsResponder: VersionsResponder {
@@ -62,9 +64,11 @@ struct DefaultVersionsResponder: VersionsResponder {
         self.versions = versions
     }
 
-    func provideVersions(eventLoop: EventLoop, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) {
+    func provideVersions(eventLoop: EventLoop,
+                         msg: Sass_EmbeddedProtocol_InboundMessage,
+                         callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) {
         eventLoop.scheduleTask(in: .milliseconds(100)) {
-            callback(.with { $0.versionResponse = .init(versions) })
+            callback(.with {$0.versionResponse = .init(versions, id: msg.versionRequest.id) })
         }
     }
 }
@@ -72,11 +76,13 @@ struct DefaultVersionsResponder: VersionsResponder {
 extension Versions {
     static var responder: VersionsResponder? = DefaultVersionsResponder()
 
-    static func willProvideVersions(eventLoop: EventLoop, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) -> Bool {
+    static func willProvideVersions(eventLoop: EventLoop,
+                                    msg: Sass_EmbeddedProtocol_InboundMessage,
+                                    callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) -> Bool {
         guard let responder = responder else {
             return false
         }
-        responder.provideVersions(eventLoop: eventLoop, callback: callback)
+        responder.provideVersions(eventLoop: eventLoop, msg: msg, callback: callback)
         return true
     }
 }

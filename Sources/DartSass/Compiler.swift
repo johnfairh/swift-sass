@@ -657,7 +657,7 @@ final class CompilerChild: ChannelInboundHandler {
 
     func sendVersionRequest() -> EventLoopFuture<Versions> {
         let (future, reqMsg) = work.startVersionRequest()
-        if !Versions.willProvideVersions(eventLoop: eventLoop, callback: { self.receive(message: $0) }) {
+        if !Versions.willProvideVersions(eventLoop: eventLoop, msg: reqMsg, callback: { self.receive(message: $0) }) {
             send(message: reqMsg)
         }
         return future

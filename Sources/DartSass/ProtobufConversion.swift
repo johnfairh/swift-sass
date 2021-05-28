@@ -141,7 +141,8 @@ extension Array where Element == Sass_EmbeddedProtocol_InboundMessage.CompileReq
 }
 
 extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse {
-    init(_ versions: Versions) {
+    init(_ versions: Versions, id: UInt32) {
+        self.id = id
         protocolVersion = versions.protocolVersionString
         compilerVersion = versions.packageVersionString
         implementationVersion = versions.compilerVersionString
@@ -193,7 +194,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message {
         case .functionCallRequest(let m): return m.compilationID
         case .importRequest(let m): return m.compilationID
         case .logEvent(let m): return m.compilationID
-        case .versionResponse: return VersionRequest.requestID
+        case .versionResponse(let m): return m.id
         }
     }
 }
