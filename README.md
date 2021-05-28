@@ -102,7 +102,7 @@ asynchronous / non-blocking APIs.
 * Swift 5.4
 * macOS 11 (tested on macOS 11.3 IA64)
 * Linux (tested on Ubuntu 18.04.5)
-* Embedded Sass Protocol version 1.0.0-beta.8
+* Embedded Sass Protocol version 1.0.0-beta.10
 
 ## Installation
 
