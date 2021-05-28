@@ -103,6 +103,8 @@ public protocol Importer {
     /// - parameter eventLoop: The current event loop.
     /// - parameter ruleURL: The text following `@import` or `@use` in
     ///   a stylesheet.
+    /// - parameter fromImport: Whether this request comes from an `@import` rule.
+    ///   See [import-only files](https://sass-lang.com/documentation/at-rules/import#import-only-files).
     /// - returns: The canonical absolute URL, or `nil` if the importer doesn't recognize the
     ///   import request to have the compiler try the next importer.
     /// - throws: Only when `importURL` cannot be canonicalized: it is definitely
@@ -111,7 +113,7 @@ public protocol Importer {
     ///   anything then the importer should return `nil` instead.
     ///
     ///   Compilation will stop, quoting the description of the error thrown as the reason.
-    func canonicalize(eventLoop: EventLoop, ruleURL: String) -> EventLoopFuture<URL?>
+    func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?>
 
     /// Load a stylesheet from a canonical URL
     ///

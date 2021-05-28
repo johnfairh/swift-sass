@@ -118,7 +118,7 @@ class TestImporters: DartSassTestCase {
         var claimRequest: Bool = true
         var unclaimedRequestCount = 0
 
-        func canonicalize(eventLoop: EventLoop, ruleURL: String) -> EventLoopFuture<URL?> {
+        func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
             if let failNextCanon = failNextCanon {
                 failedCanonCount += 1
                 return eventLoop.makeFailedFuture(Error(message: failNextCanon))
@@ -215,5 +215,45 @@ class TestImporters: DartSassTestCase {
         let srcmap = try SourceMap(string: XCTUnwrap(results.sourceMap), checkMappings: true)
         XCTAssertEqual(1, srcmap.sources.count)
         XCTAssertEqual("test://vfs/something", srcmap.sources[0].url)
+    }
+
+    // fromImport flag
+    func testFromImport() throws {
+        throw XCTSkip() // needs dart-sass-embedded update
+
+        class FromImportTester: Importer {
+            var expectFromImport = false
+            var wasInvoked = false
+
+            func expectNext(_ fromImport: Bool) {
+                wasInvoked = false
+                expectFromImport = fromImport
+            }
+
+            func check() {
+                XCTAssertTrue(wasInvoked)
+            }
+
+            func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
+                XCTAssertFalse(wasInvoked)
+                wasInvoked = true
+                XCTAssertEqual(expectFromImport, fromImport)
+                return eventLoop.makeSucceededFuture(URL(string: "test://\(ruleURL)"))
+            }
+
+            func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
+                return eventLoop.makeSucceededFuture(ImporterResults("", syntax: .css, sourceMapURL: canonicalURL))
+            }
+        }
+        let importer = FromImportTester()
+        let compiler = try newCompiler(importers: [.importer(importer)])
+
+        importer.expectNext(true)
+        _ = try compiler.compile(string: "@import 'something'")
+        importer.check()
+
+        importer.expectNext(false)
+        _ = try compiler.compile(string: "@use 'something'")
+        importer.check()
     }
 }

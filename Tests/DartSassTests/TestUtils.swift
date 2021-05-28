@@ -122,7 +122,7 @@ extension URL {
 /// An async importer that can be stopped in `load`.
 /// Accepts all `import` URLs and returns empty documents.
 final class HangingAsyncImporter: Importer {
-    func canonicalize(eventLoop: EventLoop, ruleURL: String) -> EventLoopFuture<URL?> {
+    func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
         return eventLoop.makeSucceededFuture(URL(string: "custom://\(ruleURL)"))
     }
 
