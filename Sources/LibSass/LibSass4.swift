@@ -129,8 +129,8 @@ enum LibSass4 {
             }
         }
 
-        func add(includePath: String) {
-            sass_compiler_add_include_paths(ptr, includePath)
+        func add(includePath url: URL) {
+            sass_compiler_add_include_paths(ptr, url.path)
         }
 
         func add(customImporter: Importer) {

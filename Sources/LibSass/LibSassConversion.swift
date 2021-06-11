@@ -157,7 +157,7 @@ extension LibSass4.Compiler {
         switch importer {
         case .loadPath(let url):
             precondition(url.isFileURL)
-            add(includePath: url.path)
+            add(includePath: url)
 
         case .importer(let client):
             let newImporter = LibSass4.Importer(priority: Double(priority)) { [unowned self] url, _ in
