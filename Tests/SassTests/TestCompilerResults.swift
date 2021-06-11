@@ -33,7 +33,7 @@ class TestCompilerResults: XCTestCase {
     func makeCompilerResults(sources: [String] = []) -> CompilerResults {
         let map = SourceMap()
         map.sources = sources.map { .init(url: $0) }
-        return CompilerResults(css: "Some CSS\n", sourceMap: try! map.encodeString(), messages: [])
+        return CompilerResults(css: "Some CSS\n", sourceMap: try! map.encodeString(), messages: [], includedURLs: [])
     }
 
     // MARK: Path xforms
@@ -93,7 +93,7 @@ class TestCompilerResults: XCTestCase {
     // MARK: Corners
 
     func testNoSourceMap() throws {
-        let results = CompilerResults(css: dummyCSS, sourceMap: nil, messages: [])
+        let results = CompilerResults(css: dummyCSS, sourceMap: nil, messages: [], includedURLs: [])
         do {
             let updated = try results.withFileLocations(cssFileURL: URL(fileURLWithPath: "out.css"),
                                                         sourceMapFileURL: URL(fileURLWithPath: "out.css.map"))

@@ -20,11 +20,17 @@ public struct CompilerResults {
     /// Any compiler warnings and debug statements.
     public let messages: [CompilerMessage]
 
+    /// The canonical URLs of all source files used to produce `css`.
+    ///
+    /// This includes the URL of the initial Sass file if it is known.
+    public let includedURLs: [URL]
+
     /// :nodoc:
-    public init(css: String, sourceMap: String?, messages: [CompilerMessage]) {
+    public init(css: String, sourceMap: String?, messages: [CompilerMessage], includedURLs: [URL]) {
         self.css = css
         self.sourceMap = sourceMap
         self.messages = messages
+        self.includedURLs = includedURLs
     }
 
     // MARK: Source Map URL Control
@@ -77,7 +83,7 @@ public struct CompilerResults {
     /// - throws: If the `CompilerResults` does not have a source map, or if JSON encoding/
     ///   decoding goes wrong.
     /// - returns: A new `CompilerResults` with updated `css` and `sourceMap` fields.  The
-    ///   `messages` field is copied over unchanged.
+    ///   `messages` and `includedURLs` fields are copied over unchanged.
     public func withFileLocations(cssFileURL: URL, sourceMapFileURL: URL, style: URLStyle = .relative) throws -> CompilerResults {
         guard let sourceMapString = self.sourceMap else {
             throw NoSourceMapError()
@@ -109,7 +115,8 @@ public struct CompilerResults {
         return CompilerResults(
             css: css + "\n/*# sourceMappingURL=\(actualSourceMapURL) */\n",
             sourceMap: try sourceMap.encodeString(continueOnError: true),
-            messages: messages)
+            messages: messages,
+            includedURLs: includedURLs)
     }
 }
 

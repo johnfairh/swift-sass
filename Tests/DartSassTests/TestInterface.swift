@@ -52,16 +52,19 @@ class TestInterface: DartSassTestCase {
         let results1 = try compiler.compile(string: scssIn, sourceMapStyle: .none)
         XCTAssertNil(results1.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
+        XCTAssertTrue(results1.includedURLs.isEmpty)
         XCTAssertEqual(scssOutExpanded, results1.css)
 
         let results2 = try compiler.compile(string: sassIn, syntax: .sass, sourceMapStyle: .none)
         XCTAssertNil(results2.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
+        XCTAssertTrue(results1.includedURLs.isEmpty)
         XCTAssertEqual(sassOutExpanded, results2.css)
 
         let results3 = try compiler.compile(string: sassOutExpanded, syntax: .css, sourceMapStyle: .none)
         XCTAssertNil(results3.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
+        XCTAssertTrue(results1.includedURLs.isEmpty)
         XCTAssertEqual(sassOutExpanded, results3.css)
     }
 
@@ -69,6 +72,7 @@ class TestInterface: DartSassTestCase {
         let url = try FileManager.default.createTempFile(filename: "file.\(extnsion)", contents: content)
         let results = try compiler.compile(fileURL: url)
         XCTAssertEqual(expected, results.css)
+        XCTAssertTrue(results.includedURLs.isEmpty) // waiting for dart sass to catch up
     }
 
     /// Does it work, from a file
@@ -85,6 +89,7 @@ class TestInterface: DartSassTestCase {
         try [SourceMapStyle.separateSources, SourceMapStyle.embeddedSources].forEach { style in
             let results = try compiler.compile(string: scssIn, url: URL(string: "custom://bar"), sourceMapStyle: style)
             XCTAssertEqual(scssOutExpanded, results.css)
+            XCTAssertTrue(results.includedURLs.isEmpty) // waiting for dart sass to catch up
 
             let srcmap = try SourceMap(string: XCTUnwrap(results.sourceMap), checkMappings: true)
             XCTAssertEqual(SourceMap.VERSION, srcmap.version)

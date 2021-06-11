@@ -41,7 +41,8 @@ extension CompilerResults {
          messages: [CompilerMessage]) {
         self = .init(css: protobuf.css,
                      sourceMap: protobuf.sourceMap.nonEmptyString,
-                     messages: messages)
+                     messages: messages,
+                     includedURLs: [])
     }
 }
 

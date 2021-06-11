@@ -56,6 +56,7 @@ class TestImporters: DartSassTestCase {
                                            outputStyle: .compressed,
                                            importers: [.loadPath(tmpDir)])
         XCTAssertEqual(secondaryCssBlue, results.css)
+        XCTAssertTrue(results.includedURLs.isEmpty) // waiting on dart sass
     }
 
     // job loadpath searched after compiler loadpath
@@ -151,6 +152,7 @@ class TestImporters: DartSassTestCase {
         let compiler = try newCompiler(importers: [.importer(importer)])
         let results = try compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssRed, results.css)
+        XCTAssertTrue(results.includedURLs.isEmpty) // waiting on dart-sass
     }
 
     // Bad path harness
@@ -209,6 +211,7 @@ class TestImporters: DartSassTestCase {
                                            importer: .importer(importer),
                                            outputStyle: .compressed)
         XCTAssertEqual("a{color:red}", results.css)
+        XCTAssertTrue(results.includedURLs.isEmpty) // waiting on dart-sass
         let srcmap = try SourceMap(string: XCTUnwrap(results.sourceMap), checkMappings: true)
         XCTAssertEqual(1, srcmap.sources.count)
         XCTAssertEqual("test://vfs/something", srcmap.sources[0].url)
