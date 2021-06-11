@@ -15,7 +15,6 @@ import SourceMapper
 class TestImporters: XCTestCase {
     override func tearDown() { LibSass4.dumpMemLeaks() }
 
-
     class StaticImporter {
         private let content: String
         private let importedName: String
@@ -177,5 +176,6 @@ class TestImporters: XCTestCase {
         }
         XCTAssertEqual(3, srcmap.sources.count)
         XCTAssertEqual(expected, srcmap.sources.map(\.url))
+        XCTAssertEqual(expected, results.includedURLs.map(\.absoluteString))
     }
 }

@@ -74,16 +74,19 @@ class TestGoodpath: XCTestCase {
         let results1 = try compiler.compile(string: scssIn, sourceMapStyle: .none)
         XCTAssertNil(results1.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
+        XCTAssertTrue(results1.includedURLs.isEmpty)
         XCTAssertEqual(scssOutNested, results1.css)
 
         let results2 = try compiler.compile(string: sassIn, syntax: .sass, sourceMapStyle: .none)
         XCTAssertNil(results2.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
+        XCTAssertTrue(results1.includedURLs.isEmpty)
         XCTAssertEqual(sassOutNested, results2.css)
 
         let results3 = try compiler.compile(string: sassOutNested, syntax: .css, sourceMapStyle: .none)
         XCTAssertNil(results3.sourceMap)
         XCTAssertTrue(results1.messages.isEmpty)
+        XCTAssertTrue(results1.includedURLs.isEmpty)
         XCTAssertEqual(sassOutNested, results3.css)
     }
 
@@ -91,6 +94,7 @@ class TestGoodpath: XCTestCase {
         let url = try FileManager.default.createTempFile(filename: "file.\(extnsion)", contents: content)
         let results = try compiler.compile(fileURL: url)
         XCTAssertEqual(expected, results.css)
+        XCTAssertEqual([url], results.includedURLs)
     }
 
     /// Does it work, from a file
@@ -115,6 +119,8 @@ class TestGoodpath: XCTestCase {
                 print(results.css)
             }
             XCTAssertEqual(scssOutNested, results.css)
+            XCTAssertEqual(1, results.includedURLs.count)
+            XCTAssertEqual("file.scss", results.includedURLs[0].lastPathComponent)
         }
     }
 

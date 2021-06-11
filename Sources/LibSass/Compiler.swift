@@ -138,7 +138,8 @@ public final class Compiler {
         }
         return CompilerResults(css: compiler.outputString,
                                sourceMap: compiler.sourceMapString?.withoutFile,
-                               messages: compiler.messages)
+                               messages: compiler.messages,
+                               includedURLs: compiler.includedFileURLs)
     }
 }
 

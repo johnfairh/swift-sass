@@ -119,6 +119,16 @@ enum LibSass4 {
             Import(ptr: sass_compiler_get_last_import(ptr))
         }
 
+        var includedFileURLs: [URL] {
+            Array(0..<sass_compiler_get_included_files_count(ptr)).map {
+                String(safeCString: sass_compiler_get_included_file_path(ptr, $0))
+            }.filter {
+                !$0.hasPrefix("stream://")
+            }.map {
+                URL(fileURLWithPath: $0)
+            }
+        }
+
         func add(includePath: String) {
             sass_compiler_add_include_paths(ptr, includePath)
         }
