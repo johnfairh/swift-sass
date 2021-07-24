@@ -2,7 +2,7 @@
   "object": {
     "pins": [
       {
-        "package": "Semver",
+        "package": "Semver.swift",
         "repositoryURL": "https://github.com/johnfairh/Semver.swift.git",
         "state": {
           "branch": null,
@@ -33,17 +33,17 @@
         "repositoryURL": "https://github.com/apple/swift-nio.git",
         "state": {
           "branch": null,
-          "revision": "d161bf658780b209c185994528e7e24376cf7283",
-          "version": "2.29.0"
+          "revision": "d79e33308b0ac83326b0ead0ea6446e604b8162d",
+          "version": "2.30.0"
         }
       },
       {
-        "package": "SwiftProtobuf",
+        "package": "swift-protobuf",
         "repositoryURL": "https://github.com/apple/swift-protobuf.git",
         "state": {
           "branch": null,
-          "revision": "bfe4255ff60f22a41cafa113059668571ed5d461",
-          "version": "1.16.0"
+          "revision": "1f62db409f2c9b0223a3f68567b4a01333aae778",
+          "version": "1.17.0"
         }
       }
     ]

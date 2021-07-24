@@ -63,8 +63,7 @@ let package = Package(
         resources: [.copy("sass_embedded")]),
       .testTarget(
         name: "DartSassTests",
-        dependencies: ["DartSass"],
-        exclude: ["dart-sass-embedded"]),
+        dependencies: ["DartSass"]),
       .testTarget(
         name: "SassTests",
         dependencies: ["Sass"]),
