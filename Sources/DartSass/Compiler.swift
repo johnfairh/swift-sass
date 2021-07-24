@@ -276,6 +276,13 @@ public final class Compiler {
         versionsFuture.map { $0?.compilerVersionString }
     }
 
+    /// The version of the package implementing the compiler side of the embedded Sass protocol.
+    /// Probably in [semver](https://semver.org/spec/v2.0.0.html) format.
+    /// `nil` if unknown (never got a version).
+    public var compilerPackageVersion: EventLoopFuture<String?> {
+        versionsFuture.map { $0?.packageVersionString }
+    }
+
     private var versionsFuture: EventLoopFuture<Versions?> {
         eventLoop.flatSubmit { [self] in
             switch state {
@@ -460,7 +467,7 @@ public final class Compiler {
         }.flatMap { child -> EventLoopFuture<Versions> in
             self.debug("Compiler is started, starting healthcheck")
             self.state.inittingToChecking(child)
-            return child.sendVersionRequest()
+            return self.sendVersionRequest(to: child)
         }.flatMapThrowing { versions in
             try versions.check()
             self.versions = versions
@@ -473,6 +480,22 @@ public final class Compiler {
             self.kickPendingCompilations()
             throw error
         }
+    }
+
+    // Unit-test hook to inject/drop version request
+    var versionsResponder: VersionsResponder? = nil
+
+    private func sendVersionRequest(to child: CompilerChild) -> EventLoopFuture<Versions> {
+        let (future, reqMsg) = work.startVersionRequest()
+
+        if let responder = versionsResponder {
+            responder.provideVersions(eventLoop: eventLoop, msg: reqMsg) {
+                child.receive(message: $0)
+            }
+        } else {
+            child.send(message: reqMsg)
+        }
+        return future
     }
 
     /// Central transport/protocol error detection and 'recovery'.
@@ -655,14 +678,6 @@ final class CompilerChild: ChannelInboundHandler {
         messages.forEach { send(message: $0) }
     }
 
-    func sendVersionRequest() -> EventLoopFuture<Versions> {
-        let (future, reqMsg) = work.startVersionRequest()
-        if !Versions.willProvideVersions(eventLoop: eventLoop, msg: reqMsg, callback: { self.receive(message: $0) }) {
-            send(message: reqMsg)
-        }
-        return future
-    }
-
     /// Called from the pipeline handler with a new message
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         eventLoop.preconditionInEventLoop()
@@ -698,4 +713,11 @@ final class CompilerChild: ChannelInboundHandler {
             work.cancelAllActive(with: error)
         }
     }
+}
+
+/// Version response injection for testing
+protocol VersionsResponder {
+    func provideVersions(eventLoop: EventLoop,
+                         msg: Sass_EmbeddedProtocol_InboundMessage,
+                         callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void)
 }

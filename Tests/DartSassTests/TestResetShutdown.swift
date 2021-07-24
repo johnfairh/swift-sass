@@ -78,6 +78,7 @@ class TestResetShutdown: DartSassTestCase {
         let badCompiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
                                    embeddedCompilerFileURL: tmpHeadURL,
                                    timeout: 1)
+        badCompiler.versionsResponder = TestVersionsResponder()
         compilersToShutdown.append(badCompiler)
         badCompiler.sync()
 
