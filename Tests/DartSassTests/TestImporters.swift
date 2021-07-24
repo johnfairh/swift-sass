@@ -219,8 +219,6 @@ class TestImporters: DartSassTestCase {
 
     // fromImport flag
     func testFromImport() throws {
-        throw XCTSkip() // needs dart-sass-embedded update
-
         class FromImportTester: Importer {
             var expectFromImport = false
             var wasInvoked = false
