@@ -222,7 +222,7 @@ class TestProtocolErrors: DartSassTestCase {
     // Misc bits of unconvertible API
 
     func testBadLogEventKind() throws {
-        let kind = Sass_EmbeddedProtocol_OutboundMessage.LogEvent.TypeEnum.UNRECOGNIZED(100)
+        let kind = Sass_EmbeddedProtocol_LogEventType.UNRECOGNIZED(100)
         XCTAssertThrowsError(_ = try CompilerMessage.Kind(kind))
     }
 

@@ -58,7 +58,7 @@ extension CompilerError {
 }
 
 extension CompilerMessage.Kind {
-    init(_ type: Sass_EmbeddedProtocol_OutboundMessage.LogEvent.TypeEnum) throws {
+    init(_ type: Sass_EmbeddedProtocol_LogEventType) throws {
         switch type {
         case .deprecationWarning: self = .deprecation
         case .warning: self = .warning
@@ -99,7 +99,7 @@ extension CompilerMessageStyle {
 
 // MARK: Native -> PB
 
-extension Sass_EmbeddedProtocol_InboundMessage.Syntax {
+extension Sass_EmbeddedProtocol_Syntax {
     init(_ syntax: Syntax) {
         switch syntax {
         case .css: self = .css
@@ -109,7 +109,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.Syntax {
     }
 }
 
-extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OutputStyle {
+extension Sass_EmbeddedProtocol_OutputStyle {
     init(_ style: CssStyle) {
         switch style {
         case .compressed: self = .compressed
@@ -261,7 +261,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse {
 // Protobuf -> SassValue
 
 extension SassList.Separator {
-    init(_ separator: Sass_EmbeddedProtocol_Value.List.Separator) throws {
+    init(_ separator: Sass_EmbeddedProtocol_ListSeparator) throws {
         switch separator {
         case .comma: self = .comma
         case .slash: self = .slash
@@ -337,7 +337,7 @@ extension Sass_EmbeddedProtocol_Value {
 
 // SassValue -> Protobuf
 
-extension Sass_EmbeddedProtocol_Value.List.Separator {
+extension Sass_EmbeddedProtocol_ListSeparator {
     init(_ separator: SassList.Separator) {
         switch separator {
         case .comma: self = .comma
