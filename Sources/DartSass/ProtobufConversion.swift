@@ -42,7 +42,7 @@ extension CompilerResults {
         self = .init(css: protobuf.css,
                      sourceMap: protobuf.sourceMap.nonEmptyString,
                      messages: messages,
-                     includedURLs: [])
+                     loadedURLs: protobuf.loadedUrls.compactMap { URL(string: $0) })
     }
 }
 

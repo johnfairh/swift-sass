@@ -56,7 +56,7 @@ class TestImporters: DartSassTestCase {
                                            outputStyle: .compressed,
                                            importers: [.loadPath(tmpDir)])
         XCTAssertEqual(secondaryCssBlue, results.css)
-        XCTAssertTrue(results.includedURLs.isEmpty) // waiting on dart sass
+        XCTAssertEqual(1, results.loadedURLs.count)
     }
 
     // job loadpath searched after compiler loadpath
@@ -152,7 +152,7 @@ class TestImporters: DartSassTestCase {
         let compiler = try newCompiler(importers: [.importer(importer)])
         let results = try compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssRed, results.css)
-        XCTAssertTrue(results.includedURLs.isEmpty) // waiting on dart-sass
+        XCTAssertEqual("test://secondary", results.loadedURLs.first!.absoluteString)
     }
 
     // Bad path harness
@@ -211,7 +211,7 @@ class TestImporters: DartSassTestCase {
                                            importer: .importer(importer),
                                            outputStyle: .compressed)
         XCTAssertEqual("a{color:red}", results.css)
-        XCTAssertTrue(results.includedURLs.isEmpty) // waiting on dart-sass
+        XCTAssertEqual(2, results.loadedURLs.count)
         let srcmap = try SourceMap(string: XCTUnwrap(results.sourceMap), checkMappings: true)
         XCTAssertEqual(1, srcmap.sources.count)
         XCTAssertEqual("test://vfs/something", srcmap.sources[0].url)
@@ -253,5 +253,28 @@ class TestImporters: DartSassTestCase {
         importer.expectNext(false)
         _ = try compiler.compile(string: "@use 'something'")
         importer.check()
+    }
+
+    // multiple imports, loaded
+    func testMultipleLoadedURLs() throws {
+        let importer = TestImporter(css: "a { b: 'c' }")
+        let compiler = try newCompiler(importers: [.importer(importer)])
+        let rootURL = URL(string: "original://file")!
+        let scss = """
+                   @import 'first';
+                   @import 'second';
+                   div { b: 'c' }
+                   """
+        let results = try compiler.compile(string: scss, syntax: .scss, url: rootURL)
+        let map = try SourceMap(string: XCTUnwrap(results.sourceMap))
+        XCTAssertEqual(3, map.sources.count)
+        XCTAssertEqual(3, results.loadedURLs.count)
+
+        func s(_ urls: [URL]) -> [URL] {
+            urls.sorted(by: { $0.absoluteString < $1.absoluteString})
+        }
+        let expected = s([rootURL, URL(string: "test://first")!, URL(string: "test://second")!])
+        XCTAssertEqual(expected, s(results.loadedURLs))
+        XCTAssertEqual(expected, s(map.sources.map { URL(string: $0.url)! }))
     }
 }
