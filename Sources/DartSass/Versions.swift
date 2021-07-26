@@ -29,7 +29,7 @@ struct Versions: CustomStringConvertible {
 
     /// Minimum supported version of the Embedded Sass Protocol that we support, from here up to the next major.
     static let minProtocolVersion = Semver(major: 1, minor: 0, patch: 0,
-                                           prereleaseIdentifiers: ["beta", "8"])
+                                           prereleaseIdentifiers: ["beta", "11"])
 
     /// Check the versions reported by the compiler are OK.
     func check() throws {
@@ -39,44 +39,5 @@ struct Versions: CustomStringConvertible {
         if protocolVersion.major > Versions.minProtocolVersion.major {
             throw ProtocolError("Embedded Sass compiler protocol version is incompatible with required version \(Versions.minProtocolVersion) -> nextMajor.  Its versions are: \(self)")
         }
-    }
-}
-
-import NIO
-
-/// Version response injection for testing and bringup until the compiler implements the request.
-
-protocol VersionsResponder {
-    func provideVersions(eventLoop: EventLoop, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void)
-}
-
-struct DefaultVersionsResponder: VersionsResponder {
-    static let defaultVersions =
-        Versions(protocolVersionString: Versions.minProtocolVersion.toString(),
-                 packageVersionString: "0.0.1",
-                 compilerVersionString: "0.0.1",
-                 compilerName: "ProbablyDartSass")
-
-    private let versions: Versions
-    init(_ versions: Versions = Self.defaultVersions) {
-        self.versions = versions
-    }
-
-    func provideVersions(eventLoop: EventLoop, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) {
-        eventLoop.scheduleTask(in: .milliseconds(100)) {
-            callback(.with { $0.versionResponse = .init(versions) })
-        }
-    }
-}
-
-extension Versions {
-    static var responder: VersionsResponder? = DefaultVersionsResponder()
-
-    static func willProvideVersions(eventLoop: EventLoop, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) -> Bool {
-        guard let responder = responder else {
-            return false
-        }
-        responder.provideVersions(eventLoop: eventLoop, callback: callback)
-        return true
     }
 }

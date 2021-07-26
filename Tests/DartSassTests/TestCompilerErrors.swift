@@ -211,4 +211,70 @@ class TestCompilerErrors: DartSassTestCase {
             XCTFail("Unexpected error: \(error)")
         }
     }
+
+    // Dependency warning control
+    func testDependencyWarning() throws {
+        // warnings normally reported
+        let importer = StaticImporter(scss: "$_: 1/2")
+        let loudCompiler = try newCompiler(importers: [.importer(importer)])
+        let results1 = try loudCompiler.compile(string: "@import 'foo';")
+        XCTAssertEqual(1, results1.messages.count)
+
+        // warnings can be suppressed - from a file
+        let quietCompiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+                                         suppressDependencyWarnings: true)
+        compilersToShutdown.append(quietCompiler)
+
+        let rootFile = try FileManager.default.createTempFile(filename: "root.scss", contents: "@import 'foo';")
+
+        let results2 = try quietCompiler.compile(fileURL: rootFile,
+                                                 importers: [.importer(importer)])
+        XCTAssertEqual(0, results2.messages.count)
+
+        // warnings can be suppressed - from a string
+        let results3 = try quietCompiler.compile(string: "@import 'imported';",
+                                                 url: URL(string: "custom://main.scss")!,
+                                                 importers: [.importer(importer)])
+        XCTAssertEqual(0, results3.messages.count)
+    }
+
+    // Deprecation warnings normally throttled
+    func testVerboseDeprecationWarnings() throws {
+        let importer = StaticImporter(scss: """
+                                            $_: 1/2;
+                                            $_: 1/3;
+                                            $_: 1/4;
+                                            $_: 1/5;
+                                            $_: 1/6;
+                                            $_: 1/7;
+                                            $_: 1/8;
+                                            """)
+        let normalCompiler = try newCompiler(importers: [.importer(importer)])
+        let results1 = try normalCompiler.compile(string: "@import 'foo';")
+        XCTAssertEqual(6, results1.messages.count)
+
+        let verboseCompiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+                                           verboseDeprecations: true,
+                                           importers: [.importer(importer)])
+        compilersToShutdown.append(verboseCompiler)
+
+        let results2 = try verboseCompiler.compile(string: "@import 'foo';")
+        XCTAssertEqual(7, results2.messages.count)
+    }
+}
+
+final class StaticImporter: Importer {
+    private let scss: String
+
+    init(scss: String) {
+        self.scss = scss
+    }
+
+    func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
+        eventLoop.makeSucceededFuture(URL(string: "static://\(ruleURL)"))
+    }
+
+    func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
+        eventLoop.makeSucceededFuture(ImporterResults(scss))
+    }
 }

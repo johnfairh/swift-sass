@@ -48,6 +48,7 @@ class DartSassTestCase: XCTestCase {
         let c = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
                          embeddedCompilerFileURL: URL(fileURLWithPath: "/usr/bin/tail"),
                          timeout: timeout)
+        c.versionsResponder = TestVersionsResponder()
         compilersToShutdown.append(c)
         return c
     }
@@ -122,7 +123,7 @@ extension URL {
 /// An async importer that can be stopped in `load`.
 /// Accepts all `import` URLs and returns empty documents.
 final class HangingAsyncImporter: Importer {
-    func canonicalize(eventLoop: EventLoop, ruleURL: String) -> EventLoopFuture<URL?> {
+    func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
         return eventLoop.makeSucceededFuture(URL(string: "custom://\(ruleURL)"))
     }
 
@@ -151,5 +152,26 @@ final class HangingAsyncImporter: Importer {
             promise.succeed(.init(""))
         }
         return promise.futureResult
+    }
+}
+
+struct TestVersionsResponder: VersionsResponder {
+    static let defaultVersions =
+        Versions(protocolVersionString: Versions.minProtocolVersion.toString(),
+                 packageVersionString: "0.0.1",
+                 compilerVersionString: "0.0.1",
+                 compilerName: "ProbablyDartSass")
+
+    private let versions: Versions
+    init(_ versions: Versions = Self.defaultVersions) {
+        self.versions = versions
+    }
+
+    func provideVersions(eventLoop: EventLoop,
+                         msg: Sass_EmbeddedProtocol_InboundMessage,
+                         callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) {
+        eventLoop.scheduleTask(in: .milliseconds(100)) {
+            callback(.with {$0.versionResponse = .init(versions, id: msg.versionRequest.id) })
+        }
     }
 }

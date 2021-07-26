@@ -93,7 +93,7 @@ class TestFunctions: DartSassTestCase {
         XCTAssertEqual(list, listBack)
 
         // Tedious enum matching
-        let separators: [(Sass_EmbeddedProtocol_Value.List.Separator,
+        let separators: [(Sass_EmbeddedProtocol_ListSeparator,
                           SassList.Separator)] = [
                             (.comma, .comma),
                             (.slash, .slash),

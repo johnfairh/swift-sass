@@ -71,7 +71,7 @@ class TestProtocolErrors: DartSassTestCase {
 
         let msg = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
             msg.compileResponse = .with { rsp in
-                rsp.id = CompilationRequest.peekNextCompilationID
+                rsp.id = RequestID.peekNext
                 rsp.result = nil // missing 'result'
             }
         }
@@ -157,7 +157,7 @@ class TestProtocolErrors: DartSassTestCase {
     /// importer ID is completely wrong
     func testImporterBadID() throws {
         try checkBadImportMessage(.with {
-            $0.compilationID = CompilationRequest.peekNextCompilationID
+            $0.compilationID = RequestID.peekNext
             $0.id = 42
             $0.importerID = 12
         }, "Bad importer ID")
@@ -166,7 +166,7 @@ class TestProtocolErrors: DartSassTestCase {
     /// Importer ID picks out a loadpath not an importer
     func testImporterBadImporterType() throws {
         try checkBadImportMessage(.with {
-            $0.compilationID = CompilationRequest.peekNextCompilationID
+            $0.compilationID = RequestID.peekNext
             $0.id = 42
             $0.importerID = 4001
         }, "not an importer")
@@ -175,7 +175,7 @@ class TestProtocolErrors: DartSassTestCase {
     /// URL has gotten messed up
     func testImporterBadURL() throws {
         try checkBadImportMessage(.with {
-            $0.compilationID = CompilationRequest.peekNextCompilationID
+            $0.compilationID = RequestID.peekNext
             $0.id = 42
             $0.importerID = 4000
         }, "Malformed import URL")
@@ -187,7 +187,7 @@ class TestProtocolErrors: DartSassTestCase {
     /// Missing fn identifier
     func testImporterNoIdentifier() throws {
         try checkBadFnCallMessage(.with {
-            $0.compilationID = CompilationRequest.peekNextCompilationID
+            $0.compilationID = RequestID.peekNext
             $0.id = 42
         }, "Missing 'identifier'")
     }
@@ -195,7 +195,7 @@ class TestProtocolErrors: DartSassTestCase {
     /// Bad ID
     func testImporterBadNumericID() throws {
         try checkBadFnCallMessage(.with {
-            $0.compilationID = CompilationRequest.peekNextCompilationID
+            $0.compilationID = RequestID.peekNext
             $0.id = 42
             $0.functionID = 108
         }, "Host function ID")
@@ -204,7 +204,7 @@ class TestProtocolErrors: DartSassTestCase {
     /// Bad name
     func testImporterBadName() throws {
         try checkBadFnCallMessage(.with {
-            $0.compilationID = CompilationRequest.peekNextCompilationID
+            $0.compilationID = RequestID.peekNext
             $0.id = 42
             $0.name = "mysterious"
         }, "Host function name")
@@ -213,7 +213,7 @@ class TestProtocolErrors: DartSassTestCase {
     /// File import is in the API but not implemented anywhere...
     func testUnexpectedFileImport() throws {
         try checkBadFileImport(.with {
-            $0.compilationID = CompilationRequest.peekNextCompilationID
+            $0.compilationID = RequestID.peekNext
             $0.id = 108
             $0.importerID = 22
         }, "Unexpected FileImport-Req")
@@ -222,7 +222,7 @@ class TestProtocolErrors: DartSassTestCase {
     // Misc bits of unconvertible API
 
     func testBadLogEventKind() throws {
-        let kind = Sass_EmbeddedProtocol_OutboundMessage.LogEvent.TypeEnum.UNRECOGNIZED(100)
+        let kind = Sass_EmbeddedProtocol_LogEventType.UNRECOGNIZED(100)
         XCTAssertThrowsError(_ = try CompilerMessage.Kind(kind))
     }
 

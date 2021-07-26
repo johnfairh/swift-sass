@@ -20,6 +20,19 @@ import struct Foundation.URL
 // CompilationRequest -- class modelling a compilation request
 // VersionRequest -- class modelling a version request
 
+// MARK: Request ID allocation
+
+enum RequestID {
+    private static var _next = NIOAtomic<UInt32>.makeAtomic(value: 4000)
+    fileprivate static var next: UInt32 {
+        _next.add(1)
+    }
+    // For tests
+    static var peekNext: UInt32 {
+        _next.load()
+    }
+}
+
 // MARK: CompilerRequest
 
 protocol CompilerRequest: AnyObject {
@@ -159,15 +172,6 @@ final class CompilationRequest: ManagedCompilerRequest {
     private let functions: SassAsyncFunctionMap
     private var messages: [CompilerMessage]
 
-    // Compilation ID management
-    private static var _nextCompilationID = NIOAtomic<UInt32>.makeAtomic(value: 4000)
-    private static var nextCompilationID: UInt32 {
-        _nextCompilationID.add(1)
-    }
-    static var peekNextCompilationID: UInt32 {
-        _nextCompilationID.load()
-    }
-
     var requestID: UInt32 {
         compileReq.id
     }
@@ -177,7 +181,7 @@ final class CompilationRequest: ManagedCompilerRequest {
          input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
          outputStyle: CssStyle,
          sourceMapStyle: SourceMapStyle,
-         messageStyle: CompilerMessageStyle,
+         settings: CompilerWork.Settings,
          importers: [ImportResolver],
          stringImporter: ImportResolver?,
          functionsMap: [SassFunctionSignature : (String, SassAsyncFunction)]) {
@@ -190,14 +194,16 @@ final class CompilationRequest: ManagedCompilerRequest {
         }
         self.functions = functionsMap.mapValues { $0.1 }
         self.compileReq = .with { msg in
-            msg.id = Self.nextCompilationID
+            msg.id = RequestID.next
             msg.input = input
             msg.style = .init(outputStyle)
             msg.sourceMap = .init(sourceMapStyle)
             msg.importers = .init(importers, startingID: firstFreeImporterID)
             msg.globalFunctions = functionsMap.values.map { $0.0 }
             msg.alertAscii = false
-            msg.alertColor = messageStyle.isColored
+            msg.alertColor = settings.messageStyle.isColored
+            msg.verbose = settings.verboseDeprecations
+            msg.quietDeps = settings.suppressDependencyWarnings
         }
         self.messages = []
         self.promise = promise
@@ -288,7 +294,9 @@ final class CompilationRequest: ManagedCompilerRequest {
 
         clientStarting()
 
-        return importer.canonicalize(eventLoop: eventLoop, ruleURL: req.url)
+        return importer.canonicalize(eventLoop: eventLoop,
+                                     ruleURL: req.url,
+                                     fromImport: req.fromImport)
             .map { canonURL -> IBM.CanonicalizeResponse in
                 if let canonURL = canonURL {
                     rsp.url = canonURL.absoluteString
@@ -402,24 +410,22 @@ final class VersionRequest: ManagedCompilerRequest {
     fileprivate var timer: Scheduled<Void>?
     fileprivate var state: CompilerRequestState
 
+    // Version-specific
+    let versionReq: Sass_EmbeddedProtocol_InboundMessage.VersionRequest
+
     // Debug
     var debugPrefix: String { "Version-Req" }
     var requestName: String { "Version-Req" }
 
-    var versionReq: Sass_EmbeddedProtocol_InboundMessage.VersionRequest {
-        .init()
-    }
-
-    static let requestID = UInt32(0xfffffffe)
-
     var requestID: UInt32 {
-        VersionRequest.requestID
+        versionReq.id
     }
 
     init(promise: EventLoopPromise<Versions>) {
         self.promise = promise
         self.state = .normal
         self.timer = nil
+        self.versionReq = .with { $0.id = RequestID.next }
         initCompilerRequest()
     }
 
