@@ -176,6 +176,6 @@ class TestImporters: XCTestCase {
         }
         XCTAssertEqual(3, srcmap.sources.count)
         XCTAssertEqual(expected, srcmap.sources.map(\.url))
-        XCTAssertEqual(expected, results.includedURLs.map(\.absoluteString))
+        XCTAssertEqual(expected, results.loadedURLs.map(\.absoluteString))
     }
 }
