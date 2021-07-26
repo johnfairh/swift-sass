@@ -107,7 +107,7 @@ public protocol Importer {
     ///   See [import-only files](https://sass-lang.com/documentation/at-rules/import#import-only-files).
     /// - returns: The canonical absolute URL, or `nil` if the importer doesn't recognize the
     ///   import request to have the compiler try the next importer.
-    /// - throws: Only when `importURL` cannot be canonicalized: it is definitely
+    /// - throws: Only when `ruleURL` cannot be canonicalized: it is definitely
     ///   this importer's responsibility to do so, but it can't.  For example, if the request is
     ///   "foo" but both `foo.sass` and `foo.css` are available.  If "foo" didn't match
     ///   anything then the importer should return `nil` instead.

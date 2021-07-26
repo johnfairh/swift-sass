@@ -113,7 +113,7 @@ public final class Compiler {
     /// Use the bundled Dart Sass compiler as the Sass compiler.
     ///
     /// The bundled Dart Sass compiler is built for macOS (Intel) or Ubuntu Xenial (16.04) 64-bit.
-    /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:importers:functions:)`
+    /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)`
     /// supplying the path of the correct Dart Sass compiler.
     ///
     /// Initialization continues asynchronously after the initializer completes; failures are reported
@@ -122,12 +122,18 @@ public final class Compiler {
     /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
     /// `syncShutdownGracefully()` before letting it go out of scope.
     ///
-    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
+    /// - parameter eventLoopGroup: NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.
-    /// - parameter timeout: The maximum time in seconds allowed for the embedded
+    /// - parameter timeout: Maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
-    /// - parameter messageStyle: Style for diagnostic message descriptions.  Default `.plain`.
+    /// - parameter messageStyle: Style for diagnostic message descriptions.  Default is `.plain`.
+    /// - parameter verboseDeprecations: Control for deprecation warning messages.
+    ///   If `false` then the compiler will send only a few deprecation warnings of the same type.
+    ///   Default is `false` meaning repeated deprecation warnings _are_ suppressed.
+    /// - parameter suppressDependencyWarnings: Control for warning messages from Sass files
+    ///   loaded by importers other than the importer used to load the main Sass file.
+    ///   Default is `false` meaning such warnings _are not_ suppressed.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
@@ -135,6 +141,8 @@ public final class Compiler {
     public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
                             timeout: Int = 60,
                             messageStyle: CompilerMessageStyle = .plain,
+                            verboseDeprecations: Bool = false,
+                            suppressDependencyWarnings: Bool = false,
                             importers: [ImportResolver] = [],
                             functions: SassAsyncFunctionMap = [:]) throws {
         let url = try DartSassEmbedded.getURL()
@@ -142,27 +150,35 @@ public final class Compiler {
                   embeddedCompilerFileURL: url,
                   timeout: timeout,
                   messageStyle: messageStyle,
+                  verboseDeprecations: verboseDeprecations,
+                  suppressDependencyWarnings: suppressDependencyWarnings,
                   importers: importers,
                   functions: functions)
     }
 
     /// Use a program as the Sass embedded compiler.
     ///
-    /// Initialization continues asynchronously after the initializer completes; failures are reported
+    /// Initialization continues asynchronously after the initializer returns; failures are reported
     /// when the compiler is next used.
     ///
     /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
     /// `syncShutdownGracefully()` before letting it go out of scope.
     ///
-    /// - parameter eventLoopGroup: The NIO `EventLoopGroup` to use: either `.shared` to use
+    /// - parameter eventLoopGroup: NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.
-    /// - parameter embeddedCompilerFileURL: The path of `dart-sass-embedded`
+    /// - parameter embeddedCompilerFileURL: Path of `dart-sass-embedded`
     ///   or something else that speaks the Sass embedded protocol.  Check [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md)
     ///   for the supported protocol versions.
-    /// - parameter timeout: The maximum time in seconds allowed for the embedded
+    /// - parameter timeout: Maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
-    /// - parameter messageStyle: Style for diagnostic message descriptions.  Default `.plain`.
+    /// - parameter messageStyle: Style for diagnostic message descriptions.  Default is `.plain`.
+    /// - parameter verboseDeprecations: Control for deprecation warning messages.
+    ///   If `false` then the compiler will send only a few deprecation warnings of the same type.
+    ///   Default is `false` meaning repeated deprecation warnings _are_ suppressed.
+    /// - parameter suppressDependencyWarnings: Control for warning messages from Sass files
+    ///   loaded by importers other than the importer used to load the main Sass file.
+    ///   Default is `false` meaning such warnings _are not_ suppressed.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
@@ -170,6 +186,8 @@ public final class Compiler {
                 embeddedCompilerFileURL: URL,
                 timeout: Int = 60,
                 messageStyle: CompilerMessageStyle = .plain,
+                verboseDeprecations: Bool = false,
+                suppressDependencyWarnings: Bool = false,
                 importers: [ImportResolver] = [],
                 functions: SassAsyncFunctionMap = [:]) {
         precondition(embeddedCompilerFileURL.isFileURL, "Not a file URL: \(embeddedCompilerFileURL)")
@@ -185,7 +203,9 @@ public final class Compiler {
         work = CompilerWork(eventLoop: eventLoop,
                             resetRequest: { [unowned self] in handle(error: $0) },
                             timeout: timeout,
-                            messageStyle: messageStyle,
+                            settings: .init(messageStyle: messageStyle,
+                                            verboseDeprecations: verboseDeprecations,
+                                            suppressDependencyWarnings: suppressDependencyWarnings),
                             importers: importers,
                             functions: functions)
         state.toInitializing(startCompiler())
@@ -338,7 +358,7 @@ public final class Compiler {
     ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
     ///   - sourceMapStyle: Kind of source map to create for the CSS.  Default `.separateSources`.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
-    ///     `sourceFileURL`'s directory and any set globally..  Default none.
+    ///     `fileURL`'s directory and any set globally..  Default none.
     ///   - functions: Functions for this compilation, overriding any with the same name previously
     ///     set globally. Default none.
     /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
@@ -393,7 +413,7 @@ public final class Compiler {
     ///
     /// - parameters:
     ///   - string: The stylesheet text to compile.
-    ///   - syntax: The syntax of `text`, default `.scss`.
+    ///   - syntax: The syntax of `string`, default `.scss`.
     ///   - url: The absolute URL to associate with `string`, from where it was loaded.
     ///     Default `nil` meaning unknown.
     ///   - importer: Rule to resolve `@import` etc. from `string` relative to `url`.  Default `nil`

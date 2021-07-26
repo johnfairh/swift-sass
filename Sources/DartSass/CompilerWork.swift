@@ -23,12 +23,21 @@ final class CompilerWork {
     private let resetRequest: (Error) -> Void
     /// Configured max timeout, seconds
     private let timeout: Int
-    /// Message formatting style, for all compilations
-    private let messageStyle: CompilerMessageStyle
     /// Configured global importer rules, for all compilations
     private let globalImporters: [ImportResolver]
     /// Configured functions, for all compilations
     private let globalFunctions: SassAsyncFunctionMap
+
+    /// Global settings passed through to Sass
+    struct Settings {
+        /// Message formatting style,
+        let messageStyle: CompilerMessageStyle
+        /// Deprecation warning verbosity
+        let verboseDeprecations: Bool
+        /// Warning scope
+        let suppressDependencyWarnings: Bool
+    }
+    private let settings: Settings
 
     /// Unstarted compilation work
     private var pendingCompilations: [CompilationRequest]
@@ -40,13 +49,13 @@ final class CompilerWork {
     init(eventLoop: EventLoop,
          resetRequest: @escaping (Error) -> Void,
          timeout: Int,
-         messageStyle: CompilerMessageStyle,
+         settings: Settings,
          importers: [ImportResolver],
          functions: SassAsyncFunctionMap) {
         self.eventLoop = eventLoop
         self.resetRequest = resetRequest
         self.timeout = timeout
-        self.messageStyle = messageStyle
+        self.settings = settings
         globalImporters = importers
         globalFunctions = functions
         pendingCompilations = []
@@ -86,7 +95,7 @@ final class CompilerWork {
             input: input,
             outputStyle: outputStyle,
             sourceMapStyle: sourceMapStyle,
-            messageStyle: messageStyle,
+            settings: settings,
             importers: globalImporters + importers,
             stringImporter: stringImporter,
             functionsMap: mergedFnsNameMap)
