@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/fw2020.css">
     
     
-   <title>Dart Sass - Swift Sass v0.4.0</title>
+   <title>Dart Sass - Swift Sass v0.5.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./" data-doc-path="dart-sass.html" data-assets-path="">
@@ -21,27 +21,26 @@
 
   <header class="j2-header">
   <div class="navbar navbar-expand navbar-dark j2-titlebar">
-  <a class="sr-only-focusable sr-only font-weight-slightly-bold pr-2" href="#main-content">Skip to main content</a>
-  <a class="nav-item nav-link pl-0 pt-1 pr-2 d-md-none" id="nav-toggle-button" role="button" aria-controls="nav-column" aria-expanded="false" aria-label="Toggle navigation" href="#">
+  <div class="container-fluid ps-0 pe-0">
+  <a class="visually-hidden-focusable visually-hidden fw-slightly-bold pe-2" href="#main-content">Skip to main content</a>
+  <a class="nav-item nav-link ps-0 pt-1 pe-2 d-md-none" id="nav-toggle-button" role="button" aria-controls="nav-column" aria-expanded="false" aria-label="Toggle navigation" href="#">
     <span class="navbar-toggler-icon"></span>
   </a>
 
-  <div style="align-items-baseline">
-    <div class="navbar-brand mr-1 font-weight-slightly-bold">
-      
-      <a href="index.html">
-      
-      Swift Sass v0.4.0</a>
-    </div>
+  <div class="navbar-brand me-1 fw-slightly-bold">
     
-    <span class="navbar-text j2-coverage font-weight-slightly-bold small d-none d-lg-inline-block mr-2">(100% documented)</span>
+    <a href="index.html">
     
+    Swift Sass v0.5.0</a>
   </div>
+  
+  <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
+  
 
-  <div class="navbar-nav ml-auto justify-content-end flex-fill">
+  <div class="navbar-nav ms-auto justify-content-end flex-fill">
 
     
-    <form class="form-inline d-none d-md-flex" role="search">
+    <form class="d-none d-md-block my-auto pe-1" role="search">
       <input class="form-control form-control-sm w-100" type="search" placeHolder="Search" aria-label="Search" aria-keyshortcuts="/" data-search-format="span">
     </form>
     
@@ -69,6 +68,7 @@
 
     
 
+  </div>
   </div>
 </div>
 
@@ -153,6 +153,15 @@
   <li>
     
 
+  <a class="j2-nav-item" href="sass/types/sourcemapstyle.html?swift">SourceMapStyle</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
   <a class="j2-nav-item" href="sass/types/compilermessagestyle.html?swift">CompilerMessageStyle</a>
 
 
@@ -163,6 +172,20 @@
     
 
   <a class="j2-nav-item" href="sass/types/compilerresults.html?swift">CompilerResults</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="sass/types/compilerresults/urlstyle.html?swift">URLStyle</a>
+
+
+
+  </li>
+  
+</ul>
 
 
 
@@ -560,7 +583,7 @@ and passing an instance wrapped in a <a href="dartsass/types/importresolver1.htm
 <div class="j2-swift j2-always">
 <hr/>
 <section>
-  <h1 class="sr-only">Topics</h1>
+  <h1 class="visually-hidden">Topics</h1>
   
   <section class="j2-swift j2-always">
   
@@ -570,10 +593,10 @@ and passing an instance wrapped in a <a href="dartsass/types/importresolver1.htm
   
     <section id="importer3" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Protocol/protocol%20Importer" class="dashAnchor j2-item-dash-anchor" data-item-id="importer3"></a>
-    <h4 class="sr-only">protocol Importer</h4>
+    <h4 class="visually-hidden">protocol Importer</h4>
     
     
-    <a class="j2-item-title" href="#_importer3" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importer3"><code>
+    <a class="j2-item-title" href="#_importer3" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importer3"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">protocol </span>Importer</span>
         
       </code></a>
@@ -597,7 +620,7 @@ don’t need this to include the contents of a filesystem directory: see instead
 <a href="dartsass/types/importresolver1.html?swift#loadpath_"><code>ImportResolver.loadPath(_:)</code></a>.</p>
 <p>You could use this to present network resources or dynamically constructed content.</p>
 <p>An import has two steps: canonicalization and loading.</p>
-<p><a href="dartsass/types/importer3.html?swift#canonicalizeeventloopruleurl"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
+<p><a href="dartsass/types/importer3.html?swift#canonicalizeeventloopruleurlfromimport"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
 text the user has written in their rule.  The routine interprets that and returns a <em>canonical</em>
 URL that is absolute with a scheme.</p>
 <p>The compiler most likely implements a cache based on canonical URLs.  If the compiler
@@ -670,7 +693,7 @@ throw an error indicating that the import is ambiguous.</p>
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L96-L125">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L96-L127">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -684,10 +707,10 @@ throw an error indicating that the import is ambiguous.</p>
   
     <section id="importerresults" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Struct/struct%20ImporterResults" class="dashAnchor j2-item-dash-anchor" data-item-id="importerresults"></a>
-    <h4 class="sr-only">struct ImporterResults</h4>
+    <h4 class="visually-hidden">struct ImporterResults</h4>
     
     
-    <a class="j2-item-title" href="#_importerresults" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importerresults"><code>
+    <a class="j2-item-title" href="#_importerresults" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importerresults"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">struct </span>ImporterResults</span>
         
       </code></a>
@@ -751,10 +774,10 @@ throw an error indicating that the import is ambiguous.</p>
   
     <section id="importresolver1" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/enum/enum%20ImportResolver" class="dashAnchor j2-item-dash-anchor" data-item-id="importresolver1"></a>
-    <h4 class="sr-only">enum ImportResolver</h4>
+    <h4 class="visually-hidden">enum ImportResolver</h4>
     
     
-    <a class="j2-item-title" href="#_importresolver1" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importresolver1"><code>
+    <a class="j2-item-title" href="#_importresolver1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importresolver1"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">enum </span>ImportResolver</span>
         
       </code></a>
@@ -804,7 +827,7 @@ throw an error indicating that the import is ambiguous.</p>
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L128-L133">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L130-L135">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -838,7 +861,7 @@ throw an error indicating that the import is ambiguous.</p>
   
   
   </div>
-  <div id="pagination-next" class="flex-fill text-right">
+  <div id="pagination-next" class="flex-fill text-end">
   
     <a class="j2-swift" href="dartsass/types/importer3.html?swift" aria-keyshortcuts="n">
   Importer<span aria-hidden="true"> &raquo;</span>
@@ -888,7 +911,7 @@ throw an error indicating that the import is ambiguous.</p>
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.3.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.7.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

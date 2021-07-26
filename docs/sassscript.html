@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/fw2020.css">
     
     
-   <title>SassScript - Swift Sass v0.4.0</title>
+   <title>SassScript - Swift Sass v0.5.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./" data-doc-path="sassscript.html" data-assets-path="">
@@ -21,27 +21,26 @@
 
   <header class="j2-header">
   <div class="navbar navbar-expand navbar-dark j2-titlebar">
-  <a class="sr-only-focusable sr-only font-weight-slightly-bold pr-2" href="#main-content">Skip to main content</a>
-  <a class="nav-item nav-link pl-0 pt-1 pr-2 d-md-none" id="nav-toggle-button" role="button" aria-controls="nav-column" aria-expanded="false" aria-label="Toggle navigation" href="#">
+  <div class="container-fluid ps-0 pe-0">
+  <a class="visually-hidden-focusable visually-hidden fw-slightly-bold pe-2" href="#main-content">Skip to main content</a>
+  <a class="nav-item nav-link ps-0 pt-1 pe-2 d-md-none" id="nav-toggle-button" role="button" aria-controls="nav-column" aria-expanded="false" aria-label="Toggle navigation" href="#">
     <span class="navbar-toggler-icon"></span>
   </a>
 
-  <div style="align-items-baseline">
-    <div class="navbar-brand mr-1 font-weight-slightly-bold">
-      
-      <a href="index.html">
-      
-      Swift Sass v0.4.0</a>
-    </div>
+  <div class="navbar-brand me-1 fw-slightly-bold">
     
-    <span class="navbar-text j2-coverage font-weight-slightly-bold small d-none d-lg-inline-block mr-2">(100% documented)</span>
+    <a href="index.html">
     
+    Swift Sass v0.5.0</a>
   </div>
+  
+  <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
+  
 
-  <div class="navbar-nav ml-auto justify-content-end flex-fill">
+  <div class="navbar-nav ms-auto justify-content-end flex-fill">
 
     
-    <form class="form-inline d-none d-md-flex" role="search">
+    <form class="d-none d-md-block my-auto pe-1" role="search">
       <input class="form-control form-control-sm w-100" type="search" placeHolder="Search" aria-label="Search" aria-keyshortcuts="/" data-search-format="span">
     </form>
     
@@ -69,6 +68,7 @@
 
     
 
+  </div>
   </div>
 </div>
 
@@ -148,6 +148,15 @@
   <li>
     
 
+  <a class="j2-nav-item" href="sass/types/sourcemapstyle.html?swift">SourceMapStyle</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
   <a class="j2-nav-item" href="sass/types/compilermessagestyle.html?swift">CompilerMessageStyle</a>
 
 
@@ -158,6 +167,20 @@
     
 
   <a class="j2-nav-item" href="sass/types/compilerresults.html?swift">CompilerResults</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="sass/types/compilerresults/urlstyle.html?swift">URLStyle</a>
+
+
+
+  </li>
+  
+</ul>
 
 
 
@@ -556,7 +579,7 @@ functionality here match that in
 <div class="j2-swift j2-always">
 <hr/>
 <section>
-  <h1 class="sr-only">Topics</h1>
+  <h1 class="visually-hidden">Topics</h1>
   
   <section class="j2-swift j2-always">
   
@@ -571,10 +594,10 @@ functionality here match that in
   
     <section id="sassvalue7" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Class/class%20SassValue" class="dashAnchor j2-item-dash-anchor" data-item-id="sassvalue7"></a>
-    <h4 class="sr-only">class SassValue</h4>
+    <h4 class="visually-hidden">class SassValue</h4>
     
     
-    <a class="j2-item-title" href="#_sassvalue7" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassvalue7"><code>
+    <a class="j2-item-title" href="#_sassvalue7" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassvalue7"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">class </span>SassValue</span>
         
       </code></a>
@@ -594,7 +617,7 @@ functionality here match that in
 <p>Common behavior between values passed to or returned from Sass functions.</p>
 <p>All Sass values can be treated as lists: singleton values like strings behave like
 1-element lists and maps behave like lists of two-element (key, value) lists.  Use the
-<a href="https://developer.apple.com/documentation/swift/sequence?language=swift" class="j2-swift"><code>Sequence</code></a> conformance to access the list contents.</p>
+<a href="https://developer.apple.com/documentation/swift/sequence?language=swift" class="j2-swift"><code>Sequence</code></a><a href="https://developer.apple.com/documentation/swift/sequence?language=objc" class="j2-objc j2-secondary"><code>Sequence</code></a> conformance to access the list contents.</p>
 <p><code>SassValue</code> is abstract, you cannot create instances. Instead create instances of subtypes
 like <a href="sass/types/sasscolor.html?swift"><code>SassColor</code></a>.</p>
 <p>All the <code>SassValue</code> types are immutable.</p>
@@ -643,10 +666,10 @@ like <a href="sass/types/sasscolor.html?swift"><code>SassColor</code></a>.</p>
   
     <section id="sassstring" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Class/class%20SassString" class="dashAnchor j2-item-dash-anchor" data-item-id="sassstring"></a>
-    <h4 class="sr-only">class SassString</h4>
+    <h4 class="visually-hidden">class SassString</h4>
     
     
-    <a class="j2-item-title" href="#_sassstring" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassstring"><code>
+    <a class="j2-item-title" href="#_sassstring" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassstring"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">class </span>SassString</span>
         
       </code></a>
@@ -675,7 +698,7 @@ scalar view of the string.</p>
 <p>Further, Sass models 1 as the index of the first scalar in the string, and <code>count</code> as the index of the last.
 This class offers a <a href="sass/types/sassstring.html?swift#scalarindexfromsassindex"><code>scalarIndexFrom(sassIndex:)</code></a>  method to wrap up both parts of this
 conversion, but offers only sympathy to users having to deal with the results.</p>
-<p><code>SassString</code> conforms to <a href="https://developer.apple.com/documentation/swift/sequence?language=swift" class="j2-swift"><code>Sequence</code></a> via <a href="sass/types/sassvalue7.html?swift"><code>SassValue</code></a>.  This sequence is a singleton sequence
+<p><code>SassString</code> conforms to <a href="https://developer.apple.com/documentation/swift/sequence?language=swift" class="j2-swift"><code>Sequence</code></a><a href="https://developer.apple.com/documentation/swift/sequence?language=objc" class="j2-objc j2-secondary"><code>Sequence</code></a> via <a href="sass/types/sassvalue7.html?swift"><code>SassValue</code></a>.  This sequence is a singleton sequence
 containing the string value, not a sequence of scalars.</p>
 
 
@@ -722,10 +745,10 @@ containing the string value, not a sequence of scalars.</p>
   
     <section id="sassnumber" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Class/class%20SassNumber" class="dashAnchor j2-item-dash-anchor" data-item-id="sassnumber"></a>
-    <h4 class="sr-only">class SassNumber</h4>
+    <h4 class="visually-hidden">class SassNumber</h4>
     
     
-    <a class="j2-item-title" href="#_sassnumber" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassnumber"><code>
+    <a class="j2-item-title" href="#_sassnumber" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassnumber"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">class </span>SassNumber</span>
         
       </code></a>
@@ -743,7 +766,7 @@ containing the string value, not a sequence of scalars.</p>
 
 
 <p>A Sass numeric value.</p>
-<p>Sass numbers are <a href="https://developer.apple.com/documentation/swift/double?language=swift" class="j2-swift"><code>Double</code></a>s with units.</p>
+<p>Sass numbers are <a href="https://developer.apple.com/documentation/swift/double?language=swift" class="j2-swift"><code>Double</code></a><a href="https://developer.apple.com/documentation/swift/double?language=objc" class="j2-objc j2-secondary"><code>Double</code></a>s with units.</p>
 <p>Sass has its own rules for numeric equality and integer conversion that use only the first
 10 decimal places.  Use the <code>SassNumber</code> methods to convert to integers and test for ranges.</p>
 <p>The units on a <code>SassNumber</code> can describe the result of multiplying and dividing numbers with
@@ -753,8 +776,8 @@ The <a href="https://www.w3.org/TR/css-values-4/#intro">CSS values spec</a> defi
 units and how to convert between them, for example <em>px</em> to <em>pt</em>.  <a href="sass/types/sassnumber.html?swift#asconvertedtonumeratorunitsdenominatorunits"><code>asConvertedTo(...)</code></a>
 implements these conversions which lets you, for example, write a function that accepts any length unit
 that you can easily convert to your preferred unit.</p>
-<p>Because of units, <code>SassNumber</code> is not <a href="https://developer.apple.com/documentation/swift/comparable?language=swift" class="j2-swift"><code>Comparable</code></a> — there is no ordering relation
-possible between “5 cm” and “12 kHz”.  It is <a href="https://developer.apple.com/documentation/swift/equatable?language=swift" class="j2-swift"><code>Equatable</code></a> though respecting unit conversion
+<p>Because of units, <code>SassNumber</code> is not <a href="https://developer.apple.com/documentation/swift/comparable?language=swift" class="j2-swift"><code>Comparable</code></a><a href="https://developer.apple.com/documentation/swift/comparable?language=objc" class="j2-objc j2-secondary"><code>Comparable</code></a> — there is no ordering relation
+possible between “5 cm” and “12 kHz”.  It is <a href="https://developer.apple.com/documentation/swift/equatable?language=swift" class="j2-swift"><code>Equatable</code></a><a href="https://developer.apple.com/documentation/swift/equatable?language=objc" class="j2-objc j2-secondary"><code>Equatable</code></a> though respecting unit conversion
 so that “1 cm” == “10 mm”.</p>
 
 
@@ -801,10 +824,10 @@ so that “1 cm” == “10 mm”.</p>
   
     <section id="sasscolor" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Class/class%20SassColor" class="dashAnchor j2-item-dash-anchor" data-item-id="sasscolor"></a>
-    <h4 class="sr-only">class SassColor</h4>
+    <h4 class="visually-hidden">class SassColor</h4>
     
     
-    <a class="j2-item-title" href="#_sasscolor" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sasscolor"><code>
+    <a class="j2-item-title" href="#_sasscolor" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sasscolor"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">class </span>SassColor</span>
         
       </code></a>
@@ -874,10 +897,10 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
   
     <section id="sassconstants" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/enum/enum%20SassConstants" class="dashAnchor j2-item-dash-anchor" data-item-id="sassconstants"></a>
-    <h4 class="sr-only">enum SassConstants</h4>
+    <h4 class="visually-hidden">enum SassConstants</h4>
     
     
-    <a class="j2-item-title" href="#_sassconstants" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassconstants"><code>
+    <a class="j2-item-title" href="#_sassconstants" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassconstants"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">enum </span>SassConstants</span>
         
       </code></a>
@@ -941,10 +964,10 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
   
     <section id="sasslist" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Class/class%20SassList" class="dashAnchor j2-item-dash-anchor" data-item-id="sasslist"></a>
-    <h4 class="sr-only">class SassList</h4>
+    <h4 class="visually-hidden">class SassList</h4>
     
     
-    <a class="j2-item-title" href="#_sasslist" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sasslist"><code>
+    <a class="j2-item-title" href="#_sasslist" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sasslist"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">class </span>SassList</span>
         
       </code></a>
@@ -1010,10 +1033,10 @@ All Sass values can be treated as lists so much list-like behavior is available 
   
     <section id="sassmap" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Class/class%20SassMap" class="dashAnchor j2-item-dash-anchor" data-item-id="sassmap"></a>
-    <h4 class="sr-only">class SassMap</h4>
+    <h4 class="visually-hidden">class SassMap</h4>
     
     
-    <a class="j2-item-title" href="#_sassmap" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassmap"><code>
+    <a class="j2-item-title" href="#_sassmap" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassmap"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">class </span>SassMap</span>
         
       </code></a>
@@ -1031,7 +1054,7 @@ All Sass values can be treated as lists so much list-like behavior is available 
 
 
 <p>A Sass map value.</p>
-<p>Sass maps are <a href="https://developer.apple.com/documentation/swift/dictionary?language=swift" class="j2-swift"><code>Dictionary</code></a>-like collections.  The keys can be any kind of
+<p>Sass maps are <a href="https://developer.apple.com/documentation/swift/dictionary?language=swift" class="j2-swift"><code>Dictionary</code></a><a href="https://developer.apple.com/documentation/swift/dictionary?language=objc" class="j2-objc j2-secondary"><code>Dictionary</code></a>-like collections.  The keys can be any kind of
 <a href="sass/types/sassvalue7.html?swift"><code>SassValue</code></a>.</p>
 <p>When a map is viewed as a Sass list then the list is of two-element lists, one
 for each key-value pair in the map.  The pairs are in no particular order.</p>
@@ -1092,10 +1115,10 @@ for each key-value pair in the map.  The pairs are in no particular order.</p>
   
     <section id="sasscompilerfunction" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Class/class%20SassCompilerFunction" class="dashAnchor j2-item-dash-anchor" data-item-id="sasscompilerfunction"></a>
-    <h4 class="sr-only">class SassCompilerFunction</h4>
+    <h4 class="visually-hidden">class SassCompilerFunction</h4>
     
     
-    <a class="j2-item-title" href="#_sasscompilerfunction" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sasscompilerfunction"><code>
+    <a class="j2-item-title" href="#_sasscompilerfunction" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sasscompilerfunction"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">class </span>SassCompilerFunction</span>
         
       </code></a>
@@ -1162,10 +1185,10 @@ type is validate that it appears when you expect it to and pass it back to the c
   
     <section id="sassdynamicfunction" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Class/class%20SassDynamicFunction" class="dashAnchor j2-item-dash-anchor" data-item-id="sassdynamicfunction"></a>
-    <h4 class="sr-only">class SassDynamicFunction</h4>
+    <h4 class="visually-hidden">class SassDynamicFunction</h4>
     
     
-    <a class="j2-item-title" href="#_sassdynamicfunction" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassdynamicfunction"><code>
+    <a class="j2-item-title" href="#_sassdynamicfunction" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassdynamicfunction"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">class </span>SassDynamicFunction</span>
         
       </code></a>
@@ -1233,10 +1256,10 @@ starting compilation.  Instead they are returned as <a href="sass/types/sassvalu
   
     <section id="sassasyncdynamicfunction" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Class/class%20SassAsyncDynamicFunction" class="dashAnchor j2-item-dash-anchor" data-item-id="sassasyncdynamicfunction"></a>
-    <h4 class="sr-only">class SassAsyncDynamicFunction</h4>
+    <h4 class="visually-hidden">class SassAsyncDynamicFunction</h4>
     
     
-    <a class="j2-item-title" href="#_sassasyncdynamicfunction" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassasyncdynamicfunction"><code>
+    <a class="j2-item-title" href="#_sassasyncdynamicfunction" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassasyncdynamicfunction"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">class </span>SassAsyncDynamicFunction</span>
         
       </code></a>
@@ -1313,10 +1336,10 @@ needs to block or be asynchronous.</p>
   
     <section id="sassvaluevisitor" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Protocol/protocol%20SassValueVisitor" class="dashAnchor j2-item-dash-anchor" data-item-id="sassvaluevisitor"></a>
-    <h4 class="sr-only">protocol SassValueVisitor</h4>
+    <h4 class="visually-hidden">protocol SassValueVisitor</h4>
     
     
-    <a class="j2-item-title" href="#_sassvaluevisitor" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassvaluevisitor"><code>
+    <a class="j2-item-title" href="#_sassvaluevisitor" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassvaluevisitor"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">protocol </span>SassValueVisitor</span>
         
       </code></a>
@@ -1380,10 +1403,10 @@ needs to block or be asynchronous.</p>
   
     <section id="sassnull" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Class/class%20SassNull" class="dashAnchor j2-item-dash-anchor" data-item-id="sassnull"></a>
-    <h4 class="sr-only">class SassNull</h4>
+    <h4 class="visually-hidden">class SassNull</h4>
     
     
-    <a class="j2-item-title" href="#_sassnull" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassnull"><code>
+    <a class="j2-item-title" href="#_sassnull" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassnull"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">class </span>SassNull</span>
         
       </code></a>
@@ -1447,10 +1470,10 @@ needs to block or be asynchronous.</p>
   
     <section id="sassbool" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/Class/class%20SassBool" class="dashAnchor j2-item-dash-anchor" data-item-id="sassbool"></a>
-    <h4 class="sr-only">class SassBool</h4>
+    <h4 class="visually-hidden">class SassBool</h4>
     
     
-    <a class="j2-item-title" href="#_sassbool" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassbool"><code>
+    <a class="j2-item-title" href="#_sassbool" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassbool"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">class </span>SassBool</span>
         
       </code></a>
@@ -1535,7 +1558,7 @@ instead.</p>
   
   
   </div>
-  <div id="pagination-next" class="flex-fill text-right">
+  <div id="pagination-next" class="flex-fill text-end">
   
     <a class="j2-swift" href="sass/types/sassvalue7.html?swift" aria-keyshortcuts="n">
   SassValue<span aria-hidden="true"> &raquo;</span>
@@ -1600,7 +1623,7 @@ instead.</p>
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.3.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.7.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

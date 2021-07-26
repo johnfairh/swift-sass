@@ -23,24 +23,29 @@
     "abstract" : "A Sass compiler that uses Dart Sass as an embedded child process.",
     "name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#compileasyncfileurloutputstylecreatesourcemapimportersfunctions" : {
-    "abstract" : "Asynchronous version of compile(fileURL:outputStyle:createSourceMap:importers:functions:).",
-    "name" : "compileAsync(fileURL:outputStyle:createSourceMap:importers:functions:)",
+  "dartsass\/types\/compiler.html?swift#compileasyncfileurloutputstylesourcemapstyleimportersfunctions" : {
+    "abstract" : "Asynchronous version of compile(fileURL:outputStyle:sourceMapStyle:importers:functions:).",
+    "name" : "compileAsync(fileURL:outputStyle:sourceMapStyle:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#compileasyncstringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions" : {
-    "abstract" : "Asynchronous version of compile(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:).",
-    "name" : "compileAsync(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)",
+  "dartsass\/types\/compiler.html?swift#compileasyncstringsyntaxurlimporteroutputstylesourcemapstyleimportersfunctions" : {
+    "abstract" : "Asynchronous version of compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:).",
+    "name" : "compileAsync(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#compilefileurloutputstylecreatesourcemapimportersfunctions" : {
+  "dartsass\/types\/compiler.html?swift#compilefileurloutputstylesourcemapstyleimportersfunctions" : {
     "abstract" : "Compile to CSS from a stylesheet file.",
-    "name" : "compile(fileURL:outputStyle:createSourceMap:importers:functions:)",
+    "name" : "compile(fileURL:outputStyle:sourceMapStyle:importers:functions:)",
     "parent_name" : "Compiler"
   },
   "dartsass\/types\/compiler.html?swift#compilername" : {
     "abstract" : "The name of the underlying Sass implementation.  nil if unknown.",
     "name" : "compilerName",
+    "parent_name" : "Compiler"
+  },
+  "dartsass\/types\/compiler.html?swift#compilerpackageversion" : {
+    "abstract" : "The version of the package implementing the compiler side of the embedded Sass protocol.\nProbably in semver format.\nnil if unknown (never got a version).",
+    "name" : "compilerPackageVersion",
     "parent_name" : "Compiler"
   },
   "dartsass\/types\/compiler.html?swift#compilerprocessidentifier" : {
@@ -53,19 +58,19 @@
     "name" : "compilerVersion",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#compilestringsyntaxurlimporteroutputstylecreatesourcemapimportersfunctions" : {
+  "dartsass\/types\/compiler.html?swift#compilestringsyntaxurlimporteroutputstylesourcemapstyleimportersfunctions" : {
     "abstract" : "Compile to CSS from an inline stylesheet.",
-    "name" : "compile(string:syntax:url:importer:outputStyle:createSourceMap:importers:functions:)",
+    "name" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleimportersfunctions" : {
+  "dartsass\/types\/compiler.html?swift#initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" : {
     "abstract" : "Use a program as the Sass embedded compiler.",
-    "name" : "init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:importers:functions:)",
+    "name" : "init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#initeventloopgroupprovidertimeoutmessagestyleimportersfunctions" : {
+  "dartsass\/types\/compiler.html?swift#initeventloopgroupprovidertimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" : {
     "abstract" : "Use the bundled Dart Sass compiler as the Sass compiler.",
-    "name" : "init(eventLoopGroupProvider:timeout:messageStyle:importers:functions:)",
+    "name" : "init(eventLoopGroupProvider:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
     "parent_name" : "Compiler"
   },
   "dartsass\/types\/compiler.html?swift#logger" : {
@@ -92,9 +97,9 @@
     "abstract" : "Methods required to implement a stylesheet importer.",
     "name" : "Importer"
   },
-  "dartsass\/types\/importer3.html?swift#canonicalizeeventloopruleurl" : {
+  "dartsass\/types\/importer3.html?swift#canonicalizeeventloopruleurlfromimport" : {
     "abstract" : "Convert an imported URL to its canonical format.",
-    "name" : "canonicalize(eventLoop:ruleURL:)",
+    "name" : "canonicalize(eventLoop:ruleURL:fromImport:)",
     "parent_name" : "Importer"
   },
   "dartsass\/types\/importer3.html?swift#loadeventloopcanonicalurl" : {
@@ -268,9 +273,14 @@
     "abstract" : "The output from a successful compilation.",
     "name" : "CompilerResults"
   },
-  "sass\/types\/compilerresults.html?swift#css1" : {
+  "sass\/types\/compilerresults.html?swift#css" : {
     "abstract" : "The  CSS produced by the Sass compiler.",
     "name" : "css",
+    "parent_name" : "CompilerResults"
+  },
+  "sass\/types\/compilerresults.html?swift#loadedurls" : {
+    "abstract" : "The canonical URLs of all source files used to produce css.",
+    "name" : "loadedURLs",
     "parent_name" : "CompilerResults"
   },
   "sass\/types\/compilerresults.html?swift#messages" : {
@@ -279,9 +289,39 @@
     "parent_name" : "CompilerResults"
   },
   "sass\/types\/compilerresults.html?swift#sourcemap" : {
-    "abstract" : "The JSON sourcemap, provided only if requested at compile time.",
+    "abstract" : "The JSON sourcemap for css, style according to the SourceMapStyle provided at compile time.",
     "name" : "sourceMap",
     "parent_name" : "CompilerResults"
+  },
+  "sass\/types\/compilerresults.html?swift#withfilelocationscssfileurlsourcemapfileurlstyle" : {
+    "abstract" : "Add filenames to the CSS and its source map.",
+    "name" : "withFileLocations(cssFileURL:sourceMapFileURL:style:)",
+    "parent_name" : "CompilerResults"
+  },
+  "sass\/types\/compilerresults\/urlstyle.html?swift" : {
+    "abstract" : "How to reference source map resources from CSS.",
+    "name" : "URLStyle",
+    "parent_name" : "CompilerResults"
+  },
+  "sass\/types\/compilerresults\/urlstyle.html?swift#allabsolute" : {
+    "abstract" : "Use absolute (file: for filesystem files) URLs everywhere.",
+    "name" : "allAbsolute",
+    "parent_name" : "URLStyle"
+  },
+  "sass\/types\/compilerresults\/urlstyle.html?swift#relative" : {
+    "abstract" : "Use relative URLs everywhere possible.  For example if an original source is referenced\nwith an https: or data: URL then that version is preserved.",
+    "name" : "relative",
+    "parent_name" : "URLStyle"
+  },
+  "sass\/types\/compilerresults\/urlstyle.html?swift#relativesourceroot_" : {
+    "abstract" : "Like relative, but also set the sourceRoot source map field to add extra path\nsegments between the source map and the original sources.",
+    "name" : "relativeSourceRoot(_:)",
+    "parent_name" : "URLStyle"
+  },
+  "sass\/types\/compilerresults\/urlstyle.html?swift#sourcesabsolute" : {
+    "abstract" : "Use absolute URLs in the source map to refer to the original sources, but use a relative\nURL to refer to the source map from the CSS.",
+    "name" : "sourcesAbsolute",
+    "parent_name" : "URLStyle"
   },
   "sass\/types\/cssstyle.html?swift" : {
     "abstract" : "How the Sass compiler should format the CSS it produces.",
@@ -1028,6 +1068,25 @@
     "name" : "visit(string:)",
     "parent_name" : "SassValueVisitor"
   },
+  "sass\/types\/sourcemapstyle.html?swift" : {
+    "abstract" : "The kind of source map to generate for the stylesheet, returned in CompilerResults.sourceMap.",
+    "name" : "SourceMapStyle"
+  },
+  "sass\/types\/sourcemapstyle.html?swift#embeddedsources" : {
+    "abstract" : "Generate a source map with embedded sources.",
+    "name" : "embeddedSources",
+    "parent_name" : "SourceMapStyle"
+  },
+  "sass\/types\/sourcemapstyle.html?swift#none" : {
+    "abstract" : "Do not generate a source map.",
+    "name" : "none",
+    "parent_name" : "SourceMapStyle"
+  },
+  "sass\/types\/sourcemapstyle.html?swift#separatesources" : {
+    "abstract" : "Generate a source map that references sources by URL only.",
+    "name" : "separateSources",
+    "parent_name" : "SourceMapStyle"
+  },
   "sass\/types\/span1.html?swift" : {
     "abstract" : "A section of a stylesheet.",
     "name" : "Span"
@@ -1052,7 +1111,7 @@
     "name" : "text",
     "parent_name" : "Span"
   },
-  "sass\/types\/span1.html?swift#url" : {
+  "sass\/types\/span1.html?swift#url1" : {
     "abstract" : "The URL of the stylesheet to which the span refers, or nil if it refers to\nan inline compilation that doesn’t specify a URL.",
     "name" : "url",
     "parent_name" : "Span"
@@ -1086,7 +1145,7 @@
     "abstract" : "The syntax used for a stylesheet.",
     "name" : "Syntax"
   },
-  "sass\/types\/syntax.html?swift#css" : {
+  "sass\/types\/syntax.html?swift#css1" : {
     "abstract" : "Plain CSS syntax that doesn’t support any special Sass features.",
     "name" : "css",
     "parent_name" : "Syntax"

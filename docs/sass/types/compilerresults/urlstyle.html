@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="../../../css/fw2020.css">
     
     
-   <title>Kind - Swift Sass v0.5.0</title>
+   <title>URLStyle - Swift Sass v0.5.0</title>
     
   </head>
-  <body class="j2-swift " data-root-path="./../../../" data-doc-path="sass/types/compilermessage/kind.html" data-assets-path="../../../">
+  <body class="j2-swift " data-root-path="./../../../" data-doc-path="sass/types/compilerresults/urlstyle.html" data-assets-path="../../../">
 
   <!-- messages for search -->
   <div hidden>
@@ -98,13 +98,13 @@
         
       
         
-          <li class="breadcrumb-item"><a href="../../../sass/types/compilermessage.html?swift">Sass.CompilerMessage</a></li>
+          <li class="breadcrumb-item"><a href="../../../sass/types/compilerresults.html?swift">Sass.CompilerResults</a></li>
         
         
       
         
         
-          <li class="breadcrumb-item" aria-current="page">Kind</li>
+          <li class="breadcrumb-item" aria-current="page">URLStyle</li>
         
       
     </ol>
@@ -183,8 +183,8 @@
   
   <li>
     
+  <a class="j2-nav-item active" href="#" aria-current="page">URLStyle</a>
 
-  <a class="j2-nav-item" href="../../../sass/types/compilerresults/urlstyle.html?swift">URLStyle</a>
 
 
 
@@ -206,8 +206,8 @@
   
   <li>
     
-  <a class="j2-nav-item active" href="#" aria-current="page">Kind</a>
 
+  <a class="j2-nav-item" href="../../../sass/types/compilermessage/kind.html?swift">Kind</a>
 
 
 
@@ -571,7 +571,7 @@
             <h1 class="j2-anchor">
               
               
-              <span>Kind</span>
+              <span>URLStyle</span>
               
             </h1>
           </header>
@@ -582,7 +582,7 @@
             
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public enum Kind</code></pre>
+    <pre><code class="language-swift">public enum URLStyle</code></pre>
   </div>
 
 
@@ -597,8 +597,14 @@
             
 
 
-<p>Kinds of diagnostic message.</p>
-
+<p>How to reference source map resources from CSS.</p>
+<p>There are two references here: the CSS pointing at the source map, and the source map
+pointing at the original sources.  The Sass compiler uses absolute (typically <code>file:</code>) URLs
+for original sources.  This can be modified and the CSS -&gt; source map reference added using
+<a href="../../../sass/types/compilerresults.html?swift#withfilelocationscssfileurlsourcemapfileurlstyle"><code>CompilerResults.withFileLocations(...)</code></a>.</p>
+<p>If you plan to ship the source map (so it is accessed through <code>http:</code> URLs by a browser)
+then you need to use one of the <code>relative</code> options to avoid <code>file:</code> URLs that won’t
+make sense to clients.</p>
 
 
 
@@ -610,7 +616,7 @@
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L168-L179">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerResults.swift#L49-L64">Show on GitHub</a>
           </nav>
           
           
@@ -628,16 +634,16 @@
   
   
   
-    <section id="warning" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Case/case%20warning" class="dashAnchor j2-item-dash-anchor" data-item-id="warning"></a>
-    <h4 class="visually-hidden">case warning</h4>
+    <section id="allabsolute" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Case/case%20allAbsolute" class="dashAnchor j2-item-dash-anchor" data-item-id="allabsolute"></a>
+    <h4 class="visually-hidden">case allAbsolute</h4>
     
     
-    <a class="j2-item-title" href="#_warning" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_warning"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">case </span>warning</span>
+    <a class="j2-item-title" href="#_allabsolute" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_allabsolute"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">case </span>allAbsolute</span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_warning">
+    <div class="collapse  j2-item-popopen-wrapper" id="_allabsolute">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -650,8 +656,7 @@
               
 
 
-<p>A warning for something other than a deprecated Sass feature. Often
-emitted due to a stylesheet using the <a href="https://sass-lang.com/documentation/at-rules/warn"><code>@warn</code> rule</a>.</p>
+<p>Use absolute (<code>file:</code> for filesystem files) URLs everywhere.</p>
 
 
 
@@ -662,7 +667,7 @@ emitted due to a stylesheet using the <a href="https://sass-lang.com/documentati
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">case warning</code></pre>
+    <pre><code class="language-swift">case allAbsolute</code></pre>
   </div>
 
 
@@ -677,7 +682,7 @@ emitted due to a stylesheet using the <a href="https://sass-lang.com/documentati
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L171">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerResults.swift#L51">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -689,16 +694,16 @@ emitted due to a stylesheet using the <a href="https://sass-lang.com/documentati
   
   
   
-    <section id="deprecation" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Case/case%20deprecation" class="dashAnchor j2-item-dash-anchor" data-item-id="deprecation"></a>
-    <h4 class="visually-hidden">case deprecation</h4>
+    <section id="sourcesabsolute" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Case/case%20sourcesAbsolute" class="dashAnchor j2-item-dash-anchor" data-item-id="sourcesabsolute"></a>
+    <h4 class="visually-hidden">case sourcesAbsolute</h4>
     
     
-    <a class="j2-item-title" href="#_deprecation" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_deprecation"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">case </span>deprecation</span>
+    <a class="j2-item-title" href="#_sourcesabsolute" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sourcesabsolute"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">case </span>sourcesAbsolute</span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_deprecation">
+    <div class="collapse  j2-item-popopen-wrapper" id="_sourcesabsolute">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -711,8 +716,8 @@ emitted due to a stylesheet using the <a href="https://sass-lang.com/documentati
               
 
 
-<p>A warning indicating that the stylesheet is using a deprecated Sass
-feature. The accompanying text does not include text like “deprecation warning”.</p>
+<p>Use absolute URLs in the source map to refer to the original sources, but use a relative
+URL to refer to the source map from the CSS.</p>
 
 
 
@@ -723,7 +728,7 @@ feature. The accompanying text does not include text like “deprecation warning
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">case deprecation</code></pre>
+    <pre><code class="language-swift">case sourcesAbsolute</code></pre>
   </div>
 
 
@@ -738,7 +743,7 @@ feature. The accompanying text does not include text like “deprecation warning
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L175">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerResults.swift#L55">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -750,16 +755,16 @@ feature. The accompanying text does not include text like “deprecation warning
   
   
   
-    <section id="debug" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Case/case%20debug" class="dashAnchor j2-item-dash-anchor" data-item-id="debug"></a>
-    <h4 class="visually-hidden">case debug</h4>
+    <section id="relative" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Case/case%20relative" class="dashAnchor j2-item-dash-anchor" data-item-id="relative"></a>
+    <h4 class="visually-hidden">case relative</h4>
     
     
-    <a class="j2-item-title" href="#_debug" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_debug"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">case </span>debug</span>
+    <a class="j2-item-title" href="#_relative" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_relative"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">case </span>relative</span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_debug">
+    <div class="collapse  j2-item-popopen-wrapper" id="_relative">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -772,7 +777,8 @@ feature. The accompanying text does not include text like “deprecation warning
               
 
 
-<p>Text from a <a href="https://sass-lang.com/documentation/at-rules/debug"><code>@debug</code> rule</a>.</p>
+<p>Use relative URLs everywhere possible.  For example if an original source is referenced
+with an <code>https:</code> or <code>data:</code> URL then that version is preserved.</p>
 
 
 
@@ -783,7 +789,7 @@ feature. The accompanying text does not include text like “deprecation warning
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">case debug</code></pre>
+    <pre><code class="language-swift">case relative</code></pre>
   </div>
 
 
@@ -798,7 +804,68 @@ feature. The accompanying text does not include text like “deprecation warning
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerTypes.swift#L178">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerResults.swift#L59">Show on GitHub</a></span>
+            
+          </nav>
+        </div>
+      <div>
+    </div>
+    
+  </section>
+  
+  
+  
+  
+    <section id="relativesourceroot_" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Case/case%20relativeSourceRoot(String)" class="dashAnchor j2-item-dash-anchor" data-item-id="relativesourceroot_"></a>
+    <h4 class="visually-hidden">case relativeSourceRoot(String)</h4>
+    
+    
+    <a class="j2-item-title" href="#_relativesourceroot_" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_relativesourceroot_"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">case </span>relativeSourceRoot<span class="j2-item-secondary">(String)</span></span>
+        
+      </code></a>
+    <div class="collapse  j2-item-popopen-wrapper" id="_relativesourceroot_">
+      <div class="j2-item-popopen">
+        <div class="j2-item-popopen-pointer" role="none"></div>
+        <div class="j2-item-popopen-body">
+          
+            <div class="clearfix">
+              
+  
+
+
+              
+
+
+<p>Like <a href="../../../sass/types/compilerresults/urlstyle.html?swift#relative"><code>relative</code></a>, but also set the <code>sourceRoot</code> source map field to add extra path
+segments between the source map and the original sources.</p>
+
+
+
+
+            </div>
+            <h5>Declaration</h5>
+            <div class="j2-item-declaration">
+              
+  <div class="j2-swift">
+    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
+    <pre><code class="language-swift">case relativeSourceRoot(<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>)</code></pre>
+  </div>
+
+
+
+            </div>
+            
+
+
+
+          
+
+          <nav class="j2-item-nav" aria-label="item details">
+            
+            
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/CompilerResults.swift#L63">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -821,12 +888,12 @@ feature. The accompanying text does not include text like “deprecation warning
         <nav aria-label="paging" class="j2-pagination pb-3 pt-2">
   <div id="pagination-prev" class="flex-fill">
   
-    <a class="j2-swift" href="../../../sass/types/compilermessage.html?swift" aria-keyshortcuts="p">
-  <span aria-hidden="true">&laquo; </span>CompilerMessage
+    <a class="j2-swift" href="../../../sass/types/compilerresults.html?swift" aria-keyshortcuts="p">
+  <span aria-hidden="true">&laquo; </span>CompilerResults
 </a>
 
-    <a class="j2-objc j2-secondary" href="../../../sass/types/compilermessage.html?swift" aria-keyshortcuts="p">
-  <span aria-hidden="true">&laquo; </span>CompilerMessage
+    <a class="j2-objc j2-secondary" href="../../../sass/types/compilerresults.html?swift" aria-keyshortcuts="p">
+  <span aria-hidden="true">&laquo; </span>CompilerResults
 </a>
 
   
@@ -834,12 +901,12 @@ feature. The accompanying text does not include text like “deprecation warning
   </div>
   <div id="pagination-next" class="flex-fill text-end">
   
-    <a class="j2-swift" href="../../../sass/types/compilererror.html?swift" aria-keyshortcuts="n">
-  CompilerError<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-swift" href="../../../sass/types/compilermessage.html?swift" aria-keyshortcuts="n">
+  CompilerMessage<span aria-hidden="true"> &raquo;</span>
 </a>
 
-    <a class="j2-objc j2-secondary" href="../../../sass/types/compilererror.html?swift" aria-keyshortcuts="n">
-  CompilerError<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-objc j2-secondary" href="../../../sass/types/compilermessage.html?swift" aria-keyshortcuts="n">
+  CompilerMessage<span aria-hidden="true"> &raquo;</span>
 </a>
 
   

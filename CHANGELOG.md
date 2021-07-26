@@ -2,18 +2,27 @@
 
 ## Breaking
 
-* Require Swift 5.4
+* None
 
 ## Enhancements
 
-* Revise swift-log levels per SSWG best practices
-* Enable source maps by default
-* Add `CompilerResults.withFileLocation(...)` to generate
-  deployable source map and css files
+* None
 
 ## Bug Fixes
 
 * None
+
+# 0.5.0
+
+* Bundle the 1.0.0-beta-8 `dart_sass_embedded` binaries
+* Revise swift-log levels per SSWG best practices
+* Enable source maps by default
+* Add `CompilerResults.withFileLocation(...)` to generate
+  deployable source map and css files
+* Add `CompilerResults.loadedURLs`
+* Add `verboseDeprecations` and `suppressDependencyWarnings`
+  flags to `Compiler` initializers to control deprecation warnings
+* Require Swift 5.4
 
 # 0.4.0
 

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../../css/fw2020.css">
     
     
-   <title>SassList - Swift Sass v0.4.0</title>
+   <title>SassList - Swift Sass v0.5.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./../../" data-doc-path="sass/types/sasslist.html" data-assets-path="../../">
@@ -21,27 +21,26 @@
 
   <header class="j2-header">
   <div class="navbar navbar-expand navbar-dark j2-titlebar">
-  <a class="sr-only-focusable sr-only font-weight-slightly-bold pr-2" href="#main-content">Skip to main content</a>
-  <a class="nav-item nav-link pl-0 pt-1 pr-2 d-md-none" id="nav-toggle-button" role="button" aria-controls="nav-column" aria-expanded="false" aria-label="Toggle navigation" href="#">
+  <div class="container-fluid ps-0 pe-0">
+  <a class="visually-hidden-focusable visually-hidden fw-slightly-bold pe-2" href="#main-content">Skip to main content</a>
+  <a class="nav-item nav-link ps-0 pt-1 pe-2 d-md-none" id="nav-toggle-button" role="button" aria-controls="nav-column" aria-expanded="false" aria-label="Toggle navigation" href="#">
     <span class="navbar-toggler-icon"></span>
   </a>
 
-  <div style="align-items-baseline">
-    <div class="navbar-brand mr-1 font-weight-slightly-bold">
-      
-      <a href="../../index.html">
-      
-      Swift Sass v0.4.0</a>
-    </div>
+  <div class="navbar-brand me-1 fw-slightly-bold">
     
-    <span class="navbar-text j2-coverage font-weight-slightly-bold small d-none d-lg-inline-block mr-2">(100% documented)</span>
+    <a href="../../index.html">
     
+    Swift Sass v0.5.0</a>
   </div>
+  
+  <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
+  
 
-  <div class="navbar-nav ml-auto justify-content-end flex-fill">
+  <div class="navbar-nav ms-auto justify-content-end flex-fill">
 
     
-    <form class="form-inline d-none d-md-flex" role="search">
+    <form class="d-none d-md-block my-auto pe-1" role="search">
       <input class="form-control form-control-sm w-100" type="search" placeHolder="Search" aria-label="Search" aria-keyshortcuts="/" data-search-format="span">
     </form>
     
@@ -69,6 +68,7 @@
 
     
 
+  </div>
   </div>
 </div>
 
@@ -153,6 +153,15 @@
   <li>
     
 
+  <a class="j2-nav-item" href="../../sass/types/sourcemapstyle.html?swift">SourceMapStyle</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
   <a class="j2-nav-item" href="../../sass/types/compilermessagestyle.html?swift">CompilerMessageStyle</a>
 
 
@@ -163,6 +172,20 @@
     
 
   <a class="j2-nav-item" href="../../sass/types/compilerresults.html?swift">CompilerResults</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../sass/types/compilerresults/urlstyle.html?swift">URLStyle</a>
+
+
+
+  </li>
+  
+</ul>
 
 
 
@@ -594,7 +617,7 @@ All Sass values can be treated as lists so much list-like behavior is available 
 <div class="j2-swift">
 <hr/>
 <section>
-  <h1 class="sr-only">Topics</h1>
+  <h1 class="visually-hidden">Topics</h1>
   
   <section class="j2-swift">
   
@@ -609,10 +632,10 @@ All Sass values can be treated as lists so much list-like behavior is available 
   
     <section id="separator" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/enum/enum%20Separator" class="dashAnchor j2-item-dash-anchor" data-item-id="separator"></a>
-    <h4 class="sr-only">enum Separator</h4>
+    <h4 class="visually-hidden">enum Separator</h4>
     
     
-    <a class="j2-item-title" href="#_separator" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_separator"><code>
+    <a class="j2-item-title" href="#_separator" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_separator"><code>
         <span class="j2-swift"><span class="j2-item-secondary">enum </span>Separator</span>
         
       </code></a>
@@ -688,10 +711,10 @@ All Sass values can be treated as lists so much list-like behavior is available 
   
     <section id="init_separatorhasbrackets" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Constructor/init%3CC%3E(C,%20separator%3A%20Separator,%20hasBrackets%3A%20Bool)" class="dashAnchor j2-item-dash-anchor" data-item-id="init_separatorhasbrackets"></a>
-    <h4 class="sr-only">init&lt;C&gt;(C, separator: Separator, hasBrackets: Bool)</h4>
+    <h4 class="visually-hidden">init&lt;C&gt;(C, separator: Separator, hasBrackets: Bool)</h4>
     
     
-    <a class="j2-item-title" href="#_init_separatorhasbrackets" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_init_separatorhasbrackets"><code>
+    <a class="j2-item-title" href="#_init_separatorhasbrackets" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_init_separatorhasbrackets"><code>
         <span class="j2-swift">init<span class="j2-item-secondary">&lt;C&gt;(C, </span>separator<span class="j2-item-secondary">: Separator, </span>hasBrackets<span class="j2-item-secondary">: Bool)</span></span>
         
       </code></a>
@@ -734,7 +757,7 @@ where C: <a href="https://developer.apple.com/documentation/swift/sequence?langu
       
       <tr>
         <td><code>sequence</code></td>
-        <td><p>The <a href="https://developer.apple.com/documentation/swift/sequence?language=swift" class="j2-swift"><code>Sequence</code></a> whose contents should be copied into the list.</p></td>
+        <td><p>The <a href="https://developer.apple.com/documentation/swift/sequence?language=swift" class="j2-swift"><code>Sequence</code></a><a href="https://developer.apple.com/documentation/swift/sequence?language=objc" class="j2-objc j2-secondary"><code>Sequence</code></a> whose contents should be copied into the list.</p></td>
       </tr>
       
       <tr>
@@ -786,10 +809,10 @@ to <code>.space</code>.</p></td>
   
     <section id="separator1" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Property/var%20separator%3A%20Separator" class="dashAnchor j2-item-dash-anchor" data-item-id="separator1"></a>
-    <h4 class="sr-only">var separator: Separator</h4>
+    <h4 class="visually-hidden">var separator: Separator</h4>
     
     
-    <a class="j2-item-title" href="#_separator1" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_separator1"><code>
+    <a class="j2-item-title" href="#_separator1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_separator1"><code>
         <span class="j2-swift"><span class="j2-item-secondary">var </span>separator<span class="j2-item-secondary">: Separator</span></span>
         
       </code></a>
@@ -846,10 +869,10 @@ to <code>.space</code>.</p></td>
   
     <section id="hasbrackets" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Property/var%20hasBrackets%3A%20Bool" class="dashAnchor j2-item-dash-anchor" data-item-id="hasbrackets"></a>
-    <h4 class="sr-only">var hasBrackets: Bool</h4>
+    <h4 class="visually-hidden">var hasBrackets: Bool</h4>
     
     
-    <a class="j2-item-title" href="#_hasbrackets" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_hasbrackets"><code>
+    <a class="j2-item-title" href="#_hasbrackets" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_hasbrackets"><code>
         <span class="j2-swift"><span class="j2-item-secondary">var </span>hasBrackets<span class="j2-item-secondary">: Bool</span></span>
         
       </code></a>
@@ -918,10 +941,10 @@ to <code>.space</code>.</p></td>
   
     <section id="valueatsassindex" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Method/func%20valueAt(sassIndex%3A%20SassValue)%20-%3E%20SassValue" class="dashAnchor j2-item-dash-anchor" data-item-id="valueatsassindex"></a>
-    <h4 class="sr-only">func valueAt(sassIndex: SassValue) -&gt; SassValue</h4>
+    <h4 class="visually-hidden">func valueAt(sassIndex: SassValue) -&gt; SassValue</h4>
     
     
-    <a class="j2-item-title" href="#_valueatsassindex" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_valueatsassindex"><code>
+    <a class="j2-item-title" href="#_valueatsassindex" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_valueatsassindex"><code>
         <span class="j2-swift"><span class="j2-item-secondary">func </span>valueAt<span class="j2-item-secondary">(</span>sassIndex<span class="j2-item-secondary">: SassValue) -&gt; SassValue</span></span>
         
       </code></a>
@@ -970,7 +993,7 @@ to <code>.space</code>.</p></td>
 
 
   <h5>Throws</h5>
-  <p><a href="../../sass/types/sassfunctionerror.html?swift"><code>SassFunctionError</code></a> if <code>index</code> is not an integer or out of range.</p>
+  <p><a href="../../sass/types/sassfunctionerror.html?swift"><code>SassFunctionError</code></a> if <code>sassIndex</code> is not an integer or out of range.</p>
 
 
   <h5>Return Value</h5>
@@ -1008,10 +1031,10 @@ to <code>.space</code>.</p></td>
   
     <section id="sasslist-sasslist" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Function/static%20func%20==(lhs%3A%20SassList,%20rhs%3A%20SassList)%20-%3E%20Bool" class="dashAnchor j2-item-dash-anchor" data-item-id="sasslist-sasslist"></a>
-    <h4 class="sr-only">static func ==(lhs: SassList, rhs: SassList) -&gt; Bool</h4>
+    <h4 class="visually-hidden">static func ==(lhs: SassList, rhs: SassList) -&gt; Bool</h4>
     
     
-    <a class="j2-item-title" href="#_sasslist-sasslist" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sasslist-sasslist"><code>
+    <a class="j2-item-title" href="#_sasslist-sasslist" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sasslist-sasslist"><code>
         <span class="j2-swift"><span class="j2-item-secondary">static func </span>==<span class="j2-item-secondary">(</span>lhs<span class="j2-item-secondary">: SassList, </span>rhs<span class="j2-item-secondary">: SassList) -&gt; Bool</span></span>
         
       </code></a>
@@ -1068,10 +1091,10 @@ to <code>.space</code>.</p></td>
   
     <section id="hashinto4" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Method/func%20hash(into%3A%20inout%20Hasher)" class="dashAnchor j2-item-dash-anchor" data-item-id="hashinto4"></a>
-    <h4 class="sr-only">func hash(into: inout Hasher)</h4>
+    <h4 class="visually-hidden">func hash(into: inout Hasher)</h4>
     
     
-    <a class="j2-item-title" href="#_hashinto4" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_hashinto4"><code>
+    <a class="j2-item-title" href="#_hashinto4" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_hashinto4"><code>
         <span class="j2-swift"><span class="j2-item-secondary">func </span>hash<span class="j2-item-secondary">(</span>into<span class="j2-item-secondary">: inout Hasher)</span></span>
         
       </code></a>
@@ -1128,10 +1151,10 @@ to <code>.space</code>.</p></td>
   
     <section id="makeiterator" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Method/func%20makeIterator()%20-%3E%20AnyIterator%3CSassValue%3E" class="dashAnchor j2-item-dash-anchor" data-item-id="makeiterator"></a>
-    <h4 class="sr-only">func makeIterator() -&gt; AnyIterator&lt;SassValue&gt;</h4>
+    <h4 class="visually-hidden">func makeIterator() -&gt; AnyIterator&lt;SassValue&gt;</h4>
     
     
-    <a class="j2-item-title" href="#_makeiterator" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_makeiterator"><code>
+    <a class="j2-item-title" href="#_makeiterator" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_makeiterator"><code>
         <span class="j2-swift"><span class="j2-item-secondary">func </span>makeIterator<span class="j2-item-secondary">() -&gt; AnyIterator&lt;SassValue&gt;</span></span>
         
       </code></a>
@@ -1188,10 +1211,10 @@ to <code>.space</code>.</p></td>
   
     <section id="acceptvisitor5" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Method/func%20accept%3CV,%20R%3E(visitor%3A%20V)%20-%3E%20R" class="dashAnchor j2-item-dash-anchor" data-item-id="acceptvisitor5"></a>
-    <h4 class="sr-only">func accept&lt;V, R&gt;(visitor: V) -&gt; R</h4>
+    <h4 class="visually-hidden">func accept&lt;V, R&gt;(visitor: V) -&gt; R</h4>
     
     
-    <a class="j2-item-title" href="#_acceptvisitor5" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_acceptvisitor5"><code>
+    <a class="j2-item-title" href="#_acceptvisitor5" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_acceptvisitor5"><code>
         <span class="j2-swift"><span class="j2-item-secondary">func </span>accept<span class="j2-item-secondary">&lt;V, R&gt;(</span>visitor<span class="j2-item-secondary">: V) -&gt; R</span></span>
         
       </code></a>
@@ -1249,10 +1272,10 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   
     <section id="description13" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Property/var%20description%3A%20String" class="dashAnchor j2-item-dash-anchor" data-item-id="description13"></a>
-    <h4 class="sr-only">var description: String</h4>
+    <h4 class="visually-hidden">var description: String</h4>
     
     
-    <a class="j2-item-title" href="#_description13" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description13"><code>
+    <a class="j2-item-title" href="#_description13" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description13"><code>
         <span class="j2-swift"><span class="j2-item-secondary">var </span>description<span class="j2-item-secondary">: String</span></span>
         
       </code></a>
@@ -1329,7 +1352,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   
   
   </div>
-  <div id="pagination-next" class="flex-fill text-right">
+  <div id="pagination-next" class="flex-fill text-end">
   
     <a class="j2-swift" href="../../sass/types/sasslist/separator.html?swift" aria-keyshortcuts="n">
   Separator<span aria-hidden="true"> &raquo;</span>
@@ -1400,7 +1423,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.3.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.7.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

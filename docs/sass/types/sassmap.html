@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../../css/fw2020.css">
     
     
-   <title>SassMap - Swift Sass v0.4.0</title>
+   <title>SassMap - Swift Sass v0.5.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./../../" data-doc-path="sass/types/sassmap.html" data-assets-path="../../">
@@ -21,27 +21,26 @@
 
   <header class="j2-header">
   <div class="navbar navbar-expand navbar-dark j2-titlebar">
-  <a class="sr-only-focusable sr-only font-weight-slightly-bold pr-2" href="#main-content">Skip to main content</a>
-  <a class="nav-item nav-link pl-0 pt-1 pr-2 d-md-none" id="nav-toggle-button" role="button" aria-controls="nav-column" aria-expanded="false" aria-label="Toggle navigation" href="#">
+  <div class="container-fluid ps-0 pe-0">
+  <a class="visually-hidden-focusable visually-hidden fw-slightly-bold pe-2" href="#main-content">Skip to main content</a>
+  <a class="nav-item nav-link ps-0 pt-1 pe-2 d-md-none" id="nav-toggle-button" role="button" aria-controls="nav-column" aria-expanded="false" aria-label="Toggle navigation" href="#">
     <span class="navbar-toggler-icon"></span>
   </a>
 
-  <div style="align-items-baseline">
-    <div class="navbar-brand mr-1 font-weight-slightly-bold">
-      
-      <a href="../../index.html">
-      
-      Swift Sass v0.4.0</a>
-    </div>
+  <div class="navbar-brand me-1 fw-slightly-bold">
     
-    <span class="navbar-text j2-coverage font-weight-slightly-bold small d-none d-lg-inline-block mr-2">(100% documented)</span>
+    <a href="../../index.html">
     
+    Swift Sass v0.5.0</a>
   </div>
+  
+  <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
+  
 
-  <div class="navbar-nav ml-auto justify-content-end flex-fill">
+  <div class="navbar-nav ms-auto justify-content-end flex-fill">
 
     
-    <form class="form-inline d-none d-md-flex" role="search">
+    <form class="d-none d-md-block my-auto pe-1" role="search">
       <input class="form-control form-control-sm w-100" type="search" placeHolder="Search" aria-label="Search" aria-keyshortcuts="/" data-search-format="span">
     </form>
     
@@ -69,6 +68,7 @@
 
     
 
+  </div>
   </div>
 </div>
 
@@ -153,6 +153,15 @@
   <li>
     
 
+  <a class="j2-nav-item" href="../../sass/types/sourcemapstyle.html?swift">SourceMapStyle</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
   <a class="j2-nav-item" href="../../sass/types/compilermessagestyle.html?swift">CompilerMessageStyle</a>
 
 
@@ -163,6 +172,20 @@
     
 
   <a class="j2-nav-item" href="../../sass/types/compilerresults.html?swift">CompilerResults</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../sass/types/compilerresults/urlstyle.html?swift">URLStyle</a>
+
+
+
+  </li>
+  
+</ul>
 
 
 
@@ -570,7 +593,7 @@
 
 
 <p>A Sass map value.</p>
-<p>Sass maps are <a href="https://developer.apple.com/documentation/swift/dictionary?language=swift" class="j2-swift"><code>Dictionary</code></a>-like collections.  The keys can be any kind of
+<p>Sass maps are <a href="https://developer.apple.com/documentation/swift/dictionary?language=swift" class="j2-swift"><code>Dictionary</code></a><a href="https://developer.apple.com/documentation/swift/dictionary?language=objc" class="j2-objc j2-secondary"><code>Dictionary</code></a>-like collections.  The keys can be any kind of
 <a href="../../sass/types/sassvalue7.html?swift"><code>SassValue</code></a>.</p>
 <p>When a map is viewed as a Sass list then the list is of two-element lists, one
 for each key-value pair in the map.  The pairs are in no particular order.</p>
@@ -595,7 +618,7 @@ for each key-value pair in the map.  The pairs are in no particular order.</p>
 <div class="j2-swift">
 <hr/>
 <section>
-  <h1 class="sr-only">Topics</h1>
+  <h1 class="visually-hidden">Topics</h1>
   
   <section class="j2-swift">
   
@@ -610,10 +633,10 @@ for each key-value pair in the map.  The pairs are in no particular order.</p>
   
     <section id="init_4" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Constructor/init(%5BSassValue%20%3A%20SassValue%5D)" class="dashAnchor j2-item-dash-anchor" data-item-id="init_4"></a>
-    <h4 class="sr-only">init([SassValue : SassValue])</h4>
+    <h4 class="visually-hidden">init([SassValue : SassValue])</h4>
     
     
-    <a class="j2-item-title" href="#_init_4" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_init_4"><code>
+    <a class="j2-item-title" href="#_init_4" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_init_4"><code>
         <span class="j2-swift">init<span class="j2-item-secondary">([SassValue : SassValue])</span></span>
         
       </code></a>
@@ -630,7 +653,7 @@ for each key-value pair in the map.  The pairs are in no particular order.</p>
               
 
 
-<p>Create a <a href="../../sass/types/sassmap.html?swift"><code>SassMap</code></a> from an existing <a href="https://developer.apple.com/documentation/swift/dictionary?language=swift" class="j2-swift"><code>Dictionary</code></a>.</p>
+<p>Create a <a href="../../sass/types/sassmap.html?swift"><code>SassMap</code></a> from an existing <a href="https://developer.apple.com/documentation/swift/dictionary?language=swift" class="j2-swift"><code>Dictionary</code></a><a href="https://developer.apple.com/documentation/swift/dictionary?language=objc" class="j2-objc j2-secondary"><code>Dictionary</code></a>.</p>
 
 
 
@@ -670,10 +693,10 @@ for each key-value pair in the map.  The pairs are in no particular order.</p>
   
     <section id="inituniquekeyswithvalues" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Constructor/init%3CS%3E(uniqueKeysWithValues%3A%20S)" class="dashAnchor j2-item-dash-anchor" data-item-id="inituniquekeyswithvalues"></a>
-    <h4 class="sr-only">init&lt;S&gt;(uniqueKeysWithValues: S)</h4>
+    <h4 class="visually-hidden">init&lt;S&gt;(uniqueKeysWithValues: S)</h4>
     
     
-    <a class="j2-item-title" href="#_inituniquekeyswithvalues" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_inituniquekeyswithvalues"><code>
+    <a class="j2-item-title" href="#_inituniquekeyswithvalues" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_inituniquekeyswithvalues"><code>
         <span class="j2-swift">init<span class="j2-item-secondary">&lt;S&gt;(</span>uniqueKeysWithValues<span class="j2-item-secondary">: S)</span></span>
         
       </code></a>
@@ -743,10 +766,10 @@ where S: <a href="https://developer.apple.com/documentation/swift/sequence?langu
   
     <section id="dictionary1" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Property/var%20dictionary%3A%20%5BSassValue%20%3A%20SassValue%5D" class="dashAnchor j2-item-dash-anchor" data-item-id="dictionary1"></a>
-    <h4 class="sr-only">var dictionary: [SassValue : SassValue]</h4>
+    <h4 class="visually-hidden">var dictionary: [SassValue : SassValue]</h4>
     
     
-    <a class="j2-item-title" href="#_dictionary1" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_dictionary1"><code>
+    <a class="j2-item-title" href="#_dictionary1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_dictionary1"><code>
         <span class="j2-swift"><span class="j2-item-secondary">var </span>dictionary<span class="j2-item-secondary">: [SassValue : SassValue]</span></span>
         
       </code></a>
@@ -803,10 +826,10 @@ where S: <a href="https://developer.apple.com/documentation/swift/sequence?langu
   
     <section id="separator2" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Property/var%20separator%3A%20SassList.Separator" class="dashAnchor j2-item-dash-anchor" data-item-id="separator2"></a>
-    <h4 class="sr-only">var separator: SassList.Separator</h4>
+    <h4 class="visually-hidden">var separator: SassList.Separator</h4>
     
     
-    <a class="j2-item-title" href="#_separator2" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_separator2"><code>
+    <a class="j2-item-title" href="#_separator2" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_separator2"><code>
         <span class="j2-swift"><span class="j2-item-secondary">var </span>separator<span class="j2-item-secondary">: SassList.Separator</span></span>
         
       </code></a>
@@ -875,10 +898,10 @@ where S: <a href="https://developer.apple.com/documentation/swift/sequence?langu
   
     <section id="subscript_" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Method/subscript(key%3A%20SassValue)%20-%3E%20SassValue%3F" class="dashAnchor j2-item-dash-anchor" data-item-id="subscript_"></a>
-    <h4 class="sr-only">subscript(key: SassValue) -&gt; SassValue?</h4>
+    <h4 class="visually-hidden">subscript(key: SassValue) -&gt; SassValue?</h4>
     
     
-    <a class="j2-item-title" href="#_subscript_" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_subscript_"><code>
+    <a class="j2-item-title" href="#_subscript_" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_subscript_"><code>
         <span class="j2-swift">subscript<span class="j2-item-secondary">(</span>key<span class="j2-item-secondary">: SassValue) -&gt; SassValue?</span></span>
         
       </code></a>
@@ -935,10 +958,10 @@ where S: <a href="https://developer.apple.com/documentation/swift/sequence?langu
   
     <section id="valueatsassindex1" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Method/func%20valueAt(sassIndex%3A%20SassValue)%20-%3E%20SassValue" class="dashAnchor j2-item-dash-anchor" data-item-id="valueatsassindex1"></a>
-    <h4 class="sr-only">func valueAt(sassIndex: SassValue) -&gt; SassValue</h4>
+    <h4 class="visually-hidden">func valueAt(sassIndex: SassValue) -&gt; SassValue</h4>
     
     
-    <a class="j2-item-title" href="#_valueatsassindex1" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_valueatsassindex1"><code>
+    <a class="j2-item-title" href="#_valueatsassindex1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_valueatsassindex1"><code>
         <span class="j2-swift"><span class="j2-item-secondary">func </span>valueAt<span class="j2-item-secondary">(</span>sassIndex<span class="j2-item-secondary">: SassValue) -&gt; SassValue</span></span>
         
       </code></a>
@@ -1011,10 +1034,10 @@ this map.  To access the map via its keys use <a href="../../sass/types/sassmap.
   
     <section id="sassmap-sassmap" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Function/static%20func%20==(lhs%3A%20SassMap,%20rhs%3A%20SassMap)%20-%3E%20Bool" class="dashAnchor j2-item-dash-anchor" data-item-id="sassmap-sassmap"></a>
-    <h4 class="sr-only">static func ==(lhs: SassMap, rhs: SassMap) -&gt; Bool</h4>
+    <h4 class="visually-hidden">static func ==(lhs: SassMap, rhs: SassMap) -&gt; Bool</h4>
     
     
-    <a class="j2-item-title" href="#_sassmap-sassmap" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassmap-sassmap"><code>
+    <a class="j2-item-title" href="#_sassmap-sassmap" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassmap-sassmap"><code>
         <span class="j2-swift"><span class="j2-item-secondary">static func </span>==<span class="j2-item-secondary">(</span>lhs<span class="j2-item-secondary">: SassMap, </span>rhs<span class="j2-item-secondary">: SassMap) -&gt; Bool</span></span>
         
       </code></a>
@@ -1071,10 +1094,10 @@ this map.  To access the map via its keys use <a href="../../sass/types/sassmap.
   
     <section id="hashinto5" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Method/func%20hash(into%3A%20inout%20Hasher)" class="dashAnchor j2-item-dash-anchor" data-item-id="hashinto5"></a>
-    <h4 class="sr-only">func hash(into: inout Hasher)</h4>
+    <h4 class="visually-hidden">func hash(into: inout Hasher)</h4>
     
     
-    <a class="j2-item-title" href="#_hashinto5" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_hashinto5"><code>
+    <a class="j2-item-title" href="#_hashinto5" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_hashinto5"><code>
         <span class="j2-swift"><span class="j2-item-secondary">func </span>hash<span class="j2-item-secondary">(</span>into<span class="j2-item-secondary">: inout Hasher)</span></span>
         
       </code></a>
@@ -1131,10 +1154,10 @@ this map.  To access the map via its keys use <a href="../../sass/types/sassmap.
   
     <section id="makeiterator1" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Method/func%20makeIterator()%20-%3E%20AnyIterator%3CSassValue%3E" class="dashAnchor j2-item-dash-anchor" data-item-id="makeiterator1"></a>
-    <h4 class="sr-only">func makeIterator() -&gt; AnyIterator&lt;SassValue&gt;</h4>
+    <h4 class="visually-hidden">func makeIterator() -&gt; AnyIterator&lt;SassValue&gt;</h4>
     
     
-    <a class="j2-item-title" href="#_makeiterator1" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_makeiterator1"><code>
+    <a class="j2-item-title" href="#_makeiterator1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_makeiterator1"><code>
         <span class="j2-swift"><span class="j2-item-secondary">func </span>makeIterator<span class="j2-item-secondary">() -&gt; AnyIterator&lt;SassValue&gt;</span></span>
         
       </code></a>
@@ -1192,10 +1215,10 @@ containing the key and value <a href="../../sass/types/sassvalue7.html?swift"><c
   
     <section id="acceptvisitor6" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Method/func%20accept%3CV,%20R%3E(visitor%3A%20V)%20-%3E%20R" class="dashAnchor j2-item-dash-anchor" data-item-id="acceptvisitor6"></a>
-    <h4 class="sr-only">func accept&lt;V, R&gt;(visitor: V) -&gt; R</h4>
+    <h4 class="visually-hidden">func accept&lt;V, R&gt;(visitor: V) -&gt; R</h4>
     
     
-    <a class="j2-item-title" href="#_acceptvisitor6" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_acceptvisitor6"><code>
+    <a class="j2-item-title" href="#_acceptvisitor6" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_acceptvisitor6"><code>
         <span class="j2-swift"><span class="j2-item-secondary">func </span>accept<span class="j2-item-secondary">&lt;V, R&gt;(</span>visitor<span class="j2-item-secondary">: V) -&gt; R</span></span>
         
       </code></a>
@@ -1253,10 +1276,10 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   
     <section id="description14" class="j2-item j2-swift">
     <a name="//apple_ref/cpp/Property/var%20description%3A%20String" class="dashAnchor j2-item-dash-anchor" data-item-id="description14"></a>
-    <h4 class="sr-only">var description: String</h4>
+    <h4 class="visually-hidden">var description: String</h4>
     
     
-    <a class="j2-item-title" href="#_description14" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description14"><code>
+    <a class="j2-item-title" href="#_description14" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description14"><code>
         <span class="j2-swift"><span class="j2-item-secondary">var </span>description<span class="j2-item-secondary">: String</span></span>
         
       </code></a>
@@ -1333,7 +1356,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   
   
   </div>
-  <div id="pagination-next" class="flex-fill text-right">
+  <div id="pagination-next" class="flex-fill text-end">
   
     <a class="j2-swift" href="../../sass/types/sasscompilerfunction.html?swift" aria-keyshortcuts="n">
   SassCompilerFunction<span aria-hidden="true"> &raquo;</span>
@@ -1402,7 +1425,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.3.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.7.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>
