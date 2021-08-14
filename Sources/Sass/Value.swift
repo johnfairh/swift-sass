@@ -157,4 +157,6 @@ public protocol SassValueVisitor {
     func visit(compilerFunction: SassCompilerFunction) throws -> ReturnType
     /// The operation for `SassDynamicFunction` (or `SassAsyncDynamicFunction`).
     func visit(dynamicFunction: SassDynamicFunction) throws -> ReturnType
+    /// The operation for `SassArgumentList`.
+    func visit(argumentList: SassArgumentList) throws -> ReturnType
 }

@@ -389,6 +389,11 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
         })
     }
 
+    func visit(argumentList: SassArgumentList) throws -> OneOf_Value {
+        try visit(list: argumentList)
+        // TODO: ArgumentList
+    }
+
     func visit(map: SassMap) throws -> OneOf_Value {
         .map(.with { mapVal in
             mapVal.entries = map.dictionary.map { kv in
