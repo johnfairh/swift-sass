@@ -85,7 +85,7 @@ class TestList: XCTestCase {
         XCTAssertThrowsError(try SassConstants.true.asArgumentList())
 
         XCTAssertEqual("str", try Array(baseList).first?.asString().string)
-        let realList = SassList([SassString("str")])
+        let realList = SassList([SassString("str")], hasBrackets: false)
         XCTAssertEqual(baseList, realList)
         let baseListDesc = baseList.description
         XCTAssertTrue(baseListDesc.starts(with: "ArgList"))
@@ -93,9 +93,6 @@ class TestList: XCTestCase {
         XCTAssertTrue(baseListDesc.contains("kw()"))
 
         XCTAssertTrue(baseList.keywords.isEmpty)
-
-        let bracketless = SassArgumentList([], hasBrackets: false)
-        XCTAssertEqual("ArgList( kw())", bracketless.description)
     }
 
     func testArgumentListKeywords() throws {

@@ -29,15 +29,13 @@ public final class SassArgumentList: SassList {
     /// - parameter separator: The separator character to use in any CSS generated from the list.
     ///   If `sequence` contains more than one element then an `.undecided` separator is promoted
     ///   to `.space`.
-    /// - parameter hasBrackets: Whether the list should display with brackets.  Normally `true`.
     public init<C>(_ positional: C,
                    keywords: [String: SassValue] = [:],
                    keywordsObserver: @escaping () -> Void = {},
-                   separator: Separator = .space,
-                   hasBrackets: Bool = true) where C: Sequence, C.Element == SassValue {
+                   separator: Separator = .space) where C: Sequence, C.Element == SassValue {
         self._keywords = keywords
         self.keywordsObserver = keywordsObserver
-        super.init(positional, separator: separator, hasBrackets: hasBrackets)
+        super.init(positional, separator: separator, hasBrackets: false)
     }
 
     // MARK: Keyword arguments
@@ -61,11 +59,11 @@ public final class SassArgumentList: SassList {
 
     // Does not count as 'accessing keywords'!
     public override var description: String {
-        "ArgList(\(hasBrackets ? "[" : "")" +
-                 map { $0.description }.joined(separator: separator.rawValue) +
-                 "\(hasBrackets ? "]" : "") kw(" +
-                 _keywords.map { "[\($0.0):\($0.1)]" }.joined(separator: ",") +
-                 "))"
+        "ArgList(" +
+            map { $0.description }.joined(separator: separator.rawValue) +
+            " kw(" +
+            _keywords.map { "[\($0.0):\($0.1)]" }.joined(separator: ",") +
+            "))"
     }
 }
 

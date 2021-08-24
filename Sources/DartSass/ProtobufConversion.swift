@@ -304,10 +304,9 @@ extension Sass_EmbeddedProtocol_Value {
 
         case .argumentList(let l):
             return try SassArgumentList(l.contents.map { try $0.asSassValue() },
-                                        keywords: [:],
+                                        keywords: l.keywords.mapValues { try $0.asSassValue() },
                                         keywordsObserver: {},
-                                        separator: .init(l.separator),
-                                        hasBrackets: false)
+                                        separator: .init(l.separator))
 
         case .map(let m):
             var dict = [SassValue: SassValue]()
@@ -398,8 +397,18 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
     }
 
     func visit(argumentList: SassArgumentList) throws -> OneOf_Value {
-        try visit(list: argumentList)
-        // TODO: ArgumentList
+        .argumentList(.with {
+            // id / keywords access, an essay:
+            // We're really creating a _new_ ArgList here, that sure may
+            // be copied wholesale from something the compiler gave us, so
+            // we set id=0 and don't worry about accessing the keywords: even
+            // if the user is passing back an ArgList, they could just as well
+            // be copying it manually themselves which would trigger the callback.
+            $0.id = 0
+            $0.separator = .init(argumentList.separator)
+            $0.contents = argumentList.map { .init($0) }
+            $0.keywords = argumentList.keywords.mapValues { .init($0) }
+        })
     }
 
     func visit(map: SassMap) throws -> OneOf_Value {

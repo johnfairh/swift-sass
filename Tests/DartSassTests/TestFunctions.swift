@@ -108,6 +108,20 @@ class TestFunctions: DartSassTestCase {
         XCTAssertThrowsError(try SassList.Separator(.UNRECOGNIZED(1)))
     }
 
+    /// SassArgList conversion
+    func testSassArgListConversion() throws {
+        var observerCalled = false
+        let argList = SassArgumentList([SassString("one")],
+                                        keywords: ["two": SassNumber(23)],
+                                        keywordsObserver: { observerCalled = true },
+                                        separator: .slash)
+        let value = Sass_EmbeddedProtocol_Value(argList)
+        XCTAssertTrue(observerCalled)
+        let listBack = try value.asSassValue()
+        XCTAssertEqual(argList, listBack)
+        XCTAssertEqual(argList.keywords, try listBack.asArgumentList().keywords)
+    }
+
     /// SassConstant conversion
     func testSassConstantConversion() throws {
         try [SassConstants.true,
