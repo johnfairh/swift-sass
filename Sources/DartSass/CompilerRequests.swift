@@ -353,16 +353,27 @@ final class CompilationRequest: ManagedCompilerRequest {
         func doSassFunction(_ fn: @escaping SassAsyncFunction) throws -> EventLoopFuture<IBM?> {
             var rsp = IBM.FunctionCallResponse.with { $0.id = req.id }
 
-            let args = try req.arguments.map { try $0.asSassValue() }
+            // Set up to monitor accesses to any `SassArgumentList`s
+            var accessedArgLists = Set<UInt32>()
+            func accessArgList(id: UInt32) {
+                guard id != 0 else { return }
+                accessedArgLists.insert(id)
+            }
+
+            let args = try SassValueMonitor.with(accessArgList) {
+                try req.arguments.map { try $0.asSassValue() }
+            }
 
             clientStarting()
 
             return fn(self.eventLoop, args).map { resultValue -> IBM.FunctionCallResponse in
                 rsp.success = .init(resultValue)
+                rsp.accessedArgumentLists = Array(accessedArgLists)
                 self.debug("Tx FnCall-Rsp-Success ReqID=\(req.id)")
                 return rsp
             }.recover { error in
                 rsp.error = String(describing: error)
+                rsp.accessedArgumentLists = Array(accessedArgLists)
                 self.debug("Tx FnCall-Rsp-Error ReqID=\(req.id)")
                 return rsp
             }.map { rsp in

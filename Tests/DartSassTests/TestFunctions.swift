@@ -316,13 +316,13 @@ class TestFunctions: DartSassTestCase {
 
     }
 
+    /// ArgumentList
     func testVarargs() throws {
-
         let varArgsFunction: SassFunctionMap = [
             "varFn($first, $args...)" : { args in
                 XCTAssertEqual(2, args.count)
                 try XCTAssertNoThrow(args[0].asNumber().asInt())
-                let lst = Array(args[1])
+                let lst = try Array(args[1].asArgumentList())
                 XCTAssertEqual(2, lst.count)
                 return SassNumber(1)
             }
@@ -337,5 +337,41 @@ class TestFunctions: DartSassTestCase {
         let compiler = try newCompiler(functions: varArgsFunction)
         let results = try compiler.compile(string: scss, outputStyle: .compressed)
         XCTAssertEqual("a{b:1}", results.css)
+    }
+
+    func testVarArgsKwArgs() throws {
+        let varArgsFunctions: SassFunctionMap = [
+            "kwReadingFn($args...)" : { args in
+                XCTAssertEqual(1, args.count)
+                let argList = try args[0].asArgumentList()
+                print(argList.keywords.keys) // access the keywords
+                return SassNumber(1)
+            },
+            "kwIgnoringFn($args...)" : { args in
+                XCTAssertEqual(1, args.count)
+                return SassNumber(1)
+            }
+        ]
+
+        func scss(_ fname: String) -> String {
+        """
+        a {
+          b: \(fname)(1, 2, "fish", $kw1: 22, $kw2: "bucket")
+        }
+        """
+        }
+
+        let compiler = try newCompiler(functions: varArgsFunctions)
+        let results = try compiler.compile(string: scss("kwReadingFn"), outputStyle: .compressed)
+        XCTAssertEqual("a{b:1}", results.css)
+
+        do {
+            let r = try compiler.compile(string: scss("kwIgnoringFn"))
+            XCTFail("Managed to compile: \(r)")
+        } catch let error as CompilerError {
+            XCTAssertTrue(error.description.contains("No arguments named"))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
     }
 }

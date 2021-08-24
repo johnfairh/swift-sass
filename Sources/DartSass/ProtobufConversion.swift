@@ -10,6 +10,7 @@
 
 import struct Foundation.URL
 import Sass
+import NIO
 
 // MARK: PB -> Native
 
@@ -274,6 +275,34 @@ extension SassList.Separator {
     }
 }
 
+// Some stuff to handle requirements introduced by 'argument list', basically
+// side-effects of access to the value types.
+
+final class SassValueMonitor {
+    typealias ArgListAccessFn = (UInt32) -> Void
+    var argListAccess: ArgListAccessFn
+    init(_ argListAccess: @escaping ArgListAccessFn = { _ in }) {
+        self.argListAccess = argListAccess
+    }
+
+    static func with<T>(_ accessFn: @escaping ArgListAccessFn, work: () throws -> T) rethrows -> T {
+        _current.currentValue = SassValueMonitor(accessFn)
+        defer { _current.currentValue = nil }
+        return try work()
+    }
+
+    fileprivate static var _current = ThreadSpecificVariable(value: SassValueMonitor())
+    fileprivate static var current: SassValueMonitor {
+        _current.currentValue ?? SassValueMonitor()
+    }
+}
+
+extension Sass_EmbeddedProtocol_Value {
+    var monitor: SassValueMonitor {
+        SassValueMonitor.current
+    }
+}
+
 extension Sass_EmbeddedProtocol_Value {
     func asSassValue() throws -> SassValue {
         switch value {
@@ -303,9 +332,10 @@ extension Sass_EmbeddedProtocol_Value {
                                 hasBrackets: l.hasBrackets_p)
 
         case .argumentList(let l):
+            let monitorFn = monitor.argListAccess
             return try SassArgumentList(l.contents.map { try $0.asSassValue() },
                                         keywords: l.keywords.mapValues { try $0.asSassValue() },
-                                        keywordsObserver: {},
+                                        keywordsObserver: { monitorFn(l.id) },
                                         separator: .init(l.separator))
 
         case .map(let m):
