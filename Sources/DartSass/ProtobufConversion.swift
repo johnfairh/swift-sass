@@ -9,6 +9,7 @@
 // Helpers to shuffle data in and out of the protobuf types.
 
 import struct Foundation.URL
+import Sass
 
 // MARK: PB -> Native
 
@@ -300,6 +301,13 @@ extension Sass_EmbeddedProtocol_Value {
             return try SassList(l.contents.map { try $0.asSassValue() },
                                 separator: .init(l.separator),
                                 hasBrackets: l.hasBrackets_p)
+
+        case .argumentList(let l):
+            return try SassArgumentList(l.contents.map { try $0.asSassValue() },
+                                        keywords: [:],
+                                        keywordsObserver: {},
+                                        separator: .init(l.separator),
+                                        hasBrackets: false)
 
         case .map(let m):
             var dict = [SassValue: SassValue]()
