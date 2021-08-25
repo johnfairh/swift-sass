@@ -320,9 +320,19 @@ public final class SassColor: SassValue {
         "Color(\(colorValue))"
     }
 
-    /// :nodoc: helper for embedded protocol serialization
-    public var _prefersRgb: Bool {
-        colorValue.prefersRgb
+    /// A color format
+    public enum Format {
+        /// RGB
+        case rgb
+        /// HSL
+        case hsl
+    }
+
+    /// The preferred format of this `SassColor` - typically the format the user originally wrote it in.
+    /// Most useful for Sass implementations; other users are free to access colors using whichever
+    /// format they find convenient.
+    public var preferredFormat: Format {
+        colorValue.prefersRgb ? .rgb : .hsl
     }
 }
 

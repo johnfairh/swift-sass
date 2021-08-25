@@ -402,20 +402,22 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
     }
 
     func visit(color: SassColor) throws -> OneOf_Value {
-        if color._prefersRgb {
+        switch color.preferredFormat {
+        case .rgb:
             return .rgbColor(.with {
                 $0.red = UInt32(color.red)
                 $0.green = UInt32(color.green)
                 $0.blue = UInt32(color.blue)
                 $0.alpha = color.alpha
             })
+        case .hsl:
+            return .hslColor(.with {
+                $0.hue = color.hue
+                $0.saturation = color.saturation
+                $0.lightness = color.lightness
+                $0.alpha = color.alpha
+            })
         }
-        return .hslColor(.with {
-            $0.hue = color.hue
-            $0.saturation = color.saturation
-            $0.lightness = color.lightness
-            $0.alpha = color.alpha
-        })
     }
 
     func visit(list: SassList) throws -> OneOf_Value {
