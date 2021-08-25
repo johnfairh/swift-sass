@@ -983,6 +983,12 @@ struct Sass_EmbeddedProtocol_InboundMessage {
       set {result = .error(newValue)}
     }
 
+    /// The IDs of all `Value.ArgumentList`s in `FunctionCallRequest.arguments`
+    /// whose keywords were accessed. See `Value.ArgumentList` for details.
+    /// Mandatory if `result.success` is set. This may not include the special
+    /// value `0` and it may not include multiple instances of the same ID.
+    var accessedArgumentLists: [UInt32] = []
+
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
     /// The result of calling the function. Mandatory.
@@ -1786,6 +1792,14 @@ struct Sass_EmbeddedProtocol_Value {
     set {value = .hostFunction(newValue)}
   }
 
+  var argumentList: Sass_EmbeddedProtocol_Value.ArgumentList {
+    get {
+      if case .argumentList(let v)? = value {return v}
+      return Sass_EmbeddedProtocol_Value.ArgumentList()
+    }
+    set {value = .argumentList(newValue)}
+  }
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   /// The value itself. Mandatory.
@@ -1802,6 +1816,7 @@ struct Sass_EmbeddedProtocol_Value {
     case singleton(Sass_EmbeddedProtocol_SingletonValue)
     case compilerFunction(Sass_EmbeddedProtocol_Value.CompilerFunction)
     case hostFunction(Sass_EmbeddedProtocol_Value.HostFunction)
+    case argumentList(Sass_EmbeddedProtocol_Value.ArgumentList)
 
   #if !swift(>=4.1)
     static func ==(lhs: Sass_EmbeddedProtocol_Value.OneOf_Value, rhs: Sass_EmbeddedProtocol_Value.OneOf_Value) -> Bool {
@@ -1843,6 +1858,10 @@ struct Sass_EmbeddedProtocol_Value {
       }()
       case (.hostFunction, .hostFunction): return {
         guard case .hostFunction(let l) = lhs, case .hostFunction(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.argumentList, .argumentList): return {
+        guard case .argumentList(let l) = lhs, case .argumentList(let r) = rhs else { preconditionFailure() }
         return l == r
       }()
       default: return false
@@ -2056,6 +2075,54 @@ struct Sass_EmbeddedProtocol_Value {
     /// guaranteed to be globally unique. However, it may use the name to
     /// generate the string representation of this function.
     var signature: String = String()
+
+    var unknownFields = SwiftProtobuf.UnknownStorage()
+
+    init() {}
+  }
+
+  /// A SassScript argument list value. This represents rest arguments passed to
+  /// a function's `$arg...` parameter. Unlike a normal `List`, an argument list
+  /// has an associated keywords map which tracks keyword arguments passed in
+  /// alongside positional arguments.
+  ///
+  /// For each `ArgumentList` in `FunctionCallRequest.arguments` (including those
+  /// nested within `List`s and `Map`s), the host must track whether its keyword
+  /// arguments were accessed by the user. If they were, it must add its
+  /// `ArgumentList.id` to `FunctionCallResponse.accessed_argument_lists`.
+  ///
+  /// The compiler must treat every `ArgumentList` whose `ArgumentList.id`
+  /// appears in `FunctionCallResponse.accessed_argument_lists` as though it had
+  /// been passed to `meta.keywords()`.
+  struct ArgumentList {
+    // SwiftProtobuf.Message conformance is added in an extension below. See the
+    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+    // methods supported on all messages.
+
+    /// An ID for this argument list that's unique within the scope of a given
+    /// `FunctionCallRequest`.
+    ///
+    /// The special ID `0` is reserved for `ArgumentList`s created by the host,
+    /// and may not be used by the compiler. These `ArgumentList`s do not need to
+    /// have their IDs added to `FunctionCallResponse.accessed_argument_lists`,
+    /// and the compiler should treat them as though their keywords have always
+    /// been accessed.
+    var id: UInt32 = 0
+
+    /// The type of separator for this list. The compiler must set this, but
+    /// the host may omit it for `ArgumentList`s that were originally created by
+    /// the compiler (that is, those with a non-0 ID).
+    var separator: Sass_EmbeddedProtocol_ListSeparator = .comma
+
+    /// The argument list's positional contents. The compiler must set this, but
+    /// the host may omit it for `ArgumentList`s that were originally created by
+    /// the compiler (that is, those with a non-0 ID).
+    var contents: [Sass_EmbeddedProtocol_Value] = []
+
+    /// The argument list's keywords. The compiler must set this, but the host
+    /// may omit it for `ArgumentList`s that were originally created by the
+    /// compiler (that is, those with a non-0 ID).
+    var keywords: Dictionary<String,Sass_EmbeddedProtocol_Value> = [:]
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -2780,6 +2847,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse: SwiftProtob
     1: .same(proto: "id"),
     2: .same(proto: "success"),
     3: .same(proto: "error"),
+    4: .standard(proto: "accessed_argument_lists"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -2810,6 +2878,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse: SwiftProtob
           self.result = .error(v)
         }
       }()
+      case 4: try { try decoder.decodeRepeatedUInt32Field(value: &self.accessedArgumentLists) }()
       default: break
       }
     }
@@ -2833,12 +2902,16 @@ extension Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse: SwiftProtob
     }()
     case nil: break
     }
+    if !self.accessedArgumentLists.isEmpty {
+      try visitor.visitPackedUInt32Field(value: self.accessedArgumentLists, fieldNumber: 4)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse, rhs: Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse) -> Bool {
     if lhs.id != rhs.id {return false}
     if lhs.result != rhs.result {return false}
+    if lhs.accessedArgumentLists != rhs.accessedArgumentLists {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -3703,6 +3776,7 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
     7: .same(proto: "singleton"),
     8: .standard(proto: "compiler_function"),
     9: .standard(proto: "host_function"),
+    10: .standard(proto: "argument_list"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3823,6 +3897,19 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
           self.value = .hostFunction(v)
         }
       }()
+      case 10: try {
+        var v: Sass_EmbeddedProtocol_Value.ArgumentList?
+        var hadOneofValue = false
+        if let current = self.value {
+          hadOneofValue = true
+          if case .argumentList(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .argumentList(v)
+        }
+      }()
       default: break
       }
     }
@@ -3868,6 +3955,10 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
     case .hostFunction?: try {
       guard case .hostFunction(let v)? = self.value else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 9)
+    }()
+    case .argumentList?: try {
+      guard case .argumentList(let v)? = self.value else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 10)
     }()
     case nil: break
     }
@@ -4242,6 +4333,56 @@ extension Sass_EmbeddedProtocol_Value.HostFunction: SwiftProtobuf.Message, Swift
   static func ==(lhs: Sass_EmbeddedProtocol_Value.HostFunction, rhs: Sass_EmbeddedProtocol_Value.HostFunction) -> Bool {
     if lhs.id != rhs.id {return false}
     if lhs.signature != rhs.signature {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Sass_EmbeddedProtocol_Value.ArgumentList: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".ArgumentList"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "id"),
+    2: .same(proto: "separator"),
+    3: .same(proto: "contents"),
+    4: .same(proto: "keywords"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
+      case 2: try { try decoder.decodeSingularEnumField(value: &self.separator) }()
+      case 3: try { try decoder.decodeRepeatedMessageField(value: &self.contents) }()
+      case 4: try { try decoder.decodeMapField(fieldType: SwiftProtobuf._ProtobufMessageMap<SwiftProtobuf.ProtobufString,Sass_EmbeddedProtocol_Value>.self, value: &self.keywords) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.id != 0 {
+      try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
+    }
+    if self.separator != .comma {
+      try visitor.visitSingularEnumField(value: self.separator, fieldNumber: 2)
+    }
+    if !self.contents.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.contents, fieldNumber: 3)
+    }
+    if !self.keywords.isEmpty {
+      try visitor.visitMapField(fieldType: SwiftProtobuf._ProtobufMessageMap<SwiftProtobuf.ProtobufString,Sass_EmbeddedProtocol_Value>.self, value: self.keywords, fieldNumber: 4)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sass_EmbeddedProtocol_Value.ArgumentList, rhs: Sass_EmbeddedProtocol_Value.ArgumentList) -> Bool {
+    if lhs.id != rhs.id {return false}
+    if lhs.separator != rhs.separator {return false}
+    if lhs.contents != rhs.contents {return false}
+    if lhs.keywords != rhs.keywords {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

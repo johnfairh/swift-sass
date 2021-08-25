@@ -9,7 +9,7 @@
 import XCTest
 import Sass
 
-/// Tests for `SassList`
+/// Tests for `SassList` and `SassArgumentList`
 ///
 class TestList: XCTestCase {
     func testBrackets() {
@@ -75,5 +75,48 @@ class TestList: XCTestCase {
         XCTAssertEqual(2, dict[empty2])
         dict[nEmpty3a] = 3
         XCTAssertEqual(3, dict[nEmpty3b])
+    }
+
+    /// Argument lists
+    func testArgumentList() throws {
+        let baseList = SassArgumentList([SassString("str")])
+
+        XCTAssertEqual(baseList, try baseList.asArgumentList())
+        XCTAssertThrowsError(try SassConstants.true.asArgumentList())
+
+        XCTAssertEqual("str", try Array(baseList).first?.asString().string)
+        let realList = SassList([SassString("str")], hasBrackets: false)
+        XCTAssertEqual(baseList, realList)
+        let baseListDesc = baseList.description
+        XCTAssertTrue(baseListDesc.starts(with: "ArgList"))
+        XCTAssertTrue(baseListDesc.contains("String(\"str\")"))
+        XCTAssertTrue(baseListDesc.contains("kw()"))
+
+        XCTAssertTrue(baseList.keywords.isEmpty)
+    }
+
+    func testArgumentListKeywords() throws {
+        var observerCallCount = 0
+        let kwList = SassArgumentList([],
+                                      keywords: ["one" : SassNumber(100)],
+                                      keywordsObserver: { observerCallCount += 1 })
+        XCTAssertEqual(0, observerCallCount)
+        let kwVal = try XCTUnwrap(kwList.keywords["one"])
+        XCTAssertEqual(1, observerCallCount)
+        XCTAssertEqual(100, try kwVal.asNumber().double)
+
+        XCTAssertNil(kwList.keywords["two"])
+        XCTAssertEqual(2, observerCallCount)
+
+        let kwListDesc = kwList.description
+        XCTAssertEqual(2, observerCallCount)
+        XCTAssertTrue(kwListDesc.contains("kw([one:Number"))
+
+        /// Odd equality shenanigans
+        let kwList2 = SassArgumentList([], keywords: ["two" : SassNumber(100)])
+        XCTAssertEqual(kwList, kwList2)
+
+        let dict = [kwList: true]
+        XCTAssertTrue(try XCTUnwrap(dict[kwList2]))
     }
 }

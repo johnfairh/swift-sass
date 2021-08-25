@@ -6,7 +6,7 @@
 
 ## Enhancements
 
-* None
+* Add `SassArgumentList`
 
 ## Bug Fixes
 

@@ -9,6 +9,8 @@
 // Helpers to shuffle data in and out of the protobuf types.
 
 import struct Foundation.URL
+import Sass
+import NIO
 
 // MARK: PB -> Native
 
@@ -273,6 +275,34 @@ extension SassList.Separator {
     }
 }
 
+// Some stuff to handle requirements introduced by 'argument list', basically
+// side-effects of access to the value types.
+
+final class SassValueMonitor {
+    typealias ArgListAccessFn = (UInt32) -> Void
+    var argListAccess: ArgListAccessFn
+    init(_ argListAccess: @escaping ArgListAccessFn = { _ in }) {
+        self.argListAccess = argListAccess
+    }
+
+    static func with<T>(_ accessFn: @escaping ArgListAccessFn, work: () throws -> T) rethrows -> T {
+        _current.currentValue = SassValueMonitor(accessFn)
+        defer { _current.currentValue = nil }
+        return try work()
+    }
+
+    fileprivate static var _current = ThreadSpecificVariable(value: SassValueMonitor())
+    fileprivate static var current: SassValueMonitor {
+        _current.currentValue ?? SassValueMonitor()
+    }
+}
+
+extension Sass_EmbeddedProtocol_Value {
+    var monitor: SassValueMonitor {
+        SassValueMonitor.current
+    }
+}
+
 extension Sass_EmbeddedProtocol_Value {
     func asSassValue() throws -> SassValue {
         switch value {
@@ -300,6 +330,13 @@ extension Sass_EmbeddedProtocol_Value {
             return try SassList(l.contents.map { try $0.asSassValue() },
                                 separator: .init(l.separator),
                                 hasBrackets: l.hasBrackets_p)
+
+        case .argumentList(let l):
+            let monitorFn = monitor.argListAccess
+            return try SassArgumentList(l.contents.map { try $0.asSassValue() },
+                                        keywords: l.keywords.mapValues { try $0.asSassValue() },
+                                        keywordsObserver: { monitorFn(l.id) },
+                                        separator: .init(l.separator))
 
         case .map(let m):
             var dict = [SassValue: SassValue]()
@@ -386,6 +423,21 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
             $0.separator = .init(list.separator)
             $0.hasBrackets_p = list.hasBrackets
             $0.contents = list.map { .init($0) }
+        })
+    }
+
+    func visit(argumentList: SassArgumentList) throws -> OneOf_Value {
+        .argumentList(.with {
+            // id / keywords access, an essay:
+            // We're really creating a _new_ ArgList here, that sure may
+            // be copied wholesale from something the compiler gave us, so
+            // we set id=0 and don't worry about accessing the keywords: even
+            // if the user is passing back an ArgList, they could just as well
+            // be copying it manually themselves which would trigger the callback.
+            $0.id = 0
+            $0.separator = .init(argumentList.separator)
+            $0.contents = argumentList.map { .init($0) }
+            $0.keywords = argumentList.keywords.mapValues { .init($0) }
         })
     }
 
