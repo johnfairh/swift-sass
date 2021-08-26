@@ -135,6 +135,18 @@ class TestFunctions: XCTestCase {
         try XCTAssertThrowsError(SassSeparator(108).toSeparator())
     }
 
+    func testArgumentList() throws {
+        try checkRoundTrip([
+            SassArgumentList([SassConstants.false, SassString("fish")])
+        ])
+
+        // no argumentlist in libsass4 API
+        let kwList = SassArgumentList([], keywords: ["one": SassNumber(22)])
+        let value = try kwList.toLibSassValue()
+        let backList = try value.toSassValue()
+        XCTAssertThrowsError(try backList.asArgumentList())
+    }
+
     func testMap() throws {
         try checkRoundTrip([
             SassMap([:]),

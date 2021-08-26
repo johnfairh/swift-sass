@@ -138,6 +138,11 @@ struct LibSassVisitor: SassValueVisitor {
                       separator: try list.separator.toLibSass())
     }
 
+    func visit(argumentList: SassArgumentList) throws -> LibSass4.Value {
+        try visit(list: argumentList)
+        // No ArgumentList in libsass4 API
+    }
+
     func visit(map: SassMap) throws -> LibSass4.Value {
         LibSass4.Value(pairs: try map.dictionary.map {
             (try $0.key.toLibSassValue(), try $0.value.toLibSassValue())
