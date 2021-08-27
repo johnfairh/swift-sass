@@ -6,6 +6,7 @@
 //
 
 import NIO
+import _NIOConcurrency
 import Dispatch
 
 extension NIOThreadPool {
@@ -37,6 +38,16 @@ final class ProvidedEventLoopGroup {
             eventLoopGroup = elg
         case .createNew:
             eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+        }
+    }
+
+    @available(macOS 12.0.0, *)
+    func shutdownGracefully() async throws {
+        switch provider {
+        case .shared:
+            return
+        case .createNew:
+            try await eventLoopGroup.shutdownGracefully()
         }
     }
 

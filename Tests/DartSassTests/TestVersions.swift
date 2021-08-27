@@ -19,6 +19,7 @@ extension Versions {
 }
 
 /// Tests for version checking
+@available(macOS 12.0.0, *)
 class TestVersions: DartSassTestCase {
     func testCreation() {
         let vers = Versions(protocolVersionString: "1.0.3")
@@ -42,18 +43,18 @@ class TestVersions: DartSassTestCase {
         let expectedPackage = "1.0.0-beta.12"
         let expectedCompiler = "1.42.1"
         let compiler = try newCompiler()
-        let version = try XCTUnwrap(compiler.compilerVersion.wait())
+        let version = try await XCTUnwrapA(await compiler.compilerVersion)
         XCTAssertEqual(expectedCompiler, version)
-        let name = try XCTUnwrap(compiler.compilerName.wait())
+        let name = try await XCTUnwrapA(await compiler.compilerName)
         XCTAssertEqual("Dart Sass", name)
-        let package = try XCTUnwrap(compiler.compilerPackageVersion.wait())
+        let package = try await XCTUnwrapA(await compiler.compilerPackageVersion)
         XCTAssertEqual(expectedPackage, package)
     }
 
-    func testBadVersionReport() throws {
+    func testBadVersionReport() async throws {
         let compiler = try newCompiler()
         compiler.versionsResponder = TestVersionsResponder(Versions(protocolVersionString: "huh"))
-        let version = try compiler.compilerVersion.wait()
+        let version = await compiler.compilerVersion
         XCTAssertNil(version)
     }
 
@@ -63,10 +64,10 @@ class TestVersions: DartSassTestCase {
         }
     }
 
-    func testStuckVersionReport() throws {
+    func testStuckVersionReport() async throws {
         let compiler = try newBadCompiler(timeout: 1)
         compiler.versionsResponder = HangingVersionsResponder()
-        let version = try compiler.compilerVersion.wait()
+        let version = await compiler.compilerVersion
         XCTAssertNil(version)
     }
 
@@ -84,10 +85,10 @@ class TestVersions: DartSassTestCase {
         }
     }
 
-    func testCorruptVersionReport() throws {
+    func testCorruptVersionReport() async throws {
         let compiler = try newCompiler()
         compiler.versionsResponder = CorruptVersionsResponder()
-        let version = try compiler.compilerVersion.wait()
+        let version = await compiler.compilerVersion
         XCTAssertNil(version)
     }
 }

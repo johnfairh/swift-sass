@@ -9,6 +9,7 @@ import struct Foundation.URL
 import class Foundation.FileManager // cwd
 import Dispatch
 import NIO
+import _NIOConcurrency
 import Logging
 @_exported import Sass
 
@@ -225,6 +226,14 @@ public final class Compiler {
     /// call it.
     ///
     /// Any outstanding compilations are failed.
+    @available(macOS 12.0.0, *)
+    public func reinit() async throws {
+        try await reinit().get()
+    }
+
+    /// Restart the embedded Sass compiler, NIO version
+    ///
+    /// See `reinit()`.
     public func reinit() -> EventLoopFuture<Void> {
         eventLoop.flatSubmit {
             self.handle(error: LifecycleError("User requested Sass compiler be reinitialized"))
@@ -238,6 +247,16 @@ public final class Compiler {
     ///
     /// Waits for work to wind down naturally and shuts down internal threads.  There's no way back
     /// from this state: to do more compilation you will need a new object.
+    ///
+    @available(macOS 12.0.0, *)
+    public func shutdownGracefully() async throws {
+        try await eventLoop.flatSubmit { self.shutdown() }.get()
+        try await eventLoopGroup.shutdownGracefully()
+    }
+
+    /// Shut down the compiler asynchronously, NIO version.
+    ///
+    /// See `shutdownGracefully()`.
     ///
     /// This resolves on a dispatch queue because of internal event queue shutdown; make sure the
     /// queue is being run.
@@ -253,7 +272,7 @@ public final class Compiler {
 
     /// Shut down the compiler synchronously.
     ///
-    /// See `shutdownGracefully(queue:_:)`.
+    /// See `shutdownGracefully()`.
     ///
     /// Do not call this from an event loop thread.
     public func syncShutdownGracefully() throws {
@@ -269,7 +288,19 @@ public final class Compiler {
     /// Not normally needed; could be used to adjust resource usage or maybe send it a signal if stuck.
     /// The process ID is reported after waiting for any [re]initialization to complete; a value of `nil`
     /// means that the compiler is broken or shutdown.
-    public var compilerProcessIdentifier: EventLoopFuture<Int32?> {
+    ///
+    /// See `compilerProcessIdentifierFuture` for a NIO-native version.
+    @available(macOS 12.0.0, *)
+    public var compilerProcessIdentifier: Int32? {
+        get async {
+            try? await compilerProcessIdentifierFuture.get()
+        }
+    }
+
+    /// A future evaluating to the process ID of the embedded Sass compiler.
+    ///
+    /// See `compilerProcessIdentifier`.
+    public var compilerProcessIdentifierFuture: EventLoopFuture<Int32?> {
         eventLoop.flatSubmit { [self] in
             switch state {
             case .broken, .shutdown:
@@ -278,27 +309,58 @@ public final class Compiler {
                 return eventLoop.makeSucceededFuture(child.processIdentifier)
             case .initializing(let future):
                 return future.flatMap {
-                    self.compilerProcessIdentifier
+                    self.compilerProcessIdentifierFuture
                 }
             }
         }
     }
 
     /// The name of the underlying Sass implementation.  `nil` if unknown.
-    public var compilerName: EventLoopFuture<String?> {
+    @available(macOS 12.0.0, *)
+    public var compilerName: String? {
+        get async {
+            try? await compilerNameFuture.get()
+        }
+    }
+
+    /// A future evaluating to the name of the underlying Sass implementation.
+    ///
+    /// See `compilerName`.
+    public var compilerNameFuture: EventLoopFuture<String?> {
         versionsFuture.map { $0?.compilerName }
     }
 
     /// The version of the underlying Sass implementation.  For Dart Sass and LibSass this is in
     /// [semver](https://semver.org/spec/v2.0.0.html) format. `nil` if unknown (never got a version).
-    public var compilerVersion: EventLoopFuture<String?> {
+    @available(macOS 12.0.0, *)
+    public var compilerVersion: String? {
+        get async {
+            try! await compilerVersionFuture.get()
+        }
+    }
+
+    /// A future evaluating to the version of the underlying Sass implementation.
+    ///
+    /// See `compilerVersion`.
+    public var compilerVersionFuture: EventLoopFuture<String?> {
         versionsFuture.map { $0?.compilerVersionString }
     }
 
     /// The version of the package implementing the compiler side of the embedded Sass protocol.
     /// Probably in [semver](https://semver.org/spec/v2.0.0.html) format.
     /// `nil` if unknown (never got a version).
-    public var compilerPackageVersion: EventLoopFuture<String?> {
+    @available(macOS 12.0.0, *)
+    public var compilerPackageVersion: String? {
+        get async {
+            try! await compilerPackageVersionFuture.get()
+        }
+    }
+
+    /// A future evaluating to the version of the package implementing the compiler side of the
+    /// embedded Sass protocol.
+    ///
+    /// See `compilerPackageVersion`.
+    public var compilerPackageVersionFuture: EventLoopFuture<String?> {
         versionsFuture.map { $0?.packageVersionString }
     }
 
@@ -332,7 +394,49 @@ public final class Compiler {
         Compiler.logger.debug(.init(stringLiteral: msg()))
     }
 
-    /// Asynchronous version of `compile(fileURL:outputStyle:sourceMapStyle:importers:functions:)`.
+    /// Compile to CSS from a stylesheet file.
+    ///
+    /// - parameters:
+    ///   - fileURL: The URL of the file to compile.  The file extension determines the
+    ///     expected syntax of the contents, so it must be css/scss/sass.
+    ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
+    ///   - sourceMapStyle: Kind of source map to create for the CSS.  Default `.separateSources`.
+    ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
+    ///     `fileURL`'s directory and any set globally..  Default none.
+    ///   - functions: Functions for this compilation, overriding any with the same name previously
+    ///     set globally. Default none.
+    /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
+    ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
+    /// - returns: `CompilerResults` with CSS and optional source map.
+    @available(macOS 12.0.0, *)
+    public func compile(fileURL: URL,
+                        outputStyle: CssStyle = .expanded,
+                        sourceMapStyle: SourceMapStyle = .separateSources,
+                        importers: [ImportResolver] = [],
+                        functions: SassFunctionMap = [:]) async throws -> CompilerResults {
+        try await compileAsync(fileURL: fileURL,
+                               outputStyle: outputStyle,
+                               sourceMapStyle: sourceMapStyle,
+                               importers: importers,
+                               functions: .init(functions)).get()
+    }
+
+    /// Synchronously compile to CSS from a stylesheet file.
+    ///
+    /// See `compile(fileURL:outputStyle:sourceMapStyle:importers:functions:)`.
+    public func compile(fileURL: URL,
+                        outputStyle: CssStyle = .expanded,
+                        sourceMapStyle: SourceMapStyle = .separateSources,
+                        importers: [ImportResolver] = [],
+                        functions: SassFunctionMap = [:]) throws -> CompilerResults {
+        try compileAsync(fileURL: fileURL,
+                         outputStyle: outputStyle,
+                         sourceMapStyle: sourceMapStyle,
+                         importers: importers,
+                         functions: .init(functions)).wait()
+    }
+
+    /// NIO-style asynchronous version of `compile(fileURL:outputStyle:sourceMapStyle:importers:functions:)`.
     public func compileAsync(fileURL: URL,
                              outputStyle: CssStyle = .expanded,
                              sourceMapStyle: SourceMapStyle = .separateSources,
@@ -349,33 +453,65 @@ public final class Compiler {
         }
     }
 
-    /// Compile to CSS from a stylesheet file.
+    /// Compile to CSS from an inline stylesheet.
     ///
     /// - parameters:
-    ///   - fileURL: The URL of the file to compile.  The file extension determines the
-    ///     expected syntax of the contents, so it must be css/scss/sass.
+    ///   - string: The stylesheet text to compile.
+    ///   - syntax: The syntax of `string`, default `.scss`.
+    ///   - url: The absolute URL to associate with `string`, from where it was loaded.
+    ///     Default `nil` meaning unknown.
+    ///   - importer: Rule to resolve `@import` etc. from `string` relative to `url`.  Default `nil`
+    ///     meaning the current filesystem directory is used.
     ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
     ///   - sourceMapStyle: Kind of source map to create for the CSS.  Default `.separateSources`.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
-    ///     `fileURL`'s directory and any set globally..  Default none.
+    ///     any set globally.  Default none.
     ///   - functions: Functions for this compilation, overriding any with the same name previously
-    ///     set globally. Default none.
+    ///     set globally.  Default none.
     /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
     ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
     /// - returns: `CompilerResults` with CSS and optional source map.
-    public func compile(fileURL: URL,
+    @available(macOS 12.0.0, *)
+    public func compile(string: String,
+                        syntax: Syntax = .scss,
+                        url: URL? = nil,
+                        importer: ImportResolver? = nil,
+                        outputStyle: CssStyle = .expanded,
+                        sourceMapStyle: SourceMapStyle = .separateSources,
+                        importers: [ImportResolver] = [],
+                        functions: SassFunctionMap = [:]) async throws -> CompilerResults {
+        try await compileAsync(string: string,
+                               syntax: syntax,
+                               url: url,
+                               importer: importer,
+                               outputStyle: outputStyle,
+                               sourceMapStyle: sourceMapStyle,
+                               importers: importers,
+                               functions: .init(functions)).get()
+    }
+
+    /// Synchronously compile to CSS from an inline stylesheet.
+    ///
+    /// See `compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)`.
+    public func compile(string: String,
+                        syntax: Syntax = .scss,
+                        url: URL? = nil,
+                        importer: ImportResolver? = nil,
                         outputStyle: CssStyle = .expanded,
                         sourceMapStyle: SourceMapStyle = .separateSources,
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) throws -> CompilerResults {
-        try compileAsync(fileURL: fileURL,
+        try compileAsync(string: string,
+                         syntax: syntax,
+                         url: url,
+                         importer: importer,
                          outputStyle: outputStyle,
                          sourceMapStyle: sourceMapStyle,
                          importers: importers,
                          functions: .init(functions)).wait()
     }
 
-    /// Asynchronous version of `compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)`.
+    /// NIO-style asynchronous version of `compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)`.
     public func compileAsync(string: String,
                              syntax: Syntax = .scss,
                              url: URL? = nil,
@@ -406,42 +542,6 @@ public final class Compiler {
     // but the child process's CWD could be different to ours - so we can't let it resolve.
     private func findImplicitImporter(importer: ImportResolver?) -> ImportResolver {
         importer ?? .loadPath(URL(fileURLWithPath: FileManager.default.currentDirectoryPath))
-    }
-
-    /// Compile to CSS from an inline stylesheet.
-    ///
-    /// - parameters:
-    ///   - string: The stylesheet text to compile.
-    ///   - syntax: The syntax of `string`, default `.scss`.
-    ///   - url: The absolute URL to associate with `string`, from where it was loaded.
-    ///     Default `nil` meaning unknown.
-    ///   - importer: Rule to resolve `@import` etc. from `string` relative to `url`.  Default `nil`
-    ///     meaning the current filesystem directory is used.
-    ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
-    ///   - sourceMapStyle: Kind of source map to create for the CSS.  Default `.separateSources`.
-    ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
-    ///     any set globally.  Default none.
-    ///   - functions: Functions for this compilation, overriding any with the same name previously
-    ///     set globally.  Default none.
-    /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
-    ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
-    /// - returns: `CompilerResults` with CSS and optional source map.
-    public func compile(string: String,
-                        syntax: Syntax = .scss,
-                        url: URL? = nil,
-                        importer: ImportResolver? = nil,
-                        outputStyle: CssStyle = .expanded,
-                        sourceMapStyle: SourceMapStyle = .separateSources,
-                        importers: [ImportResolver] = [],
-                        functions: SassFunctionMap = [:]) throws -> CompilerResults {
-        try compileAsync(string: string,
-                         syntax: syntax,
-                         url: url,
-                         importer: importer,
-                         outputStyle: outputStyle,
-                         sourceMapStyle: sourceMapStyle,
-                         importers: importers,
-                         functions: .init(functions)).wait()
     }
 
     /// Consider the pending work queue.  When we change `state` or add to `pendingCompilations`.`

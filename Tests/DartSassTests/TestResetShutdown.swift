@@ -12,21 +12,22 @@ import NIO
 ///
 /// Tests around resets, timeouts, and shutdown.
 ///
+@available(macOS 12.0.0, *)
 class TestResetShutdown: DartSassTestCase {
     // Clean restart case
-    func testCleanRestart() throws {
+    func testCleanRestart() async throws {
         let compiler = try newCompiler()
-        compiler.sync()
+        await compiler.sync()
         XCTAssertEqual(1, compiler.startCount)
 
-        XCTAssertNoThrow(try compiler.reinit().wait())
+        await XCTAssertNoThrowA(try await compiler.reinit())
         XCTAssertEqual(2, compiler.startCount)
     }
 
     // Deal with missing child & SIGPIPE-avoidance measures
-    func testChildTermination() throws {
+    func testChildTermination() async throws {
         let compiler = try newCompiler()
-        let rc = kill(try compiler.compilerProcessIdentifier.wait()!, SIGTERM)
+        let rc = kill(await compiler.compilerProcessIdentifier!, SIGTERM)
         XCTAssertEqual(0, rc)
         print("XCKilled compiler process")
         checkProtocolError(compiler)
@@ -68,7 +69,7 @@ class TestResetShutdown: DartSassTestCase {
     }
 
     // Test the 'compiler will not restart' corner
-    func testUnrestartableCompiler() throws {
+    func testUnrestartableCompiler() async throws {
         let tmpDir = try FileManager.default.createTemporaryDirectory()
         let realHeadURL = URL(fileURLWithPath: "/usr/bin/tail")
         let tmpHeadURL = tmpDir.appendingPathComponent("tail")
@@ -79,7 +80,7 @@ class TestResetShutdown: DartSassTestCase {
                                    timeout: 1)
         badCompiler.versionsResponder = TestVersionsResponder()
         compilersToShutdown.append(badCompiler)
-        badCompiler.sync()
+        await badCompiler.sync()
 
         // it's now running using the copied program
         try FileManager.default.removeItem(at: tmpHeadURL)
@@ -103,6 +104,7 @@ class TestResetShutdown: DartSassTestCase {
         }
     }
 
+    /// Data structure to manage the NIO-style DIspatchQ shutdown dance
     final class CompilerShutdowner {
         let compiler: Compiler
         var callbackMade: Bool
@@ -130,20 +132,21 @@ class TestResetShutdown: DartSassTestCase {
         }
     }
 
-    func testGracefulShutdown() throws {
+    func testGracefulShutdown() async throws {
         let compiler = try newCompiler()
 
-        // Regular async shutdown
+        // NIO-style async shutdown
         CompilerShutdowner(compiler).start().wait()
 
         // No child process
-        XCTAssertNil(try compiler.compilerProcessIdentifier.wait())
+        let pid = await compiler.compilerProcessIdentifier
+        XCTAssertNil(pid)
 
-        // Shutdown again is OK
-        CompilerShutdowner(compiler).start().wait()
+        // Shutdown again is OK, native this time
+        try await compiler.shutdownGracefully()
 
         // Reinit is not OK
-        XCTAssertThrowsError(try compiler.reinit().wait())
+        await XCTAssertThrowsErrorA(try await compiler.reinit())
 
         // Compilation is not OK
         XCTAssertThrowsError(try checkCompilerWorking(compiler))

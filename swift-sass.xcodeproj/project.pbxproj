@@ -62,6 +62,7 @@
 		02CEF36F270F569A007DBDB7 /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF36E270F569A007DBDB7 /* Calculation.swift */; };
 		02CEF371270F5806007DBDB7 /* TestCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF370270F5806007DBDB7 /* TestCalculation.swift */; };
 		02CEF373271455B6007DBDB7 /* ProtobufValueConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF372271455B6007DBDB7 /* ProtobufValueConversion.swift */; };
+		02CB4F6426D7A32200B15D7C /* _NIOConcurrency in Frameworks */ = {isa = PBXBuildFile; productRef = 02CB4F6326D7A32200B15D7C /* _NIOConcurrency */; };
 		02D1B25026C7D377006B2CB1 /* ArgumentList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D1B24F26C7D377006B2CB1 /* ArgumentList.swift */; };
 		02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 02E0ED7E2586172C0080E954 /* SwiftProtobuf */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
@@ -221,6 +222,7 @@
 				02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */,
 				02A1A99125B774420045E28F /* Semver in Frameworks */,
 				02A346E9257AAE3D00A14905 /* Logging in Frameworks */,
+				02CB4F6426D7A32200B15D7C /* _NIOConcurrency in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -482,6 +484,7 @@
 				02A346E8257AAE3D00A14905 /* Logging */,
 				02E0ED7E2586172C0080E954 /* SwiftProtobuf */,
 				02A1A99025B774420045E28F /* Semver */,
+				02CB4F6326D7A32200B15D7C /* _NIOConcurrency */,
 			);
 			productName = DartSass;
 			productReference = "swift-sass::DartSass::Product" /* DartSass.framework */;
@@ -1383,6 +1386,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 02A346E7257AAE3D00A14905 /* XCRemoteSwiftPackageReference "swift-log" */;
 			productName = Logging;
+		};
+		02CB4F6326D7A32200B15D7C /* _NIOConcurrency */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = _NIOConcurrency;
 		};
 		02E0ED7E2586172C0080E954 /* SwiftProtobuf */ = {
 			isa = XCSwiftPackageProductDependency;

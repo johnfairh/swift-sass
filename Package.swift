@@ -1,4 +1,4 @@
-// swift-tools-version:5.4
+// swift-tools-version:5.5
 
 import PackageDescription
 
@@ -51,6 +51,7 @@ let package = Package(
               condition: .when(platforms: [.linux])),
           .product(name: "SwiftProtobuf", package: "SwiftProtobuf"),
           .product(name: "NIO", package: "swift-nio"),
+          .product(name: "_NIOConcurrency", package: "swift-nio"),
           .product(name: "NIOFoundationCompat", package: "swift-nio"),
           .product(name: "Logging", package: "swift-log"),
           .product(name: "Semver", package: "Semver"),

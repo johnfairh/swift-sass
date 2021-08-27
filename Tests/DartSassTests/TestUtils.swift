@@ -174,3 +174,51 @@ struct TestVersionsResponder: VersionsResponder {
         }
     }
 }
+
+extension XCTest {
+    @available(macOS 12.0.0, *)
+    func XCTAssertThrowsErrorA<T>(
+        _ expression: @autoclosure () async throws -> T,
+        _ message: @autoclosure () -> String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line,
+        _ errorHandler: (_ error: Error) -> Void = { _ in }
+    ) async {
+        do {
+            _ = try await expression()
+            XCTFail(message(), file: file, line: line)
+        } catch {
+            errorHandler(error)
+        }
+    }
+
+    @available(macOS 12.0.0, *)
+    func XCTAssertNoThrowA<T>(
+        _ expression: @autoclosure () async throws -> T,
+        _ message: @autoclosure () -> String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) async {
+        do {
+            _ = try await expression()
+        } catch {
+            XCTFail(message(), file: file, line: line)
+        }
+    }
+
+    @available(macOS 12.0.0, *)
+    func XCTUnwrapA<T>(
+        _ expression: @autoclosure () async throws -> T?,
+        _ message: @autoclosure () -> String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) async throws -> T {
+        guard let t = try await expression() else {
+            XCTFail("Unexpectedly nil")
+            throw AsyncUnwrapError()
+        }
+        return t
+    }
+}
+
+struct AsyncUnwrapError: Error {}
