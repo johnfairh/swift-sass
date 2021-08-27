@@ -134,19 +134,18 @@ class TestProtocolErrors: DartSassTestCase {
 
     func checkBadMessage(_ msg: Sass_EmbeddedProtocol_OutboundMessage, _ errStr: String) async throws {
         let importer = HangingAsyncImporter()
+
         let compiler = try newCompiler(importers: [
             .importer(importer),
             .loadPath(URL(fileURLWithPath: "/tmp"))
         ])
-        let hangDone = importer.hangLoad(eventLoop: compiler.eventLoop)
 
-        let compilerResults = compiler.compileAsync(string: "@import 'something';")
-        _ = try hangDone.wait()
+        importer.onLoadHang = {
+            await compiler.receive(message: msg)
+        }
 
-        await compiler.receive(message: msg)
-        try importer.resumeLoad()
         do {
-            let results = try compilerResults.wait()
+            let results = try await compiler.compile(string: "@import 'something';")
             XCTFail("Managed to compile: \(results)")
         } catch let error as ProtocolError {
             print(error)

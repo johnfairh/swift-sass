@@ -155,6 +155,9 @@ final class CompilerWork {
         return promise.futureResult
     }
 
+    /// Test hook
+    static var onStuckQuiesce: (() -> Void)? = nil
+
     /// Nudge the quiesce process.
     private func kickQuiesce() {
         if let quiescePromise = quiescePromise {
@@ -163,6 +166,7 @@ final class CompilerWork {
                 quiescePromise.succeed(())
             } else {
                 Compiler.logger.debug("Waiting for outstanding requests: \(activeRequests.count)")
+                CompilerWork.onStuckQuiesce?()
             }
         }
     }

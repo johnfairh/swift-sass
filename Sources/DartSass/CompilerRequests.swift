@@ -275,7 +275,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     static let baseImporterID = UInt32(4000)
 
     /// Helper
-    private func getImporter(importerID: UInt32) throws -> Importer {
+    private func getImporter(importerID: UInt32) throws -> ImporterNIO {
         let minImporterID = CompilationRequest.baseImporterID
         let maxImporterID = minImporterID + UInt32(importers.count) - 1
         guard importerID >= minImporterID, importerID <= maxImporterID else {
@@ -405,11 +405,45 @@ final class CompilationRequest: ManagedCompilerRequest {
 }
 
 private extension ImportResolver {
-    var importer: Importer? {
+    var importer: ImporterNIO? {
         switch self {
-        case .loadPath(_): return nil
-        case .importer(let i): return i
+        case .loadPath: return nil
+        case .importerNIO(let i): return i
+        case .importer(let i): return ImporterNIOAdapter(i)
         }
+    }
+}
+
+/// While the core of this module uses NIO, which is until async-await is everywhere, and
+/// while we support a NIO interface, which is until the same, this struct provides a bridge
+/// from a nice async-await client into the NIO world.
+///
+/// The client can only exist on macOS12 so it's fine that the code doesn't work too well
+/// if the #available(macOS 12) tests fail -- we never get this far.
+struct ImporterNIOAdapter: ImporterNIO {
+    let importer: Importer
+    init(_ importer: Importer) {
+        self.importer = importer
+    }
+
+    func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
+        let promise = eventLoop.makePromise(of: Optional<URL>.self)
+        if #available(macOS 12.0.0, *) {
+            promise.completeWithAsync {
+                try await importer.canonicalize(ruleURL: ruleURL, fromImport: fromImport)
+            }
+        }
+        return promise.futureResult
+    }
+
+    func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
+        let promise = eventLoop.makePromise(of: ImporterResults.self)
+        if #available(macOS 12.0.0, *) {
+            promise.completeWithAsync {
+                try await importer.load(canonicalURL: canonicalURL)
+            }
+        }
+        return promise.futureResult
     }
 }
 

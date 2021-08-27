@@ -99,7 +99,6 @@ public protocol Importer {
     /// happens to be called with a resource's canonical URL (including something
     /// the routine previously returned) then it must be returned unchanged.
     ///
-    /// - parameter eventLoop: The current event loop.
     /// - parameter ruleURL: The text following `@import` or `@use` in
     ///   a stylesheet.
     /// - parameter fromImport: Whether this request comes from an `@import` rule.
@@ -112,16 +111,27 @@ public protocol Importer {
     ///   anything then the importer should return `nil` instead.
     ///
     ///   Compilation will stop, quoting the description of the error thrown as the reason.
-    func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?>
+    @available(macOS 12.0.0, *)
+    func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL?
 
     /// Load a stylesheet from a canonical URL
     ///
-    /// - parameter eventLoop: The current event loop.
     /// - parameter canonicalURL: A URL previously returned by
     ///   `canonicalize(...)` during this compilation.
     /// - returns: The stylesheet and optional source map.
     /// - throws: If the stylesheet cannot be loaded.  Compilation will stop, quoting
     ///   the description of this error as the reason.
+    @available(macOS 12.0.0, *)
+    func load(canonicalURL: URL) async throws -> ImporterResults
+}
+
+/// Methods required to implement a stylesheet importer - NIO-style.
+///
+/// See `Importer`.
+public protocol ImporterNIO {
+    /// NIO-style version of `Importer.canonicalize(...)`.
+    func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?>
+    /// NIO-style version of `Importer.load(...)`.
     func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults>
 }
 
@@ -131,4 +141,6 @@ public enum ImportResolver {
     case loadPath(URL)
     /// Call back through the `Importer` to resolve the rule.
     case importer(Importer)
+    /// Call back through the `ImporterNIO` to resolve the rule.
+    case importerNIO(ImporterNIO)
 }

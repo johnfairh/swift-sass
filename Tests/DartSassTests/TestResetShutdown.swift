@@ -172,20 +172,32 @@ class TestResetShutdown: DartSassTestCase {
     }
 
     // Quiesce delayed by client-side activity
-    func testClientStuckReset() throws {
+    func testClientStuckReset() async throws {
         let importer = HangingAsyncImporter()
         let compiler = try newCompiler(importers: [.importer(importer)])
-        let hangDone = importer.hangLoad(eventLoop: compiler.eventLoop)
-        let compilerResults = compiler.compileAsync(string: "@import 'something';")
-        _ = try hangDone.wait()
-        XCTAssertNotNil(importer.loadPromise)
-        // now we're all stuck waiting for the client
-        let resetDone = compiler.reinit()
-        // hacky delay to let the event loop run down
-        try compiler.eventLoop.scheduleTask(in: .milliseconds(Int64(200)), {}).futureResult.wait()
-        try importer.resumeLoad()
-        try resetDone.wait()
-        XCTAssertThrowsError(try compilerResults.wait())
+
+        importer.onLoadHang = {
+            await withCheckedContinuation { continuation in
+                CompilerWork.onStuckQuiesce = {
+                    CompilerWork.onStuckQuiesce = nil
+                    continuation.resume()
+                }
+                Task {
+                    try await compiler.reinit()
+                }
+            }
+        }
+
+        do {
+            let r = try await compiler.compile(string: "@import 'something';")
+            XCTFail("It worked?! \(r)")
+        } catch {
+            // Don't normally check for text but so hard to see if this test has
+            // actually worked otherwise.
+            XCTAssertEqual("User requested Sass compiler be reinitialized", "\(error)")
+        }
+
+        try checkCompilerWorking(compiler)
     }
 
     // Internal eventloopgroup

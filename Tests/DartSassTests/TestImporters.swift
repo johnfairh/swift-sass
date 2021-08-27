@@ -13,6 +13,7 @@ import SourceMapper
 ///
 /// Tests for importers.
 ///
+@available(macOS 12.0.0, *)
 class TestImporters: DartSassTestCase {
 
     // MARK: Load Paths
@@ -97,8 +98,8 @@ class TestImporters: DartSassTestCase {
 
     // MARK: Custom Importers
 
-    // A custom importer
-    final class TestImporter: Importer {
+    // A custom importer using the NIO API
+    final class TestImporter: ImporterNIO {
         let css: String
 
         init(css: String) {
@@ -148,7 +149,7 @@ class TestImporters: DartSassTestCase {
     // Goodpath.
     func testCustomImporter() throws {
         let importer = TestImporter(css: secondaryCssRed)
-        let compiler = try newCompiler(importers: [.importer(importer)])
+        let compiler = try newCompiler(importers: [.importerNIO(importer)])
         let results = try compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssRed, results.css)
         XCTAssertEqual("test://secondary", results.loadedURLs.first!.absoluteString)
@@ -158,7 +159,7 @@ class TestImporters: DartSassTestCase {
     func checkFaultyImporter(customize: (TestImporter) -> Void, check: (TestImporter, CompilerError) -> Void) throws {
         let importer = TestImporter(css: secondaryCssRed)
         customize(importer)
-        let compiler = try newCompiler(importers: [.importer(importer)])
+        let compiler = try newCompiler(importers: [.importerNIO(importer)])
         do {
             let results = try compiler.compile(string: usingSass, syntax: .sass)
             XCTFail("Compiled something: \(results)")
@@ -207,7 +208,7 @@ class TestImporters: DartSassTestCase {
         let compiler = try newCompiler()
         let results = try compiler.compile(string: "@import 'something';",
                                            url: URL(string: "test://vfs"),
-                                           importer: .importer(importer),
+                                           importer: .importerNIO(importer),
                                            outputStyle: .compressed)
         XCTAssertEqual("a{color:red}", results.css)
         XCTAssertEqual(2, results.loadedURLs.count)
@@ -231,15 +232,15 @@ class TestImporters: DartSassTestCase {
                 XCTAssertTrue(wasInvoked)
             }
 
-            func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
+            func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL? {
                 XCTAssertFalse(wasInvoked)
                 wasInvoked = true
                 XCTAssertEqual(expectFromImport, fromImport)
-                return eventLoop.makeSucceededFuture(URL(string: "test://\(ruleURL)"))
+                return URL(string: "test://\(ruleURL)")
             }
 
-            func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
-                return eventLoop.makeSucceededFuture(ImporterResults("", syntax: .css, sourceMapURL: canonicalURL))
+            func load(canonicalURL: URL) async throws -> ImporterResults {
+                ImporterResults("", syntax: .css, sourceMapURL: canonicalURL)
             }
         }
         let importer = FromImportTester()
@@ -257,7 +258,7 @@ class TestImporters: DartSassTestCase {
     // multiple imports, loaded
     func testMultipleLoadedURLs() throws {
         let importer = TestImporter(css: "a { b: 'c' }")
-        let compiler = try newCompiler(importers: [.importer(importer)])
+        let compiler = try newCompiler(importers: [.importerNIO(importer)])
         let rootURL = URL(string: "original://file")!
         let scss = """
                    @import 'first';

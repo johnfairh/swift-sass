@@ -13,6 +13,7 @@ import NIO
 /// Tests for compiler error decoding and transmission.
 /// Plus warnings etc.
 ///
+@available(macOS 12.0.0, *)
 class TestCompilerErrors: DartSassTestCase {
     let badSass = """
     @mixin reflexive-position($property, $value)
@@ -262,6 +263,7 @@ class TestCompilerErrors: DartSassTestCase {
     }
 }
 
+@available(macOS 12.0.0, *)
 final class StaticImporter: Importer {
     private let scss: String
 
@@ -269,11 +271,11 @@ final class StaticImporter: Importer {
         self.scss = scss
     }
 
-    func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
-        eventLoop.makeSucceededFuture(URL(string: "static://\(ruleURL)"))
+    func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL? {
+        URL(string: "static://\(ruleURL)")
     }
 
-    func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
-        eventLoop.makeSucceededFuture(ImporterResults(scss))
+    func load(canonicalURL: URL) async throws -> ImporterResults {
+        ImporterResults(scss)
     }
 }

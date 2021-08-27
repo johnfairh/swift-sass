@@ -121,36 +121,25 @@ extension URL {
 
 /// An async importer that can be stopped in `load`.
 /// Accepts all `import` URLs and returns empty documents.
+@available(macOS 12.0.0, *)
 final class HangingAsyncImporter: Importer {
-    func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
-        return eventLoop.makeSucceededFuture(URL(string: "custom://\(ruleURL)"))
+
+    var onLoadHang: (() async -> Void)?
+
+    init() {
+        self.onLoadHang = nil
     }
 
-    var hangNextLoad: Bool { hangPromise != nil }
-    private var hangPromise: EventLoopPromise<Void>? = nil
-    var loadPromise: EventLoopPromise<ImporterResults>? = nil
-
-    func hangLoad(eventLoop: EventLoop) -> EventLoopFuture<Void> {
-        hangPromise = eventLoop.makePromise(of: Void.self)
-        return hangPromise!.futureResult
+    func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL? {
+        URL(string: "custom://\(ruleURL)")
     }
 
-    func resumeLoad() throws {
-        let promise = try XCTUnwrap(loadPromise)
-        promise.succeed(.init(""))
-        loadPromise = nil
-    }
-
-    func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
-        let promise = eventLoop.makePromise(of: ImporterResults.self)
-        if hangNextLoad {
-            loadPromise = promise
-            hangPromise?.succeed(())
-            hangPromise = nil
-        } else {
-            promise.succeed(.init(""))
+    func load(canonicalURL: URL) async throws -> ImporterResults {
+        if let onLoadHang = onLoadHang {
+            await onLoadHang()
+            self.onLoadHang = nil
         }
-        return promise.futureResult
+        return ImporterResults("")
     }
 }
 
