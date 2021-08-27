@@ -32,13 +32,17 @@ class DartSassTestCase: XCTestCase {
     }
 
     func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap = [:]) throws -> Compiler {
-        return try newCompiler(importers: importers, asyncFunctions: SassAsyncFunctionMap(functions))
+        return try newCompiler(importers: importers, functions: .sync(functions))
     }
 
-    func newCompiler(importers: [ImportResolver] = [], asyncFunctions: SassAsyncFunctionMap) throws -> Compiler {
+    func newCompiler(importers: [ImportResolver] = [], functions: SassAsyncFunctionMap = [:]) throws -> Compiler {
+        return try newCompiler(importers: importers, functions: .async(functions))
+    }
+
+    func newCompiler(importers: [ImportResolver] = [], functions: SassFunctions) throws -> Compiler {
         let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
                              importers: importers,
-                             functions: asyncFunctions)
+                             functions: functions)
         compilersToShutdown.append(c)
         return c
     }

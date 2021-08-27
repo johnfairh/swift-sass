@@ -169,7 +169,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     // Compilation-specific
     let compileReq: Sass_EmbeddedProtocol_InboundMessage.CompileRequest
     private let importers: [ImportResolver]
-    private let functions: SassAsyncFunctionMap
+    private let functions: SassAsyncFunctionNIOMap
     private var messages: [CompilerMessage]
 
     var requestID: UInt32 {
@@ -184,7 +184,7 @@ final class CompilationRequest: ManagedCompilerRequest {
          settings: CompilerWork.Settings,
          importers: [ImportResolver],
          stringImporter: ImportResolver?,
-         functionsMap: [SassFunctionSignature : (String, SassAsyncFunction)]) {
+         functionsMap: [SassFunctionSignature : (String, SassAsyncFunctionNIO)]) {
         var firstFreeImporterID = CompilationRequest.baseImporterID
         if let stringImporter = stringImporter {
             self.importers = [stringImporter] + importers
@@ -350,7 +350,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     /// Inbound 'FunctionCallRequest' handler
     private func receive(functionCallRequest req: OBM.FunctionCallRequest) throws -> EventLoopFuture<IBM?> {
         /// Helper to run the callback after we locate it
-        func doSassFunction(_ fn: @escaping SassAsyncFunction) throws -> EventLoopFuture<IBM?> {
+        func doSassFunction(_ fn: @escaping SassAsyncFunctionNIO) throws -> EventLoopFuture<IBM?> {
             var rsp = IBM.FunctionCallResponse.with { $0.id = req.id }
 
             // Set up to monitor accesses to any `SassArgumentList`s
@@ -387,7 +387,12 @@ final class CompilationRequest: ManagedCompilerRequest {
             guard let sassDynamicFunc = SassDynamicFunction.lookUp(id: id) else {
                 throw ProtocolError("Host function ID=\(id) not registered.")
             }
-            if let asyncDynamicFunc = sassDynamicFunc as? SassAsyncDynamicFunction {
+            if #available(macOS 12.0, *) {
+                if let asyncFunc = sassDynamicFunc as? SassAsyncDynamicFunction {
+                    return try doSassFunction(AsyncFunctionAdapter(asyncFunc.asyncFunction))
+                }
+            }
+            if let asyncDynamicFunc = sassDynamicFunc as? SassAsyncDynamicFunctionNIO {
                 return try doSassFunction(asyncDynamicFunc.asyncFunction)
             }
             return try doSassFunction(SyncFunctionAdapter(sassDynamicFunc.function))
@@ -420,7 +425,7 @@ private extension ImportResolver {
 ///
 /// The client can only exist on macOS12 so it's fine that the code doesn't work too well
 /// if the #available(macOS 12) tests fail -- we never get this far.
-struct ImporterNIOAdapter: ImporterNIO {
+private struct ImporterNIOAdapter: ImporterNIO {
     let importer: Importer
     init(_ importer: Importer) {
         self.importer = importer

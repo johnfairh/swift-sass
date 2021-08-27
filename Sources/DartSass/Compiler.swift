@@ -144,7 +144,7 @@ public final class Compiler {
                             verboseDeprecations: Bool = false,
                             suppressDependencyWarnings: Bool = false,
                             importers: [ImportResolver] = [],
-                            functions: SassAsyncFunctionMap = [:]) throws {
+                            functions: SassFunctions = .sync([:])) throws {
         let url = try DartSassEmbedded.getURL()
         self.init(eventLoopGroupProvider: eventLoopGroupProvider,
                   embeddedCompilerFileURL: url,
@@ -189,7 +189,7 @@ public final class Compiler {
                 verboseDeprecations: Bool = false,
                 suppressDependencyWarnings: Bool = false,
                 importers: [ImportResolver] = [],
-                functions: SassAsyncFunctionMap = [:]) {
+                functions: SassFunctions = .sync([:])) {
         precondition(embeddedCompilerFileURL.isFileURL, "Not a file URL: \(embeddedCompilerFileURL)")
         self.eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider)
         eventLoop = self.eventLoopGroup.next()
@@ -207,7 +207,7 @@ public final class Compiler {
                                             verboseDeprecations: verboseDeprecations,
                                             suppressDependencyWarnings: suppressDependencyWarnings),
                             importers: importers,
-                            functions: functions)
+                            functions: .init(functions))
         state.toInitializing(startCompiler())
     }
 
@@ -413,7 +413,7 @@ public final class Compiler {
                         outputStyle: CssStyle = .expanded,
                         sourceMapStyle: SourceMapStyle = .separateSources,
                         importers: [ImportResolver] = [],
-                        functions: SassFunctionMap = [:]) async throws -> CompilerResults {
+                        functions: SassAsyncFunctionMap = [:]) async throws -> CompilerResults {
         try await compileAsync(fileURL: fileURL,
                                outputStyle: outputStyle,
                                sourceMapStyle: sourceMapStyle,
@@ -441,7 +441,7 @@ public final class Compiler {
                              outputStyle: CssStyle = .expanded,
                              sourceMapStyle: SourceMapStyle = .separateSources,
                              importers: [ImportResolver] = [],
-                             functions: SassAsyncFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
+                             functions: SassAsyncFunctionNIOMap = [:]) -> EventLoopFuture<CompilerResults> {
         eventLoop.flatSubmit { [self] in
             defer { kickPendingCompilations() }
             return work.addPendingCompilation(
@@ -479,7 +479,7 @@ public final class Compiler {
                         outputStyle: CssStyle = .expanded,
                         sourceMapStyle: SourceMapStyle = .separateSources,
                         importers: [ImportResolver] = [],
-                        functions: SassFunctionMap = [:]) async throws -> CompilerResults {
+                        functions: SassAsyncFunctionMap = [:]) async throws -> CompilerResults {
         try await compileAsync(string: string,
                                syntax: syntax,
                                url: url,
@@ -519,7 +519,7 @@ public final class Compiler {
                              outputStyle: CssStyle = .expanded,
                              sourceMapStyle: SourceMapStyle = .separateSources,
                              importers: [ImportResolver] = [],
-                             functions: SassAsyncFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
+                             functions: SassAsyncFunctionNIOMap = [:]) -> EventLoopFuture<CompilerResults> {
         eventLoop.flatSubmit { [self] in
             defer { kickPendingCompilations() }
             return work.addPendingCompilation(

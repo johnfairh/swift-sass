@@ -13,6 +13,7 @@ import XCTest
 /// Tests for custom functions.
 ///  - SassTests covers the base `SassValue` hierarchy.
 ///  - We don't need to test the compiler's implementation of this flow, just our side.
+@available(macOS 12.0, *)
 class TestFunctions: DartSassTestCase {
 
     // (String) values go back and forth
@@ -58,20 +59,20 @@ class TestFunctions: DartSassTestCase {
 
     // Local func overrides global
 
-    let globalOverrideFunction: SassFunctionMap = [
-        "ofunc($param)" : { _ in
-            return SassString("bucket")
+    let globalOverrideFunction: SassAsyncFunctionNIOMap = [
+        "ofunc($param)" : { eventLoop, args in
+            eventLoop.makeSucceededFuture(SassString("bucket"))
         }
     ]
 
     let localOverrideFunction: SassFunctionMap = [
         "ofunc()" : { _ in
-            return SassString("goat")
+            SassString("goat")
         }
     ]
 
     func testOverride() throws {
-        let compiler = try newCompiler(functions: globalOverrideFunction)
+        let compiler = try newCompiler(functions: .asyncNIO(globalOverrideFunction))
 
         let results = try compiler.compile(string: "a { a: ofunc() }", outputStyle: .compressed, functions: localOverrideFunction)
         XCTAssertEqual(#"a{a:"goat"}"#, results.css)
@@ -283,26 +284,22 @@ class TestFunctions: DartSassTestCase {
     }
 
     let slowEchoFunction: SassAsyncFunctionMap = [
-        "slowEcho($param)" : { eventLoop, args in
-            eventLoop.scheduleTask(in: .seconds(1)) { () -> SassValue in
-                let str = try args[0].asString()
-                return str
-            }.futureResult
+        "slowEcho($param)" : { args in
+            try? await Task.sleep(nanoseconds: 1 * 1000 * 1000 * 1000)
+            return try args[0].asString()
         }
     ]
 
     func testAsyncHostFunction() throws {
-        let compiler = try newCompiler(asyncFunctions: slowEchoFunction)
+        let compiler = try newCompiler(functions: slowEchoFunction)
         let results = try compiler.compile(string: "a { a: slowEcho('fish') }", outputStyle: .compressed)
         XCTAssertEqual(#"a{a:"fish"}"#, results.css)
     }
 
     func testAsyncDynamicFunction() throws {
         let fishMakerMaker: SassFunction = { args in
-            return SassAsyncDynamicFunction(signature: "myFish()") { eventLoop, args in
-                eventLoop.submit {
-                    SassString("plaice")
-                }
+            SassAsyncDynamicFunction(signature: "myFish()") { args in
+                SassString("plaice")
             }
         }
 
@@ -319,7 +316,28 @@ class TestFunctions: DartSassTestCase {
         ])
         let results = try compiler.compile(string: scss, outputStyle: .compressed)
         XCTAssertEqual(#"a{b:"plaice"}"#, results.css)
+    }
 
+    func testAsyncNIODynamicFunction() throws {
+        let fishMakerMaker: SassFunction = { args in
+            SassAsyncDynamicFunctionNIO(signature: "myFish()") { eventLoop, args in
+                eventLoop.makeSucceededFuture(SassString("plaice"))
+            }
+        }
+
+        let scss = """
+        @use "sass:meta";
+
+        a {
+          b: meta.call(getFishMaker());
+        }
+        """
+
+        let compiler = try newCompiler(functions: [
+            "getFishMaker()" : fishMakerMaker
+        ])
+        let results = try compiler.compile(string: scss, outputStyle: .compressed)
+        XCTAssertEqual(#"a{b:"plaice"}"#, results.css)
     }
 
     /// ArgumentList
