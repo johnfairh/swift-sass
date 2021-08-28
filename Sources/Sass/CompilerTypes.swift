@@ -15,7 +15,7 @@ import Foundation
 // Sass compiler interface types, shared between embedded Sass and libsass.
 
 /// How the Sass compiler should format the CSS it produces.
-public enum CssStyle {
+public enum CssStyle: Sendable {
     /// Each selector and declaration is written on its own line.
     case expanded
 
@@ -33,7 +33,7 @@ public enum CssStyle {
 }
 
 /// The [syntax used for a stylesheet](https://sass-lang.com/documentation/syntax).
-public enum Syntax {
+public enum Syntax: Sendable {
     /// The CSS-superset `.scss` syntax.
     case scss
 
@@ -45,7 +45,7 @@ public enum Syntax {
 }
 
 /// The kind of source map to generate for the stylesheet, returned in `CompilerResults.sourceMap`.
-public enum SourceMapStyle {
+public enum SourceMapStyle: Sendable {
     /// Do not generate a source map.
     case none
 
@@ -57,7 +57,7 @@ public enum SourceMapStyle {
 }
 
 /// Thrown as an error after a failed compilation.
-public struct CompilerError: Swift.Error, CustomStringConvertible {
+public struct CompilerError: Swift.Error, CustomStringConvertible, Sendable {
     /// A message describing the reason for the failure.
     public let message: String
 
@@ -86,11 +86,11 @@ public struct CompilerError: Swift.Error, CustomStringConvertible {
 }
 
 /// A section of a stylesheet.
-public struct Span: CustomStringConvertible {
+public struct Span: CustomStringConvertible, Sendable {
     // MARK: Types
 
     /// A single point in a stylesheet.
-    public struct Location: CustomStringConvertible {
+    public struct Location: CustomStringConvertible, Sendable {
         /// The 0-based byte offset of this location within the stylesheet.
         public let offset: Int
 
@@ -160,11 +160,11 @@ public struct Span: CustomStringConvertible {
 /// from succeeding.
 ///
 /// Appropriate for display to end users who own the stylesheets.
-public struct CompilerMessage: CustomStringConvertible {
+public struct CompilerMessage: CustomStringConvertible, Sendable {
     // MARK: Types
 
     /// Kinds of diagnostic message.
-    public enum Kind {
+    public enum Kind: Sendable {
         /// A warning for something other than a deprecated Sass feature. Often
         /// emitted due to a stylesheet using the [`@warn` rule](https://sass-lang.com/documentation/at-rules/warn).
         case warning
@@ -207,10 +207,13 @@ public struct CompilerMessage: CustomStringConvertible {
 }
 
 /// The format used for `CompilerError.description` and  `CompilerMessage.description`.
-public enum CompilerMessageStyle {
+public enum CompilerMessageStyle: Sendable {
     /// Plain text.
     case plain
 
     /// Colorized with terminal escape sequences.
     case terminalColored
 }
+
+// Until Foundation catches up / decides we're wrong...
+extension URL: @unchecked Sendable {}

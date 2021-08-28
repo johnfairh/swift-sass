@@ -99,7 +99,7 @@ class TestImporters: DartSassTestCase {
     // MARK: Custom Importers
 
     // A custom importer using the NIO API
-    final class TestImporter: ImporterNIO {
+    final class TestImporter: ImporterNIO, @unchecked Sendable {
         let css: String
 
         init(css: String) {
@@ -219,7 +219,7 @@ class TestImporters: DartSassTestCase {
 
     // fromImport flag
     func testFromImport() throws {
-        class FromImportTester: Importer {
+        final class FromImportTester: Importer, @unchecked Sendable {
             var expectFromImport = false
             var wasInvoked = false
 

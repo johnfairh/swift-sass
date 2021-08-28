@@ -140,7 +140,7 @@ class TestProtocolErrors: DartSassTestCase {
             .loadPath(URL(fileURLWithPath: "/tmp"))
         ])
 
-        importer.onLoadHang = {
+        importer.state.onLoadHang = {
             await compiler.receive(message: msg)
         }
 

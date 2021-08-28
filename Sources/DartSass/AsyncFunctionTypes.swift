@@ -9,19 +9,20 @@ import Sass
 import NIO
 
 /// A version of the `SassFunction` type that allows async behavior.
-public typealias SassAsyncFunction = ([SassValue]) async throws -> SassValue
+public typealias SassAsyncFunction = @Sendable ([SassValue]) async throws -> SassValue
 
 /// A set of `SassAsyncFunction`s and their signatures.
 public typealias SassAsyncFunctionMap = [SassFunctionSignature : SassAsyncFunction]
 
 /// A version of the `SassFunction` type that allows async behavior using NIO.
-public typealias SassAsyncFunctionNIO = (EventLoop, [SassValue]) -> EventLoopFuture<SassValue>
+public typealias SassAsyncFunctionNIO = @Sendable (EventLoop, [SassValue]) -> EventLoopFuture<SassValue>
 
 /// A set of `SassAsyncFunctionNIO`s and their signatures.
 public typealias SassAsyncFunctionNIOMap = [SassFunctionSignature : SassAsyncFunctionNIO]
 
 /// Wrapper for various types of functions
-public enum SassFunctions {
+/// @unchecked because SwiftLang  #38669 is not landed yet
+public enum SassFunctions: @unchecked Sendable {
     /// Functions that run synchronously
     case sync(SassFunctionMap)
     /// Functions defined using async-await

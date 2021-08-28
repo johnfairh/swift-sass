@@ -37,7 +37,7 @@ import Logging
 /// * Consult the stylesheet's associated importer.
 /// * Consult every `DartSass.ImportResolver` given to the compiler, first the global list then the
 ///   per-compilation list, in order within each list.
-public final class Compiler {
+public final class Compiler: @unchecked Sendable {
     private let eventLoopGroup: ProvidedEventLoopGroup
 
     /// NIO event loop we're bound to.  Internal for test.

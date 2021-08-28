@@ -31,12 +31,16 @@ class DartSassTestCase: XCTestCase {
         eventLoopGroup = nil
     }
 
-    func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap = [:]) throws -> Compiler {
-        return try newCompiler(importers: importers, functions: .sync(functions))
+    func newCompiler(importers: [ImportResolver] = []) throws -> Compiler {
+        try newCompiler(importers: importers, functions: .sync([:]))
     }
 
-    func newCompiler(importers: [ImportResolver] = [], functions: SassAsyncFunctionMap = [:]) throws -> Compiler {
-        return try newCompiler(importers: importers, functions: .async(functions))
+    func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap) throws -> Compiler {
+        try newCompiler(importers: importers, functions: .sync(functions))
+    }
+
+    func newCompiler(importers: [ImportResolver] = [], functions: SassAsyncFunctionMap) throws -> Compiler {
+        try newCompiler(importers: importers, functions: .async(functions))
     }
 
     func newCompiler(importers: [ImportResolver] = [], functions: SassFunctions) throws -> Compiler {
@@ -128,10 +132,14 @@ extension URL {
 @available(macOS 12.0.0, *)
 final class HangingAsyncImporter: Importer {
 
-    var onLoadHang: (() async -> Void)?
+    final class State: @unchecked Sendable {
+        var onLoadHang: (() async -> Void)?
+        init() { onLoadHang = nil }
+    }
+
+    let state = State()
 
     init() {
-        self.onLoadHang = nil
     }
 
     func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL? {
@@ -139,9 +147,9 @@ final class HangingAsyncImporter: Importer {
     }
 
     func load(canonicalURL: URL) async throws -> ImporterResults {
-        if let onLoadHang = onLoadHang {
+        if let onLoadHang = state.onLoadHang {
             await onLoadHang()
-            self.onLoadHang = nil
+            state.onLoadHang = nil
         }
         return ImporterResults("")
     }

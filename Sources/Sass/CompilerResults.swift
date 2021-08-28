@@ -9,7 +9,7 @@ import Foundation
 @_implementationOnly import SourceMapper
 
 /// The output from a successful compilation.
-public struct CompilerResults {
+public struct CompilerResults: Sendable {
     /// The  CSS produced by the Sass compiler.
     public let css: String
 

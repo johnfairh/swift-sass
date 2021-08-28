@@ -176,7 +176,7 @@ class TestResetShutdown: DartSassTestCase {
         let importer = HangingAsyncImporter()
         let compiler = try newCompiler(importers: [.importer(importer)])
 
-        importer.onLoadHang = {
+        importer.state.onLoadHang = {
             await withCheckedContinuation { continuation in
                 CompilerWork.onStuckQuiesce = {
                     CompilerWork.onStuckQuiesce = nil
