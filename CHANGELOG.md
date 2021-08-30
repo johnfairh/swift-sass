@@ -7,6 +7,7 @@
 ## Enhancements
 
 * Add `SassArgumentList`
+* Make `.createNew` the default in `Compiler.init(...)`
 
 ## Bug Fixes
 

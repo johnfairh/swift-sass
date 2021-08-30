@@ -425,7 +425,7 @@ final class VersionRequest: ManagedCompilerRequest {
     let versionReq: Sass_EmbeddedProtocol_InboundMessage.VersionRequest
 
     // Debug
-    var debugPrefix: String { "Version-Req" }
+    var debugPrefix: String { "VerID=\(requestID)" }
     var requestName: String { "Version-Req" }
 
     var requestID: UInt32 {

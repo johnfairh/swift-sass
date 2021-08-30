@@ -254,7 +254,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest.OneOf_Identi
 
 extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse {
     var logMessage: String {
-        "Version-Rsp Proto=\(protocolVersion) Pkg=\(compilerVersion) Compiler=\(implementationVersion) Name=\(implementationName)"
+        "Version-Rsp VerID=\(id) Proto=\(protocolVersion) Pkg=\(compilerVersion) Compiler=\(implementationVersion) Name=\(implementationName)"
     }
 }
 
