@@ -123,7 +123,7 @@ public final class Compiler {
     /// `syncShutdownGracefully()` before letting it go out of scope.
     ///
     /// - parameter eventLoopGroup: NIO `EventLoopGroup` to use: either `.shared` to use
-    ///   an existing group or `.createNew` to create and manage a new event loop.
+    ///   an existing group or `.createNew` to create and manage a new event loop.  Default is `.createNew`.
     /// - parameter timeout: Maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
@@ -138,7 +138,7 @@ public final class Compiler {
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
     /// - throws: `LifecycleError` if the program can't be found.
-    public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
+    public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider = .createNew,
                             timeout: Int = 60,
                             messageStyle: CompilerMessageStyle = .plain,
                             verboseDeprecations: Bool = false,
@@ -165,7 +165,7 @@ public final class Compiler {
     /// `syncShutdownGracefully()` before letting it go out of scope.
     ///
     /// - parameter eventLoopGroup: NIO `EventLoopGroup` to use: either `.shared` to use
-    ///   an existing group or `.createNew` to create and manage a new event loop.
+    ///   an existing group or `.createNew` to create and manage a new event loop.  Default is `.createNew`.
     /// - parameter embeddedCompilerFileURL: Path of `dart-sass-embedded`
     ///   or something else that speaks the Sass embedded protocol.  Check [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md)
     ///   for the supported protocol versions.
@@ -182,7 +182,7 @@ public final class Compiler {
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
-    public init(eventLoopGroupProvider: NIOEventLoopGroupProvider,
+    public init(eventLoopGroupProvider: NIOEventLoopGroupProvider = .createNew,
                 embeddedCompilerFileURL: URL,
                 timeout: Int = 60,
                 messageStyle: CompilerMessageStyle = .plain,

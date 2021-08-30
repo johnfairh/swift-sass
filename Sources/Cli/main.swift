@@ -19,8 +19,7 @@ guard args.count == 5 else {
 }
 
 func compileWithDartSass(input: URL) throws -> CompilerResults {
-    let compiler = try DartSass.Compiler(eventLoopGroupProvider: .createNew,
-                                         messageStyle: .terminalColored)
+    let compiler = try DartSass.Compiler(messageStyle: .terminalColored)
     defer { try? compiler.syncShutdownGracefully() }
 
     return try compiler.compile(fileURL: input)
