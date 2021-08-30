@@ -5,7 +5,8 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import NIO
+import NIOCore
+import NIOPosix
 import _NIOConcurrency
 import Dispatch
 

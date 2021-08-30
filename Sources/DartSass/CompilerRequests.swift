@@ -5,7 +5,7 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import NIO
+import NIOCore
 import NIOConcurrencyHelpers
 import struct Foundation.URL
 @_spi(SassCompilerProvider) import Sass
@@ -434,7 +434,7 @@ private struct ImporterNIOAdapter: ImporterNIO {
     func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
         let promise = eventLoop.makePromise(of: Optional<URL>.self)
         if #available(macOS 12.0.0, *) {
-            promise.completeWithAsync {
+            promise.completeWithTask {
                 try await importer.canonicalize(ruleURL: ruleURL, fromImport: fromImport)
             }
         }
@@ -444,7 +444,7 @@ private struct ImporterNIOAdapter: ImporterNIO {
     func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
         let promise = eventLoop.makePromise(of: ImporterResults.self)
         if #available(macOS 12.0.0, *) {
-            promise.completeWithAsync {
+            promise.completeWithTask {
                 try await importer.load(canonicalURL: canonicalURL)
             }
         }

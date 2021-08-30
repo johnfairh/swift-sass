@@ -6,7 +6,7 @@
 //
 
 import Sass
-import NIO
+import NIOCore
 
 /// A version of the `SassFunction` type that allows async behavior.
 public typealias SassAsyncFunction = @Sendable ([SassValue]) async throws -> SassValue
@@ -86,7 +86,7 @@ func SyncFunctionAdapter(_ fn: @escaping SassFunction) -> SassAsyncFunctionNIO {
 func AsyncFunctionAdapter(_ fn: @escaping SassAsyncFunction) -> SassAsyncFunctionNIO {
     { eventLoop, args in
         let promise = eventLoop.makePromise(of: SassValue.self)
-        promise.completeWithAsync {
+        promise.completeWithTask {
             try await fn(args)
         }
         return promise.futureResult

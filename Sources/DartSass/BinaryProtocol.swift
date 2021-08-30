@@ -6,7 +6,7 @@
 //
 
 import SwiftProtobuf
-import NIO
+import NIOCore
 import NIOFoundationCompat
 
 // Routines to send and receive messages to the embedded Sass compiler.

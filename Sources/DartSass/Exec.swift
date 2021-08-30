@@ -6,7 +6,8 @@
 //
 
 import Foundation
-import NIO
+import NIOCore
+import NIOPosix
 
 /// Create a pair of connected sockets in PF_LOCAL.
 private struct SocketPipe {

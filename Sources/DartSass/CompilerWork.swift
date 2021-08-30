@@ -5,8 +5,8 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import NIO
-@_spi(SassCompilerProvider) import Sass
+import NIOCore
+import Sass
 import struct Foundation.URL
 
 /// The part of the compiler that deals with actual Sass things rather than process management.

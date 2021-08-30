@@ -8,8 +8,8 @@
 import struct Foundation.URL
 import class Foundation.FileManager // cwd
 import Dispatch
-import NIO
-import _NIOConcurrency
+import NIOCore
+import NIOPosix
 import Logging
 @_exported import Sass
 
