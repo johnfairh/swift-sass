@@ -374,4 +374,30 @@ class TestFunctions: DartSassTestCase {
             XCTFail("Unexpected error: \(error)")
         }
     }
+
+    // Test host-created arg lists, that the ID of 0 isn't reported back to the compiler.
+    func testHostCreatedArgList() throws {
+        let functions: SassFunctionMap = [
+            "createAL()" : { _ in
+                SassArgumentList([SassNumber(23)], keywords: ["first": SassConstants.true])
+            },
+            "verifyAL($al)" : { args in
+                XCTAssertEqual(1, args.count)
+                let al = try args[0].asArgumentList()
+                XCTAssertEqual(1, Array(al).count)
+                XCTAssertEqual(1, al.keywords.count)
+                return SassNumber(1)
+            }
+        ]
+
+        let scss = """
+        a {
+          b: verifyAL(createAL());
+        }
+        """
+
+        let compiler = try newCompiler(functions: functions)
+        let results = try compiler.compile(string: scss, outputStyle: .compressed)
+        XCTAssertEqual("a{b:1}", results.css)
+    }
 }
