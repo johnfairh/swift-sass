@@ -146,68 +146,62 @@ struct HslColor: Equatable, CustomStringConvertible {
 }
 
 /// Wrap up representation & lazy conversion & alpha
-enum ColorValue: CustomStringConvertible {
-    case rgb(RgbColor, Double)
-    case hsl(HslColor, Double)
-    case rgb_hsl(RgbColor, HslColor, Double)
+struct ColorValue: CustomStringConvertible {
+    // Lock to protect color-reps that are cached as required
+    private let lock = Lock()
+    private func locked<T>(_ call: () throws -> T) rethrows -> T {
+        try lock.locked(call)
+    }
+
+    // At least one of these is always set - enum doesn't scale above 2 so...
+    private(set) var _rgb: RgbColor?
+    private(set) var _hsl: HslColor?
+
+    let alpha: Double
+
+    private init(_ rgb: RgbColor?, _ hsl: HslColor?, _ alpha: Double) throws {
+        precondition(rgb != nil || hsl != nil)
+        self._rgb = rgb
+        self._hsl = hsl
+        self.alpha = try checkAlpha(alpha)
+    }
 
     init(_ rgb: RgbColor, alpha: Double) throws {
-        self = .rgb(rgb, try checkAlpha(alpha))
+        try self.init(rgb, nil, alpha)
     }
 
     init(_ hsl: HslColor, alpha: Double) throws {
-        self = .hsl(hsl, try checkAlpha(alpha))
+        try self.init(nil, hsl, alpha)
     }
 
     init(_ val: ColorValue, alpha: Double) throws {
-        let newAlpha = try checkAlpha(alpha)
-        switch val {
-        case let .rgb(r, _): self = .rgb(r, newAlpha)
-        case let .hsl(h, _): self = .hsl(h, newAlpha)
-        case let .rgb_hsl(r, h, _): self = .rgb_hsl(r, h, newAlpha)
-        }
+        try self.init(val._rgb, val._hsl, alpha)
     }
 
     var prefersRgb: Bool {
-        switch self {
-        case .rgb, .rgb_hsl: return true
-        case .hsl: return false
-        }
+        locked { _rgb != nil }
     }
 
     mutating func rgb() -> RgbColor { // 'var' can't be mutating!
-        switch self {
-        case let .rgb(r, _), let .rgb_hsl(r, _, _): return r
-        case let .hsl(h, a):
-            let r = RgbColor(h)
-            self = .rgb_hsl(r, h, a)
-            return r
+        locked {
+            if _rgb == nil {
+                _rgb = RgbColor(_hsl!)
+            }
+            return _rgb!
         }
     }
 
     mutating func hsl() -> HslColor {
-        switch self {
-        case let .hsl(h, _), let .rgb_hsl(_, h, _): return h
-        case let .rgb(r, a):
-            let h = HslColor(r)
-            self = .rgb_hsl(r, h, a)
-            return h
-        }
-    }
-
-    var alpha: Double {
-        switch self {
-        case let .rgb(_, a),
-             let .hsl(_, a),
-             let .rgb_hsl(_, _, a): return a
+        locked {
+            if _hsl == nil {
+                _hsl = HslColor(_rgb!)
+            }
+            return _hsl!
         }
     }
 
     var componentDescription: String {
-        switch self {
-        case .rgb(let r, _), .rgb_hsl(let r, _, _): return r.description
-        case .hsl(let h, _): return h.description
-        }
+        locked { _rgb.flatMap { $0.description } ?? _hsl!.description }
     }
 
     var description: String {

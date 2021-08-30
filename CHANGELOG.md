@@ -11,7 +11,8 @@
 
 ## Bug Fixes
 
-* None
+* Make `SassColor` threadsafe
+* Allow multiple `SassDynamicFunction`s
 
 # 0.5.0
 

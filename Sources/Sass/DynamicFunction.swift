@@ -8,6 +8,20 @@
 
 import Dispatch
 
+struct Lock {
+    private let dsem: DispatchSemaphore
+
+    init() {
+        dsem = DispatchSemaphore(value: 1)
+    }
+
+    func locked<T>(_ call: () throws -> T) rethrows -> T {
+        dsem.wait()
+        defer { dsem.signal() }
+        return try call()
+    }
+}
+
 /// Dynamic function IDs have to be unique across all compilations, wrap that  up here.
 /// Paranoid about multithreading especially in a NIO world so lock things.
 ///
@@ -16,26 +30,27 @@ import Dispatch
 ///
 /// Bit thorny that refs here stay around forever but unclear what is safe.
 private struct DynamicFunctionRuntime {
-    let semaphore = DispatchSemaphore(value: 1)
-    var idCounter = UInt32(2000)
-    var functions = [UInt32 : SassDynamicFunction]()
+    private let lock = Lock()
+    private var idCounter = UInt32(2000)
+    private var functions = [UInt32 : SassDynamicFunction]()
 
-    var nextID: UInt32 {
-        semaphore.wait()
-        defer { semaphore.signal() }
-        return idCounter + 1
+    mutating func allocateID() -> UInt32 {
+        lock.locked {
+            idCounter += 1
+            return idCounter
+        }
     }
 
     mutating func register(_ fn: SassDynamicFunction) {
-        semaphore.wait()
-        defer { semaphore.signal() }
-        functions[fn.id] = fn
+        lock.locked {
+            functions[fn.id] = fn
+        }
     }
 
     func lookUp(id: UInt32) -> SassDynamicFunction? {
-        semaphore.wait()
-        defer { semaphore.signal() }
-        return functions[id]
+        lock.locked {
+            functions[id]
+        }
     }
 }
 
@@ -64,7 +79,7 @@ open class SassDynamicFunction: SassValue {
     public init(signature: SassFunctionSignature, function: @escaping SassFunction) {
         self.signature = signature
         self.function = function
-        self.id = runtime.nextID
+        self.id = runtime.allocateID()
         super.init()
         runtime.register(self)
     }
