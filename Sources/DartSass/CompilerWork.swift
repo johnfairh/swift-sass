@@ -7,7 +7,7 @@
 //
 
 import NIO
-import Sass
+@_spi(SassCompilerProvider) import Sass
 import struct Foundation.URL
 
 /// The part of the compiler that deals with actual Sass things rather than process management.
@@ -82,12 +82,6 @@ final class CompilerWork {
                                functions: SassAsyncFunctionMap) -> EventLoopFuture<CompilerResults> {
         eventLoop.preconditionInEventLoop()
 
-        // Figure out functions - semantic name does not include params so merge global
-        // and per-job based on name alone, then pass the whole lot to the job.
-        let localFnsNameMap = functions._asSassFunctionNameElementMap
-        let globalFnsNameMap = globalFunctions._asSassFunctionNameElementMap
-        let mergedFnsNameMap = globalFnsNameMap.merging(localFnsNameMap) { g, l in l }
-
         let promise = eventLoop.makePromise(of: CompilerResults.self)
 
         let compilation = CompilationRequest(
@@ -98,7 +92,7 @@ final class CompilerWork {
             settings: settings,
             importers: globalImporters + importers,
             stringImporter: stringImporter,
-            functionsMap: mergedFnsNameMap)
+            functionsMap: globalFunctions.overridden(with: functions))
 
         pendingCompilations.append(compilation)
 

@@ -9,7 +9,7 @@
 // Helpers to shuffle data in and out of the protobuf types.
 
 import struct Foundation.URL
-import Sass
+@_spi(SassCompilerProvider) import Sass
 import NIO
 
 // MARK: PB -> Native

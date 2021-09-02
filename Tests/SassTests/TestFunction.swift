@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import Sass
+@_spi(SassCompilerProvider) import Sass
 
 /// Compiler & dynamic functions, data-structure tests
 class TestFunction: XCTestCase {
@@ -34,7 +34,7 @@ class TestFunction: XCTestCase {
         XCTAssertEqual("f()", f1.signature)
         let f1ID = f1.id
         XCTAssertEqual("DynamicFunction(\(f1ID) f())", f1.description)
-        XCTAssertEqual(Sass._lookUpDynamicFunction(id: f1ID), f1)
+        XCTAssertEqual(SassDynamicFunction.lookUp(id: f1ID), f1)
 
         let val: SassValue = f1
         XCTAssertNoThrow(try val.asDynamicFunction())

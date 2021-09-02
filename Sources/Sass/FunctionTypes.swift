@@ -39,9 +39,11 @@ public typealias SassFunctionSignature = String
 /// `myFunc($a)` and `myFunc($b)`: the program will terminate.
 public typealias SassFunctionMap = [SassFunctionSignature : SassFunction]
 
+// Utilities for compilers to work with sets of functions
+
 extension SassFunctionSignature {
     /// Get the Sass function name (everything before the paren) from a signature. :nodoc:
-    public var _sassFunctionName: String {
+    fileprivate var sassFunctionName: String {
         String(prefix(while: { $0 != "("}))
     }
 }
@@ -49,8 +51,14 @@ extension SassFunctionSignature {
 extension Dictionary where Key == SassFunctionSignature {
     /// Remap a Sass function signature dictionary to be keyed by Sass function name with
     /// elements the (signature, callback) tuple.  :nodoc:
-    public var _asSassFunctionNameElementMap: [String: Self.Element] {
-        .init(uniqueKeysWithValues: map { ($0.key._sassFunctionName, $0) })
+    private var asSassFunctionNameElementMap: [String: Self.Element] {
+        .init(uniqueKeysWithValues: map { ($0.key.sassFunctionName, $0) })
+    }
+
+    /// Merge two sets of functions, uniquing on function name, preferring the given set. :nodoc:
+    @_spi(SassCompilerProvider)
+    public func overridden(with locals: Self) -> [String: Self.Element] {
+        asSassFunctionNameElementMap.merging(locals.asSassFunctionNameElementMap) { _, l in l }
     }
 }
 
