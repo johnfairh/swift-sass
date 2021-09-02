@@ -7,7 +7,7 @@
 //
 
 import CLibSass4
-import Sass
+@_spi(SassCompilerProvider) import Sass
 
 // MARK: Functions
 

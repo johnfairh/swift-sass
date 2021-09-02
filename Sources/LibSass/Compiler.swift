@@ -6,7 +6,7 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-@_exported import Sass
+@_spi(SassCompilerProvider) @_exported import Sass
 import struct Foundation.URL
 import class Foundation.FileManager // getcwd()
 
@@ -125,11 +125,7 @@ public final class Compiler {
         compiler.add(importers: globalImporters + importers)
 
         // Functions
-        // Override global functions with per-compile ones that have the same name.
-        let localFnsNameMap = functions._asSassFunctionNameElementMap
-        let globalFnsNameMap = globalFunctions._asSassFunctionNameElementMap
-        let mergedFnsNameMap = globalFnsNameMap.merging(localFnsNameMap) { g, l in l }
-        compiler.add(functions: mergedFnsNameMap.values)
+        compiler.add(functions: globalFunctions.overridden(with: functions).values)
 
         // Go
         compiler.parseCompileRender()
