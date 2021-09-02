@@ -9,6 +9,7 @@
 import NIO
 import NIOConcurrencyHelpers
 import struct Foundation.URL
+@_spi(SassCompilerProvider) import Sass
 
 // Protocols and classes modelling compiler communication sequences
 // Debug logging, multi-message exchanges, client activity
@@ -384,7 +385,7 @@ final class CompilationRequest: ManagedCompilerRequest {
 
         switch req.identifier {
         case .functionID(let id):
-            guard let sassDynamicFunc = Sass._lookUpDynamicFunction(id: id) else {
+            guard let sassDynamicFunc = SassDynamicFunction.lookUp(id: id) else {
                 throw ProtocolError("Host function ID=\(id) not registered.")
             }
             if let asyncDynamicFunc = sassDynamicFunc as? SassAsyncDynamicFunction {

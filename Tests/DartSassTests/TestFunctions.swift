@@ -8,6 +8,7 @@
 
 import XCTest
 @testable import DartSass
+@_spi(SassCompilerProvider) import Sass
 
 ///
 /// Tests for custom functions.

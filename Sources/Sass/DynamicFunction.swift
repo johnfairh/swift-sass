@@ -56,12 +56,6 @@ private struct DynamicFunctionRuntime {
 
 private var runtime = DynamicFunctionRuntime()
 
-/// API from a compiler implementation to understand how to handle a request for a host function
-/// received from the compiler.  :nodoc:
-public func _lookUpDynamicFunction(id: UInt32) -> SassDynamicFunction? {
-    runtime.lookUp(id: id)
-}
-
 /// A dynamic Sass function.
 ///
 /// These are Sass functions, written in Swift, that are not declared up-front to the compiler when
@@ -76,6 +70,8 @@ open class SassDynamicFunction: SassValue {
     /// Create a new dynamic function.
     /// - parameter signature: The Sass function signature.
     /// - parameter function: The callback implementing the function.
+    ///
+    /// The runtime holds a reference to all created `SassDynamicFunction`s so they never reach `deinit`.
     public init(signature: SassFunctionSignature, function: @escaping SassFunction) {
         self.signature = signature
         self.function = function
@@ -112,6 +108,13 @@ open class SassDynamicFunction: SassValue {
 
     public override var description: String {
         "DynamicFunction(\(id) \(signature))"
+    }
+
+    /// API from a compiler implementation to understand how to handle a request for a host function
+    /// received from the compiler.  :nodoc:
+    @_spi(SassCompilerProvider)
+    public static func lookUp(id: UInt32) -> SassDynamicFunction? {
+        runtime.lookUp(id: id)
     }
 }
 

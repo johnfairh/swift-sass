@@ -137,7 +137,7 @@ public struct Span: CustomStringConvertible {
     /// span itself doesn't cover the full lines.
     public let context: String?
 
-    /// A short human-readable description of the span. :nodoc:
+    /// A short description of the span.
     public var description: String {
         var desc = url?.lastPathComponent ?? "[input]"
         desc.append(" \(start)")

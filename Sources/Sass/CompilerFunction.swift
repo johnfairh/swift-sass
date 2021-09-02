@@ -21,6 +21,7 @@ public final class SassCompilerFunction: SassValue {
 
     /// Create a new compiler function.  Unless you're implementing or mocking an interface
     /// from a Sass compiler you don't need this. :nodoc:
+    @_spi(SassCompilerProvider)
     public init(id: Int) {
         self.id = id
     }
