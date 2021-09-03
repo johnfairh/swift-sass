@@ -326,6 +326,9 @@ extension Sass_EmbeddedProtocol_Value {
                                  lightness: c.lightness,
                                  alpha: c.alpha)
 
+        case .hwbColor:
+            preconditionFailure("HWB")
+
         case .list(let l):
             return try SassList(l.contents.map { try $0.asSassValue() },
                                 separator: .init(l.separator),

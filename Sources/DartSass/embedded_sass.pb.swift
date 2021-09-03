@@ -1800,6 +1800,14 @@ struct Sass_EmbeddedProtocol_Value {
     set {value = .argumentList(newValue)}
   }
 
+  var hwbColor: Sass_EmbeddedProtocol_Value.HwbColor {
+    get {
+      if case .hwbColor(let v)? = value {return v}
+      return Sass_EmbeddedProtocol_Value.HwbColor()
+    }
+    set {value = .hwbColor(newValue)}
+  }
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   /// The value itself. Mandatory.
@@ -1817,6 +1825,7 @@ struct Sass_EmbeddedProtocol_Value {
     case compilerFunction(Sass_EmbeddedProtocol_Value.CompilerFunction)
     case hostFunction(Sass_EmbeddedProtocol_Value.HostFunction)
     case argumentList(Sass_EmbeddedProtocol_Value.ArgumentList)
+    case hwbColor(Sass_EmbeddedProtocol_Value.HwbColor)
 
   #if !swift(>=4.1)
     static func ==(lhs: Sass_EmbeddedProtocol_Value.OneOf_Value, rhs: Sass_EmbeddedProtocol_Value.OneOf_Value) -> Bool {
@@ -1862,6 +1871,10 @@ struct Sass_EmbeddedProtocol_Value {
       }()
       case (.argumentList, .argumentList): return {
         guard case .argumentList(let l) = lhs, case .argumentList(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.hwbColor, .hwbColor): return {
+        guard case .hwbColor(let l) = lhs, case .hwbColor(let r) = rhs else { preconditionFailure() }
         return l == r
       }()
       default: return false
@@ -1915,6 +1928,11 @@ struct Sass_EmbeddedProtocol_Value {
   }
 
   /// A SassScript color value, represented as red, green, and blue channels.
+  ///
+  /// All Sass color values can be equivalently represented as `RgbColor`,
+  /// `HslColor`, and `HwbColor` messages without loss of color information that
+  /// can affect CSS rendering. As such, either endpoint may choose to send any
+  /// color value as any one of these three messages.
   struct RgbColor {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -1954,6 +1972,33 @@ struct Sass_EmbeddedProtocol_Value {
     /// The color's percent lightness. Mandatory. Must be between 0 and 100,
     /// inclusive.
     var lightness: Double = 0
+
+    /// The color's alpha channel. Mandatory. Must be between 0 and 1,
+    /// inclusive.
+    var alpha: Double = 0
+
+    var unknownFields = SwiftProtobuf.UnknownStorage()
+
+    init() {}
+  }
+
+  /// A SassScript color value, represented as hue, whiteness, and blackness
+  /// channels.
+  struct HwbColor {
+    // SwiftProtobuf.Message conformance is added in an extension below. See the
+    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+    // methods supported on all messages.
+
+    /// The color's hue. Mandatory.
+    var hue: Double = 0
+
+    /// The color's percent whiteness. Mandatory. Must be between 0 and 100,
+    /// inclusive. The sum of `whiteness` and `blackness` must not exceed 100.
+    var whiteness: Double = 0
+
+    /// The color's percent blackness. Mandatory. Must be between 0 and 100,
+    /// inclusive. The sum of `whiteness` and `blackness` must not exceed 100.
+    var blackness: Double = 0
 
     /// The color's alpha channel. Mandatory. Must be between 0 and 1,
     /// inclusive.
@@ -3777,6 +3822,7 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
     8: .standard(proto: "compiler_function"),
     9: .standard(proto: "host_function"),
     10: .standard(proto: "argument_list"),
+    11: .standard(proto: "hwb_color"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3910,6 +3956,19 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
           self.value = .argumentList(v)
         }
       }()
+      case 11: try {
+        var v: Sass_EmbeddedProtocol_Value.HwbColor?
+        var hadOneofValue = false
+        if let current = self.value {
+          hadOneofValue = true
+          if case .hwbColor(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .hwbColor(v)
+        }
+      }()
       default: break
       }
     }
@@ -3959,6 +4018,10 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
     case .argumentList?: try {
       guard case .argumentList(let v)? = self.value else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 10)
+    }()
+    case .hwbColor?: try {
+      guard case .hwbColor(let v)? = self.value else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 11)
     }()
     case nil: break
     }
@@ -4148,6 +4211,56 @@ extension Sass_EmbeddedProtocol_Value.HslColor: SwiftProtobuf.Message, SwiftProt
     if lhs.hue != rhs.hue {return false}
     if lhs.saturation != rhs.saturation {return false}
     if lhs.lightness != rhs.lightness {return false}
+    if lhs.alpha != rhs.alpha {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Sass_EmbeddedProtocol_Value.HwbColor: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".HwbColor"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "hue"),
+    2: .same(proto: "whiteness"),
+    3: .same(proto: "blackness"),
+    4: .same(proto: "alpha"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularDoubleField(value: &self.hue) }()
+      case 2: try { try decoder.decodeSingularDoubleField(value: &self.whiteness) }()
+      case 3: try { try decoder.decodeSingularDoubleField(value: &self.blackness) }()
+      case 4: try { try decoder.decodeSingularDoubleField(value: &self.alpha) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.hue != 0 {
+      try visitor.visitSingularDoubleField(value: self.hue, fieldNumber: 1)
+    }
+    if self.whiteness != 0 {
+      try visitor.visitSingularDoubleField(value: self.whiteness, fieldNumber: 2)
+    }
+    if self.blackness != 0 {
+      try visitor.visitSingularDoubleField(value: self.blackness, fieldNumber: 3)
+    }
+    if self.alpha != 0 {
+      try visitor.visitSingularDoubleField(value: self.alpha, fieldNumber: 4)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sass_EmbeddedProtocol_Value.HwbColor, rhs: Sass_EmbeddedProtocol_Value.HwbColor) -> Bool {
+    if lhs.hue != rhs.hue {return false}
+    if lhs.whiteness != rhs.whiteness {return false}
+    if lhs.blackness != rhs.blackness {return false}
     if lhs.alpha != rhs.alpha {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
