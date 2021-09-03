@@ -15,35 +15,73 @@ func XCTAssertHslIntEqual(_ lhs: HslColor, _ rhs: HslColor) {
     XCTAssertEqual(Int(lhs.lightness.rounded()), Int(rhs.lightness.rounded()))
 }
 
+func XCTAssertHwbIntEqual(_ lhs: HwbColor, _ rhs: HwbColor) {
+    XCTAssertEqual(Int(lhs.hue.rounded()), Int(rhs.hue.rounded()))
+    XCTAssertEqual(Int(lhs.whiteness.rounded()), Int(rhs.whiteness.rounded()))
+    XCTAssertEqual(Int(lhs.blackness.rounded()), Int(rhs.blackness.rounded()))
+}
+
+func XCTAssertWithinOne(_ lhs: Int, _ rhs: Int) {
+    XCTAssert(lhs == rhs || lhs == rhs + 1 || lhs == rhs - 1)
+}
+
+func XCTAssertWithinOne(_ lhs: RgbColor, _ rhs: RgbColor) {
+    XCTAssertWithinOne(lhs.red, rhs.red)
+    XCTAssertWithinOne(lhs.green, rhs.green)
+    XCTAssertWithinOne(lhs.blue, rhs.blue)
+}
+
 class TestColor: XCTestCase {
     let rgbBlack = try! RgbColor(red: 0, green: 0, blue: 0)
     let hslBlack = try! HslColor(hue: 0, saturation: 0, lightness: 0)
+    let hwbBlack = try! HwbColor(hue: 0, whiteness: 0, blackness: 100)
+
+    let rgbWhite = try! RgbColor(red: 255, green: 255, blue: 255)
+    let hslWhite = try! HslColor(hue: 0, saturation: 0, lightness: 100)
+    let hwbWhite = try! HwbColor(hue: 0, whiteness: 100, blackness: 0)
 
     let rgbRed = try! RgbColor(red: 255, green: 0, blue: 0)
     let hslRed = try! HslColor(hue: 0, saturation: 100, lightness: 50)
+    let hwbRed = try! HwbColor(hue: 0, whiteness: 0, blackness: 0)
 
     let rgbGreen = try! RgbColor(red: 0, green: 255, blue: 0)
     let hslGreen = try! HslColor(hue: 120, saturation: 100, lightness: 50)
+    let hwbGreen = try! HwbColor(hue: 120, whiteness: 0, blackness: 0)
 
     let rgbBlue = try! RgbColor(red: 0, green: 0, blue: 255)
     let hslBlue = try! HslColor(hue: 240, saturation: 100, lightness: 50)
+    let hwbBlue = try! HwbColor(hue: 240, whiteness: 0, blackness: 0)
+
+    // Finding non-trivial colours that convert reversibly all three ways is beyond
+    // me - we get close but allow one nit of slop per axis in some cases.
 
     let rgbPink = try! RgbColor(red: 246, green: 142, blue: 227)
     let hslPink = try! HslColor(hue: 311, saturation: 85, lightness: 76)
-
-    // carefully pick colors that don't suffer los along the trip :(
+    let hwbPink = try! HwbColor(hue: 311, whiteness: 56, blackness: 4)
 
     private func checkConversion(_ rgb: RgbColor, _ hsl: HslColor) {
         XCTAssertHslIntEqual(hsl, HslColor(rgb))
         XCTAssertEqual(rgb, RgbColor(hsl))
     }
 
+    private func checkConversion(_ rgb: RgbColor, _ hsl: HslColor, _ hwb: HwbColor, sloppy: Bool = false) {
+        XCTAssertHslIntEqual(hsl, HslColor(rgb))
+        XCTAssertEqual(rgb, RgbColor(hsl))
+        XCTAssertHwbIntEqual(hwb, HwbColor(rgb))
+        if !sloppy {
+            XCTAssertEqual(rgb, RgbColor(hwb))
+        } else {
+            XCTAssertWithinOne(rgb, RgbColor(hwb))
+        }
+    }
+
     func testRgbHslConversion() throws {
-        checkConversion(rgbBlack, hslBlack)
-        checkConversion(rgbRed, hslRed)
-        checkConversion(rgbGreen, hslGreen)
-        checkConversion(rgbBlue, hslBlue)
-        checkConversion(rgbPink, hslPink)
+        checkConversion(rgbBlack, hslBlack, hwbBlack)
+        checkConversion(rgbWhite, hslWhite, hwbWhite)
+        checkConversion(rgbRed, hslRed, hwbRed)
+        checkConversion(rgbGreen, hslGreen, hwbGreen)
+        checkConversion(rgbBlue, hslBlue, hwbBlue)
+        checkConversion(rgbPink, hslPink, hwbPink, sloppy: true)
     }
 
     func testRangeChecking() throws {

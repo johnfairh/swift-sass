@@ -326,8 +326,11 @@ extension Sass_EmbeddedProtocol_Value {
                                  lightness: c.lightness,
                                  alpha: c.alpha)
 
-        case .hwbColor:
-            preconditionFailure("HWB")
+        case .hwbColor(let c):
+            return try SassColor(hue: c.hue,
+                                 whiteness: c.whiteness,
+                                 blackness: c.blackness,
+                                 alpha: c.alpha)
 
         case .list(let l):
             return try SassList(l.contents.map { try $0.asSassValue() },
@@ -418,6 +421,13 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
                 $0.hue = color.hue
                 $0.saturation = color.saturation
                 $0.lightness = color.lightness
+                $0.alpha = color.alpha
+            })
+        case .hwb:
+            return .hwbColor(.with {
+                $0.hue = color.hue
+                $0.whiteness = color.whiteness
+                $0.blackness = color.blackness
                 $0.alpha = color.alpha
             })
         }

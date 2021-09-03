@@ -30,7 +30,7 @@ private func checkHue(_ val: Double) throws -> Double {
     try check(val, range: 0...360, channel: "hue")
 }
 
-private func checkSatLight(_ val: Double, channel: String) throws -> Double {
+private func checkPercentage(_ val: Double, channel: String) throws -> Double {
     try check(val, range: 0...100, channel: channel)
 }
 
@@ -48,6 +48,31 @@ struct RgbColor: Hashable, CustomStringConvertible {
         self.red = try checkRgb(red, channel: "red")
         self.green = try checkRgb(green, channel: "green")
         self.blue = try checkRgb(blue, channel: "blue")
+    }
+
+    /// HWB -> RGB
+    /// https://www.w3.org/TR/css-color-4/#hwb-to-rgb
+    init(_ hwb: HwbColor) {
+        let w = hwb.whiteness / 100
+        let b = hwb.blackness / 100
+
+        if w + b >= 1 {
+            let gray = w / (w + b)
+            let grayRgb = Int((gray * 255).rounded())
+            self.red = grayRgb
+            self.green = grayRgb
+            self.blue = grayRgb
+            return
+        }
+
+        let rgbHsl = try! RgbColor(HslColor(hue: hwb.hue, saturation: 100, lightness: 50))
+        func channel(_ value: Int) -> Int {
+            let converted = ((Double(value) / 255) * (1 - w - b)) + w
+            return Int((converted * 255).rounded())
+        }
+        self.red = channel(rgbHsl.red)
+        self.green = channel(rgbHsl.green)
+        self.blue = channel(rgbHsl.blue)
     }
 
     /// HSL -> RGB
@@ -101,8 +126,8 @@ struct HslColor: Equatable, CustomStringConvertible {
 
     init(hue: Double, saturation: Double, lightness: Double) throws {
         self.hue = try checkHue(hue)
-        self.saturation = try checkSatLight(saturation, channel: "saturation")
-        self.lightness = try checkSatLight(lightness, channel: "lightness")
+        self.saturation = try checkPercentage(saturation, channel: "saturation")
+        self.lightness = try checkPercentage(lightness, channel: "lightness")
     }
 
     /// RGB -> HSL
@@ -145,6 +170,36 @@ struct HslColor: Equatable, CustomStringConvertible {
     }
 }
 
+/// HWB
+struct HwbColor: Equatable, CustomStringConvertible {
+    let hue: Double
+    let whiteness: Double
+    let blackness: Double
+
+    var description: String {
+        "HWB(\(hue)°, \(whiteness)%, \(blackness)%"
+    }
+
+    init(hue: Double, whiteness: Double, blackness: Double) throws {
+        self.hue = try checkHue(hue)
+        self.whiteness = try checkPercentage(whiteness, channel: "whiteness")
+        self.blackness = try checkPercentage(blackness, channel: "blackness")
+    }
+
+    /// RGB -> HWB
+    /// https://www.w3.org/TR/css-color-4/#rgb-to-hwb
+    init(_ rgb: RgbColor) {
+        let hsl = HslColor(rgb)
+        let rgbChannels = [rgb.red, rgb.green, rgb.blue].map { Double($0) / 255 }
+        let white = rgbChannels.min()!
+        let black = 1 - rgbChannels.max()!
+
+        self.hue = hsl.hue
+        self.whiteness = white * 100
+        self.blackness = black * 100
+    }
+}
+
 /// Wrap up representation & lazy conversion & alpha
 struct ColorValue: CustomStringConvertible {
     // Lock to protect color-reps that are cached as required
@@ -156,36 +211,46 @@ struct ColorValue: CustomStringConvertible {
     // At least one of these is always set - enum doesn't scale above 2 so...
     private(set) var _rgb: RgbColor?
     private(set) var _hsl: HslColor?
+    private(set) var _hwb: HwbColor?
 
     let alpha: Double
 
-    private init(_ rgb: RgbColor?, _ hsl: HslColor?, _ alpha: Double) throws {
-        precondition(rgb != nil || hsl != nil)
+    private init(rgb: RgbColor? = nil, hsl: HslColor? = nil, hwb: HwbColor? = nil, alpha: Double) throws {
+        precondition(rgb != nil || hsl != nil || hwb != nil)
         self._rgb = rgb
         self._hsl = hsl
+        self._hwb = hwb
         self.alpha = try checkAlpha(alpha)
     }
 
     init(_ rgb: RgbColor, alpha: Double) throws {
-        try self.init(rgb, nil, alpha)
+        try self.init(rgb: rgb, alpha: alpha)
     }
 
     init(_ hsl: HslColor, alpha: Double) throws {
-        try self.init(nil, hsl, alpha)
+        try self.init(hsl: hsl, alpha: alpha)
+    }
+
+    init(_ hwb: HwbColor, alpha: Double) throws {
+        try self.init(hwb: hwb, alpha: alpha)
     }
 
     init(_ val: ColorValue, alpha: Double) throws {
-        try self.init(val._rgb, val._hsl, alpha)
+        try self.init(rgb: val._rgb, hsl: val._hsl, hwb: val._hwb, alpha: alpha)
     }
 
-    var prefersRgb: Bool {
-        locked { _rgb != nil }
+    var preferredFormat: SassColor.Format {
+        locked {
+            if _rgb != nil { return .rgb }
+            if _hwb != nil { return .hwb }
+            return .hsl
+        }
     }
 
     mutating func rgb() -> RgbColor { // 'var' can't be mutating!
         locked {
             if _rgb == nil {
-                _rgb = RgbColor(_hsl!)
+                _rgb = _hsl.flatMap { RgbColor($0) } ?? RgbColor(_hwb!)
             }
             return _rgb!
         }
@@ -193,15 +258,46 @@ struct ColorValue: CustomStringConvertible {
 
     mutating func hsl() -> HslColor {
         locked {
-            if _hsl == nil {
-                _hsl = HslColor(_rgb!)
+            hsl_locked()
+        }
+    }
+
+    private mutating func hsl_locked() -> HslColor {
+        if _hsl == nil {
+            _hsl = _rgb.flatMap { HslColor($0) } // ?? HslColor(_hwb!)
+        }
+        return _hsl!
+    }
+
+    mutating func hwb() -> HwbColor {
+        locked {
+            if _hwb == nil {
+                _hwb = _rgb.flatMap { HwbColor($0) } // ?? HwbColor(_hsl!)
             }
-            return _hsl!
+            return _hwb!
+        }
+    }
+
+    mutating func hue() -> Double {
+        locked {
+            _hwb?.hue ?? hsl_locked().hue
+        }
+    }
+
+    mutating func change(hue: Double) throws -> ColorValue {
+        try locked {
+            if let hwb = _hwb {
+                return try ColorValue(HwbColor(hue: hue, whiteness: hwb.whiteness, blackness: hwb.blackness),
+                                      alpha: alpha)
+            }
+            let hsl = hsl_locked()
+            return try ColorValue(HslColor(hue: hue, saturation: hsl.saturation, lightness: hsl.lightness),
+                                  alpha: alpha)
         }
     }
 
     var componentDescription: String {
-        locked { _rgb.flatMap { $0.description } ?? _hsl!.description }
+        locked { _rgb.flatMap { $0.description } ?? _hsl.flatMap { $0.description } ?? _hwb!.description }
     }
 
     var description: String {
@@ -237,6 +333,16 @@ public final class SassColor: SassValue {
         colorValue = try ColorValue(RgbColor(red: red, green: green, blue: blue), alpha: alpha)
     }
 
+    /// Create a `SassColor` from HWB and alpha components.
+    /// - parameter hue: Hue, from 0 to 360.
+    /// - parameter whiteness: Whiteness, from 0 to 100.
+    /// - parameter blackness: Blackness,  from 0 to 100.
+    /// - parameter alpha: Alpha channel, between 0.0 and 1.0.
+    /// - throws: `SassFunctionError.channelNotInRange(...)` if any parameter is out of range.
+    public init(hue: Double, whiteness: Double, blackness: Double, alpha: Double = 1.0) throws {
+        colorValue = try ColorValue(HwbColor(hue: hue, whiteness: whiteness, blackness: blackness), alpha: alpha)
+    }
+
     /// Create a `SassColor` from HSL and alpha components.
     /// - parameter hue: Hue, from 0 to 360.
     /// - parameter saturation: Saturation, from 0 to 100.
@@ -255,12 +361,16 @@ public final class SassColor: SassValue {
     public var green: Int { colorValue.rgb().green }
     /// The blue channel, between 0 and 255.
     public var blue: Int { colorValue.rgb().blue }
-    /// The HSL hue channel, between 0 and 360.
-    public var hue: Double { colorValue.hsl().hue }
+    /// The HSL or HWB hue channel, between 0 and 360.
+    public var hue: Double { colorValue.hue() }
     /// The HSL saturation channel, between 0 and 100.
     public var saturation: Double { colorValue.hsl().saturation }
     /// The HSL lightness channel, between 0 and 100.
     public var lightness: Double { colorValue.hsl().lightness }
+    /// The HWB whiteness channel, between 0 and 100.
+    public var whiteness: Double { colorValue.hwb().whiteness }
+    /// The HWB blackness channel, between 0 and 100.
+    public var blackness: Double { colorValue.hwb().blackness }
     /// The alpha channel between 0 and 1.
     public var alpha: Double { colorValue.alpha }
 
@@ -284,6 +394,20 @@ public final class SassColor: SassValue {
         let newLightness = lightness ?? hsl.lightness
         let newAlpha = alpha ?? colorValue.alpha
         return try SassColor(hue: newHue, saturation: newSaturation, lightness: newLightness, alpha: newAlpha)
+    }
+
+    /// Create a new `SassColor` by changing some of the HWB-A channels of this color.
+    public func change(hue: Double? = nil, whiteness: Double? = nil, blackness: Double? = nil, alpha: Double? = nil) throws -> SassColor {
+        let hwb = colorValue.hwb()
+        let newHue = hue ?? hwb.hue
+        let newWhiteness = whiteness ?? hwb.whiteness
+        let newBlackness = blackness ?? hwb.blackness
+        let newAlpha = alpha ?? colorValue.alpha
+        return try SassColor(hue: newHue, whiteness: newWhiteness, blackness: newBlackness, alpha: newAlpha)
+    }
+
+    public func change(hue: Double) throws -> SassColor {
+        SassColor(try colorValue.change(hue: hue))
     }
 
     /// Create a new `SassColor` by changing just the alpha channel of this color.
@@ -320,13 +444,15 @@ public final class SassColor: SassValue {
         case rgb
         /// HSL
         case hsl
+        /// HWB
+        case hwb
     }
 
     /// The preferred format of this `SassColor` - typically the format the user originally wrote it in.
     /// Most useful for Sass implementations; other users are free to access colors using whichever
     /// format they find convenient.
     public var preferredFormat: Format {
-        colorValue.prefersRgb ? .rgb : .hsl
+        colorValue.preferredFormat
     }
 }
 
