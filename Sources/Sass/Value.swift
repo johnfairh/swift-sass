@@ -16,6 +16,17 @@
 // Declared open so that DynamicFunction can be open which enables NIO-compatible
 // specializations (for example) in compiler adapters.
 
+// This conforms to `Sequence` to enable list-like processing without having
+// to downcast etc.
+//
+// `XxxCollection` is left out because of uncomfortableness over indexes: should
+// the native index/subscript be a Swift array index, a SassValue numeric index?
+// What about SassMap that has to be both a list and a dictionary at the same time?
+//
+// Feels least bad to just leave it out: `Sequence` enables map/reduce stuff and
+// we do provide a `listCount` helper to allow list-argument length policing without
+// converting to an array, which feels like the most useful application.
+
 /// Common behavior between values passed to or returned from Sass functions.
 ///
 /// All Sass values can be treated as lists: singleton values like strings behave like
@@ -26,6 +37,7 @@
 /// like `SassColor`.
 ///
 /// All the `SassValue` types are immutable.
+
 open class SassValue: Hashable, Sequence, CustomStringConvertible {
     /// stop anyone else actually subclassing this
     init() {}
@@ -46,8 +58,8 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
     /// Is this value, viewed as a list, surrounded by brackets?
     public var hasBrackets: Bool { false }
 
-    /// Not public, used to optimize `arrayIndexFrom(sassIndex:)`.
-    var listCount: Int { 1 }
+    /// The number of values in this value viewed as a list.
+    public var listCount: Int { 1 }
 
     /// Convert a Sass list index.
     /// - parameter index: A Sass value intended to be used as an index into this value viewed as a list.

@@ -55,7 +55,7 @@ public class SassList: SassValue {
     public override var separator: Separator { _separator }
     /// Does the list have brackets?
     public override var hasBrackets: Bool { _hasBrackets }
-    override var listCount: Int { array.count }
+    public override var listCount: Int { array.count }
 
     // MARK: Methods
 

@@ -2,12 +2,13 @@
 
 ## Breaking
 
-* None
+* Use `@spi` instead of underscored names to restrict `Sass` APIs.
 
 ## Enhancements
 
 * Add `SassArgumentList`
 * Make `.createNew` the default in `Compiler.init(...)`
+* Add `SassValue.listCount`
 
 ## Bug Fixes
 

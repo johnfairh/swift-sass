@@ -35,7 +35,7 @@ Minimally:
 ```swift
 import DartSass
 
-let compiler = try Compiler(eventLoopGroupProvider: .createNew)
+let compiler = try Compiler()
 
 let results = try compiler.compile(fileURL: scssFileURL)
 

@@ -134,10 +134,12 @@ custom_defs:
           - asColor()
           - asBool()
           - asMap()
+          - asArgumentList()
           - asCompilerFunction()
           - asDynamicFunction()
       - name: Sass listiness
         children:
+          - listCount
           - arrayIndexFrom(sassIndex:)
           - valueAt(sassIndex:)
           - hasBrackets

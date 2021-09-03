@@ -39,7 +39,7 @@ public final class SassMap: SassValue {
         dictionary.count == 0 ? .undecided : .comma
     }
 
-    override var listCount: Int { dictionary.count }
+    public override var listCount: Int { dictionary.count }
 
     // MARK: Access
 

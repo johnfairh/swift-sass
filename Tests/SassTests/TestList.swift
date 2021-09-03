@@ -84,7 +84,7 @@ class TestList: XCTestCase {
         XCTAssertEqual(baseList, try baseList.asArgumentList())
         XCTAssertThrowsError(try SassConstants.true.asArgumentList())
 
-        XCTAssertEqual("str", try Array(baseList).first?.asString().string)
+        XCTAssertEqual("str", try baseList.valueAt(sassIndex: SassNumber(1)).asString().string)
         let realList = SassList([SassString("str")], hasBrackets: false)
         XCTAssertEqual(baseList, realList)
         let baseListDesc = baseList.description

@@ -85,6 +85,7 @@ class TestString: XCTestCase {
         XCTAssertEqual(false, str.hasBrackets)
 
         let listView = Array(str)
+        XCTAssertEqual(1, str.listCount)
         XCTAssertEqual(1, listView.count)
         XCTAssertEqual(str, listView[0])
         XCTAssertTrue(str === listView[0])
