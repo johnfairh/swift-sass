@@ -487,8 +487,11 @@ public final class SassColor: SassValue {
     public override var description: String {
         "Color(\(colorValue))"
     }
+}
 
-    /// A color format
+@_spi(SassCompilerProvider)
+extension SassColor {
+    /// A color format :nodoc:
     public enum Format {
         /// RGB
         case rgb
@@ -498,9 +501,7 @@ public final class SassColor: SassValue {
         case hwb
     }
 
-    /// The preferred format of this `SassColor` - typically the format the user originally wrote it in.
-    /// Most useful for Sass implementations; other users are free to access colors using whichever
-    /// format they find convenient.
+    /// The preferred format of this `SassColor` to preserve if possible. :nodoc:
     public var preferredFormat: Format {
         colorValue.preferredFormat
     }
