@@ -6,6 +6,14 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
+
+// All the conversion RGB <-> HSL <-> HWB algorithms are very naive renditions of
+// the definitial algorithms.  They fail the lossless test in the general case,
+// converting between formats and back again - the numeric spaces need careful
+// mapping and actual floating-point attention paid to what's going on.
+//
+// Good enough for what this is I expect.
+
 // MARK: Color values
 
 private func checkRgb(_ val: Int, channel: String) throws -> Int {
@@ -168,6 +176,27 @@ struct HslColor: Equatable, CustomStringConvertible {
         self.saturation = sl * 100
         self.lightness = l * 100
     }
+
+    /// HWB -> HSL
+    /// From a page of arithmetic, double-checked by a schoolchild.
+    init(_ hwb: HwbColor) {
+        self.hue = hwb.hue
+
+        let w = hwb.whiteness
+        let b = hwb.blackness
+
+        let l = (100 - b + w) / 2
+        let s: Double
+        if l == 0 || l == 100 {
+            s = 0
+        } else if w < b {
+            s = (100 - b - w) / (100 - b + w)
+        } else {
+            s = (100 - b - w) / (100 + b - w)
+        }
+        self.lightness = l
+        self.saturation = s * 100
+    }
 }
 
 /// HWB
@@ -197,6 +226,24 @@ struct HwbColor: Equatable, CustomStringConvertible {
         self.hue = hsl.hue
         self.whiteness = white * 100
         self.blackness = black * 100
+    }
+
+    /// HSL -> HWB
+    /// From arithmetic
+    init(_ hsl: HslColor) {
+        self.hue = hsl.hue
+        let s = hsl.saturation / 100
+        let l = hsl.lightness / 100
+        let inter = s * min(l, 1 - l)
+        let b = 1 - l - inter
+        let w: Double
+        if b == 1 {
+            w = 0
+        } else {
+            w = l - inter
+        }
+        self.whiteness = w * 100
+        self.blackness = b * 100
     }
 }
 

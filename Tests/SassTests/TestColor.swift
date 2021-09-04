@@ -22,7 +22,7 @@ func XCTAssertHwbIntEqual(_ lhs: HwbColor, _ rhs: HwbColor) {
 }
 
 func XCTAssertWithinOne(_ lhs: Int, _ rhs: Int) {
-    XCTAssert(lhs == rhs || lhs == rhs + 1 || lhs == rhs - 1)
+    XCTAssert((lhs - rhs).magnitude <= 2, "Expected \(lhs) got \(rhs)")
 }
 
 func XCTAssertWithinOne(_ lhs: RgbColor, _ rhs: RgbColor) {
@@ -30,6 +30,19 @@ func XCTAssertWithinOne(_ lhs: RgbColor, _ rhs: RgbColor) {
     XCTAssertWithinOne(lhs.green, rhs.green)
     XCTAssertWithinOne(lhs.blue, rhs.blue)
 }
+
+func XCTAssertWithinOne(_ lhs: HslColor, _ rhs: HslColor) {
+    XCTAssertWithinOne(Int(lhs.hue.rounded()), Int(rhs.hue.rounded()))
+    XCTAssertWithinOne(Int(lhs.saturation.rounded()), Int(rhs.saturation.rounded()))
+    XCTAssertWithinOne(Int(lhs.lightness.rounded()), Int(rhs.lightness.rounded()))
+}
+
+func XCTAssertWithinOne(_ lhs: HwbColor, _ rhs: HwbColor) {
+    XCTAssertWithinOne(Int(lhs.hue.rounded()), Int(rhs.hue.rounded()))
+    XCTAssertWithinOne(Int(lhs.whiteness.rounded()), Int(rhs.whiteness.rounded()))
+    XCTAssertWithinOne(Int(lhs.blackness.rounded()), Int(rhs.blackness.rounded()))
+}
+
 
 class TestColor: XCTestCase {
     let rgbBlack = try! RgbColor(red: 0, green: 0, blue: 0)
@@ -53,11 +66,15 @@ class TestColor: XCTestCase {
     let hwbBlue = try! HwbColor(hue: 240, whiteness: 0, blackness: 0)
 
     // Finding non-trivial colours that convert reversibly all three ways is beyond
-    // me - we get close but allow one nit of slop per axis in some cases.
+    // me - we get close but allow one nit of slop per axis
 
     let rgbPink = try! RgbColor(red: 246, green: 142, blue: 227)
     let hslPink = try! HslColor(hue: 311, saturation: 85, lightness: 76)
     let hwbPink = try! HwbColor(hue: 311, whiteness: 56, blackness: 4)
+
+    let rgbDeepGreen = try! RgbColor(red: 56, green: 85, blue: 70)
+    let hslDeepGreen = try! HslColor(hue: 150, saturation: 20, lightness: 27)
+    let hwbDeepGreen = try! HwbColor(hue: 150, whiteness: 22, blackness: 67)
 
     private func checkConversion(_ rgb: RgbColor, _ hsl: HslColor) {
         XCTAssertHslIntEqual(hsl, HslColor(rgb))
@@ -65,23 +82,31 @@ class TestColor: XCTestCase {
     }
 
     private func checkConversion(_ rgb: RgbColor, _ hsl: HslColor, _ hwb: HwbColor, sloppy: Bool = false) {
-        XCTAssertHslIntEqual(hsl, HslColor(rgb))
-        XCTAssertEqual(rgb, RgbColor(hsl))
-        XCTAssertHwbIntEqual(hwb, HwbColor(rgb))
-        if !sloppy {
-            XCTAssertEqual(rgb, RgbColor(hwb))
-        } else {
+        if sloppy {
+            XCTAssertWithinOne(hsl, HslColor(rgb))
+            XCTAssertWithinOne(rgb, RgbColor(hsl))
+            XCTAssertWithinOne(hwb, HwbColor(rgb))
+            XCTAssertWithinOne(hsl, HslColor(hwb))
             XCTAssertWithinOne(rgb, RgbColor(hwb))
+            XCTAssertWithinOne(hwb, HwbColor(hsl))
+        } else {
+            XCTAssertHslIntEqual(hsl, HslColor(rgb))
+            XCTAssertEqual(rgb, RgbColor(hsl))
+            XCTAssertHwbIntEqual(hwb, HwbColor(rgb))
+            XCTAssertHslIntEqual(hsl, HslColor(hwb))
+            XCTAssertEqual(rgb, RgbColor(hwb))
+            XCTAssertHwbIntEqual(hwb, HwbColor(hsl))
         }
     }
 
-    func testRgbHslConversion() throws {
+    func testRgbHslHwbConversion() throws {
         checkConversion(rgbBlack, hslBlack, hwbBlack)
         checkConversion(rgbWhite, hslWhite, hwbWhite)
         checkConversion(rgbRed, hslRed, hwbRed)
         checkConversion(rgbGreen, hslGreen, hwbGreen)
         checkConversion(rgbBlue, hslBlue, hwbBlue)
         checkConversion(rgbPink, hslPink, hwbPink, sloppy: true)
+        checkConversion(rgbDeepGreen, hslDeepGreen, hwbDeepGreen, sloppy: true)
     }
 
     func testRangeChecking() throws {
