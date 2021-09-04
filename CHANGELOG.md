@@ -9,6 +9,7 @@
 * Add `SassArgumentList`
 * Make `.createNew` the default in `Compiler.init(...)`
 * Add `SassValue.listCount`
+* Support HWB-format `SassColor`s
 
 ## Bug Fixes
 

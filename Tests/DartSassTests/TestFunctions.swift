@@ -192,6 +192,12 @@ class TestFunctions: DartSassTestCase {
         let backHsl = try hslVal.asSassValue().asColor()
         XCTAssertEqual(.hsl, backHsl.preferredFormat)
         XCTAssertEqual(hsl, backHsl)
+
+        let hwb = try SassColor(hue: 40, whiteness: 66, blackness: 22, alpha: 1.0)
+        let hwbVal = Sass_EmbeddedProtocol_Value(hwb)
+        let backHwb = try hwbVal.asSassValue().asColor()
+        XCTAssertEqual(.hwb, backHwb.preferredFormat)
+        XCTAssertEqual(hwb, backHwb)
     }
 
     /// Compiler functions
