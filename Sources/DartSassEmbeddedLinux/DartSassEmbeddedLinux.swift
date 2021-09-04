@@ -2,7 +2,6 @@
 //  DartSassEmbeddedLinux.swift
 //  DartSassEmbeddedLinux
 //
-//  Copyright 2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 

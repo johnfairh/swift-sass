@@ -2,7 +2,6 @@
 //  Exec.swift
 //  DartSass
 //
-//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE)
 //
 

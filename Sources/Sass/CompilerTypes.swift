@@ -2,7 +2,6 @@
 //  CompilerTypes.swift
 //  Sass
 //
-//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 //  Much text here taken verbatim or only slightly editted from the embedded Sass

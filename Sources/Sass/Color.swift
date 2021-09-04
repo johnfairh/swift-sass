@@ -2,10 +2,8 @@
 //  Color.swift
 //  Sass
 //
-//  Copyright 2020-2021 swift-sass contributors
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
-
 
 // All the conversion RGB <-> HSL <-> HWB algorithms are very naive renditions of
 // the definitial algorithms.  They fail the lossless test in the general case,
