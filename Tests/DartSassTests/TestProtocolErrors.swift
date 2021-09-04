@@ -226,6 +226,13 @@ class TestProtocolErrors: DartSassTestCase {
         XCTAssertThrowsError(_ = try CompilerMessage.Kind(kind))
     }
 
+    /// Misc test for a message variant that the protocol supports but I can't make dart sass create
+    func testSpanNoEnd() throws {
+        let msg = Sass_EmbeddedProtocol_SourceSpan()
+        let span = Span(msg)
+        XCTAssertEqual("[input] 1:1", span.description)
+    }
+
     // MARK: Varint
 
     func decodeVarint(buffer: inout ByteBuffer) throws -> UInt64? {
