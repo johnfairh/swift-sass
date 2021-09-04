@@ -110,30 +110,22 @@ class TestColor: XCTestCase {
     }
 
     func testRangeChecking() throws {
-        do {
-            let col = try SassColor(red: -1, green: 0, blue: 0)
-            XCTFail("Bad color \(col)")
-        } catch {
-            print(error)
+        func check(_ maker: @autoclosure () throws -> SassColor) {
+            do {
+                let col = try maker()
+                XCTFail("Bad color \(col)")
+            } catch {
+                print(error)
+            }
         }
-        do {
-            let col = try SassColor(red: 0, green: 0, blue: 0, alpha: 100)
-            XCTFail("Bad color \(col)")
-        } catch {
-            print(error)
-        }
-        do {
-            let col = try SassColor(hue: 100, saturation: 200, lightness: 0.8)
-            XCTFail("Bad color \(col)")
-        } catch {
-            print(error)
-        }
-        do {
-            let col = try SassColor(hue: -20, saturation: 20, lightness: 0.8)
-            XCTFail("Bad color \(col)")
-        } catch {
-            print(error)
-        }
+
+        check(try SassColor(red: -1, green: 0, blue: 0))
+        check(try SassColor(red: 0, green: 0, blue: 0, alpha: 100))
+        check(try SassColor(hue: 100, saturation: 200, lightness: 0.8))
+        check(try SassColor(hue: -20, saturation: 20, lightness: 0.8))
+        check(try SassColor(hue: 100, whiteness: 200, blackness: 20))
+        check(try SassColor(hue: -20, whiteness: 80, blackness: 20))
+        check(try SassColor(hue: 0, whiteness: 80, blackness: 1110))
     }
 
     private func check(rgb colRgb: SassColor, _ r: Int, _ g: Int, _ b: Int, _ a: Double) {
@@ -150,6 +142,13 @@ class TestColor: XCTestCase {
         XCTAssertEqual(a, colHsl.alpha)
     }
 
+    private func check(hwb colHwb: SassColor, _ h: Double, _ w: Double, _ b: Double, _ a: Double) {
+        XCTAssertEqual(h, colHwb.hue)
+        XCTAssertEqual(w, colHwb.whiteness)
+        XCTAssertEqual(b, colHwb.blackness)
+        XCTAssertEqual(a, colHwb.alpha)
+    }
+
     func testValueBehaviours() throws {
         let colRgb = try SassColor(red: 12, green: 20, blue: 100, alpha: 0.5)
         check(rgb: colRgb, 12, 20, 100, 0.5)
@@ -158,6 +157,10 @@ class TestColor: XCTestCase {
         let colHsl = try SassColor(hue: 190, saturation: 20, lightness: 95, alpha: 0.9)
         check(hsl: colHsl, 190, 20, 95, 0.9)
         XCTAssertEqual("Color(HSL(190.0°, 20.0%, 95.0%) alpha 0.9)", colHsl.description)
+
+        let colHwb = try SassColor(hue: 95, whiteness: 18, blackness: 45, alpha: 0.3)
+        check(hwb: colHwb, 95, 18, 45, 0.3)
+        XCTAssertEqual("Color(HWB(95.0°, 18.0%, 45.0%) alpha 0.3)", colHwb.description)
 
         let val: SassValue = colRgb
         XCTAssertNoThrow(try val.asColor())
@@ -202,6 +205,33 @@ class TestColor: XCTestCase {
         check(hsl: col5, 44, 32, 60, 0.01)
         let col6 = try col5.change(hue: 20, saturation: 30, lightness: 40, alpha: 0.7)
         XCTAssertEqual(col1, col6)
+    }
+
+    func testModificationHwb() throws {
+        let col1 = try SassColor(hue: 20, whiteness: 30, blackness: 40, alpha: 0.7)
+        check(hwb: col1, 20, 30, 40, 0.7)
+        let col2 = try col1.change(alpha: 0.01)
+        check(hwb: col2, 20, 30, 40, 0.01)
+        let col3 = try col2.change(hue: 44)
+        check(hwb: col3, 44, 30, 40, 0.01)
+        let col4 = try col3.change(whiteness: 32)
+        check(hwb: col4, 44, 32, 40, 0.01)
+        let col5 = try col4.change(blackness: 60)
+        check(hwb: col5, 44, 32, 60, 0.01)
+        let col6 = try col5.change(hue: 20, whiteness: 30, blackness: 40, alpha: 0.7)
+        XCTAssertEqual(col1, col6)
+    }
+
+    // Coerce of color formats
+    func testForeignModifications() throws {
+        let hwbCol = try SassColor(red: 70, green: 80, blue: 90).change(whiteness: 22)
+        check(rgb: hwbCol, 56, 73, 90, 1)
+
+        let hwbCol2 = try SassColor(hue: 200, saturation: 50, lightness: 50).change(blackness: 20)
+        check(hwb: hwbCol2, 200, 25, 20, 1)
+
+        let hwbCol3 = try SassColor(hue: 200, whiteness: 25, blackness: 25).change(lightness: 80)
+        check(hsl: hwbCol3, 200, 50, 80, 1)
     }
 
     // odd corner where we generate the lazy color-rep then do an alpha-only change!

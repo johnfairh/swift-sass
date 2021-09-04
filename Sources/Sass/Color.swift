@@ -206,7 +206,7 @@ struct HwbColor: Equatable, CustomStringConvertible {
     let blackness: Double
 
     var description: String {
-        "HWB(\(hue)°, \(whiteness)%, \(blackness)%"
+        "HWB(\(hue)°, \(whiteness)%, \(blackness)%)"
     }
 
     init(hue: Double, whiteness: Double, blackness: Double) throws {
@@ -311,7 +311,7 @@ struct ColorValue: CustomStringConvertible {
 
     private mutating func hsl_locked() -> HslColor {
         if _hsl == nil {
-            _hsl = _rgb.flatMap { HslColor($0) } // ?? HslColor(_hwb!)
+            _hsl = _rgb.flatMap { HslColor($0) } ?? HslColor(_hwb!)
         }
         return _hsl!
     }
@@ -319,11 +319,14 @@ struct ColorValue: CustomStringConvertible {
     mutating func hwb() -> HwbColor {
         locked {
             if _hwb == nil {
-                _hwb = _rgb.flatMap { HwbColor($0) } // ?? HwbColor(_hsl!)
+                _hwb = _rgb.flatMap { HwbColor($0) } ?? HwbColor(_hsl!)
             }
             return _hwb!
         }
     }
+
+    // Annoying special cases for 'hue' to cope with it cropping up in HSL and HWB,
+    // with the same name, and not wanting to fault in the other format.
 
     mutating func hue() -> Double {
         locked {
