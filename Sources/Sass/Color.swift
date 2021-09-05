@@ -357,8 +357,8 @@ struct ColorValue: CustomStringConvertible {
 
 /// A Sass color value.
 ///
-/// Color values represent a point in the sRGB color space.  They are defined using
-/// either RGB-A or HSL-A parameters but can be accessed as either.
+/// Color values are originally defined using either the RGB-A, HSL-A, or HWB-A color
+/// model, but can be accessed as any: conversions are performed and cached internally.
 ///
 /// - note: Parameter values follow web standards rather the Apple SDK standards,
 ///   so for example 'red' is modelled as an integer in 0...255.
@@ -381,16 +381,6 @@ public final class SassColor: SassValue {
         colorValue = try ColorValue(RgbColor(red: red, green: green, blue: blue), alpha: alpha)
     }
 
-    /// Create a `SassColor` from HWB and alpha components.
-    /// - parameter hue: Hue, from 0 to 360.
-    /// - parameter whiteness: Whiteness, from 0 to 100.
-    /// - parameter blackness: Blackness,  from 0 to 100.
-    /// - parameter alpha: Alpha channel, between 0.0 and 1.0.
-    /// - throws: `SassFunctionError.channelNotInRange(...)` if any parameter is out of range.
-    public init(hue: Double, whiteness: Double, blackness: Double, alpha: Double = 1.0) throws {
-        colorValue = try ColorValue(HwbColor(hue: hue, whiteness: whiteness, blackness: blackness), alpha: alpha)
-    }
-
     /// Create a `SassColor` from HSL and alpha components.
     /// - parameter hue: Hue, from 0 to 360.
     /// - parameter saturation: Saturation, from 0 to 100.
@@ -399,6 +389,16 @@ public final class SassColor: SassValue {
     /// - throws: `SassFunctionError.channelNotInRange(...)` if any parameter is out of range.
     public init(hue: Double, saturation: Double, lightness: Double, alpha: Double = 1.0) throws {
         colorValue = try ColorValue(HslColor(hue: hue, saturation: saturation, lightness: lightness), alpha: alpha)
+    }
+
+    /// Create a `SassColor` from HWB and alpha components.
+    /// - parameter hue: Hue, from 0 to 360.
+    /// - parameter whiteness: Whiteness, from 0 to 100.
+    /// - parameter blackness: Blackness,  from 0 to 100.
+    /// - parameter alpha: Alpha channel, between 0.0 and 1.0.
+    /// - throws: `SassFunctionError.channelNotInRange(...)` if any parameter is out of range.
+    public init(hue: Double, whiteness: Double, blackness: Double, alpha: Double = 1.0) throws {
+        colorValue = try ColorValue(HwbColor(hue: hue, whiteness: whiteness, blackness: blackness), alpha: alpha)
     }
 
     // MARK: Properties
@@ -454,11 +454,12 @@ public final class SassColor: SassValue {
         return try SassColor(hue: newHue, whiteness: newWhiteness, blackness: newBlackness, alpha: newAlpha)
     }
 
+    /// Create a new `SassColor` by changing only the `hue` channel of this color.
     public func change(hue: Double) throws -> SassColor {
         SassColor(try colorValue.change(hue: hue))
     }
 
-    /// Create a new `SassColor` by changing just the alpha channel of this color.
+    /// Create a new `SassColor` by changing only the alpha channel of this color.
     public func change(alpha: Double) throws -> SassColor {
         SassColor(try ColorValue(colorValue, alpha: alpha))
     }

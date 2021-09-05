@@ -10,10 +10,10 @@
 /// This type is a `SassList` holding positional arguments with an addition set of
 /// named keyword arguments.  See [the Sass docs](https://sass-lang.com/documentation/at-rules/mixin#taking-arbitrary-arguments).
 ///
-/// You'll typically use this type to access arguments passed in this way to a custom Sass
-/// function.  Be careful in other scenarios: the keyword argument part of the type is excluded
-/// from equality and listification, meaning it is easy to accidentally lose that part of the type
-/// when passing instances through generic `SassValue` code.
+/// - warning: You'll typically use this type to access arguments passed in this way to a custom Sass
+///   function.  Be careful in other scenarios: the keyword argument part of the type is excluded
+///   from equality and listification, meaning it is easy to accidentally lose that part of the type
+///   when passing instances through generic `SassValue` code.
 public final class SassArgumentList: SassList {
     // MARK: Initializers
 
@@ -44,7 +44,7 @@ public final class SassArgumentList: SassList {
 
     /// The argument list's keyword arguments.
     ///
-    /// Any keyword observer is notified on every access to this property.
+    /// Any keywords observer is notified on every access to this property.
     public var keywords: [String: SassValue] {
         keywordsObserver()
         return _keywords

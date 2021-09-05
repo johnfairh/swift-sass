@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../../css/fw2020.css">
     
     
-   <title>Compiler - Swift Sass v0.5.0</title>
+   <title>Compiler - Swift Sass v0.6.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./../../" data-doc-path="dartsass/types/compiler.html" data-assets-path="../../">
@@ -31,7 +31,7 @@
     
     <a href="../../index.html">
     
-    Swift Sass v0.5.0</a>
+    Swift Sass v0.6.0</a>
   </div>
   
   <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
@@ -40,7 +40,7 @@
   <div class="navbar-nav ms-auto justify-content-end flex-fill">
 
     
-    <form class="d-none d-md-block my-auto pe-1" role="search">
+    <form class="d-none d-md-block my-auto pe-2 ps-2" role="search">
       <input class="form-control form-control-sm w-100" type="search" placeHolder="Search" aria-label="Search" aria-keyshortcuts="/" data-search-format="span">
     </form>
     
@@ -377,7 +377,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/sassvalue7.html?swift">SassValue</a>
+  <a class="j2-nav-item" href="../../sass/types/sassvalue8.html?swift">SassValue</a>
 
 
 
@@ -437,6 +437,15 @@
   </li>
   
 </ul>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../sass/types/sassargumentlist.html?swift">SassArgumentList</a>
 
 
 
@@ -622,7 +631,7 @@ per-compilation list, in order within each list.</li>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L40-L609">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L39-L608">Show on GitHub</a>
           </nav>
           
           
@@ -685,7 +694,7 @@ when the compiler is next used.</p>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public convenience init(
-    eventLoopGroupProvider: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Enums/NIOEventLoopGroupProvider.html">NIOEventLoopGroupProvider</a>,
+    eventLoopGroupProvider: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Enums/NIOEventLoopGroupProvider.html">NIOEventLoopGroupProvider</a> = .createNew,
     timeout: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> = 60,
     messageStyle: <a href="../../sass/types/compilermessagestyle.html?swift">CompilerMessageStyle</a> = .plain,
     verboseDeprecations: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
@@ -705,7 +714,7 @@ when the compiler is next used.</p>
       <tr>
         <td><code>eventLoopGroup</code></td>
         <td><p>NIO <a href="https://apple.github.io/swift-nio/docs/current/NIO/Protocols/EventLoopGroup.html">EventLoopGroup</a> to use: either <code>.shared</code> to use
-an existing group or <code>.createNew</code> to create and manage a new event loop.</p></td>
+an existing group or <code>.createNew</code> to create and manage a new event loop.  Default is <code>.createNew</code>.</p></td>
       </tr>
       
       <tr>
@@ -759,7 +768,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L141-L157">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L140-L156">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -808,7 +817,7 @@ when the compiler is next used.</p>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public init(
-    eventLoopGroupProvider: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Enums/NIOEventLoopGroupProvider.html">NIOEventLoopGroupProvider</a>,
+    eventLoopGroupProvider: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Enums/NIOEventLoopGroupProvider.html">NIOEventLoopGroupProvider</a> = .createNew,
     embeddedCompilerFileURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>,
     timeout: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> = 60,
     messageStyle: <a href="../../sass/types/compilermessagestyle.html?swift">CompilerMessageStyle</a> = .plain,
@@ -829,7 +838,7 @@ when the compiler is next used.</p>
       <tr>
         <td><code>eventLoopGroup</code></td>
         <td><p>NIO <a href="https://apple.github.io/swift-nio/docs/current/NIO/Protocols/EventLoopGroup.html">EventLoopGroup</a> to use: either <code>.shared</code> to use
-an existing group or <code>.createNew</code> to create and manage a new event loop.</p></td>
+an existing group or <code>.createNew</code> to create and manage a new event loop.  Default is <code>.createNew</code>.</p></td>
       </tr>
       
       <tr>
@@ -887,7 +896,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L185-L212">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L184-L211">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1026,7 +1035,7 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L430-L446">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L429-L445">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1134,7 +1143,7 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L367-L377">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L366-L376">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1203,7 +1212,7 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L380-L404">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L379-L403">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1269,7 +1278,7 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L337-L351">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L336-L350">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1343,7 +1352,7 @@ means that the compiler is broken or shutdown.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L273-L286">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L272-L285">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1403,7 +1412,7 @@ means that the compiler is broken or shutdown.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L289-L291">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L288-L290">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1464,7 +1473,7 @@ means that the compiler is broken or shutdown.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L295-L297">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L294-L296">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1526,7 +1535,7 @@ Probably in <a href="https://semver.org/spec/v2.0.0.html">semver</a> format.
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L302-L304">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L301-L303">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1591,7 +1600,7 @@ call it.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L229-L233">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L228-L232">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1657,7 +1666,7 @@ queue is being run.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L245-L253">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L244-L252">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1718,7 +1727,7 @@ queue is being run.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L260-L266">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L259-L265">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1794,7 +1803,7 @@ that are also reported through errors thrown from some API.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L330">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L329">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1897,7 +1906,7 @@ that are also reported through errors thrown from some API.</p>
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.7.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.7.1</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

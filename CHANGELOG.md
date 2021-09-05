@@ -2,19 +2,26 @@
 
 ## Breaking
 
-* Use `@spi` instead of underscored names to restrict `Sass` APIs.
+* None
 
 ## Enhancements
 
+* None
+
+## Bug Fixes
+
+* None
+
+# 0.6.0
+
+* Bundle the 1.0.0-beta.11 `dart_sass_embedded` binaries
+* Use `@spi` instead of underscored names to restrict `Sass` APIs
 * Add `SassArgumentList`
 * Make `.createNew` the default in `Compiler.init(...)`
 * Add `SassValue.listCount`
 * Support HWB-format `SassColor`s
-
-## Bug Fixes
-
-* Make `SassColor` threadsafe
-* Allow multiple `SassDynamicFunction`s
+* Fix `SassColor` multithreading bugs
+* Fix `SassDynamicFunction` identity confusion
 
 # 0.5.0
 

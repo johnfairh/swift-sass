@@ -1,0 +1,214 @@
+[
+  {
+    "context" : "SassArgumentList",
+    "name" : "$arg..."
+  },
+  {
+    "context" : "SassFunction",
+    "name" : "$arg1"
+  },
+  {
+    "context" : "Importer",
+    "name" : "\/index"
+  },
+  {
+    "context" : "index",
+    "name" : "1.0.0-beta.11"
+  },
+  {
+    "context" : "ImportResolver",
+    "name" : "@forward"
+  },
+  {
+    "context" : "SassFunctionSignature",
+    "name" : "@function"
+  },
+  {
+    "context" : "ImportResolver",
+    "name" : "@import"
+  },
+  {
+    "context" : "index",
+    "name" : "@use"
+  },
+  {
+    "context" : "warning",
+    "name" : "@warn"
+  },
+  {
+    "context" : "init(_:keywords:keywordsObserver:separator:)",
+    "name" : "C.Element"
+  },
+  {
+    "context" : "index",
+    "name" : "DartSass"
+  },
+  {
+    "context" : "double",
+    "name" : "Int(exactly: n.double)"
+  },
+  {
+    "context" : "init(uniqueKeysWithValues:)",
+    "name" : "S.Element"
+  },
+  {
+    "context" : "init(_:keywords:keywordsObserver:separator:)",
+    "name" : "Separator"
+  },
+  {
+    "context" : "accept(visitor:)",
+    "name" : "V.ReturnType"
+  },
+  {
+    "context" : "Importer",
+    "name" : "_"
+  },
+  {
+    "context" : "SassString",
+    "name" : "count"
+  },
+  {
+    "context" : "index",
+    "name" : "dart-sass-embedded"
+  },
+  {
+    "context" : "init(_:syntax:sourceMapURL:)",
+    "name" : "data:"
+  },
+  {
+    "context" : "init(signature:function:)",
+    "name" : "deinit"
+  },
+  {
+    "context" : "init(_:syntax:sourceMapURL:)",
+    "name" : "file:"
+  },
+  {
+    "context" : "compile(fileURL:outputStyle:sourceMapStyle:importers:functions:)",
+    "name" : "fileURL"
+  },
+  {
+    "context" : "canonicalize(eventLoop:ruleURL:fromImport:)",
+    "name" : "foo.css"
+  },
+  {
+    "context" : "canonicalize(eventLoop:ruleURL:fromImport:)",
+    "name" : "foo.sass"
+  },
+  {
+    "context" : "Importer",
+    "name" : "foo\/bar\/_baz.sass"
+  },
+  {
+    "context" : "Importer",
+    "name" : "foo\/bar\/_baz.scss"
+  },
+  {
+    "context" : "Importer",
+    "name" : "foo\/bar\/baz.sass"
+  },
+  {
+    "context" : "Importer",
+    "name" : "foo\/bar\/baz.scss"
+  },
+  {
+    "context" : "Importer",
+    "name" : "foo\/bar\/baz\/_index.sass"
+  },
+  {
+    "context" : "Importer",
+    "name" : "foo\/bar\/baz\/_index.scss"
+  },
+  {
+    "context" : "Importer",
+    "name" : "foo\/bar\/baz\/index.sass"
+  },
+  {
+    "context" : "Importer",
+    "name" : "foo\/bar\/baz\/index.scss"
+  },
+  {
+    "context" : "SassFunction",
+    "name" : "funcName($arg1, $others...)"
+  },
+  {
+    "context" : "URLStyle",
+    "name" : "http:"
+  },
+  {
+    "context" : "init(_:syntax:sourceMapURL:)",
+    "name" : "https:"
+  },
+  {
+    "context" : "scalarIndexFrom(sassIndex:)",
+    "name" : "index"
+  },
+  {
+    "context" : "SassFunctionSignature",
+    "name" : "mix($color1, $color2, $weight: 50%)"
+  },
+  {
+    "context" : "SassFunctionMap",
+    "name" : "myFunc($a)"
+  },
+  {
+    "context" : "SassFunctionMap",
+    "name" : "myFunc($b)"
+  },
+  {
+    "context" : "double",
+    "name" : "range.contains(n.double)"
+  },
+  {
+    "context" : "asIn(range:)",
+    "name" : "range"
+  },
+  {
+    "context" : "URLStyle",
+    "name" : "relative"
+  },
+  {
+    "context" : "canonicalize(eventLoop:ruleURL:fromImport:)",
+    "name" : "ruleURL"
+  },
+  {
+    "context" : "valueAt(sassIndex:)",
+    "name" : "sassIndex"
+  },
+  {
+    "context" : "init(_:keywords:keywordsObserver:separator:)",
+    "name" : "sequence"
+  },
+  {
+    "context" : "relativeSourceRoot(_:)",
+    "name" : "sourceRoot"
+  },
+  {
+    "context" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)",
+    "name" : "string"
+  },
+  {
+    "context" : "withFileLocations(cssFileURL:sourceMapFileURL:style:)",
+    "name" : "style"
+  },
+  {
+    "context" : "valueAt(sassIndex:)",
+    "name" : "subscript"
+  },
+  {
+    "context" : "index",
+    "name" : "swift-sass"
+  },
+  {
+    "context" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)",
+    "name" : "url"
+  },
+  {
+    "context" : "accept(visitor:)",
+    "name" : "visitor"
+  },
+  {
+    "context" : "SassFunction",
+    "name" : "void"
+  }
+]

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../../css/fw2020.css">
     
     
-   <title>SassList - Swift Sass v0.5.0</title>
+   <title>SassList - Swift Sass v0.6.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./../../" data-doc-path="sass/types/sasslist.html" data-assets-path="../../">
@@ -31,7 +31,7 @@
     
     <a href="../../index.html">
     
-    Swift Sass v0.5.0</a>
+    Swift Sass v0.6.0</a>
   </div>
   
   <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
@@ -40,7 +40,7 @@
   <div class="navbar-nav ms-auto justify-content-end flex-fill">
 
     
-    <form class="d-none d-md-block my-auto pe-1" role="search">
+    <form class="d-none d-md-block my-auto pe-2 ps-2" role="search">
       <input class="form-control form-control-sm w-100" type="search" placeHolder="Search" aria-label="Search" aria-keyshortcuts="/" data-search-format="span">
     </form>
     
@@ -377,7 +377,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/sassvalue7.html?swift">SassValue</a>
+  <a class="j2-nav-item" href="../../sass/types/sassvalue8.html?swift">SassValue</a>
 
 
 
@@ -437,6 +437,15 @@
   </li>
   
 </ul>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../sass/types/sassargumentlist.html?swift">SassArgumentList</a>
 
 
 
@@ -577,7 +586,7 @@
             
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassList: <a href="../../sass/types/sassvalue7.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public class SassList: <a href="../../sass/types/sassvalue8.html?swift">SassValue</a></code></pre>
   </div>
 
 
@@ -595,7 +604,7 @@
 <p>A Sass list value.</p>
 <p>Sass lists have a separator and may be surrounded with brackets.
 All Sass values can be treated as lists so much list-like behavior is available via
-<a href="../../sass/types/sassvalue7.html?swift"><code>SassValue</code></a>.  <code>SassList</code> is mostly useful for constructing your own multi-element lists.</p>
+<a href="../../sass/types/sassvalue8.html?swift"><code>SassValue</code></a>.  <code>SassList</code> is mostly useful for constructing your own multi-element lists.</p>
 
 
 
@@ -607,7 +616,7 @@ All Sass values can be treated as lists so much list-like behavior is available 
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L14-L113">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L13-L112">Show on GitHub</a>
           </nav>
           
           
@@ -685,7 +694,7 @@ All Sass values can be treated as lists so much list-like behavior is available 
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L17-L27">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L16-L26">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -744,7 +753,7 @@ All Sass values can be treated as lists so much list-like behavior is available 
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public init&lt;C&gt;(
     _ sequence: C, separator: <a href="../../sass/types/sasslist/separator.html?swift">Separator</a> = .space, hasBrackets: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = true)
-where C: <a href="https://developer.apple.com/documentation/swift/sequence?language=swift">Sequence</a>, C.Element == <a href="../../sass/types/sassvalue7.html?swift">SassValue</a></code></pre>
+where C: <a href="https://developer.apple.com/documentation/swift/sequence?language=swift">Sequence</a>, C.Element == <a href="../../sass/types/sassvalue8.html?swift">SassValue</a></code></pre>
   </div>
 
 
@@ -783,7 +792,7 @@ to <code>.space</code>.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L38-L47">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L37-L46">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -855,7 +864,7 @@ to <code>.space</code>.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L55">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L54">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -901,6 +910,66 @@ to <code>.space</code>.</p></td>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public override var hasBrackets: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> { get }</code></pre>
+  </div>
+
+
+
+            </div>
+            
+
+
+
+          
+
+          <nav class="j2-item-nav" aria-label="item details">
+            
+            
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L56">Show on GitHub</a></span>
+            
+          </nav>
+        </div>
+      <div>
+    </div>
+    
+  </section>
+  
+  
+  
+  
+    <section id="listcount" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20listCount%3A%20Int" class="dashAnchor j2-item-dash-anchor" data-item-id="listcount"></a>
+    <h4 class="visually-hidden">var listCount: Int</h4>
+    
+    
+    <a class="j2-item-title" href="#_listcount" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_listcount"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">var </span>listCount<span class="j2-item-secondary">: Int</span></span>
+        
+      </code></a>
+    <div class="collapse  j2-item-popopen-wrapper" id="_listcount">
+      <div class="j2-item-popopen">
+        <div class="j2-item-popopen-pointer" role="none"></div>
+        <div class="j2-item-popopen-body">
+          
+            <div class="clearfix">
+              
+  
+
+
+              
+
+
+<p>The number of values in this value viewed as a list.</p>
+
+
+
+
+            </div>
+            <h5>Declaration</h5>
+            <div class="j2-item-declaration">
+              
+  <div class="j2-swift">
+    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
+    <pre><code class="language-swift">public override var listCount: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> { get }</code></pre>
   </div>
 
 
@@ -972,7 +1041,7 @@ to <code>.space</code>.</p></td>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public override func valueAt(sassIndex: <a href="../../sass/types/sassvalue7.html?swift">SassValue</a>) throws -&gt; <a href="../../sass/types/sassvalue7.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public override func valueAt(sassIndex: <a href="../../sass/types/sassvalue8.html?swift">SassValue</a>) throws -&gt; <a href="../../sass/types/sassvalue8.html?swift">SassValue</a></code></pre>
   </div>
 
 
@@ -1005,7 +1074,7 @@ to <code>.space</code>.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L62-L65">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L61-L64">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1077,7 +1146,7 @@ to <code>.space</code>.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L70-L79">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L69-L78">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1137,7 +1206,7 @@ to <code>.space</code>.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L84-L97">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L83-L96">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1182,7 +1251,7 @@ to <code>.space</code>.</p></td>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public override func makeIterator() -&gt; <a href="https://developer.apple.com/documentation/swift/anyiterator?language=swift">AnyIterator</a>&lt;<a href="../../sass/types/sassvalue7.html?swift">SassValue</a>&gt;</code></pre>
+    <pre><code class="language-swift">public override func makeIterator() -&gt; <a href="https://developer.apple.com/documentation/swift/anyiterator?language=swift">AnyIterator</a>&lt;<a href="../../sass/types/sassvalue8.html?swift">SassValue</a>&gt;</code></pre>
   </div>
 
 
@@ -1197,7 +1266,7 @@ to <code>.space</code>.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L100-L102">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L99-L101">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1209,16 +1278,16 @@ to <code>.space</code>.</p></td>
   
   
   
-    <section id="acceptvisitor5" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20accept%3CV,%20R%3E(visitor%3A%20V)%20-%3E%20R" class="dashAnchor j2-item-dash-anchor" data-item-id="acceptvisitor5"></a>
+    <section id="acceptvisitor6" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20accept%3CV,%20R%3E(visitor%3A%20V)%20-%3E%20R" class="dashAnchor j2-item-dash-anchor" data-item-id="acceptvisitor6"></a>
     <h4 class="visually-hidden">func accept&lt;V, R&gt;(visitor: V) -&gt; R</h4>
     
     
-    <a class="j2-item-title" href="#_acceptvisitor5" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_acceptvisitor5"><code>
+    <a class="j2-item-title" href="#_acceptvisitor6" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_acceptvisitor6"><code>
         <span class="j2-swift"><span class="j2-item-secondary">func </span>accept<span class="j2-item-secondary">&lt;V, R&gt;(</span>visitor<span class="j2-item-secondary">: V) -&gt; R</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_acceptvisitor5">
+    <div class="collapse  j2-item-popopen-wrapper" id="_acceptvisitor6">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -1258,7 +1327,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L104-L106">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L103-L105">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1270,16 +1339,16 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   
   
   
-    <section id="description13" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20description%3A%20String" class="dashAnchor j2-item-dash-anchor" data-item-id="description13"></a>
+    <section id="description15" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20description%3A%20String" class="dashAnchor j2-item-dash-anchor" data-item-id="description15"></a>
     <h4 class="visually-hidden">var description: String</h4>
     
     
-    <a class="j2-item-title" href="#_description13" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description13"><code>
+    <a class="j2-item-title" href="#_description15" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description15"><code>
         <span class="j2-swift"><span class="j2-item-secondary">var </span>description<span class="j2-item-secondary">: String</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_description13">
+    <div class="collapse  j2-item-popopen-wrapper" id="_description15">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none"></div>
         <div class="j2-item-popopen-body">
@@ -1318,7 +1387,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L108-L112">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/List.swift#L107-L111">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1423,7 +1492,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.7.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.7.1</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/fw2020.css">
     
     
-   <title>Custom Functions - Swift Sass v0.5.0</title>
+   <title>Custom Functions - Swift Sass v0.6.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./" data-doc-path="custom-functions.html" data-assets-path="">
@@ -31,7 +31,7 @@
     
     <a href="index.html">
     
-    Swift Sass v0.5.0</a>
+    Swift Sass v0.6.0</a>
   </div>
   
   <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
@@ -40,7 +40,7 @@
   <div class="navbar-nav ms-auto justify-content-end flex-fill">
 
     
-    <form class="d-none d-md-block my-auto pe-1" role="search">
+    <form class="d-none d-md-block my-auto pe-2 ps-2" role="search">
       <input class="form-control form-control-sm w-100" type="search" placeHolder="Search" aria-label="Search" aria-keyshortcuts="/" data-search-format="span">
     </form>
     
@@ -372,7 +372,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sass/types/sassvalue7.html?swift">SassValue</a>
+  <a class="j2-nav-item" href="sass/types/sassvalue8.html?swift">SassValue</a>
 
 
 
@@ -432,6 +432,15 @@
   </li>
   
 </ul>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="sass/types/sassargumentlist.html?swift">SassArgumentList</a>
 
 
 
@@ -572,7 +581,7 @@
           <p>Define Swift implementations of
 <a href="https://sass-lang.com/documentation/at-rules/function">Sass <code>@function</code>s</a> by
 declaring one of the <a href="custom-functions.html?swift#sassfunctionmap"><code>SassFunctionMap</code></a> types and passing it to the compiler.</p>
-<p>Use the <a href="sass/types/sassvalue7.html?swift"><code>SassValue</code></a> family of types within the function to exchange data with
+<p>Use the <a href="sass/types/sassvalue8.html?swift"><code>SassValue</code></a> family of types within the function to exchange data with
 the Sass compiler.</p>
 <p>A set of functions can be scoped either to an individual compilation or to all
 a compiler’s compilations.</p>
@@ -615,16 +624,16 @@ a compiler’s compilations.</p>
 <p>The Swift type of a Sass function.</p>
 <p>Use this to define Sass functions written in Swift that are available to stylesheets as they
 are compiled.</p>
-<p><a href="sass/types/sassvalue7.html?swift"><code>SassValue</code></a> is used to transmit function parameters and return values: any parameters with
+<p><a href="sass/types/sassvalue8.html?swift"><code>SassValue</code></a> is used to transmit function parameters and return values: any parameters with
 default values are instantiated before the function is called.  If your function signature includes an
 argument list such as <code>funcName($arg1, $others...)</code> then the args list is passed as a
 list value, so in the example the function receives two arguments: one for <code>$arg1</code> and one for
 whatever else is passed.</p>
 <p>Usually the first job of a function is to downcast each parameter to the expected type using
-throwing methods such as <a href="sass/types/sassvalue7.html?swift#asstring"><code>SassValue.asString()</code></a>.</p>
+throwing methods such as <a href="sass/types/sassvalue8.html?swift#asstring"><code>SassValue.asString()</code></a>.</p>
 <p>Any error thrown from the function ends up cancelling the compilation job and returning an
 error message back to the user that contains the text of the error thrown.</p>
-<p>All Sass functions return a value – there is no <code>void</code> return type.  Create new <a href="sass/types/sassvalue7.html?swift"><code>SassValue</code></a>
+<p>All Sass functions return a value – there is no <code>void</code> return type.  Create new <a href="sass/types/sassvalue8.html?swift"><code>SassValue</code></a>
 objects using a subclass initializer such as <a href="sass/types/sassstring.html?swift#init_isquoted"><code>SassString.init(_:isQuoted:)</code></a>.</p>
 
 
@@ -635,7 +644,7 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public typealias SassFunction = ([<a href="sass/types/sassvalue7.html?swift">SassValue</a>]) throws -&gt; <a href="sass/types/sassvalue7.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public typealias SassFunction = ([<a href="sass/types/sassvalue8.html?swift">SassValue</a>]) throws -&gt; <a href="sass/types/sassvalue8.html?swift">SassValue</a></code></pre>
   </div>
 
 
@@ -650,7 +659,7 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/FunctionTypes.swift#L28">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/FunctionTypes.swift#L27">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -695,8 +704,8 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public typealias SassAsyncFunction = (<a href="https://apple.github.io/swift-nio/docs/current/NIO/Protocols/EventLoop.html">EventLoop</a>, [<a href="sass/types/sassvalue7.html?swift">SassValue</a>]) -&gt;
-    <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;<a href="sass/types/sassvalue7.html?swift">SassValue</a>&gt;</code></pre>
+    <pre><code class="language-swift">public typealias SassAsyncFunction = (<a href="https://apple.github.io/swift-nio/docs/current/NIO/Protocols/EventLoop.html">EventLoop</a>, [<a href="sass/types/sassvalue8.html?swift">SassValue</a>]) -&gt;
+    <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;<a href="sass/types/sassvalue8.html?swift">SassValue</a>&gt;</code></pre>
   </div>
 
 
@@ -711,7 +720,7 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/AsyncFunctionTypes.swift#L13">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/AsyncFunctionTypes.swift#L12">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -772,7 +781,7 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/FunctionTypes.swift#L34">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/FunctionTypes.swift#L33">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -833,7 +842,7 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/FunctionTypes.swift#L40">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/FunctionTypes.swift#L39">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -894,7 +903,7 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/AsyncFunctionTypes.swift#L16">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/AsyncFunctionTypes.swift#L15">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -978,7 +987,7 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
   <div class="col j2-footer small pt-2">
     <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.7.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.7.1</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>
