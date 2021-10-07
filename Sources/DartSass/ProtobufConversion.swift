@@ -490,6 +490,10 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
         })
     }
 
+    func visit(calculation: SassCalculation) throws -> OneOf_Value {
+        throw ProtocolError("Can't serialize SassCalculation")
+    }
+
     init(_ val: SassValue) {
         self.value = try! val.accept(visitor: self)
     }

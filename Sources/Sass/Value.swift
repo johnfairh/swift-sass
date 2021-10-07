@@ -127,6 +127,8 @@ open class SassValue: Hashable, Sequence, CustomStringConvertible {
             return lcfunc == rcfunc
         case let (ldfunc, rdfunc) as (SassDynamicFunction, SassDynamicFunction):
             return ldfunc == rdfunc
+        case let (lcalc, rcalc) as (SassCalculation, SassCalculation):
+            return lcalc == rcalc
         default:
             return false
         }
@@ -170,4 +172,6 @@ public protocol SassValueVisitor {
     func visit(dynamicFunction: SassDynamicFunction) throws -> ReturnType
     /// The operation for `SassArgumentList`.
     func visit(argumentList: SassArgumentList) throws -> ReturnType
+    /// The operation for `SassCalculation`.
+    func visit(calculation: SassCalculation) throws -> ReturnType
 }
