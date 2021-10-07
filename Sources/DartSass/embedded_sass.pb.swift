@@ -342,6 +342,63 @@ extension Sass_EmbeddedProtocol_SingletonValue: CaseIterable {
 
 #endif  // swift(>=4.2)
 
+/// An operator used in a calculation value's operation.
+enum Sass_EmbeddedProtocol_CalculationOperator: SwiftProtobuf.Enum {
+  typealias RawValue = Int
+
+  /// The addition operator.
+  case plus // = 0
+
+  /// The subtraction operator.
+  case minus // = 1
+
+  /// The multiplication operator.
+  case times // = 2
+
+  /// The division operator.
+  case divide // = 3
+  case UNRECOGNIZED(Int)
+
+  init() {
+    self = .plus
+  }
+
+  init?(rawValue: Int) {
+    switch rawValue {
+    case 0: self = .plus
+    case 1: self = .minus
+    case 2: self = .times
+    case 3: self = .divide
+    default: self = .UNRECOGNIZED(rawValue)
+    }
+  }
+
+  var rawValue: Int {
+    switch self {
+    case .plus: return 0
+    case .minus: return 1
+    case .times: return 2
+    case .divide: return 3
+    case .UNRECOGNIZED(let i): return i
+    }
+  }
+
+}
+
+#if swift(>=4.2)
+
+extension Sass_EmbeddedProtocol_CalculationOperator: CaseIterable {
+  // The compiler won't synthesize support with the UNRECOGNIZED case.
+  static var allCases: [Sass_EmbeddedProtocol_CalculationOperator] = [
+    .plus,
+    .minus,
+    .times,
+    .divide,
+  ]
+}
+
+#endif  // swift(>=4.2)
+
 /// The wrapper type for all messages sent from the host to the compiler. This
 /// provides a `oneof` that makes it possible to determine the type of each
 /// inbound message.
@@ -1808,6 +1865,14 @@ struct Sass_EmbeddedProtocol_Value {
     set {value = .hwbColor(newValue)}
   }
 
+  var calculation: Sass_EmbeddedProtocol_Value.Calculation {
+    get {
+      if case .calculation(let v)? = value {return v}
+      return Sass_EmbeddedProtocol_Value.Calculation()
+    }
+    set {value = .calculation(newValue)}
+  }
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   /// The value itself. Mandatory.
@@ -1826,6 +1891,7 @@ struct Sass_EmbeddedProtocol_Value {
     case hostFunction(Sass_EmbeddedProtocol_Value.HostFunction)
     case argumentList(Sass_EmbeddedProtocol_Value.ArgumentList)
     case hwbColor(Sass_EmbeddedProtocol_Value.HwbColor)
+    case calculation(Sass_EmbeddedProtocol_Value.Calculation)
 
   #if !swift(>=4.1)
     static func ==(lhs: Sass_EmbeddedProtocol_Value.OneOf_Value, rhs: Sass_EmbeddedProtocol_Value.OneOf_Value) -> Bool {
@@ -1875,6 +1941,10 @@ struct Sass_EmbeddedProtocol_Value {
       }()
       case (.hwbColor, .hwbColor): return {
         guard case .hwbColor(let l) = lhs, case .hwbColor(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.calculation, .calculation): return {
+        guard case .calculation(let l) = lhs, case .calculation(let r) = rhs else { preconditionFailure() }
         return l == r
       }()
       default: return false
@@ -2174,6 +2244,179 @@ struct Sass_EmbeddedProtocol_Value {
     init() {}
   }
 
+  /// A SassScript calculation value. The compiler must send fully [simplified]
+  /// calculations, meaning that simplifying it again will produce the same
+  /// calculation. The host is not required to simplify calculations.
+  ///
+  /// [simplified]: https://github.com/sass/sass/tree/main/spec/types/calculation.md#simplifying-a-calculation
+  ///
+  /// The compiler must simplify any calculations it receives from the host
+  /// before returning them from a function. If this simplification produces an
+  /// error, it should be treated as though the function call threw that error.
+  /// It should *not* be treated as a protocol error.
+  struct Calculation {
+    // SwiftProtobuf.Message conformance is added in an extension below. See the
+    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+    // methods supported on all messages.
+
+    /// The calculation's name. Mandatory. The host may only set this to names
+    /// that the Sass specification uses to create calculations.
+    var name: String = String()
+
+    /// The calculation's arguments. Mandatory. The host must use exactly the
+    /// number of arguments used by the Sass specification for calculations with
+    /// the given `name`.
+    var arguments: [Sass_EmbeddedProtocol_Value.Calculation.CalculationValue] = []
+
+    var unknownFields = SwiftProtobuf.UnknownStorage()
+
+    /// A single component of a calculation expression.
+    struct CalculationValue {
+      // SwiftProtobuf.Message conformance is added in an extension below. See the
+      // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+      // methods supported on all messages.
+
+      /// The value of the component. Mandatory.
+      var value: OneOf_Value? {
+        get {return _storage._value}
+        set {_uniqueStorage()._value = newValue}
+      }
+
+      var number: Sass_EmbeddedProtocol_Value.Number {
+        get {
+          if case .number(let v)? = _storage._value {return v}
+          return Sass_EmbeddedProtocol_Value.Number()
+        }
+        set {_uniqueStorage()._value = .number(newValue)}
+      }
+
+      /// An unquoted string, as from a function like `var()` or `env()`.
+      var string: String {
+        get {
+          if case .string(let v)? = _storage._value {return v}
+          return String()
+        }
+        set {_uniqueStorage()._value = .string(newValue)}
+      }
+
+      /// An unquoted string as created by interpolation for
+      /// backwards-compatibility with older Sass syntax.
+      var interpolation: String {
+        get {
+          if case .interpolation(let v)? = _storage._value {return v}
+          return String()
+        }
+        set {_uniqueStorage()._value = .interpolation(newValue)}
+      }
+
+      var operation: Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation {
+        get {
+          if case .operation(let v)? = _storage._value {return v}
+          return Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation()
+        }
+        set {_uniqueStorage()._value = .operation(newValue)}
+      }
+
+      var calculation: Sass_EmbeddedProtocol_Value.Calculation {
+        get {
+          if case .calculation(let v)? = _storage._value {return v}
+          return Sass_EmbeddedProtocol_Value.Calculation()
+        }
+        set {_uniqueStorage()._value = .calculation(newValue)}
+      }
+
+      var unknownFields = SwiftProtobuf.UnknownStorage()
+
+      /// The value of the component. Mandatory.
+      enum OneOf_Value: Equatable {
+        case number(Sass_EmbeddedProtocol_Value.Number)
+        /// An unquoted string, as from a function like `var()` or `env()`.
+        case string(String)
+        /// An unquoted string as created by interpolation for
+        /// backwards-compatibility with older Sass syntax.
+        case interpolation(String)
+        case operation(Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation)
+        case calculation(Sass_EmbeddedProtocol_Value.Calculation)
+
+      #if !swift(>=4.1)
+        static func ==(lhs: Sass_EmbeddedProtocol_Value.Calculation.CalculationValue.OneOf_Value, rhs: Sass_EmbeddedProtocol_Value.Calculation.CalculationValue.OneOf_Value) -> Bool {
+          // The use of inline closures is to circumvent an issue where the compiler
+          // allocates stack space for every case branch when no optimizations are
+          // enabled. https://github.com/apple/swift-protobuf/issues/1034
+          switch (lhs, rhs) {
+          case (.number, .number): return {
+            guard case .number(let l) = lhs, case .number(let r) = rhs else { preconditionFailure() }
+            return l == r
+          }()
+          case (.string, .string): return {
+            guard case .string(let l) = lhs, case .string(let r) = rhs else { preconditionFailure() }
+            return l == r
+          }()
+          case (.interpolation, .interpolation): return {
+            guard case .interpolation(let l) = lhs, case .interpolation(let r) = rhs else { preconditionFailure() }
+            return l == r
+          }()
+          case (.operation, .operation): return {
+            guard case .operation(let l) = lhs, case .operation(let r) = rhs else { preconditionFailure() }
+            return l == r
+          }()
+          case (.calculation, .calculation): return {
+            guard case .calculation(let l) = lhs, case .calculation(let r) = rhs else { preconditionFailure() }
+            return l == r
+          }()
+          default: return false
+          }
+        }
+      #endif
+      }
+
+      init() {}
+
+      fileprivate var _storage = _StorageClass.defaultInstance
+    }
+
+    /// A binary operation that appears in a calculation.
+    struct CalculationOperation {
+      // SwiftProtobuf.Message conformance is added in an extension below. See the
+      // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+      // methods supported on all messages.
+
+      /// The operator to perform.
+      var `operator`: Sass_EmbeddedProtocol_CalculationOperator {
+        get {return _storage._operator}
+        set {_uniqueStorage()._operator = newValue}
+      }
+
+      /// The left-hand side of the operation.
+      var left: Sass_EmbeddedProtocol_Value.Calculation.CalculationValue {
+        get {return _storage._left ?? Sass_EmbeddedProtocol_Value.Calculation.CalculationValue()}
+        set {_uniqueStorage()._left = newValue}
+      }
+      /// Returns true if `left` has been explicitly set.
+      var hasLeft: Bool {return _storage._left != nil}
+      /// Clears the value of `left`. Subsequent reads from it will return its default value.
+      mutating func clearLeft() {_uniqueStorage()._left = nil}
+
+      /// The right-hand side of the operation.
+      var right: Sass_EmbeddedProtocol_Value.Calculation.CalculationValue {
+        get {return _storage._right ?? Sass_EmbeddedProtocol_Value.Calculation.CalculationValue()}
+        set {_uniqueStorage()._right = newValue}
+      }
+      /// Returns true if `right` has been explicitly set.
+      var hasRight: Bool {return _storage._right != nil}
+      /// Clears the value of `right`. Subsequent reads from it will return its default value.
+      mutating func clearRight() {_uniqueStorage()._right = nil}
+
+      var unknownFields = SwiftProtobuf.UnknownStorage()
+
+      init() {}
+
+      fileprivate var _storage = _StorageClass.defaultInstance
+    }
+
+    init() {}
+  }
+
   init() {}
 }
 
@@ -2226,6 +2469,15 @@ extension Sass_EmbeddedProtocol_SingletonValue: SwiftProtobuf._ProtoNameProvidin
     0: .same(proto: "TRUE"),
     1: .same(proto: "FALSE"),
     2: .same(proto: "NULL"),
+  ]
+}
+
+extension Sass_EmbeddedProtocol_CalculationOperator: SwiftProtobuf._ProtoNameProviding {
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    0: .same(proto: "PLUS"),
+    1: .same(proto: "MINUS"),
+    2: .same(proto: "TIMES"),
+    3: .same(proto: "DIVIDE"),
   ]
 }
 
@@ -3823,6 +4075,7 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
     9: .standard(proto: "host_function"),
     10: .standard(proto: "argument_list"),
     11: .standard(proto: "hwb_color"),
+    12: .same(proto: "calculation"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3969,6 +4222,19 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
           self.value = .hwbColor(v)
         }
       }()
+      case 12: try {
+        var v: Sass_EmbeddedProtocol_Value.Calculation?
+        var hadOneofValue = false
+        if let current = self.value {
+          hadOneofValue = true
+          if case .calculation(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .calculation(v)
+        }
+      }()
       default: break
       }
     }
@@ -4022,6 +4288,10 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
     case .hwbColor?: try {
       guard case .hwbColor(let v)? = self.value else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 11)
+    }()
+    case .calculation?: try {
+      guard case .calculation(let v)? = self.value else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 12)
     }()
     case nil: break
     }
@@ -4496,6 +4766,269 @@ extension Sass_EmbeddedProtocol_Value.ArgumentList: SwiftProtobuf.Message, Swift
     if lhs.separator != rhs.separator {return false}
     if lhs.contents != rhs.contents {return false}
     if lhs.keywords != rhs.keywords {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Sass_EmbeddedProtocol_Value.Calculation: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".Calculation"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "name"),
+    2: .same(proto: "arguments"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.name) }()
+      case 2: try { try decoder.decodeRepeatedMessageField(value: &self.arguments) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.name.isEmpty {
+      try visitor.visitSingularStringField(value: self.name, fieldNumber: 1)
+    }
+    if !self.arguments.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.arguments, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sass_EmbeddedProtocol_Value.Calculation, rhs: Sass_EmbeddedProtocol_Value.Calculation) -> Bool {
+    if lhs.name != rhs.name {return false}
+    if lhs.arguments != rhs.arguments {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Sass_EmbeddedProtocol_Value.Calculation.CalculationValue: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = Sass_EmbeddedProtocol_Value.Calculation.protoMessageName + ".CalculationValue"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "number"),
+    2: .same(proto: "string"),
+    3: .same(proto: "interpolation"),
+    4: .same(proto: "operation"),
+    5: .same(proto: "calculation"),
+  ]
+
+  fileprivate class _StorageClass {
+    var _value: Sass_EmbeddedProtocol_Value.Calculation.CalculationValue.OneOf_Value?
+
+    static let defaultInstance = _StorageClass()
+
+    private init() {}
+
+    init(copying source: _StorageClass) {
+      _value = source._value
+    }
+  }
+
+  fileprivate mutating func _uniqueStorage() -> _StorageClass {
+    if !isKnownUniquelyReferenced(&_storage) {
+      _storage = _StorageClass(copying: _storage)
+    }
+    return _storage
+  }
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    _ = _uniqueStorage()
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      while let fieldNumber = try decoder.nextFieldNumber() {
+        // The use of inline closures is to circumvent an issue where the compiler
+        // allocates stack space for every case branch when no optimizations are
+        // enabled. https://github.com/apple/swift-protobuf/issues/1034
+        switch fieldNumber {
+        case 1: try {
+          var v: Sass_EmbeddedProtocol_Value.Number?
+          var hadOneofValue = false
+          if let current = _storage._value {
+            hadOneofValue = true
+            if case .number(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._value = .number(v)
+          }
+        }()
+        case 2: try {
+          var v: String?
+          try decoder.decodeSingularStringField(value: &v)
+          if let v = v {
+            if _storage._value != nil {try decoder.handleConflictingOneOf()}
+            _storage._value = .string(v)
+          }
+        }()
+        case 3: try {
+          var v: String?
+          try decoder.decodeSingularStringField(value: &v)
+          if let v = v {
+            if _storage._value != nil {try decoder.handleConflictingOneOf()}
+            _storage._value = .interpolation(v)
+          }
+        }()
+        case 4: try {
+          var v: Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation?
+          var hadOneofValue = false
+          if let current = _storage._value {
+            hadOneofValue = true
+            if case .operation(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._value = .operation(v)
+          }
+        }()
+        case 5: try {
+          var v: Sass_EmbeddedProtocol_Value.Calculation?
+          var hadOneofValue = false
+          if let current = _storage._value {
+            hadOneofValue = true
+            if case .calculation(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._value = .calculation(v)
+          }
+        }()
+        default: break
+        }
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch _storage._value {
+      case .number?: try {
+        guard case .number(let v)? = _storage._value else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+      }()
+      case .string?: try {
+        guard case .string(let v)? = _storage._value else { preconditionFailure() }
+        try visitor.visitSingularStringField(value: v, fieldNumber: 2)
+      }()
+      case .interpolation?: try {
+        guard case .interpolation(let v)? = _storage._value else { preconditionFailure() }
+        try visitor.visitSingularStringField(value: v, fieldNumber: 3)
+      }()
+      case .operation?: try {
+        guard case .operation(let v)? = _storage._value else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
+      }()
+      case .calculation?: try {
+        guard case .calculation(let v)? = _storage._value else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 5)
+      }()
+      case nil: break
+      }
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sass_EmbeddedProtocol_Value.Calculation.CalculationValue, rhs: Sass_EmbeddedProtocol_Value.Calculation.CalculationValue) -> Bool {
+    if lhs._storage !== rhs._storage {
+      let storagesAreEqual: Bool = withExtendedLifetime((lhs._storage, rhs._storage)) { (_args: (_StorageClass, _StorageClass)) in
+        let _storage = _args.0
+        let rhs_storage = _args.1
+        if _storage._value != rhs_storage._value {return false}
+        return true
+      }
+      if !storagesAreEqual {return false}
+    }
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = Sass_EmbeddedProtocol_Value.Calculation.protoMessageName + ".CalculationOperation"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "operator"),
+    2: .same(proto: "left"),
+    3: .same(proto: "right"),
+  ]
+
+  fileprivate class _StorageClass {
+    var _operator: Sass_EmbeddedProtocol_CalculationOperator = .plus
+    var _left: Sass_EmbeddedProtocol_Value.Calculation.CalculationValue? = nil
+    var _right: Sass_EmbeddedProtocol_Value.Calculation.CalculationValue? = nil
+
+    static let defaultInstance = _StorageClass()
+
+    private init() {}
+
+    init(copying source: _StorageClass) {
+      _operator = source._operator
+      _left = source._left
+      _right = source._right
+    }
+  }
+
+  fileprivate mutating func _uniqueStorage() -> _StorageClass {
+    if !isKnownUniquelyReferenced(&_storage) {
+      _storage = _StorageClass(copying: _storage)
+    }
+    return _storage
+  }
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    _ = _uniqueStorage()
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      while let fieldNumber = try decoder.nextFieldNumber() {
+        // The use of inline closures is to circumvent an issue where the compiler
+        // allocates stack space for every case branch when no optimizations are
+        // enabled. https://github.com/apple/swift-protobuf/issues/1034
+        switch fieldNumber {
+        case 1: try { try decoder.decodeSingularEnumField(value: &_storage._operator) }()
+        case 2: try { try decoder.decodeSingularMessageField(value: &_storage._left) }()
+        case 3: try { try decoder.decodeSingularMessageField(value: &_storage._right) }()
+        default: break
+        }
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      if _storage._operator != .plus {
+        try visitor.visitSingularEnumField(value: _storage._operator, fieldNumber: 1)
+      }
+      if let v = _storage._left {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+      }
+      if let v = _storage._right {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
+      }
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation, rhs: Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation) -> Bool {
+    if lhs._storage !== rhs._storage {
+      let storagesAreEqual: Bool = withExtendedLifetime((lhs._storage, rhs._storage)) { (_args: (_StorageClass, _StorageClass)) in
+        let _storage = _args.0
+        let rhs_storage = _args.1
+        if _storage._operator != rhs_storage._operator {return false}
+        if _storage._left != rhs_storage._left {return false}
+        if _storage._right != rhs_storage._right {return false}
+        return true
+      }
+      if !storagesAreEqual {return false}
+    }
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

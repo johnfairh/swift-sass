@@ -367,6 +367,9 @@ extension Sass_EmbeddedProtocol_Value {
         case .compilerFunction(let c):
             return SassCompilerFunction(id: Int(c.id))
 
+        case .calculation:
+            throw ProtocolError("Unsupported 'calculation' SassValue")
+
         case .hostFunction(let h):
             // not supposed to receive these in arguments
             throw ProtocolError("Don't know how to deserialize hostfunction \(h)")
