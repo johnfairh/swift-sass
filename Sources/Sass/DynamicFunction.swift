@@ -110,7 +110,7 @@ open class SassDynamicFunction: SassValue {
     }
 
     /// API from a compiler implementation to understand how to handle a request for a host function
-    /// received from the compiler.  :nodoc:
+    /// received from the compiler.
     @_spi(SassCompilerProvider)
     public static func lookUp(id: UInt32) -> SassDynamicFunction? {
         runtime.lookUp(id: id)

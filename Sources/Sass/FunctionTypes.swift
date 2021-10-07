@@ -54,7 +54,7 @@ extension Dictionary where Key == SassFunctionSignature {
         .init(uniqueKeysWithValues: map { ($0.key.sassFunctionName, $0) })
     }
 
-    /// Merge two sets of functions, uniquing on function name, preferring the given set. :nodoc:
+    /// Merge two sets of functions, uniquing on function name, preferring the given set.
     @_spi(SassCompilerProvider)
     public func overridden(with locals: Self) -> [String: Self.Element] {
         asSassFunctionNameElementMap.merging(locals.asSassFunctionNameElementMap) { _, l in l }

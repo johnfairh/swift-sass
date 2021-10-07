@@ -490,7 +490,7 @@ public final class SassColor: SassValue {
 
 @_spi(SassCompilerProvider)
 extension SassColor {
-    /// A color format :nodoc:
+    /// A color format
     public enum Format {
         /// RGB
         case rgb
@@ -500,7 +500,7 @@ extension SassColor {
         case hwb
     }
 
-    /// The preferred format of this `SassColor` to preserve if possible. :nodoc:
+    /// The preferred format of this `SassColor` to preserve if possible.
     public var preferredFormat: Format {
         colorValue.preferredFormat
     }
