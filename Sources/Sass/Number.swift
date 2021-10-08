@@ -378,9 +378,15 @@ public final class SassNumber: SassValue {
         try visitor.visit(number: self)
     }
 
+    /// As close as possible to the Sass version of this.
+    var sassDescription: String {
+        let valueStr = Int(sassDouble)?.description ?? sassDouble.double.description
+        let unitStr = hasNoUnits ? "" : units.description
+        return valueStr + unitStr
+    }
+
     public override var description: String {
-        let unitStr = hasNoUnits ? "" : " \(units)"
-        return "Number(\(sassDouble.double)\(unitStr))"
+        "Number(\(sassDescription))"
     }
 }
 

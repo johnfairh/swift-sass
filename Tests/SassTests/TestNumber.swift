@@ -105,7 +105,8 @@ class TestNumber: XCTestCase {
         let m = SassNumber(12.0.nextUp)
         XCTAssertEqual(n, m)
         XCTAssertNotEqual(n.double, m.double)
-        XCTAssertEqual("Number(12.0)", n.description)
+        XCTAssertEqual("Number(12)", n.description)
+        XCTAssertEqual("12", n.sassDescription)
 
         let dict = [n: true]
         XCTAssertTrue(dict[m]!)
