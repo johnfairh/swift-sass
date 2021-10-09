@@ -302,6 +302,60 @@ extension Sass_EmbeddedProtocol_Value {
     }
 }
 
+extension SassCalculation {
+    convenience init(_ proto: Sass_EmbeddedProtocol_Value.Calculation) throws {
+        guard let kind = Kind(rawValue: proto.name) else {
+            throw ProtocolError("Unknown Calculation name '\(proto.name)'")
+        }
+        try self.init(kind: kind, arguments: proto.arguments.map { try .init($0) })
+    }
+}
+
+extension SassCalculation.Operator {
+    init(_ proto: Sass_EmbeddedProtocol_CalculationOperator) throws {
+        switch proto {
+        case .plus: self = .plus
+        case .minus: self = .minus
+        case .times: self = .times
+        case .divide: self = .dividedBy
+        case .UNRECOGNIZED(let u):
+            throw ProtocolError("Unknown Calculation operator '\(proto)' '\(u)'")
+        }
+    }
+}
+
+extension SassCalculation.Value {
+    init(_ proto: Sass_EmbeddedProtocol_Value.Calculation.CalculationValue) throws {
+        switch proto.value {
+        case .number(let n):
+            self = .number(try SassNumber(n))
+
+        case .string(let s):
+            self = .string(s)
+
+        case .interpolation(let s):
+            self = .interpolation(s)
+
+        case .operation(let o):
+            self = try .operation(.init(o.left), .init(o.operator), .init(o.right))
+
+        case .calculation(let c):
+            self = .calculation(try .init(c))
+
+        case nil:
+            throw ProtocolError("Unexpected missing CalculationValue")
+        }
+    }
+}
+
+extension SassNumber {
+    convenience init(_ proto: Sass_EmbeddedProtocol_Value.Number) throws {
+        try self.init(proto.value,
+                      numeratorUnits: proto.numerators,
+                      denominatorUnits: proto.denominators)
+    }
+}
+
 extension Sass_EmbeddedProtocol_Value {
     func asSassValue() throws -> SassValue {
         switch value {
@@ -309,9 +363,7 @@ extension Sass_EmbeddedProtocol_Value {
             return SassString(m.text, isQuoted: m.quoted)
 
         case .number(let n):
-            return try SassNumber(n.value,
-                                  numeratorUnits: n.numerators,
-                                  denominatorUnits: n.denominators)
+            return try SassNumber(n)
 
         case .rgbColor(let c):
             return try SassColor(red: Int(c.red),
@@ -367,8 +419,8 @@ extension Sass_EmbeddedProtocol_Value {
         case .compilerFunction(let c):
             return SassCompilerFunction(id: Int(c.id))
 
-        case .calculation:
-            throw ProtocolError("Unsupported 'calculation' SassValue")
+        case .calculation(let c):
+            return try SassCalculation(c)
 
         case .hostFunction(let h):
             // not supposed to receive these in arguments
@@ -393,6 +445,57 @@ extension Sass_EmbeddedProtocol_ListSeparator {
     }
 }
 
+extension Sass_EmbeddedProtocol_CalculationOperator {
+    init(_ op: SassCalculation.Operator) {
+        switch op {
+        case .plus: self = .plus
+        case .minus: self = .minus
+        case .times: self = .times
+        case .dividedBy: self = .divide
+        }
+    }
+}
+
+extension Sass_EmbeddedProtocol_Value.Calculation.CalculationValue {
+    init(_ val: SassCalculation.Value) {
+        switch val {
+        case .number(let n):
+            self.number = .init(n)
+        case .string(let s):
+            self.string = s
+        case .interpolation(let s):
+            self.interpolation = s
+        case .operation(let l, let o, let r):
+            self.operation = .with {
+                $0.left = .init(l)
+                $0.operator = .init(o)
+                $0.right = .init(r)
+            }
+        case .calculation(let c):
+            self.calculation = .init(c)
+        }
+    }
+}
+
+extension Sass_EmbeddedProtocol_Value.Calculation {
+    init(_ calc: SassCalculation) {
+        self = .with {
+            $0.name = calc.kind.rawValue
+            $0.arguments = calc.arguments.map { .init($0) }
+        }
+    }
+}
+
+extension Sass_EmbeddedProtocol_Value.Number {
+    init(_ number: SassNumber) {
+        self = .with {
+            $0.value = number.double
+            $0.numerators = number.numeratorUnits
+            $0.denominators = number.denominatorUnits
+        }
+    }
+}
+
 extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
     func visit(string: SassString) throws -> OneOf_Value {
         .string(.with {
@@ -402,11 +505,7 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
     }
 
     func visit(number: SassNumber) throws -> OneOf_Value {
-        .number(.with {
-            $0.value = number.double
-            $0.numerators = number.numeratorUnits
-            $0.denominators = number.denominatorUnits
-        })
+        .number(.init(number))
     }
 
     func visit(color: SassColor) throws -> OneOf_Value {
@@ -491,7 +590,7 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
     }
 
     func visit(calculation: SassCalculation) throws -> OneOf_Value {
-        throw ProtocolError("Can't serialize SassCalculation")
+        .calculation(.init(calculation))
     }
 
     init(_ val: SassValue) {

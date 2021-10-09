@@ -406,4 +406,52 @@ class TestFunctions: DartSassTestCase {
         let results = try compiler.compile(string: scss, outputStyle: .compressed)
         XCTAssertEqual("a{b:1}", results.css)
     }
+
+    // Calculations
+
+    func testCalculationConversion() throws {
+        let calc1 = SassCalculation(kind: .clamp, arguments: [.interpolation("$fred"), .string("$barney")])
+        let calc2 = SassCalculation(calc: .operation(.calculation(calc1), .dividedBy, .number(28, unit: "px")))
+
+        let protoCalc = Sass_EmbeddedProtocol_Value(calc2)
+        let backCalc = try protoCalc.asSassValue()
+
+        XCTAssertEqual(calc2, backCalc)
+    }
+
+    func testCalcOperators() throws {
+        typealias S = SassCalculation.Operator
+        typealias P = Sass_EmbeddedProtocol_CalculationOperator
+        let p: [P] = [.plus, .minus, .times, .divide]
+        let s: [S] = [.plus, .minus, .times, .dividedBy]
+
+        try zip(p, s).forEach { ops in
+            let sFromP = try S(ops.0)
+            let pFromS = P(ops.1)
+            XCTAssertEqual(ops.1, sFromP)
+            XCTAssertEqual(ops.0, pFromS)
+        }
+
+        let weird: P = .UNRECOGNIZED(42)
+        XCTAssertThrowsError(try S(weird))
+    }
+
+    func testProtocolErrors() throws {
+        let unknownCalc: Sass_EmbeddedProtocol_Value.Calculation = .with {
+            $0.name = "fred"
+            $0.arguments = []
+        }
+        XCTAssertThrowsError(try SassCalculation(unknownCalc))
+
+        let badOpCalc: Sass_EmbeddedProtocol_Value.Calculation = .with {
+            $0.name = "calc"
+            $0.arguments = [.with {
+                $0.value = .operation(.with {
+                    $0.operator = .times
+                })
+            }
+            ]
+        }
+        XCTAssertThrowsError(try SassCalculation(badOpCalc))
+    }
 }
