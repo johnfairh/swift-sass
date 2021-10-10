@@ -59,6 +59,8 @@
 		02A3BC052581600700BBF99E /* AsyncFunctionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC042581600700BBF99E /* AsyncFunctionTypes.swift */; };
 		02A3BC0F2585314200BBF99E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0E2585314200BBF99E /* main.swift */; };
 		02A3BC172585329C00BBF99E /* DartSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::DartSass::Product" /* DartSass.framework */; };
+		02CEF36F270F569A007DBDB7 /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF36E270F569A007DBDB7 /* Calculation.swift */; };
+		02CEF371270F5806007DBDB7 /* TestCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF370270F5806007DBDB7 /* TestCalculation.swift */; };
 		02D1B25026C7D377006B2CB1 /* ArgumentList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D1B24F26C7D377006B2CB1 /* ArgumentList.swift */; };
 		02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 02E0ED7E2586172C0080E954 /* SwiftProtobuf */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
@@ -170,6 +172,8 @@
 		02A3BC042581600700BBF99E /* AsyncFunctionTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncFunctionTypes.swift; sourceTree = "<group>"; };
 		02A3BC0C2585314200BBF99E /* Cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Cli; sourceTree = BUILT_PRODUCTS_DIR; };
 		02A3BC0E2585314200BBF99E /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		02CEF36E270F569A007DBDB7 /* Calculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculation.swift; sourceTree = "<group>"; };
+		02CEF370270F5806007DBDB7 /* TestCalculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCalculation.swift; sourceTree = "<group>"; };
 		02D1B24F26C7D377006B2CB1 /* ArgumentList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArgumentList.swift; sourceTree = "<group>"; };
 		OBJ_10 /* Compiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compiler.swift; sourceTree = "<group>"; };
 		OBJ_11 /* embedded_sass.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = embedded_sass.pb.swift; sourceTree = "<group>"; };
@@ -263,6 +267,7 @@
 				02440A1525765786008F0862 /* CompilerFunction.swift */,
 				02440A1B2576679E008F0862 /* DynamicFunction.swift */,
 				02D1B24F26C7D377006B2CB1 /* ArgumentList.swift */,
+				02CEF36E270F569A007DBDB7 /* Calculation.swift */,
 			);
 			name = Sass;
 			path = Sources/Sass;
@@ -278,6 +283,7 @@
 				0285E84B2571153900956F18 /* TestNumber.swift */,
 				0285E85525756B1400956F18 /* TestColor.swift */,
 				02440A1825765C0C008F0862 /* TestFunction.swift */,
+				02CEF370270F5806007DBDB7 /* TestCalculation.swift */,
 				021281E6265BC76F000C7256 /* TestCompilerResults.swift */,
 			);
 			name = SassTests;
@@ -581,6 +587,7 @@
 				02440A1F2576B24B008F0862 /* ValueConvertible.swift in Sources */,
 				0285E82B256D9ABB00956F18 /* List.swift in Sources */,
 				0289BB3D256BD3BE0004544A /* Value.swift in Sources */,
+				02CEF36F270F569A007DBDB7 /* Calculation.swift in Sources */,
 				0285E84F257266D800956F18 /* Units.swift in Sources */,
 				02440A1625765786008F0862 /* CompilerFunction.swift in Sources */,
 				02D1B25026C7D377006B2CB1 /* ArgumentList.swift in Sources */,
@@ -631,6 +638,7 @@
 				0285E843256FCEDA00956F18 /* TestMap.swift in Sources */,
 				021281E7265BC76F000C7256 /* TestCompilerResults.swift in Sources */,
 				029B4F8E257E569D00A768D2 /* TestResetShutdown.swift in Sources */,
+				02CEF371270F5806007DBDB7 /* TestCalculation.swift in Sources */,
 				02A1A9A125B99C650045E28F /* TestVersions.swift in Sources */,
 				0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */,
 				0285E85625756B1500956F18 /* TestColor.swift in Sources */,

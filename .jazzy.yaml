@@ -79,6 +79,7 @@ custom_groups:
           - SassList
           - SassArgumentList
           - SassMap
+          - SassCalculation
       - name: Function object types
         children:
           - SassCompilerFunction
@@ -139,6 +140,7 @@ custom_defs:
           - asArgumentList()
           - asCompilerFunction()
           - asDynamicFunction()
+          - asCalculation()
       - name: Sass listiness
         children:
           - listCount
