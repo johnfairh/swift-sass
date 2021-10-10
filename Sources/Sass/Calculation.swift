@@ -12,14 +12,16 @@ import Foundation
 /// These correspond to Sass `calc()`, `min()`, `max()`, or `clamp()` expressions.
 /// See [the Sass docs](https://sass-lang.com/documentation/values/calculations).
 ///
-/// The Sass compiler simplfiies these before sending them to custom functions: this means that if you
-/// do receive a `SassCalculation`  argument then it cannot be further simplified at compile time,
+/// The Sass compiler simplifies these before sending them to custom functions: this means that if you
+/// receive a `SassCalculation`  argument then it cannot be further simplified at compile time,
 /// for example `calc(20px + 30%)`.
 ///
 /// The API here allows you to construct `SassCalculation`s representing `calc()`-type expressions
 /// including invalid ones such as `calc(20px, 30px)` as though you were writing a stylesheet.  The
 /// validity is checked -- and the overall expression simplified -- by the compiler when it receives the value.
 public final class SassCalculation: SassValue {
+    // MARK: Types
+
     /// The kind of the `SassCalculation` expression
     public enum Kind: String {
         /// Sass [`calc()`](https://sass-lang.com/documentation/values/calculations)
@@ -32,9 +34,9 @@ public final class SassCalculation: SassValue {
         case clamp
     }
 
-    /// Arithmetic operators valid within `SassCalculation.Operation`s`
+    /// Arithmetic operators valid within `Value.operation(_:_:_:)`.
     public enum Operator: Character {
-        /// The regular arithmetic operators with normal precedence.
+        /// The regular arithmetic operator with normal precedence.
         case plus = "+", minus = "-", times = "*", dividedBy = "/"
 
         var isHighPrecedence: Bool {
@@ -48,22 +50,26 @@ public final class SassCalculation: SassValue {
 
     /// A subexpression of a `SassCalculation`.
     public indirect enum Value: Hashable, Equatable, CustomStringConvertible {
-        /// A number with optional associated units.  See `number(_:unit:)` helper function.
+        /// A number with optional associated units.  See `number(_:unit:)`.
         case number(SassNumber)
         /// A string - expected to be a Sass variable for later evaluation, for example the `$width` part of `calc($width / 2)`.
         case string(String)
-        /// A string - expected to be a Sass variable, but this form means the stylesheet wrote `#{$width}` instead of `$width`.
-        /// Use `string(_:)` instead when building your own `SassCalculation`s.
+        /// A string - expected to be a Sass variable, but this form means the stylesheet has `#{$width}` instead of `$width`.
+        /// Use `string(_:)` instead when building your own `Value`s.
         case interpolation(String)
         /// A binary arithmetic expression.
         case operation(Value, Operator, Value)
-        /// A sub-calculation.
+        /// A nested calculation.
         case calculation(SassCalculation)
+
+        // MARK: Helpers
 
         /// A helper to construct `number(_:)`s.
         public static func number(_ double: Double, unit: String? = nil) -> Value {
             .number(SassNumber(double, unit: unit))
         }
+
+        // MARK: Misc
 
         var isLowPrecedenceOperation: Bool {
             if case let .operation(_, op, _) = self {
@@ -108,7 +114,7 @@ public final class SassCalculation: SassValue {
     /// The `SassCalculation`'s `Kind`.
     public let kind: Kind
 
-    /// The `SassCalcuation`'s arguments.  The Sass specification says how many
+    /// The `SassCalculation`'s arguments.  The Sass specification says how many
     /// are actually valid for each `Kind` but this API does not check this.
     public let arguments: [Value]
 
@@ -154,7 +160,7 @@ public final class SassCalculation: SassValue {
 
 extension SassValue {
     /// Reinterpret the value as a calculation.
-    /// - throws: `SassFunctionError.wrongType(...)` if it isn't a string.
+    /// - throws: `SassFunctionError.wrongType(...)` if it isn't a calculation.
     public func asCalculation() throws -> SassCalculation {
         guard let selfCalculation = self as? SassCalculation else {
             throw SassFunctionError.wrongType(expected: "SassCalculation", actual: self)
