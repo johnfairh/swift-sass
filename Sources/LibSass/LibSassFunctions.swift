@@ -164,6 +164,10 @@ struct LibSassVisitor: SassValueVisitor {
     func visit(dynamicFunction: SassDynamicFunction) throws -> LibSass4.Value {
         throw ConversionError("LibSass does not support `SassDynamicFunction`s")
     }
+
+    func visit(calculation: SassCalculation) throws -> LibSass4.Value {
+        throw ConversionError("LibSass does not support `SassCalculation`s")
+    }
 }
 
 private let visitor = LibSassVisitor()
