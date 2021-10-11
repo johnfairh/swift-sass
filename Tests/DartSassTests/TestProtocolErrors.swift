@@ -24,11 +24,12 @@ class TestProtocolErrors: DartSassTestCase {
         }
         XCTAssertNil(compiler.state.child)
         compiler.sync()
-        try compiler.eventLoop.flatSubmit {
+        let f = compiler.eventLoop.flatSubmit {
             try! compiler.child().send(message: msg)
-        }.wait()
+        }
 
         checkProtocolError(compiler, "108")
+        _ = try? f.wait()
 
         try checkCompilerWorking(compiler)
         XCTAssertEqual(2, compiler.startCount)
