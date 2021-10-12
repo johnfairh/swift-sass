@@ -54,7 +54,6 @@ let package = Package(
           .product(name: "NIOPosix", package: "swift-nio"),
           .product(name: "NIOConcurrencyHelpers", package: "swift-nio"),
           .product(name: "NIOFoundationCompat", package: "swift-nio"),
-          .product(name: "_NIOConcurrency", package: "swift-nio"),
           .product(name: "Logging", package: "swift-log"),
           .product(name: "Semver", package: "Semver"),
         ]),

@@ -7,7 +7,6 @@
 
 import NIOCore
 import NIOPosix
-import _NIOConcurrency
 import Dispatch
 
 extension NIOThreadPool {
