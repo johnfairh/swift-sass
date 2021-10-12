@@ -1,5 +1,9 @@
 [
   {
+    "context" : "interpolation(_:)",
+    "name" : "#{$width}"
+  },
+  {
     "context" : "SassArgumentList",
     "name" : "$arg..."
   },
@@ -8,12 +12,16 @@
     "name" : "$arg1"
   },
   {
+    "context" : "interpolation(_:)",
+    "name" : "$width"
+  },
+  {
     "context" : "Importer",
     "name" : "\/index"
   },
   {
     "context" : "index",
-    "name" : "1.0.0-beta.11"
+    "name" : "1.0.0-beta.12"
   },
   {
     "context" : "ImportResolver",
@@ -62,6 +70,34 @@
   {
     "context" : "Importer",
     "name" : "_"
+  },
+  {
+    "context" : "string(_:)",
+    "name" : "calc($width \/ 2)"
+  },
+  {
+    "context" : "init(calc:)",
+    "name" : "calc()"
+  },
+  {
+    "context" : "==(SassCalculation, SassCalculation)",
+    "name" : "calc(10px)"
+  },
+  {
+    "context" : "SassCalculation",
+    "name" : "calc(20px + 30%)"
+  },
+  {
+    "context" : "SassCalculation",
+    "name" : "calc(20px, 30px)"
+  },
+  {
+    "context" : "==(SassCalculation, SassCalculation)",
+    "name" : "calc(5px + 5px)"
+  },
+  {
+    "context" : "clamp",
+    "name" : "clamp()"
   },
   {
     "context" : "SassString",
@@ -142,6 +178,14 @@
   {
     "context" : "scalarIndexFrom(sassIndex:)",
     "name" : "index"
+  },
+  {
+    "context" : "max",
+    "name" : "max()"
+  },
+  {
+    "context" : "min",
+    "name" : "min()"
   },
   {
     "context" : "SassFunctionSignature",

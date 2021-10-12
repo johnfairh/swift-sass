@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../../css/fw2020.css">
     
     
-   <title>SassArgumentList - Swift Sass v0.6.0</title>
+   <title>SassArgumentList - Swift Sass v0.7.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./../../" data-doc-path="sass/types/sassargumentlist.html" data-assets-path="../../">
@@ -31,7 +31,7 @@
     
     <a href="../../index.html">
     
-    Swift Sass v0.6.0</a>
+    Swift Sass v0.7.0</a>
   </div>
   
   <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
@@ -202,7 +202,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/compilermessage/kind.html?swift">Kind</a>
+  <a class="j2-nav-item" href="../../sass/types/compilermessage/kind2.html?swift">Kind</a>
 
 
 
@@ -377,7 +377,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/sassvalue8.html?swift">SassValue</a>
+  <a class="j2-nav-item" href="../../sass/types/sassvalue9.html?swift">SassValue</a>
 
 
 
@@ -455,6 +455,47 @@
     
 
   <a class="j2-nav-item" href="../../sass/types/sassmap.html?swift">SassMap</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../sass/types/sasscalculation.html?swift">SassCalculation</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../sass/types/sasscalculation/kind.html?swift">Kind</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../sass/types/sasscalculation/operator.html?swift">Operator</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../sass/types/sasscalculation/value.html?swift">Value</a>
+
+
+
+  </li>
+  
+</ul>
 
 
 
@@ -609,7 +650,7 @@ named keyword arguments.  See <a href="https://sass-lang.com/documentation/at-ru
 <p>You’ll typically use this type to access arguments passed in this way to a custom Sass
 function.  Be careful in other scenarios: the keyword argument part of the type is excluded
 from equality and listification, meaning it is easy to accidentally lose that part of the type
-when passing instances through generic <a href="../../sass/types/sassvalue8.html?swift"><code>SassValue</code></a> code.</p>
+when passing instances through generic <a href="../../sass/types/sassvalue9.html?swift"><code>SassValue</code></a> code.</p>
 </div>
 
 
@@ -656,7 +697,7 @@ when passing instances through generic <a href="../../sass/types/sassvalue8.html
       </code></a>
     <div class="collapse  j2-item-popopen-wrapper" id="_init_keywordskeywordsobserverseparator">
       <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none"></div>
+        <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
           
             <div class="clearfix">
@@ -680,9 +721,9 @@ when passing instances through generic <a href="../../sass/types/sassvalue8.html
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public init&lt;C&gt;(
     _ positional: C,
-    keywords: [<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>: <a href="../../sass/types/sassvalue8.html?swift">SassValue</a>] = [:],
+    keywords: [<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>: <a href="../../sass/types/sassvalue9.html?swift">SassValue</a>] = [:],
     keywordsObserver: @escaping () -&gt; <a href="https://developer.apple.com/documentation/swift/void?language=swift">Void</a> = {},
-    separator: Separator = .space) where C: <a href="https://developer.apple.com/documentation/swift/sequence?language=swift">Sequence</a>, C.Element == <a href="../../sass/types/sassvalue8.html?swift">SassValue</a></code></pre>
+    separator: Separator = .space) where C: <a href="https://developer.apple.com/documentation/swift/sequence?language=swift">Sequence</a>, C.Element == <a href="../../sass/types/sassvalue9.html?swift">SassValue</a></code></pre>
   </div>
 
 
@@ -733,7 +774,7 @@ to <code>.space</code>.</p></td>
             
           </nav>
         </div>
-      <div>
+      </div>
     </div>
     
   </section>
@@ -764,7 +805,7 @@ to <code>.space</code>.</p></td>
       </code></a>
     <div class="collapse  j2-item-popopen-wrapper" id="_keywords">
       <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none"></div>
+        <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
           
             <div class="clearfix">
@@ -786,7 +827,7 @@ to <code>.space</code>.</p></td>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var keywords: [<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>: <a href="../../sass/types/sassvalue8.html?swift">SassValue</a>] { get }</code></pre>
+    <pre><code class="language-swift">public var keywords: [<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>: <a href="../../sass/types/sassvalue9.html?swift">SassValue</a>] { get }</code></pre>
   </div>
 
 
@@ -805,7 +846,7 @@ to <code>.space</code>.</p></td>
             
           </nav>
         </div>
-      <div>
+      </div>
     </div>
     
   </section>
@@ -836,7 +877,7 @@ to <code>.space</code>.</p></td>
       </code></a>
     <div class="collapse  j2-item-popopen-wrapper" id="_acceptvisitor">
       <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none"></div>
+        <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
           
             <div class="clearfix">
@@ -878,7 +919,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
             
           </nav>
         </div>
-      <div>
+      </div>
     </div>
     
   </section>
@@ -897,7 +938,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
       </code></a>
     <div class="collapse  j2-item-popopen-wrapper" id="_description">
       <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none"></div>
+        <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
           
             <div class="clearfix">
@@ -938,7 +979,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
             
           </nav>
         </div>
-      <div>
+      </div>
     </div>
     
   </section>
@@ -1033,9 +1074,9 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
 
     <footer class="row">
   <div class="col j2-footer small pt-2">
-    <p><p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p></p>
+    <p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external">Bebop v1.7.1</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external noopener">Bebop v1.8.1</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

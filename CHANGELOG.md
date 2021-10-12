@@ -12,6 +12,11 @@
 
 * None
 
+# 0.7.0
+
+* Bundle the 1.0.0-beta.12 `dart_sass_embedded` binaries
+* Add `SassCalculation`
+
 # 0.6.0
 
 * Bundle the 1.0.0-beta.11 `dart_sass_embedded` binaries
