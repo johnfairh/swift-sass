@@ -682,7 +682,14 @@ final class CompilerChild: ChannelInboundHandler {
 
     /// Split out for test access
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) {
-        Compiler.logger.debug("Rx: \(message.logMessage)")
+        guard !stopping else {
+            // I don't really understand how this happens but have test proof on Linux
+            // on Github Actions env, seems to be an inbound buffer where something can
+            // get caught and appear even after the child process is terminated.
+            Compiler.logger.debug("Rx: \(message.logMessage) while stopping, discarding")
+            return
+        }
+        Compiler.logger.debug("Rx: \(message.logMessage) while stopping, discarding")
 
         work.receive(message: message).map {
             if let response = $0 {
