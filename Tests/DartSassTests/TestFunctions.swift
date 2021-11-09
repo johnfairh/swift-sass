@@ -17,7 +17,7 @@ class TestFunctions: DartSassTestCase {
 
     // (String) values go back and forth
 
-    let quoteStringFunction: SassFunctionMap = [
+    let quoteStringFunction: SassAsyncFunctionMap = [
         "myQuoteString($param)" : { args in
             let str = try args[0].asString()
             return SassString(str.string, isQuoted: true)
@@ -35,7 +35,7 @@ class TestFunctions: DartSassTestCase {
 
     // Errors reported
 
-    let errorFunction: SassFunctionMap = [
+    let errorFunction: SassAsyncFunctionMap = [
         "badFunction($param)" : { args in
             let bool = try args[0].asBool()
             XCTFail("Managed to get a bool")
@@ -58,20 +58,20 @@ class TestFunctions: DartSassTestCase {
 
     // Local func overrides global
 
-    let globalOverrideFunction: SassAsyncFunctionNIOMap = [
-        "ofunc($param)" : { eventLoop, args in
-            eventLoop.makeSucceededFuture(SassString("bucket"))
+    let globalOverrideFunction: SassAsyncFunctionMap = [
+        "ofunc($param)" : { _ in
+            SassString("bucket")
         }
     ]
 
-    let localOverrideFunction: SassFunctionMap = [
+    let localOverrideFunction: SassAsyncFunctionMap = [
         "ofunc()" : { _ in
             SassString("goat")
         }
     ]
 
     func testOverride() throws {
-        let compiler = try newCompiler(functions: .asyncNIO(globalOverrideFunction))
+        let compiler = try newCompiler(functions: globalOverrideFunction)
 
         let results = try compiler.compile(string: "a { a: ofunc() }", outputStyle: .compressed, functions: localOverrideFunction)
         XCTAssertEqual(#"a{a:"goat"}"#, results.css)
@@ -317,31 +317,9 @@ class TestFunctions: DartSassTestCase {
         XCTAssertEqual(#"a{b:"plaice"}"#, results.css)
     }
 
-    func testAsyncNIODynamicFunction() throws {
-        let fishMakerMaker: SassFunction = { args in
-            SassAsyncDynamicFunctionNIO(signature: "myFish()") { eventLoop, args in
-                eventLoop.makeSucceededFuture(SassString("plaice"))
-            }
-        }
-
-        let scss = """
-        @use "sass:meta";
-
-        a {
-          b: meta.call(getFishMaker());
-        }
-        """
-
-        let compiler = try newCompiler(functions: [
-            "getFishMaker()" : fishMakerMaker
-        ])
-        let results = try compiler.compile(string: scss, outputStyle: .compressed)
-        XCTAssertEqual(#"a{b:"plaice"}"#, results.css)
-    }
-
     /// ArgumentList
     func testVarargs() throws {
-        let varArgsFunction: SassFunctionMap = [
+        let varArgsFunction: SassAsyncFunctionMap = [
             "varFn($first, $args...)" : { args in
                 XCTAssertEqual(2, args.count)
                 try XCTAssertNoThrow(args[0].asNumber().asInt())
@@ -363,7 +341,7 @@ class TestFunctions: DartSassTestCase {
     }
 
     func testVarArgsKwArgs() throws {
-        let varArgsFunctions: SassFunctionMap = [
+        let varArgsFunctions: SassAsyncFunctionMap = [
             "kwReadingFn($args...)" : { args in
                 XCTAssertEqual(1, args.count)
                 let argList = try args[0].asArgumentList()
@@ -400,7 +378,7 @@ class TestFunctions: DartSassTestCase {
 
     // Test host-created arg lists, that the ID of 0 isn't reported back to the compiler.
     func testHostCreatedArgList() throws {
-        let functions: SassFunctionMap = [
+        let functions: SassAsyncFunctionMap = [
             "createAL()" : { _ in
                 SassArgumentList([SassNumber(23)], keywords: ["first": SassConstants.true])
             },

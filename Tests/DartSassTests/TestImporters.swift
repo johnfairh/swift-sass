@@ -97,8 +97,8 @@ class TestImporters: DartSassTestCase {
 
     // MARK: Custom Importers
 
-    // A custom importer using the NIO API
-    final class TestImporter: ImporterNIO, @unchecked Sendable {
+    // A custom importer
+    final class TestImporter: Importer, @unchecked Sendable {
         let css: String
 
         init(css: String) {
@@ -117,38 +117,38 @@ class TestImporters: DartSassTestCase {
         var claimRequest: Bool = true
         var unclaimedRequestCount = 0
 
-        func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
+        func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL? {
             if let failNextCanon = failNextCanon {
                 failedCanonCount += 1
-                return eventLoop.makeFailedFuture(Error(message: failNextCanon))
+                throw Error(message: failNextCanon)
             }
             guard claimRequest else {
                 unclaimedRequestCount += 1
-                return eventLoop.makeSucceededFuture(nil)
+                return nil
             }
             if ruleURL.starts(with: "test://") {
-                return eventLoop.makeSucceededFuture(URL(string: ruleURL))
+                return URL(string: ruleURL)
             }
-            return eventLoop.makeSucceededFuture(URL(string: "test://\(ruleURL)"))
+            return URL(string: "test://\(ruleURL)")
         }
 
         /// Fail the next import
         var failNextImport: String? = nil
         var failedImportCount = 0
 
-        func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
+        func load(canonicalURL: URL) async throws -> ImporterResults {
             if let failNextImport = failNextImport {
                 failedImportCount += 1
-                return eventLoop.makeFailedFuture(Error(message: failNextImport))
+                throw Error(message: failNextImport)
             }
-            return eventLoop.makeSucceededFuture(ImporterResults(css, syntax: .css, sourceMapURL: canonicalURL))
+            return ImporterResults(css, syntax: .css, sourceMapURL: canonicalURL)
         }
     }
 
     // Goodpath.
     func testCustomImporter() throws {
         let importer = TestImporter(css: secondaryCssRed)
-        let compiler = try newCompiler(importers: [.importerNIO(importer)])
+        let compiler = try newCompiler(importers: [.importer(importer)])
         let results = try compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssRed, results.css)
         XCTAssertEqual("test://secondary", results.loadedURLs.first!.absoluteString)
@@ -158,7 +158,7 @@ class TestImporters: DartSassTestCase {
     func checkFaultyImporter(customize: (TestImporter) -> Void, check: (TestImporter, CompilerError) -> Void) throws {
         let importer = TestImporter(css: secondaryCssRed)
         customize(importer)
-        let compiler = try newCompiler(importers: [.importerNIO(importer)])
+        let compiler = try newCompiler(importers: [.importer(importer)])
         do {
             let results = try compiler.compile(string: usingSass, syntax: .sass)
             XCTFail("Compiled something: \(results)")
@@ -207,7 +207,7 @@ class TestImporters: DartSassTestCase {
         let compiler = try newCompiler()
         let results = try compiler.compile(string: "@import 'something';",
                                            url: URL(string: "test://vfs"),
-                                           importer: .importerNIO(importer),
+                                           importer: .importer(importer),
                                            outputStyle: .compressed)
         XCTAssertEqual("a{color:red}", results.css)
         XCTAssertEqual(2, results.loadedURLs.count)
@@ -257,7 +257,7 @@ class TestImporters: DartSassTestCase {
     // multiple imports, loaded
     func testMultipleLoadedURLs() throws {
         let importer = TestImporter(css: "a { b: 'c' }")
-        let compiler = try newCompiler(importers: [.importerNIO(importer)])
+        let compiler = try newCompiler(importers: [.importer(importer)])
         let rootURL = URL(string: "original://file")!
         let scss = """
                    @import 'first';

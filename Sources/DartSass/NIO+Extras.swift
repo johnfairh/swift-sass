@@ -50,17 +50,6 @@ final class ProvidedEventLoopGroup {
         }
     }
 
-    func shutdownGracefully(queue: DispatchQueue, _ callback: @escaping (Error?) -> Void) {
-        switch provider {
-        case .shared:
-            queue.async {
-                callback(nil)
-            }
-        case .createNew:
-            eventLoopGroup.shutdownGracefully(queue: queue, callback)
-        }
-    }
-
     func syncShutdownGracefully() throws {
         switch provider {
         case .shared:
@@ -72,14 +61,5 @@ final class ProvidedEventLoopGroup {
 
     func next() -> EventLoop {
         eventLoopGroup.next()
-    }
-}
-
-extension Result {
-    var error: Error? {
-        switch self {
-        case .failure(let e): return e
-        case .success: return nil
-        }
     }
 }

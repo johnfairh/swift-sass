@@ -25,7 +25,7 @@ final class CompilerWork {
     /// Configured global importer rules, for all compilations
     private let globalImporters: [ImportResolver]
     /// Configured functions, for all compilations
-    private let globalFunctions: SassAsyncFunctionNIOMap
+    private let globalFunctions: SassAsyncFunctionMap
 
     /// Global settings passed through to Sass
     struct Settings {
@@ -37,6 +37,9 @@ final class CompilerWork {
         let suppressDependencyWarnings: Bool
     }
     private let settings: Settings
+
+    // These vars are protected by the event-loop thread, currently
+    // unsafe to let async-await happen in this layer.
 
     /// Unstarted compilation work
     private var pendingCompilations: [CompilationRequest]
@@ -50,7 +53,7 @@ final class CompilerWork {
          timeout: Int,
          settings: Settings,
          importers: [ImportResolver],
-         functions: SassAsyncFunctionNIOMap) {
+         functions: SassAsyncFunctionMap) {
         self.eventLoop = eventLoop
         self.resetRequest = resetRequest
         self.timeout = timeout
@@ -78,7 +81,7 @@ final class CompilerWork {
                                sourceMapStyle: SourceMapStyle,
                                importers: [ImportResolver],
                                stringImporter: ImportResolver? = nil,
-                               functions: SassAsyncFunctionNIOMap) -> EventLoopFuture<CompilerResults> {
+                               functions: SassAsyncFunctionMap) -> EventLoopFuture<CompilerResults> {
         eventLoop.preconditionInEventLoop()
 
         let promise = eventLoop.makePromise(of: CompilerResults.self)

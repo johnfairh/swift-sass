@@ -32,18 +32,10 @@ class DartSassTestCase: XCTestCase {
     }
 
     func newCompiler(importers: [ImportResolver] = []) throws -> Compiler {
-        try newCompiler(importers: importers, functions: .sync([:]))
-    }
-
-    func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap) throws -> Compiler {
-        try newCompiler(importers: importers, functions: .sync(functions))
+        try newCompiler(importers: importers, functions: [:])
     }
 
     func newCompiler(importers: [ImportResolver] = [], functions: SassAsyncFunctionMap) throws -> Compiler {
-        try newCompiler(importers: importers, functions: .async(functions))
-    }
-
-    func newCompiler(importers: [ImportResolver] = [], functions: SassFunctions) throws -> Compiler {
         let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
                              importers: importers,
                              functions: functions)
@@ -223,14 +215,18 @@ struct AsyncUnwrapError: Error {}
 // An incredible hack adapted from @kirilltitov to work around the lack of async
 // xctest support in Swift PM and corelibs-xctest.
 
-final class ErrBox: @unchecked Sendable {
+final class ErrBox<T>: @unchecked Sendable {
     var err: Error?
-    init() { err = nil }
+    var result: T?
+    init() {
+        err = nil
+        result = nil
+    }
 }
 
 func asyncTest(_ method: @escaping () async throws -> Void) throws -> Void {
     let expectation = XCTestExpectation(description: "async test completion")
-    let errorBox = ErrBox()
+    let errorBox = ErrBox<Void>()
 
     Task {
         defer { expectation.fulfill() }
@@ -245,4 +241,60 @@ func asyncTest(_ method: @escaping () async throws -> Void) throws -> Void {
     _ = XCTWaiter.wait(for: [expectation], timeout: 60 * 60 * 24 * 30)
 
     try errorBox.err.map { throw $0 }
+}
+
+// More hax to work around lack of async swift test stuff
+
+extension Compiler {
+    func compile(string: String,
+                 syntax: Syntax = .scss,
+                 url: URL? = nil,
+                 importer: ImportResolver? = nil,
+                 outputStyle: CssStyle = .expanded,
+                 sourceMapStyle: SourceMapStyle = .separateSources,
+                 importers: [ImportResolver] = [],
+                 functions: SassAsyncFunctionMap = [:]) throws -> CompilerResults {
+        let expectation = XCTestExpectation(description: "async compile completion")
+        let errorBox = ErrBox<CompilerResults>()
+
+        Task {
+            defer { expectation.fulfill() }
+
+            do {
+                errorBox.result = try await compile(string: string, syntax: syntax, url: url, importer: importer, outputStyle: outputStyle, sourceMapStyle: sourceMapStyle, importers: importers, functions: functions)
+            } catch {
+                errorBox.err = error
+            }
+        }
+
+        _ = XCTWaiter.wait(for: [expectation], timeout: 60 * 60 * 24 * 30)
+
+        try errorBox.err.map { throw $0 }
+        return errorBox.result!
+    }
+
+    public func compile(fileURL: URL,
+                        outputStyle: CssStyle = .expanded,
+                        sourceMapStyle: SourceMapStyle = .separateSources,
+                        importers: [ImportResolver] = [],
+                        functions: SassAsyncFunctionMap = [:]) throws -> CompilerResults {
+        let expectation = XCTestExpectation(description: "async compile completion2")
+        let errorBox = ErrBox<CompilerResults>()
+
+        Task {
+            defer { expectation.fulfill() }
+
+            do {
+                errorBox.result = try await compile(fileURL: fileURL, outputStyle: outputStyle, sourceMapStyle: sourceMapStyle, importers: importers, functions: functions)
+            } catch {
+                errorBox.err = error
+            }
+        }
+
+        _ = XCTWaiter.wait(for: [expectation], timeout: 60 * 60 * 24 * 30)
+
+        try errorBox.err.map { throw $0 }
+        return errorBox.result!
+
+    }
 }

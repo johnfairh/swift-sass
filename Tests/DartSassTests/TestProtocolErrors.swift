@@ -89,12 +89,13 @@ class TestProtocolErrors: DartSassTestCase {
             }
         }
 
-        let compileResult = compiler.compileAsync(string: "")
+        let compileResult = Task { try await compiler.compile(string: "") }
+        try? await Task.sleep(nanoseconds: 1000 * 1000 * 500)
 
         await compiler.receive(message: msg)
 
         do {
-            let results = try compileResult.wait()
+            let results = try await compileResult.value
             XCTFail("Managed to compile: \(results)")
         } catch let error as ProtocolError {
             print(error)
@@ -103,16 +104,17 @@ class TestProtocolErrors: DartSassTestCase {
             XCTFail("Unexpected error: \(error)")
         }
 
-        XCTAssertNoThrow(try compiler.reinit().wait()) // sync with event loop
+        await XCTAssertNoThrowA(try await compiler.reinit()) // sync with event loop
         XCTAssertEqual(2, compiler.startCount)
 
         // Peculiar error
-        let compileResult2 = compiler.compileAsync(string: "")
+        let compileResult2 = Task { try await compiler.compile(string: "") }
+        try? await Task.sleep(nanoseconds: 1000 * 1000 * 500)
         compiler.eventLoop.execute {
             try! compiler.child().channel.pipeline.fireErrorCaught(ProtocolError("Injected channel error"))
         }
         do {
-            let results = try compileResult2.wait()
+            let results = try await compileResult2.value
             XCTFail("Managed to compile: \(results)")
         } catch let error as ProtocolError {
             print(error)
@@ -121,7 +123,7 @@ class TestProtocolErrors: DartSassTestCase {
             XCTFail("Unexpected error: \(error)")
         }
 
-        XCTAssertNoThrow(try compiler.reinit().wait()) // sync with event loop
+        await XCTAssertNoThrowA(try await compiler.reinit()) // sync with event loop
         XCTAssertEqual(3, compiler.startCount)
     }
 

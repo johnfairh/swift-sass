@@ -6,7 +6,7 @@
 //
 
 import struct Foundation.URL
-import NIOCore
+//import NIOCore
 
 /// The results of loading a stylesheet through an importer.
 public struct ImporterResults: Sendable {
@@ -123,22 +123,10 @@ public protocol Importer: Sendable {
     func load(canonicalURL: URL) async throws -> ImporterResults
 }
 
-/// Methods required to implement a stylesheet importer - NIO-style.
-///
-/// See `Importer`.
-public protocol ImporterNIO: Sendable {
-    /// NIO-style version of `Importer.canonicalize(...)`.
-    func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?>
-    /// NIO-style version of `Importer.load(...)`.
-    func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults>
-}
-
 /// How the Sass compiler should resolve `@import`, `@use`, and `@forward` rules.
 public enum ImportResolver: Sendable {
     /// Search a filesystem directory to resolve the rule.  See [the Sass docs](https://sass-lang.com/documentation/at-rules/import#load-paths).
     case loadPath(URL)
     /// Call back through the `Importer` to resolve the rule.
     case importer(Importer)
-    /// Call back through the `ImporterNIO` to resolve the rule.
-    case importerNIO(ImporterNIO)
 }
