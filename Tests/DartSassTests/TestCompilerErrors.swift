@@ -13,7 +13,6 @@ import NIO
 /// Tests for compiler error decoding and transmission.
 /// Plus warnings etc.
 ///
-@available(macOS 12.0.0, *)
 class TestCompilerErrors: DartSassTestCase {
     let badSass = """
     @mixin reflexive-position($property, $value)
@@ -263,7 +262,6 @@ class TestCompilerErrors: DartSassTestCase {
     }
 }
 
-@available(macOS 12.0.0, *)
 final class StaticImporter: Importer {
     private let scss: String
 

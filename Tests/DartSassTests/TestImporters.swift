@@ -13,7 +13,6 @@ import SourceMapper
 ///
 /// Tests for importers.
 ///
-@available(macOS 12.0.0, *)
 class TestImporters: DartSassTestCase {
 
     // MARK: Load Paths

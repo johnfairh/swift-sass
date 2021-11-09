@@ -13,7 +13,6 @@ import SourceMapper
 /// Tests to check the normal operation of the sass compiler -- not testing the compiler itself,
 /// just that we can talk to it honestly and translate enums etc. properly.
 ///
-@available(macOS 12.0.0, *)
 class TestInterface: DartSassTestCase {
     let scssIn = """
     div {
@@ -77,7 +76,11 @@ class TestInterface: DartSassTestCase {
     }
 
     /// Does it work, from a file
-    func testCoreFile() async throws {
+    func testCoreFile() throws {
+        try asyncTest(asyncTestCoreFile)
+    }
+
+    func asyncTestCoreFile() async throws {
         let compiler = try newCompiler()
         try await checkCompileFromFile(compiler, extnsion: "scss", content: scssIn, expected: scssOutExpanded)
         try await checkCompileFromFile(compiler, extnsion: "sass", content: sassIn, expected: sassOutExpanded)

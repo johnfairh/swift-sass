@@ -12,10 +12,13 @@ import NIO
 ///
 /// Tests around resets, timeouts, and shutdown.
 ///
-@available(macOS 12.0.0, *)
 class TestResetShutdown: DartSassTestCase {
     // Clean restart case
-    func testCleanRestart() async throws {
+    func testCleanRestart() throws {
+        try asyncTest(asyncTestCleanRestart)
+    }
+
+    func asyncTestCleanRestart() async throws {
         let compiler = try newCompiler()
         await compiler.sync()
         XCTAssertEqual(1, compiler.startCount)
@@ -25,11 +28,18 @@ class TestResetShutdown: DartSassTestCase {
     }
 
     // Deal with missing child & SIGPIPE-avoidance measures
-    func testChildTermination() async throws {
+    func testChildTermination() throws {
+        try asyncTest(asyncTestChildTermination)
+    }
+
+    func asyncTestChildTermination() async throws {
         let compiler = try newCompiler()
-        let rc = kill(await compiler.compilerProcessIdentifier!, SIGTERM)
+        let pid = await compiler.compilerProcessIdentifier!
+        // This seems super flakey on Linux in particular, have upgraded from SIGTERM to SIGKILL
+        // but still sometimes the process doesn't die and happily services the compilation...
+        let rc = kill(pid, SIGKILL)
         XCTAssertEqual(0, rc)
-        print("XCKilled compiler process")
+        print("XCKilled compiler process \(pid)")
         checkProtocolError(compiler)
 
         // check recovered
@@ -69,7 +79,11 @@ class TestResetShutdown: DartSassTestCase {
     }
 
     // Test the 'compiler will not restart' corner
-    func testUnrestartableCompiler() async throws {
+    func testUnrestartableCompiler() throws {
+        try asyncTest(asyncTestUnrestartableCompiler)
+    }
+
+    func asyncTestUnrestartableCompiler() async throws {
         let tmpDir = try FileManager.default.createTemporaryDirectory()
         let realHeadURL = URL(fileURLWithPath: "/usr/bin/tail")
         let tmpHeadURL = tmpDir.appendingPathComponent("tail")
@@ -132,7 +146,11 @@ class TestResetShutdown: DartSassTestCase {
         }
     }
 
-    func testGracefulShutdown() async throws {
+    func testGracefulShutdown() throws {
+        try asyncTest(asyncTestGracefulShutdown)
+    }
+
+    func asyncTestGracefulShutdown() async throws {
         let compiler = try newCompiler()
 
         // NIO-style async shutdown
@@ -172,7 +190,11 @@ class TestResetShutdown: DartSassTestCase {
     }
 
     // Quiesce delayed by client-side activity
-    func testClientStuckReset() async throws {
+    func testClientStuckReset() throws {
+        try asyncTest(asyncTestClientStuckReset)
+    }
+
+    func asyncTestClientStuckReset() async throws {
         let importer = HangingAsyncImporter()
         let compiler = try newCompiler(importers: [.importer(importer)])
 

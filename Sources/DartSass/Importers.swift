@@ -111,7 +111,6 @@ public protocol Importer: Sendable {
     ///   anything then the importer should return `nil` instead.
     ///
     ///   Compilation will stop, quoting the description of the error thrown as the reason.
-    @available(macOS 12.0.0, *)
     func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL?
 
     /// Load a stylesheet from a canonical URL
@@ -121,7 +120,6 @@ public protocol Importer: Sendable {
     /// - returns: The stylesheet and optional source map.
     /// - throws: If the stylesheet cannot be loaded.  Compilation will stop, quoting
     ///   the description of this error as the reason.
-    @available(macOS 12.0.0, *)
     func load(canonicalURL: URL) async throws -> ImporterResults
 }
 

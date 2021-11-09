@@ -41,7 +41,6 @@ final class ProvidedEventLoopGroup {
         }
     }
 
-    @available(macOS 12.0.0, *)
     func shutdownGracefully() async throws {
         switch provider {
         case .shared:

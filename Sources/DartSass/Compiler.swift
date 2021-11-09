@@ -226,7 +226,6 @@ public final class Compiler: @unchecked Sendable {
     /// call it.
     ///
     /// Any outstanding compilations are failed.
-    @available(macOS 12.0.0, *)
     public func reinit() async throws {
         try await reinit().get()
     }
@@ -248,7 +247,6 @@ public final class Compiler: @unchecked Sendable {
     /// Waits for work to wind down naturally and shuts down internal threads.  There's no way back
     /// from this state: to do more compilation you will need a new object.
     ///
-    @available(macOS 12.0.0, *)
     public func shutdownGracefully() async throws {
         try await eventLoop.flatSubmit { self.shutdown() }.get()
         try await eventLoopGroup.shutdownGracefully()
@@ -290,7 +288,6 @@ public final class Compiler: @unchecked Sendable {
     /// means that the compiler is broken or shutdown.
     ///
     /// See `compilerProcessIdentifierFuture` for a NIO-native version.
-    @available(macOS 12.0.0, *)
     public var compilerProcessIdentifier: Int32? {
         get async {
             try? await compilerProcessIdentifierFuture.get()
@@ -316,7 +313,6 @@ public final class Compiler: @unchecked Sendable {
     }
 
     /// The name of the underlying Sass implementation.  `nil` if unknown.
-    @available(macOS 12.0.0, *)
     public var compilerName: String? {
         get async {
             try? await compilerNameFuture.get()
@@ -332,7 +328,6 @@ public final class Compiler: @unchecked Sendable {
 
     /// The version of the underlying Sass implementation.  For Dart Sass and LibSass this is in
     /// [semver](https://semver.org/spec/v2.0.0.html) format. `nil` if unknown (never got a version).
-    @available(macOS 12.0.0, *)
     public var compilerVersion: String? {
         get async {
             try! await compilerVersionFuture.get()
@@ -349,7 +344,6 @@ public final class Compiler: @unchecked Sendable {
     /// The version of the package implementing the compiler side of the embedded Sass protocol.
     /// Probably in [semver](https://semver.org/spec/v2.0.0.html) format.
     /// `nil` if unknown (never got a version).
-    @available(macOS 12.0.0, *)
     public var compilerPackageVersion: String? {
         get async {
             try! await compilerPackageVersionFuture.get()
@@ -408,7 +402,6 @@ public final class Compiler: @unchecked Sendable {
     /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
     ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
     /// - returns: `CompilerResults` with CSS and optional source map.
-    @available(macOS 12.0.0, *)
     public func compile(fileURL: URL,
                         outputStyle: CssStyle = .expanded,
                         sourceMapStyle: SourceMapStyle = .separateSources,
@@ -471,7 +464,6 @@ public final class Compiler: @unchecked Sendable {
     /// - throws: `CompilerError` if there is a critical error with the input, for example a syntax error.
     ///           Some other kind of error if something goes wrong  with the compiler infrastructure itself.
     /// - returns: `CompilerResults` with CSS and optional source map.
-    @available(macOS 12.0.0, *)
     public func compile(string: String,
                         syntax: Syntax = .scss,
                         url: URL? = nil,

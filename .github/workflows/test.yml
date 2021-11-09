@@ -30,9 +30,9 @@ jobs:
 
   macos11:
     name: macOS 11 tests
-    runs-on: macos-11.0
+    runs-on: macos-11
     env:
-      DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_13.2.app/Contents/Developer
     steps:
       - uses: actions/checkout@v2
 

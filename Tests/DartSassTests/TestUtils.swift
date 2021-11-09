@@ -129,7 +129,6 @@ extension URL {
 
 /// An async importer that can be stopped in `load`.
 /// Accepts all `import` URLs and returns empty documents.
-@available(macOS 12.0.0, *)
 final class HangingAsyncImporter: Importer {
 
     final class State: @unchecked Sendable {
@@ -177,7 +176,6 @@ struct TestVersionsResponder: VersionsResponder {
 }
 
 extension XCTest {
-    @available(macOS 12.0.0, *)
     func XCTAssertThrowsErrorA<T>(
         _ expression: @autoclosure () async throws -> T,
         _ message: @autoclosure () -> String = "",
@@ -193,7 +191,6 @@ extension XCTest {
         }
     }
 
-    @available(macOS 12.0.0, *)
     func XCTAssertNoThrowA<T>(
         _ expression: @autoclosure () async throws -> T,
         _ message: @autoclosure () -> String = "",
@@ -207,7 +204,6 @@ extension XCTest {
         }
     }
 
-    @available(macOS 12.0.0, *)
     func XCTUnwrapA<T>(
         _ expression: @autoclosure () async throws -> T?,
         _ message: @autoclosure () -> String = "",
@@ -223,3 +219,30 @@ extension XCTest {
 }
 
 struct AsyncUnwrapError: Error {}
+
+// An incredible hack adapted from @kirilltitov to work around the lack of async
+// xctest support in Swift PM and corelibs-xctest.
+
+final class ErrBox: @unchecked Sendable {
+    var err: Error?
+    init() { err = nil }
+}
+
+func asyncTest(_ method: @escaping () async throws -> Void) throws -> Void {
+    let expectation = XCTestExpectation(description: "async test completion")
+    let errorBox = ErrBox()
+
+    Task {
+        defer { expectation.fulfill() }
+
+        do {
+            try await method()
+        } catch {
+            errorBox.err = error
+        }
+    }
+
+    _ = XCTWaiter.wait(for: [expectation], timeout: 60 * 60 * 24 * 30)
+
+    try errorBox.err.map { throw $0 }
+}

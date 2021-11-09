@@ -13,7 +13,6 @@ import XCTest
 /// Tests for custom functions.
 ///  - SassTests covers the base `SassValue` hierarchy.
 ///  - We don't need to test the compiler's implementation of this flow, just our side.
-@available(macOS 12.0, *)
 class TestFunctions: DartSassTestCase {
 
     // (String) values go back and forth

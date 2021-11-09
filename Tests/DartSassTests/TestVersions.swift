@@ -19,7 +19,6 @@ extension Versions {
 }
 
 /// Tests for version checking
-@available(macOS 12.0.0, *)
 class TestVersions: DartSassTestCase {
     func testCreation() {
         let vers = Versions(protocolVersionString: "1.0.3")
@@ -40,6 +39,10 @@ class TestVersions: DartSassTestCase {
     }
 
     func testVersionReport() throws {
+        try asyncTest(asyncTestVersionReport)
+    }
+
+    func asyncTestVersionReport() async throws {
         let expectedPackage = "1.0.0-beta.12"
         let expectedCompiler = "1.42.1"
         let compiler = try newCompiler()
@@ -51,7 +54,11 @@ class TestVersions: DartSassTestCase {
         XCTAssertEqual(expectedPackage, package)
     }
 
-    func testBadVersionReport() async throws {
+    func testBadVersionReport() throws {
+        try asyncTest(asyncTestBadVersionReport)
+    }
+
+    func asyncTestBadVersionReport() async throws {
         let compiler = try newCompiler()
         compiler.versionsResponder = TestVersionsResponder(Versions(protocolVersionString: "huh"))
         let version = await compiler.compilerVersion
@@ -64,7 +71,11 @@ class TestVersions: DartSassTestCase {
         }
     }
 
-    func testStuckVersionReport() async throws {
+    func testStuckVersionReport() throws {
+        try asyncTest(asyncTestStuckVersionReport)
+    }
+
+    func asyncTestStuckVersionReport() async throws {
         let compiler = try newBadCompiler(timeout: 1)
         compiler.versionsResponder = HangingVersionsResponder()
         let version = await compiler.compilerVersion
@@ -85,7 +96,11 @@ class TestVersions: DartSassTestCase {
         }
     }
 
-    func testCorruptVersionReport() async throws {
+    func testCorruptVersionReport() throws {
+        try asyncTest(asyncTestCorruptVersionReport)
+    }
+
+    func asyncTestCorruptVersionReport() async throws {
         let compiler = try newCompiler()
         compiler.versionsResponder = CorruptVersionsResponder()
         let version = await compiler.compilerVersion
