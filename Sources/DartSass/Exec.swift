@@ -32,8 +32,11 @@ private struct SocketPipe {
 enum Exec {
     /// Start an asynchrous child process with NIO connections.
     ///
-    /// Doesn't work on an event loop -- a weird underlying NIO design point we lean into: this
-    /// blocks a little as the process starts.
+    /// Doesn't work on an event loop:
+    /// * Forking the child process probably blocks a bit
+    /// * Old version of NIO used to insist `NIOPipeBootstrap` wasn't done on an event loop,
+    ///   and although this doesn't apply since 2.34.0, some pieces of state machine have ended
+    ///   up leaning into the thread structure and unpicking them is work.
     ///
     /// - parameter command: Path of the command to run
     /// - parameter arguments: Arguments to pass to the command
@@ -52,13 +55,11 @@ enum Exec {
         process.arguments = arguments
 
         // Some pain in getting this working with NIO.
-        // Lesson 1: Don't let NIO anywhere near a pipe(2) fd, it doesn't
-        // understand how they work.
-        // Lesson 2: Don't let NIO anywhere near the 'child' ends of the
+        // Lesson 1: Don't let NIO anywhere near the 'child' ends of the
         // non-pipe FDs, even when closed it messes up on Linux.
-        // Lesson 3: Avoid the version of PipeBootstrap that dup()s an FD,
-        // it's broken.
-        // Lesson 4: Don't let CoreFoundation's FileHandle implementation
+        // Lesson 2: Avoid the version of PipeBootstrap that dup()s an FD,
+        // it's broken in case of failure.
+        // Lesson 3: Don't let CoreFoundation's FileHandle implementation
         // anywhere important, it is mad keen on closing FDs.
 
         let stdoutPipe = SocketPipe()
