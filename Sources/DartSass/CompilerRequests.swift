@@ -5,9 +5,10 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import NIO
+import NIOCore
 import NIOConcurrencyHelpers
 import struct Foundation.URL
+import Dispatch
 @_spi(SassCompilerProvider) import Sass
 
 // Protocols and classes modelling compiler communication sequences
@@ -88,9 +89,24 @@ private enum CompilerRequestState {
     }
 }
 
+struct Lock {
+    private let dsem: DispatchSemaphore
+
+    init() {
+        dsem = DispatchSemaphore(value: 1)
+    }
+
+    func locked<T>(_ call: () throws -> T) rethrows -> T {
+        dsem.wait()
+        defer { dsem.signal() }
+        return try call()
+    }
+}
+
 private protocol ManagedCompilerRequest: TypedCompilerRequest {
     var timer: Scheduled<Void>? { get set }
     var state: CompilerRequestState { get set }
+    var stateLock: Lock { get }
 }
 
 extension ManagedCompilerRequest {
@@ -127,29 +143,35 @@ extension ManagedCompilerRequest {
     /// of a timeout -> reset, or because of a protocol error on another job.
     func cancel(with error: Error) {
         timer?.cancel()
-        if !state.isInClient {
-            promise.fail(error)
-        } else {
-            debug("waiting to cancel while hostfn/importer runs")
-            state = .client_error(error)
+        stateLock.locked {
+            if !state.isInClient {
+                promise.fail(error)
+            } else {
+                debug("waiting to cancel while hostfn/importer runs")
+                state = .client_error(error)
+            }
         }
     }
 
     /// Wrapper to match the 'stopped' version
     func clientStarting() {
-        precondition(!state.isInClient)
-        state = .client
+        stateLock.locked {
+            precondition(!state.isInClient)
+            state = .client
+        }
     }
 
     /// Deferred cancellation at the end of client activity
     func clientStopped() {
-        let oldState = state
-        state = .normal
+        stateLock.locked {
+            let oldState = state
+            state = .normal
 
-        precondition(oldState.isInClient)
-        if case let .client_error(error) = oldState {
-            debug("hostfn/importer done, cancelling")
-            promise.fail(error)
+            precondition(oldState.isInClient)
+            if case let .client_error(error) = oldState {
+                debug("hostfn/importer done, cancelling")
+                promise.fail(error)
+            }
         }
     }
 }
@@ -161,6 +183,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     private(set) var promise: EventLoopPromise<CompilerResults>
     fileprivate var timer: Scheduled<Void>?
     fileprivate var state: CompilerRequestState
+    fileprivate let stateLock: Lock
 
     // Debug
     var debugPrefix: String { "CompID=\(requestID)" }
@@ -209,6 +232,7 @@ final class CompilationRequest: ManagedCompilerRequest {
         self.promise = promise
         self.state = .normal
         self.timer = nil
+        self.stateLock = Lock()
         initCompilerRequest()
     }
 
@@ -223,36 +247,38 @@ final class CompilationRequest: ManagedCompilerRequest {
 
     /// Inbound messages.
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
-        do {
-            switch message.message {
-            case .compileResponse(let rsp):
-                return try receive(compileResponse: rsp)
+        let promise = eventLoop.makePromise(of: Optional<IBM>.self)
+        promise.completeWithTask { try await self.receiveAsync(message: message) }
+        return promise.futureResult
+    }
 
-            case .logEvent(let rsp):
-                return try receive(log: rsp)
+    func receiveAsync(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage? {
+        switch message.message {
+        case .compileResponse(let rsp):
+            return try receive(compileResponse: rsp)
 
-            case .canonicalizeRequest(let req):
-                return try receive(canonicalizeRequest: req)
+        case .logEvent(let rsp):
+            return try receive(log: rsp)
 
-            case .importRequest(let req):
-                return try receive(importRequest: req)
+        case .canonicalizeRequest(let req):
+            return try await receive(canonicalizeRequest: req)
 
-            case .functionCallRequest(let req):
-                return try receive(functionCallRequest: req)
+        case .importRequest(let req):
+            return try await receive(importRequest: req)
 
-            case .fileImportRequest(let req):
-                return eventLoop.makeProtocolError("Unexpected FileImport-Req: \(req)")
+        case .functionCallRequest(let req):
+            return try await receive(functionCallRequest: req)
 
-            case nil, .error, .versionResponse:
-                preconditionFailure("Unreachable: message type not associated with CompID: \(message)")
-            }
-        } catch {
-            return eventLoop.makeFailedFuture(error)
+        case .fileImportRequest(let req):
+            throw ProtocolError("Unexpected FileImport-Req: \(req)")
+
+        case nil, .error, .versionResponse:
+            preconditionFailure("Unreachable: message type not associated with CompID: \(message)")
         }
     }
 
     /// Inbound `CompileResponse` handler
-    private func receive(compileResponse: OBM.CompileResponse) throws -> EventLoopFuture<IBM?> {
+    private func receive(compileResponse: OBM.CompileResponse) throws -> IBM? {
         switch compileResponse.result {
         case .success(let s):
             promise.succeed(.init(s, messages: messages))
@@ -261,13 +287,13 @@ final class CompilationRequest: ManagedCompilerRequest {
         case nil:
             throw ProtocolError("Malformed Compile-Rsp, missing `result`: \(compileResponse)")
         }
-        return eventLoop.makeSucceededFuture(nil)
+        return nil
     }
 
     /// Inbound `LogEvent` handler
-    private func receive(log: OBM.LogEvent) throws -> EventLoopFuture<IBM?> {
+    private func receive(log: OBM.LogEvent) throws -> IBM? {
         try messages.append(.init(log))
-        return eventLoop.makeSucceededFuture(nil)
+        return nil
     }
 
     // MARK: Importers
@@ -288,36 +314,33 @@ final class CompilationRequest: ManagedCompilerRequest {
     }
 
     /// Inbound `CanonicalizeRequest` handler
-    private func receive(canonicalizeRequest req: OBM.CanonicalizeRequest) throws -> EventLoopFuture<IBM?> {
+    private func receive(canonicalizeRequest req: OBM.CanonicalizeRequest) async throws -> IBM? {
         let importer = try getImporter(importerID: req.importerID)
         var rsp = IBM.CanonicalizeResponse.with { $0.id = req.id }
 
         clientStarting()
 
-        return importer.canonicalize(eventLoop: eventLoop,
-                                     ruleURL: req.url,
-                                     fromImport: req.fromImport)
-            .map { canonURL -> IBM.CanonicalizeResponse in
-                if let canonURL = canonURL {
-                    rsp.url = canonURL.absoluteString
-                    self.debug("Tx Canon-Rsp-Success ReqID=\(req.id)")
-                } else {
-                    // leave result nil -> can't deal with this request
-                    self.debug("Tx Canon-Rsp-Nil ReqID=\(req.id)")
-                }
-                return rsp
-            }.recover { error in
-                rsp.error = String(describing: error)
-                self.debug("Tx Canon-Rsp-Error ReqID=\(req.id)")
-                return rsp
-            }.map { rsp in
-                self.clientStopped()
-                return .with { $0.message = .canonicalizeResponse(rsp) }
+        do {
+            let canonURL = try await importer.canonicalize(ruleURL: req.url,
+                                                           fromImport: req.fromImport)
+            if let canonURL = canonURL {
+                rsp.url = canonURL.absoluteString
+                self.debug("Tx Canon-Rsp-Success ReqID=\(req.id)")
+            } else {
+                // leave result nil -> can't deal with this request
+                self.debug("Tx Canon-Rsp-Nil ReqID=\(req.id)")
             }
+        } catch {
+            rsp.error = String(describing: error)
+            self.debug("Tx Canon-Rsp-Error ReqID=\(req.id)")
+        }
+
+        self.clientStopped()
+        return .with { $0.message = .canonicalizeResponse(rsp) }
     }
 
     /// Inbound `ImportRequest` handler
-    private func receive(importRequest req: OBM.ImportRequest) throws -> EventLoopFuture<IBM?> {
+    private func receive(importRequest req: OBM.ImportRequest) async throws -> IBM? {
         let importer = try getImporter(importerID: req.importerID)
         guard let url = URL(string: req.url) else {
             throw ProtocolError("Malformed import URL: \(req.url)")
@@ -326,31 +349,29 @@ final class CompilationRequest: ManagedCompilerRequest {
 
         clientStarting()
 
-        return importer.load(eventLoop: eventLoop, canonicalURL: url)
-            .map { results -> IBM.ImportResponse in
-                rsp.success = .with { msg in
-                    msg.contents = results.contents
-                    msg.syntax = .init(results.syntax)
-                    results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
-                }
-                self.debug("Tx Import-Rsp-Success ReqID=\(req.id)")
-                return rsp
-            }.recover { error in
-                rsp.error = String(describing: error)
-                self.debug("Tx Import-Rsp-Error ReqID=\(req.id)")
-                return rsp
-            }.map { rsp in
-                self.clientStopped()
-                return .with { $0.message = .importResponse(rsp) }
+        do {
+            let results = try await importer.load(canonicalURL: url)
+            rsp.success = .with { msg in
+                msg.contents = results.contents
+                msg.syntax = .init(results.syntax)
+                results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
             }
+            self.debug("Tx Import-Rsp-Success ReqID=\(req.id)")
+        } catch {
+            rsp.error = String(describing: error)
+            self.debug("Tx Import-Rsp-Error ReqID=\(req.id)")
+        }
+
+        self.clientStopped()
+        return .with { $0.message = .importResponse(rsp) }
     }
 
     // MARK: Functions
 
     /// Inbound 'FunctionCallRequest' handler
-    private func receive(functionCallRequest req: OBM.FunctionCallRequest) throws -> EventLoopFuture<IBM?> {
+    private func receive(functionCallRequest req: OBM.FunctionCallRequest) async throws -> IBM? {
         /// Helper to run the callback after we locate it
-        func doSassFunction(_ fn: @escaping SassAsyncFunction) throws -> EventLoopFuture<IBM?> {
+        func doSassFunction(_ fn: @escaping SassAsyncFunction) async throws -> IBM? {
             var rsp = IBM.FunctionCallResponse.with { $0.id = req.id }
 
             // Set up to monitor accesses to any `SassArgumentList`s
@@ -366,20 +387,18 @@ final class CompilationRequest: ManagedCompilerRequest {
 
             clientStarting()
 
-            return fn(self.eventLoop, args).map { resultValue -> IBM.FunctionCallResponse in
+            do {
+                let resultValue = try await fn(args)
                 rsp.success = .init(resultValue)
-                rsp.accessedArgumentLists = Array(accessedArgLists)
                 self.debug("Tx FnCall-Rsp-Success ReqID=\(req.id)")
-                return rsp
-            }.recover { error in
+            } catch {
                 rsp.error = String(describing: error)
-                rsp.accessedArgumentLists = Array(accessedArgLists)
-                self.debug("Tx FnCall-Rsp-Error ReqID=\(req.id)")
-                return rsp
-            }.map { rsp in
-                self.clientStopped()
-                return .with { $0.message = .functionCallResponse(rsp) }
+                self.debug("Tx FnCall-Rsp-Success ReqID=\(req.id)")
             }
+
+            rsp.accessedArgumentLists = Array(accessedArgLists)
+            self.clientStopped()
+            return .with { $0.message = .functionCallResponse(rsp) }
         }
 
         switch req.identifier {
@@ -387,16 +406,16 @@ final class CompilationRequest: ManagedCompilerRequest {
             guard let sassDynamicFunc = SassDynamicFunction.lookUp(id: id) else {
                 throw ProtocolError("Host function ID=\(id) not registered.")
             }
-            if let asyncDynamicFunc = sassDynamicFunc as? SassAsyncDynamicFunction {
-                return try doSassFunction(asyncDynamicFunc.asyncFunction)
+            if let asyncFunc = sassDynamicFunc as? SassAsyncDynamicFunction {
+                return try await doSassFunction(asyncFunc.asyncFunction)
             }
-            return try doSassFunction(SyncFunctionAdapter(sassDynamicFunc.function))
+            return try await doSassFunction(SyncFunctionAdapter(sassDynamicFunc.function))
 
         case .name(let name):
             guard let sassFunc = functions[name] else {
                 throw ProtocolError("Host function name '\(name)' not registered.")
             }
-            return try doSassFunction(sassFunc)
+            return try await doSassFunction(sassFunc)
 
         case nil:
             throw ProtocolError("Missing 'identifier' field in FunctionCallRequest")
@@ -407,7 +426,7 @@ final class CompilationRequest: ManagedCompilerRequest {
 private extension ImportResolver {
     var importer: Importer? {
         switch self {
-        case .loadPath(_): return nil
+        case .loadPath: return nil
         case .importer(let i): return i
         }
     }
@@ -420,6 +439,7 @@ final class VersionRequest: ManagedCompilerRequest {
     private(set) var promise: EventLoopPromise<Versions>
     fileprivate var timer: Scheduled<Void>?
     fileprivate var state: CompilerRequestState
+    fileprivate var stateLock: Lock
 
     // Version-specific
     let versionReq: Sass_EmbeddedProtocol_InboundMessage.VersionRequest
@@ -436,6 +456,7 @@ final class VersionRequest: ManagedCompilerRequest {
         self.promise = promise
         self.state = .normal
         self.timer = nil
+        self.stateLock = Lock()
         self.versionReq = .with { $0.id = RequestID.next }
         initCompilerRequest()
     }

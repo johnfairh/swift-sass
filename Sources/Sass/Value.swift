@@ -35,9 +35,9 @@
 /// `SassValue` is abstract, you cannot create instances. Instead create instances of subtypes
 /// like `SassColor`.
 ///
-/// All the `SassValue` types are immutable.
-
-open class SassValue: Hashable, Sequence, CustomStringConvertible {
+/// All the `SassValue` types have value semantics and are almost all entirely immutable: the
+/// only mutability is to do with caching of derived properties.
+open class SassValue: Hashable, Sequence, CustomStringConvertible, @unchecked Sendable {
     /// stop anyone else actually subclassing this
     init() {}
 

@@ -9,7 +9,7 @@ import Foundation
 @_implementationOnly import SourceMapper
 
 /// The output from a successful compilation.
-public struct CompilerResults {
+public struct CompilerResults: Sendable {
     /// The  CSS produced by the Sass compiler.
     public let css: String
 
@@ -42,7 +42,7 @@ public struct CompilerResults {
     /// `CompilerResults.withFileLocations(...)`.
     ///
     /// If you plan to ship the source map (so it is accessed through `http:` URLs by a browser)
-    /// then you need to use one of the `relative` options to avoid `file:` URLs that won't
+    /// then you need to use one of the `.relative` options to avoid `file:` URLs that won't
     /// make sense to clients.
     ///
     public enum URLStyle {

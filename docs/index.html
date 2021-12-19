@@ -640,7 +640,7 @@ Examples
 
 let compiler = try Compiler()
 
-let results = try compiler.compile(fileURL: scssFileURL)
+let results = try await compiler.compile(fileURL: scssFileURL)
 
 print(results.css)
 </code></pre>
@@ -650,26 +650,26 @@ custom implementations of <code>@use</code> rules to load content, and custom fu
 provide application-specific behavior:</p>
 <pre><code class="language-swift">
 struct ExtrasImporter: Importer {
-  func canonicalize(importURL: String) throws -&gt; URL? {
+  func canonicalize(importURL: String) async throws -&gt; URL? {
     guard importURL == &quot;extras&quot; else {
       return nil
     }
     return URL(string: &quot;custom://extras&quot;)
   }
 
-  func load(canonicalURL: URL) throws -&gt; ImporterResults {
+  func load(canonicalURL: URL) async throws -&gt; ImporterResults {
     ImporterResults(my_extras_stylesheet)
   }
 }
 
-let customFunctions: SassFunctionMap = [
+let customFunctions: SassAsyncFunctionMap = [
   &quot;userColorForScore($score)&quot; : { args in
     let score = try args[0].asInt()
     return SassColor(...)
   }
 ]
 
-let results = try compiler.compile(
+let results = try await compiler.compile(
     fileURL: scssFileURL,
     importers: [
       .loadPath(sassIncludeDirectoryFileURL),
@@ -686,10 +686,8 @@ let results = try compiler.compile(
   color: userColorForScore(50);
 }
 </code></pre>
-<p>These example are written in a synchronous style for simplicity.
-<code>DartSass</code> is built on
-<a href="https://github.com/apple/swift-nio">NIO</a> and there are corresponding
-asynchronous / non-blocking APIs.</p>
+<p><code>DartSass</code> is built on <a href="https://github.com/apple/swift-nio">NIO</a> but the user
+interface is entirely Swift 5.5 async-await.</p>
 <h2 class="j2-anchor j2-heading heading" id="documentation">
 <span data-anchor-id="documentation">
 Documentation
@@ -703,7 +701,7 @@ Documentation
 Requirements
 </span></h2>
 <ul>
-<li>Swift 5.4</li>
+<li>Swift 5.5</li>
 <li>macOS 11 (tested on macOS 11.3 IA64)</li>
 <li>Linux (tested on Ubuntu 18.04.5)</li>
 <li>Embedded Sass Protocol version 1.0.0-beta.15</li>

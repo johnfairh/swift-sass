@@ -31,14 +31,14 @@ class DartSassTestCase: XCTestCase {
         eventLoopGroup = nil
     }
 
-    func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap = [:]) throws -> Compiler {
-        return try newCompiler(importers: importers, asyncFunctions: SassAsyncFunctionMap(functions))
+    func newCompiler(importers: [ImportResolver] = []) throws -> Compiler {
+        try newCompiler(importers: importers, functions: [:])
     }
 
-    func newCompiler(importers: [ImportResolver] = [], asyncFunctions: SassAsyncFunctionMap) throws -> Compiler {
+    func newCompiler(importers: [ImportResolver] = [], functions: SassAsyncFunctionMap) throws -> Compiler {
         let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
                              importers: importers,
-                             functions: asyncFunctions)
+                             functions: functions)
         compilersToShutdown.append(c)
         return c
     }
@@ -122,35 +122,27 @@ extension URL {
 /// An async importer that can be stopped in `load`.
 /// Accepts all `import` URLs and returns empty documents.
 final class HangingAsyncImporter: Importer {
-    func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
-        return eventLoop.makeSucceededFuture(URL(string: "custom://\(ruleURL)"))
+
+    final class State: @unchecked Sendable {
+        var onLoadHang: (() async -> Void)?
+        init() { onLoadHang = nil }
     }
 
-    var hangNextLoad: Bool { hangPromise != nil }
-    private var hangPromise: EventLoopPromise<Void>? = nil
-    var loadPromise: EventLoopPromise<ImporterResults>? = nil
+    let state = State()
 
-    func hangLoad(eventLoop: EventLoop) -> EventLoopFuture<Void> {
-        hangPromise = eventLoop.makePromise(of: Void.self)
-        return hangPromise!.futureResult
+    init() {
     }
 
-    func resumeLoad() throws {
-        let promise = try XCTUnwrap(loadPromise)
-        promise.succeed(.init(""))
-        loadPromise = nil
+    func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL? {
+        URL(string: "custom://\(ruleURL)")
     }
 
-    func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
-        let promise = eventLoop.makePromise(of: ImporterResults.self)
-        if hangNextLoad {
-            loadPromise = promise
-            hangPromise?.succeed(())
-            hangPromise = nil
-        } else {
-            promise.succeed(.init(""))
+    func load(canonicalURL: URL) async throws -> ImporterResults {
+        if let onLoadHang = state.onLoadHang {
+            await onLoadHang()
+            state.onLoadHang = nil
         }
-        return promise.futureResult
+        return ImporterResults("")
     }
 }
 
@@ -172,5 +164,137 @@ struct TestVersionsResponder: VersionsResponder {
         eventLoop.scheduleTask(in: .milliseconds(100)) {
             callback(.with {$0.versionResponse = .init(versions, id: msg.versionRequest.id) })
         }
+    }
+}
+
+extension XCTest {
+    func XCTAssertThrowsErrorA<T>(
+        _ expression: @autoclosure () async throws -> T,
+        _ message: @autoclosure () -> String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line,
+        _ errorHandler: (_ error: Error) -> Void = { _ in }
+    ) async {
+        do {
+            _ = try await expression()
+            XCTFail(message(), file: file, line: line)
+        } catch {
+            errorHandler(error)
+        }
+    }
+
+    func XCTAssertNoThrowA<T>(
+        _ expression: @autoclosure () async throws -> T,
+        _ message: @autoclosure () -> String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) async {
+        do {
+            _ = try await expression()
+        } catch {
+            XCTFail(message(), file: file, line: line)
+        }
+    }
+
+    func XCTUnwrapA<T>(
+        _ expression: @autoclosure () async throws -> T?,
+        _ message: @autoclosure () -> String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) async throws -> T {
+        guard let t = try await expression() else {
+            XCTFail("Unexpectedly nil")
+            throw AsyncUnwrapError()
+        }
+        return t
+    }
+}
+
+struct AsyncUnwrapError: Error {}
+
+// An incredible hack adapted from @kirilltitov to work around the lack of async
+// xctest support in Swift PM and corelibs-xctest.
+
+final class ErrBox<T>: @unchecked Sendable {
+    var err: Error?
+    var result: T?
+    init() {
+        err = nil
+        result = nil
+    }
+}
+
+func asyncTest(_ method: @escaping () async throws -> Void) throws -> Void {
+    let expectation = XCTestExpectation(description: "async test completion")
+    let errorBox = ErrBox<Void>()
+
+    Task {
+        defer { expectation.fulfill() }
+
+        do {
+            try await method()
+        } catch {
+            errorBox.err = error
+        }
+    }
+
+    _ = XCTWaiter.wait(for: [expectation], timeout: 60 * 60 * 24 * 30)
+
+    try errorBox.err.map { throw $0 }
+}
+
+// More hax to work around lack of async swift test stuff
+
+extension Compiler {
+    func compile(string: String,
+                 syntax: Syntax = .scss,
+                 url: URL? = nil,
+                 importer: ImportResolver? = nil,
+                 outputStyle: CssStyle = .expanded,
+                 sourceMapStyle: SourceMapStyle = .separateSources,
+                 importers: [ImportResolver] = [],
+                 functions: SassAsyncFunctionMap = [:]) throws -> CompilerResults {
+        let expectation = XCTestExpectation(description: "async compile completion")
+        let errorBox = ErrBox<CompilerResults>()
+
+        Task {
+            defer { expectation.fulfill() }
+
+            do {
+                errorBox.result = try await compile(string: string, syntax: syntax, url: url, importer: importer, outputStyle: outputStyle, sourceMapStyle: sourceMapStyle, importers: importers, functions: functions)
+            } catch {
+                errorBox.err = error
+            }
+        }
+
+        _ = XCTWaiter.wait(for: [expectation], timeout: 60 * 60 * 24 * 30)
+
+        try errorBox.err.map { throw $0 }
+        return errorBox.result!
+    }
+
+    public func compile(fileURL: URL,
+                        outputStyle: CssStyle = .expanded,
+                        sourceMapStyle: SourceMapStyle = .separateSources,
+                        importers: [ImportResolver] = [],
+                        functions: SassAsyncFunctionMap = [:]) throws -> CompilerResults {
+        let expectation = XCTestExpectation(description: "async compile completion2")
+        let errorBox = ErrBox<CompilerResults>()
+
+        Task {
+            defer { expectation.fulfill() }
+
+            do {
+                errorBox.result = try await compile(fileURL: fileURL, outputStyle: outputStyle, sourceMapStyle: sourceMapStyle, importers: importers, functions: functions)
+            } catch {
+                errorBox.err = error
+            }
+        }
+
+        _ = XCTWaiter.wait(for: [expectation], timeout: 60 * 60 * 24 * 30)
+
+        try errorBox.err.map { throw $0 }
+        return errorBox.result!
+
     }
 }

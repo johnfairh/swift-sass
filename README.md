@@ -37,7 +37,7 @@ import DartSass
 
 let compiler = try Compiler()
 
-let results = try compiler.compile(fileURL: scssFileURL)
+let results = try await compiler.compile(fileURL: scssFileURL)
 
 print(results.css)
 ```
@@ -48,26 +48,26 @@ provide application-specific behavior:
 ```swift
 
 struct ExtrasImporter: Importer {
-  func canonicalize(importURL: String) throws -> URL? {
+  func canonicalize(importURL: String) async throws -> URL? {
     guard importURL == "extras" else {
       return nil
     }
     return URL(string: "custom://extras")
   }
 
-  func load(canonicalURL: URL) throws -> ImporterResults {
+  func load(canonicalURL: URL) async throws -> ImporterResults {
     ImporterResults(my_extras_stylesheet)
   }
 }
 
-let customFunctions: SassFunctionMap = [
+let customFunctions: SassAsyncFunctionMap = [
   "userColorForScore($score)" : { args in
     let score = try args[0].asInt()
     return SassColor(...)
   }
 ]
 
-let results = try compiler.compile(
+let results = try await compiler.compile(
     fileURL: scssFileURL,
     importers: [
       .loadPath(sassIncludeDirectoryFileURL),
@@ -87,10 +87,8 @@ let results = try compiler.compile(
 }
 ```
 
-These example are written in a synchronous style for simplicity.
-`DartSass` is built on
-[NIO](https://github.com/apple/swift-nio) and there are corresponding
-asynchronous / non-blocking APIs.
+`DartSass` is built on [NIO](https://github.com/apple/swift-nio) but the user
+interface is entirely Swift 5.5 async-await.
 
 ## Documentation
 
@@ -99,7 +97,7 @@ asynchronous / non-blocking APIs.
 
 ## Requirements
 
-* Swift 5.4
+* Swift 5.5
 * macOS 11 (tested on macOS 11.3 IA64)
 * Linux (tested on Ubuntu 18.04.5)
 * Embedded Sass Protocol version 1.0.0-beta.15

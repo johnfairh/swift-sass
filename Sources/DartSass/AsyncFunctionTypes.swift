@@ -6,10 +6,9 @@
 //
 
 import Sass
-import NIO
 
 /// A version of the `SassFunction` type that allows async behavior.
-public typealias SassAsyncFunction = (EventLoop, [SassValue]) -> EventLoopFuture<SassValue>
+public typealias SassAsyncFunction = @Sendable ([SassValue]) async throws -> SassValue
 
 /// A set of `SassAsyncFunction`s and their signatures.
 public typealias SassAsyncFunctionMap = [SassFunctionSignature : SassAsyncFunction]
@@ -38,16 +37,5 @@ public class SassAsyncDynamicFunction: SassDynamicFunction {
 // MARK: Function conversion
 
 func SyncFunctionAdapter(_ fn: @escaping SassFunction) -> SassAsyncFunction {
-    { eventLoop, args in
-        eventLoop.submit { try fn(args) }
-    }
-}
-
-extension SassAsyncFunctionMap {
-    init(_ sync: SassFunctionMap) {
-        self.init()
-        sync.forEach { kv in
-            self[kv.key] = SyncFunctionAdapter(kv.value)
-        }
-    }
+    { args in try await Task { try fn(args) }.value }
 }

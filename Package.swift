@@ -1,4 +1,4 @@
-// swift-tools-version:5.4
+// swift-tools-version:5.5
 
 import PackageDescription
 
@@ -23,7 +23,7 @@ let package = Package(
       .package(
         name: "swift-nio",
         url: "https://github.com/apple/swift-nio.git",
-        from: "2.33.0"),
+        from: "2.36.0"),
       .package(
         name: "swift-log",
         url: "https://github.com/apple/swift-log.git",
@@ -50,7 +50,9 @@ let package = Package(
           .target(name: "DartSassEmbeddedLinux",
               condition: .when(platforms: [.linux])),
           .product(name: "SwiftProtobuf", package: "SwiftProtobuf"),
-          .product(name: "NIO", package: "swift-nio"),
+          .product(name: "NIOCore", package: "swift-nio"),
+          .product(name: "NIOPosix", package: "swift-nio"),
+          .product(name: "NIOConcurrencyHelpers", package: "swift-nio"),
           .product(name: "NIOFoundationCompat", package: "swift-nio"),
           .product(name: "Logging", package: "swift-log"),
           .product(name: "Semver", package: "Semver"),

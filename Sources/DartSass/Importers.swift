@@ -6,10 +6,10 @@
 //
 
 import struct Foundation.URL
-import NIO
+//import NIOCore
 
 /// The results of loading a stylesheet through an importer.
-public struct ImporterResults {
+public struct ImporterResults: Sendable {
     // MARK: Initializers
 
     /// Initialize a new `ImporterResults`.
@@ -92,14 +92,13 @@ public struct ImporterResults {
 ///
 /// If more than one of these implicit index resources exist then the importer must
 /// throw an error indicating that the import is ambiguous.
-public protocol Importer {
+public protocol Importer: Sendable {
     /// Convert an imported URL to its canonical format.
     ///
     /// The returned URL must be absolute and include a scheme.  If the routine
     /// happens to be called with a resource's canonical URL (including something
     /// the routine previously returned) then it must be returned unchanged.
     ///
-    /// - parameter eventLoop: The current event loop.
     /// - parameter ruleURL: The text following `@import` or `@use` in
     ///   a stylesheet.
     /// - parameter fromImport: Whether this request comes from an `@import` rule.
@@ -112,21 +111,20 @@ public protocol Importer {
     ///   anything then the importer should return `nil` instead.
     ///
     ///   Compilation will stop, quoting the description of the error thrown as the reason.
-    func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?>
+    func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL?
 
     /// Load a stylesheet from a canonical URL
     ///
-    /// - parameter eventLoop: The current event loop.
     /// - parameter canonicalURL: A URL previously returned by
     ///   `canonicalize(...)` during this compilation.
     /// - returns: The stylesheet and optional source map.
     /// - throws: If the stylesheet cannot be loaded.  Compilation will stop, quoting
     ///   the description of this error as the reason.
-    func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults>
+    func load(canonicalURL: URL) async throws -> ImporterResults
 }
 
 /// How the Sass compiler should resolve `@import`, `@use`, and `@forward` rules.
-public enum ImportResolver {
+public enum ImportResolver: Sendable {
     /// Search a filesystem directory to resolve the rule.  See [the Sass docs](https://sass-lang.com/documentation/at-rules/import#load-paths).
     case loadPath(URL)
     /// Call back through the `Importer` to resolve the rule.

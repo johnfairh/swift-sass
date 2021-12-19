@@ -124,11 +124,11 @@
     "name" : "fileURL"
   },
   {
-    "context" : "canonicalize(eventLoop:ruleURL:fromImport:)",
+    "context" : "canonicalize(ruleURL:fromImport:)",
     "name" : "foo.css"
   },
   {
-    "context" : "canonicalize(eventLoop:ruleURL:fromImport:)",
+    "context" : "canonicalize(ruleURL:fromImport:)",
     "name" : "foo.sass"
   },
   {
@@ -176,10 +176,6 @@
     "name" : "https:"
   },
   {
-    "context" : "scalarIndexFrom(sassIndex:)",
-    "name" : "index"
-  },
-  {
     "context" : "max",
     "name" : "max()"
   },
@@ -208,11 +204,7 @@
     "name" : "range"
   },
   {
-    "context" : "URLStyle",
-    "name" : "relative"
-  },
-  {
-    "context" : "canonicalize(eventLoop:ruleURL:fromImport:)",
+    "context" : "canonicalize(ruleURL:fromImport:)",
     "name" : "ruleURL"
   },
   {

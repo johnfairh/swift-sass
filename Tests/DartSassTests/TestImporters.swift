@@ -98,7 +98,7 @@ class TestImporters: DartSassTestCase {
     // MARK: Custom Importers
 
     // A custom importer
-    final class TestImporter: Importer {
+    final class TestImporter: Importer, @unchecked Sendable {
         let css: String
 
         init(css: String) {
@@ -117,31 +117,31 @@ class TestImporters: DartSassTestCase {
         var claimRequest: Bool = true
         var unclaimedRequestCount = 0
 
-        func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
+        func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL? {
             if let failNextCanon = failNextCanon {
                 failedCanonCount += 1
-                return eventLoop.makeFailedFuture(Error(message: failNextCanon))
+                throw Error(message: failNextCanon)
             }
             guard claimRequest else {
                 unclaimedRequestCount += 1
-                return eventLoop.makeSucceededFuture(nil)
+                return nil
             }
             if ruleURL.starts(with: "test://") {
-                return eventLoop.makeSucceededFuture(URL(string: ruleURL))
+                return URL(string: ruleURL)
             }
-            return eventLoop.makeSucceededFuture(URL(string: "test://\(ruleURL)"))
+            return URL(string: "test://\(ruleURL)")
         }
 
         /// Fail the next import
         var failNextImport: String? = nil
         var failedImportCount = 0
 
-        func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
+        func load(canonicalURL: URL) async throws -> ImporterResults {
             if let failNextImport = failNextImport {
                 failedImportCount += 1
-                return eventLoop.makeFailedFuture(Error(message: failNextImport))
+                throw Error(message: failNextImport)
             }
-            return eventLoop.makeSucceededFuture(ImporterResults(css, syntax: .css, sourceMapURL: canonicalURL))
+            return ImporterResults(css, syntax: .css, sourceMapURL: canonicalURL)
         }
     }
 
@@ -218,7 +218,7 @@ class TestImporters: DartSassTestCase {
 
     // fromImport flag
     func testFromImport() throws {
-        class FromImportTester: Importer {
+        final class FromImportTester: Importer, @unchecked Sendable {
             var expectFromImport = false
             var wasInvoked = false
 
@@ -231,15 +231,15 @@ class TestImporters: DartSassTestCase {
                 XCTAssertTrue(wasInvoked)
             }
 
-            func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -> EventLoopFuture<URL?> {
+            func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL? {
                 XCTAssertFalse(wasInvoked)
                 wasInvoked = true
                 XCTAssertEqual(expectFromImport, fromImport)
-                return eventLoop.makeSucceededFuture(URL(string: "test://\(ruleURL)"))
+                return URL(string: "test://\(ruleURL)")
             }
 
-            func load(eventLoop: EventLoop, canonicalURL: URL) -> EventLoopFuture<ImporterResults> {
-                return eventLoop.makeSucceededFuture(ImporterResults("", syntax: .css, sourceMapURL: canonicalURL))
+            func load(canonicalURL: URL) async throws -> ImporterResults {
+                ImporterResults("", syntax: .css, sourceMapURL: canonicalURL)
             }
         }
         let importer = FromImportTester()

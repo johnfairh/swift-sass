@@ -627,7 +627,7 @@
             
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public struct CompilerResults</code></pre>
+    <pre><code class="language-swift">public struct CompilerResults: <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -953,7 +953,7 @@ pointing at the original sources.  The Sass compiler uses absolute (typically <c
 for original sources.  This can be modified and the CSS -&gt; source map reference added using
 <a href="../../sass/types/compilerresults.html?swift#withfilelocationscssfileurlsourcemapfileurlstyle"><code>CompilerResults.withFileLocations(...)</code></a>.</p>
 <p>If you plan to ship the source map (so it is accessed through <code>http:</code> URLs by a browser)
-then you need to use one of the <code>relative</code> options to avoid <code>file:</code> URLs that won’t
+then you need to use one of the <code>.relative</code> options to avoid <code>file:</code> URLs that won’t
 make sense to clients.</p>
 
 

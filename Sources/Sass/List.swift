@@ -13,7 +13,7 @@
 public class SassList: SassValue {
     // MARK: Types
     /// The list-separator character.
-    public enum Separator: String, Equatable {
+    public enum Separator: String, Equatable, Sendable {
         /// Comma.
         case comma = ","
         /// Whitespace.

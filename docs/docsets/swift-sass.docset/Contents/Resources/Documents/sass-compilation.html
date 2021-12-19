@@ -666,7 +666,7 @@
 For other platforms you need to supply this separately, see
 <a href="index.html">the readme</a>.</p>
 <p>Some debug logging is available via <a href="dartsass/types/compiler.html?swift#logger"><code>Compiler.logger</code></a>.</p>
-<p>You must shut down the compiler using <a href="dartsass/types/compiler.html?swift#shutdowngracefullyqueue_"><code>shutdownGracefully(...)</code></a>
+<p>You must shut down the compiler using <a href="dartsass/types/compiler.html?swift#shutdowngracefully"><code>shutdownGracefully(...)</code></a>
 or <a href="dartsass/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> otherwise the program will exit.</p>
 <h2 class="j2-anchor j2-heading heading" id="custom-importer-resolution">
 <span data-anchor-id="custom-importer-resolution">
@@ -689,7 +689,7 @@ per-compilation list, in order within each list.</li>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class Compiler</code></pre>
+    <pre><code class="language-swift">public final class Compiler: @unchecked <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -711,7 +711,7 @@ per-compilation list, in order within each list.</li>
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L39-L608">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L40-L583">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -768,7 +768,7 @@ per-compilation list, in order within each list.</li>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public enum Syntax</code></pre>
+    <pre><code class="language-swift">public enum Syntax: <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -835,7 +835,7 @@ per-compilation list, in order within each list.</li>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public enum CssStyle</code></pre>
+    <pre><code class="language-swift">public enum CssStyle: <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -902,7 +902,7 @@ per-compilation list, in order within each list.</li>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public enum SourceMapStyle</code></pre>
+    <pre><code class="language-swift">public enum SourceMapStyle: <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -969,7 +969,7 @@ per-compilation list, in order within each list.</li>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public enum CompilerMessageStyle</code></pre>
+    <pre><code class="language-swift">public enum CompilerMessageStyle: <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1048,7 +1048,7 @@ per-compilation list, in order within each list.</li>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public struct CompilerResults</code></pre>
+    <pre><code class="language-swift">public struct CompilerResults: <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1116,7 +1116,7 @@ from succeeding.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public struct CompilerMessage: <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a></code></pre>
+    <pre><code class="language-swift">public struct CompilerMessage: <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1183,7 +1183,7 @@ from succeeding.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public struct CompilerError: <a href="https://developer.apple.com/documentation/swift/error?language=swift">Swift.Error</a>, <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a></code></pre>
+    <pre><code class="language-swift">public struct CompilerError: <a href="https://developer.apple.com/documentation/swift/error?language=swift">Swift.Error</a>, <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1250,7 +1250,7 @@ from succeeding.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public struct Span: <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a></code></pre>
+    <pre><code class="language-swift">public struct Span: <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 

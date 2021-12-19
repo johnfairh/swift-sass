@@ -8,7 +8,8 @@
 import struct Foundation.URL
 import class Foundation.FileManager // cwd
 import Dispatch
-import NIO
+import NIOCore
+import NIOPosix
 import Logging
 @_exported import Sass
 
@@ -36,7 +37,7 @@ import Logging
 /// * Consult the stylesheet's associated importer.
 /// * Consult every `DartSass.ImportResolver` given to the compiler, first the global list then the
 ///   per-compilation list, in order within each list.
-public final class Compiler {
+public final class Compiler: @unchecked Sendable {
     private let eventLoopGroup: ProvidedEventLoopGroup
 
     /// NIO event loop we're bound to.  Internal for test.
@@ -118,10 +119,10 @@ public final class Compiler {
     /// Initialization continues asynchronously after the initializer completes; failures are reported
     /// when the compiler is next used.
     ///
-    /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
+    /// You must shut down the compiler with `shutdownGracefully()` or
     /// `syncShutdownGracefully()` before letting it go out of scope.
     ///
-    /// - parameter eventLoopGroup: NIO `EventLoopGroup` to use: either `.shared` to use
+    /// - parameter eventLoopGroupProvider: NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.  Default is `.createNew`.
     /// - parameter timeout: Maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
@@ -160,10 +161,10 @@ public final class Compiler {
     /// Initialization continues asynchronously after the initializer returns; failures are reported
     /// when the compiler is next used.
     ///
-    /// You must shut down the compiler with `shutdownGracefully(queue:_:)` or
+    /// You must shut down the compiler with `shutdownGracefully()` or
     /// `syncShutdownGracefully()` before letting it go out of scope.
     ///
-    /// - parameter eventLoopGroup: NIO `EventLoopGroup` to use: either `.shared` to use
+    /// - parameter eventLoopGroupProvider: NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.  Default is `.createNew`.
     /// - parameter embeddedCompilerFileURL: Path of `dart-sass-embedded`
     ///   or something else that speaks the Sass embedded protocol.  Check [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md)
@@ -225,10 +226,10 @@ public final class Compiler {
     /// call it.
     ///
     /// Any outstanding compilations are failed.
-    public func reinit() -> EventLoopFuture<Void> {
-        eventLoop.flatSubmit {
+    public func reinit() async throws {
+        try await eventLoop.flatSubmit {
             self.handle(error: LifecycleError("User requested Sass compiler be reinitialized"))
-        }
+        }.get()
     }
 
     /// Shut down the compiler asynchronously.
@@ -239,21 +240,14 @@ public final class Compiler {
     /// Waits for work to wind down naturally and shuts down internal threads.  There's no way back
     /// from this state: to do more compilation you will need a new object.
     ///
-    /// This resolves on a dispatch queue because of internal event queue shutdown; make sure the
-    /// queue is being run.
-    public func shutdownGracefully(queue: DispatchQueue = .global(), _ callback: @escaping (Error?) -> Void) {
-        eventLoop.flatSubmit {
-            self.shutdown()
-        }.whenCompleteBlocking(onto: queue) { result in
-            self.eventLoopGroup.shutdownGracefully(queue: queue) { elgError in
-                callback(result.error ?? elgError)
-            }
-        }
+    public func shutdownGracefully() async throws {
+        try await eventLoop.flatSubmit { self.shutdown() }.get()
+        try await eventLoopGroup.shutdownGracefully()
     }
 
     /// Shut down the compiler synchronously.
     ///
-    /// See `shutdownGracefully(queue:_:)`.
+    /// See `shutdownGracefully()`.
     ///
     /// Do not call this from an event loop thread.
     public func syncShutdownGracefully() throws {
@@ -269,7 +263,14 @@ public final class Compiler {
     /// Not normally needed; could be used to adjust resource usage or maybe send it a signal if stuck.
     /// The process ID is reported after waiting for any [re]initialization to complete; a value of `nil`
     /// means that the compiler is broken or shutdown.
-    public var compilerProcessIdentifier: EventLoopFuture<Int32?> {
+    public var compilerProcessIdentifier: Int32? {
+        get async {
+            try? await compilerProcessIdentifierFuture.get()
+        }
+    }
+
+    /// A future evaluating to the process ID of the embedded Sass compiler.
+    private var compilerProcessIdentifierFuture: EventLoopFuture<Int32?> {
         eventLoop.flatSubmit { [self] in
             switch state {
             case .broken, .shutdown:
@@ -278,28 +279,34 @@ public final class Compiler {
                 return eventLoop.makeSucceededFuture(child.processIdentifier)
             case .initializing(let future):
                 return future.flatMap {
-                    self.compilerProcessIdentifier
+                    self.compilerProcessIdentifierFuture
                 }
             }
         }
     }
 
     /// The name of the underlying Sass implementation.  `nil` if unknown.
-    public var compilerName: EventLoopFuture<String?> {
-        versionsFuture.map { $0?.compilerName }
+    public var compilerName: String? {
+        get async {
+            try! await versionsFuture.map { $0?.compilerName }.get()
+        }
     }
 
     /// The version of the underlying Sass implementation.  For Dart Sass and LibSass this is in
     /// [semver](https://semver.org/spec/v2.0.0.html) format. `nil` if unknown (never got a version).
-    public var compilerVersion: EventLoopFuture<String?> {
-        versionsFuture.map { $0?.compilerVersionString }
+    public var compilerVersion: String? {
+        get async {
+            try! await versionsFuture.map { $0?.compilerVersionString }.get()
+        }
     }
 
     /// The version of the package implementing the compiler side of the embedded Sass protocol.
     /// Probably in [semver](https://semver.org/spec/v2.0.0.html) format.
     /// `nil` if unknown (never got a version).
-    public var compilerPackageVersion: EventLoopFuture<String?> {
-        versionsFuture.map { $0?.packageVersionString }
+    public var compilerPackageVersion: String? {
+        get async {
+            try! await versionsFuture.map { $0?.packageVersionString }.get()
+        }
     }
 
     private var versionsFuture: EventLoopFuture<Versions?> {
@@ -332,23 +339,6 @@ public final class Compiler {
         Compiler.logger.debug(.init(stringLiteral: msg()))
     }
 
-    /// Asynchronous version of `compile(fileURL:outputStyle:sourceMapStyle:importers:functions:)`.
-    public func compileAsync(fileURL: URL,
-                             outputStyle: CssStyle = .expanded,
-                             sourceMapStyle: SourceMapStyle = .separateSources,
-                             importers: [ImportResolver] = [],
-                             functions: SassAsyncFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
-        eventLoop.flatSubmit { [self] in
-            defer { kickPendingCompilations() }
-            return work.addPendingCompilation(
-                input: .path(fileURL.path),
-                outputStyle: outputStyle,
-                sourceMapStyle: sourceMapStyle,
-                importers: .init(importers),
-                functions: functions)
-        }
-    }
-
     /// Compile to CSS from a stylesheet file.
     ///
     /// - parameters:
@@ -367,45 +357,16 @@ public final class Compiler {
                         outputStyle: CssStyle = .expanded,
                         sourceMapStyle: SourceMapStyle = .separateSources,
                         importers: [ImportResolver] = [],
-                        functions: SassFunctionMap = [:]) throws -> CompilerResults {
-        try compileAsync(fileURL: fileURL,
-                         outputStyle: outputStyle,
-                         sourceMapStyle: sourceMapStyle,
-                         importers: importers,
-                         functions: .init(functions)).wait()
-    }
-
-    /// Asynchronous version of `compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)`.
-    public func compileAsync(string: String,
-                             syntax: Syntax = .scss,
-                             url: URL? = nil,
-                             importer: ImportResolver? = nil,
-                             outputStyle: CssStyle = .expanded,
-                             sourceMapStyle: SourceMapStyle = .separateSources,
-                             importers: [ImportResolver] = [],
-                             functions: SassAsyncFunctionMap = [:]) -> EventLoopFuture<CompilerResults> {
-        eventLoop.flatSubmit { [self] in
+                        functions: SassAsyncFunctionMap = [:]) async throws -> CompilerResults {
+        try await eventLoop.flatSubmit { [self] in
             defer { kickPendingCompilations() }
             return work.addPendingCompilation(
-                input: .string(.with { m in
-                    m.source = string
-                    m.syntax = .init(syntax)
-                    url.flatMap { m.url = $0.absoluteString }
-                    m.importer = .init(findImplicitImporter(importer: importer),
-                                       id: CompilationRequest.baseImporterID)
-                }),
+                input: .path(fileURL.path),
                 outputStyle: outputStyle,
                 sourceMapStyle: sourceMapStyle,
-                importers: importers,
-                stringImporter: importer,
+                importers: .init(importers),
                 functions: functions)
-        }
-    }
-
-    // Compile from string, no importer given, supposed to try the current directory.
-    // but the child process's CWD could be different to ours - so we can't let it resolve.
-    private func findImplicitImporter(importer: ImportResolver?) -> ImportResolver {
-        importer ?? .loadPath(URL(fileURLWithPath: FileManager.default.currentDirectoryPath))
+        }.get()
     }
 
     /// Compile to CSS from an inline stylesheet.
@@ -433,15 +394,29 @@ public final class Compiler {
                         outputStyle: CssStyle = .expanded,
                         sourceMapStyle: SourceMapStyle = .separateSources,
                         importers: [ImportResolver] = [],
-                        functions: SassFunctionMap = [:]) throws -> CompilerResults {
-        try compileAsync(string: string,
-                         syntax: syntax,
-                         url: url,
-                         importer: importer,
-                         outputStyle: outputStyle,
-                         sourceMapStyle: sourceMapStyle,
-                         importers: importers,
-                         functions: .init(functions)).wait()
+                        functions: SassAsyncFunctionMap = [:]) async throws -> CompilerResults {
+        try await eventLoop.flatSubmit { [self] in
+            defer { kickPendingCompilations() }
+            return work.addPendingCompilation(
+                input: .string(.with { m in
+                    m.source = string
+                    m.syntax = .init(syntax)
+                    url.flatMap { m.url = $0.absoluteString }
+                    m.importer = .init(findImplicitImporter(importer: importer),
+                                       id: CompilationRequest.baseImporterID)
+                }),
+                outputStyle: outputStyle,
+                sourceMapStyle: sourceMapStyle,
+                importers: importers,
+                stringImporter: importer,
+                functions: functions)
+        }.get()
+    }
+
+    // Compile from string, no importer given, supposed to try the current directory.
+    // but the child process's CWD could be different to ours - so we can't let it resolve.
+    private func findImplicitImporter(importer: ImportResolver?) -> ImportResolver {
+        importer ?? .loadPath(URL(fileURLWithPath: FileManager.default.currentDirectoryPath))
     }
 
     /// Consider the pending work queue.  When we change `state` or add to `pendingCompilations`.`
@@ -705,6 +680,13 @@ final class CompilerChild: ChannelInboundHandler {
 
     /// Split out for test access
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) {
+        guard !stopping else {
+            // I don't really understand how this happens but have test proof on Linux
+            // on Github Actions env, seems to be an inbound buffer where something can
+            // get caught and appear even after the child process is terminated.
+            Compiler.logger.debug("Rx: \(message.logMessage) while stopping, discarding")
+            return
+        }
         Compiler.logger.debug("Rx: \(message.logMessage)")
 
         work.receive(message: message).map {

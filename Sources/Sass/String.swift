@@ -50,7 +50,7 @@ public final class SassString: SassValue {
     /// - parameter index: A Sass value intended to be used as a string index.  This must be an
     ///   integer between 1 and `sassLength` inclusive, or negative with the same magnitude to
     ///   index from the end.
-    /// - throws: `SassFunctionError` if `index` is not an integer or out of range.
+    /// - throws: `SassFunctionError` if `sassIndex` is not an integer or out of range.
     public func scalarIndexFrom(sassIndex: SassValue) throws -> String.UnicodeScalarIndex {
         let indexValue = try sassIndex.asNumber().asInt()
         guard indexValue.magnitude >= 1 && indexValue.magnitude <= sassLength else {

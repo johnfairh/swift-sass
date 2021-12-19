@@ -11,11 +11,13 @@
 		021281DF265A8352000C7256 /* SourceMapper in Frameworks */ = {isa = PBXBuildFile; productRef = 021281DE265A8352000C7256 /* SourceMapper */; };
 		021281E1265A8384000C7256 /* CompilerResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021281E0265A8384000C7256 /* CompilerResults.swift */; };
 		021281E7265BC76F000C7256 /* TestCompilerResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021281E6265BC76F000C7256 /* TestCompilerResults.swift */; };
+		0240C97726DCFE4000F9C32C /* NIOConcurrencyHelpers in Frameworks */ = {isa = PBXBuildFile; productRef = 0240C97626DCFE4000F9C32C /* NIOConcurrencyHelpers */; };
+		0240C97926DCFE4500F9C32C /* NIOPosix in Frameworks */ = {isa = PBXBuildFile; productRef = 0240C97826DCFE4500F9C32C /* NIOPosix */; };
+		0240C97B26DCFE4900F9C32C /* NIOCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0240C97A26DCFE4900F9C32C /* NIOCore */; };
 		02440A1625765786008F0862 /* CompilerFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1525765786008F0862 /* CompilerFunction.swift */; };
 		02440A1925765C0C008F0862 /* TestFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1825765C0C008F0862 /* TestFunction.swift */; };
 		02440A1C2576679E008F0862 /* DynamicFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1B2576679E008F0862 /* DynamicFunction.swift */; };
 		02440A1F2576B24B008F0862 /* ValueConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1E2576B24B008F0862 /* ValueConvertible.swift */; };
-		02440A272576C7DA008F0862 /* NIO in Frameworks */ = {isa = PBXBuildFile; productRef = 02440A262576C7DA008F0862 /* NIO */; };
 		02440A2A257957B5008F0862 /* NIOFoundationCompat in Frameworks */ = {isa = PBXBuildFile; productRef = 02440A29257957B5008F0862 /* NIOFoundationCompat */; };
 		02512B5E25A8755B00CB8833 /* DartSassEmbedded.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02512B5D25A8755B00CB8833 /* DartSassEmbedded.swift */; };
 		025C624F255D2C9300AEA420 /* BinaryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C624E255D2C9300AEA420 /* BinaryProtocol.swift */; };
@@ -57,8 +59,9 @@
 		02A346E9257AAE3D00A14905 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 02A346E8257AAE3D00A14905 /* Logging */; };
 		02A3BC0125800D0600BBF99E /* CompilerWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0025800D0600BBF99E /* CompilerWork.swift */; };
 		02A3BC052581600700BBF99E /* AsyncFunctionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC042581600700BBF99E /* AsyncFunctionTypes.swift */; };
-		02A3BC0F2585314200BBF99E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0E2585314200BBF99E /* main.swift */; };
+		02A3BC0F2585314200BBF99E /* ssassc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0E2585314200BBF99E /* ssassc.swift */; };
 		02A3BC172585329C00BBF99E /* DartSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::DartSass::Product" /* DartSass.framework */; };
+		02CB4F6426D7A32200B15D7C /* _NIOConcurrency in Frameworks */ = {isa = PBXBuildFile; productRef = 02CB4F6326D7A32200B15D7C /* _NIOConcurrency */; };
 		02CEF36F270F569A007DBDB7 /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF36E270F569A007DBDB7 /* Calculation.swift */; };
 		02CEF371270F5806007DBDB7 /* TestCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF370270F5806007DBDB7 /* TestCalculation.swift */; };
 		02CEF373271455B6007DBDB7 /* ProtobufValueConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF372271455B6007DBDB7 /* ProtobufValueConversion.swift */; };
@@ -172,7 +175,7 @@
 		02A3BC0025800D0600BBF99E /* CompilerWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerWork.swift; sourceTree = "<group>"; };
 		02A3BC042581600700BBF99E /* AsyncFunctionTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncFunctionTypes.swift; sourceTree = "<group>"; };
 		02A3BC0C2585314200BBF99E /* Cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Cli; sourceTree = BUILT_PRODUCTS_DIR; };
-		02A3BC0E2585314200BBF99E /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		02A3BC0E2585314200BBF99E /* ssassc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ssassc.swift; sourceTree = "<group>"; };
 		02CEF36E270F569A007DBDB7 /* Calculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculation.swift; sourceTree = "<group>"; };
 		02CEF370270F5806007DBDB7 /* TestCalculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCalculation.swift; sourceTree = "<group>"; };
 		02CEF372271455B6007DBDB7 /* ProtobufValueConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtobufValueConversion.swift; sourceTree = "<group>"; };
@@ -215,12 +218,15 @@
 			buildActionMask = 0;
 			files = (
 				02440A2A257957B5008F0862 /* NIOFoundationCompat in Frameworks */,
+				0240C97926DCFE4500F9C32C /* NIOPosix in Frameworks */,
+				0240C97726DCFE4000F9C32C /* NIOConcurrencyHelpers in Frameworks */,
 				02903F3C25A73DE90049106E /* DartSassEmbeddedMacOS.framework in Frameworks */,
-				02440A272576C7DA008F0862 /* NIO in Frameworks */,
+				0240C97B26DCFE4900F9C32C /* NIOCore in Frameworks */,
 				0289BB2225666BA70004544A /* Sass.framework in Frameworks */,
 				02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */,
 				02A1A99125B774420045E28F /* Semver in Frameworks */,
 				02A346E9257AAE3D00A14905 /* Logging in Frameworks */,
+				02CB4F6426D7A32200B15D7C /* _NIOConcurrency in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -305,7 +311,7 @@
 		02A3BC0D2585314200BBF99E /* Cli */ = {
 			isa = PBXGroup;
 			children = (
-				02A3BC0E2585314200BBF99E /* main.swift */,
+				02A3BC0E2585314200BBF99E /* ssassc.swift */,
 			);
 			name = Cli;
 			path = Sources/Cli;
@@ -477,11 +483,14 @@
 			);
 			name = DartSass;
 			packageProductDependencies = (
-				02440A262576C7DA008F0862 /* NIO */,
 				02440A29257957B5008F0862 /* NIOFoundationCompat */,
 				02A346E8257AAE3D00A14905 /* Logging */,
 				02E0ED7E2586172C0080E954 /* SwiftProtobuf */,
 				02A1A99025B774420045E28F /* Semver */,
+				02CB4F6326D7A32200B15D7C /* _NIOConcurrency */,
+				0240C97626DCFE4000F9C32C /* NIOConcurrencyHelpers */,
+				0240C97826DCFE4500F9C32C /* NIOPosix */,
+				0240C97A26DCFE4900F9C32C /* NIOCore */,
 			);
 			productName = DartSass;
 			productReference = "swift-sass::DartSass::Product" /* DartSass.framework */;
@@ -610,7 +619,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				02A3BC0F2585314200BBF99E /* main.swift in Sources */,
+				02A3BC0F2585314200BBF99E /* ssassc.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1364,10 +1373,20 @@
 			package = 021281DD265A8352000C7256 /* XCRemoteSwiftPackageReference "SourceMapper" */;
 			productName = SourceMapper;
 		};
-		02440A262576C7DA008F0862 /* NIO */ = {
+		0240C97626DCFE4000F9C32C /* NIOConcurrencyHelpers */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */;
-			productName = NIO;
+			productName = NIOConcurrencyHelpers;
+		};
+		0240C97826DCFE4500F9C32C /* NIOPosix */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOPosix;
+		};
+		0240C97A26DCFE4900F9C32C /* NIOCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOCore;
 		};
 		02440A29257957B5008F0862 /* NIOFoundationCompat */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1383,6 +1402,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 02A346E7257AAE3D00A14905 /* XCRemoteSwiftPackageReference "swift-log" */;
 			productName = Logging;
+		};
+		02CB4F6326D7A32200B15D7C /* _NIOConcurrency */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = _NIOConcurrency;
 		};
 		02E0ED7E2586172C0080E954 /* SwiftProtobuf */ = {
 			isa = XCSwiftPackageProductDependency;

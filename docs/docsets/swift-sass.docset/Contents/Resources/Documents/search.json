@@ -23,16 +23,6 @@
     "abstract" : "A Sass compiler that uses Dart Sass as an embedded child process.",
     "name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#compileasyncfileurloutputstylesourcemapstyleimportersfunctions" : {
-    "abstract" : "Asynchronous version of compile(fileURL:outputStyle:sourceMapStyle:importers:functions:).",
-    "name" : "compileAsync(fileURL:outputStyle:sourceMapStyle:importers:functions:)",
-    "parent_name" : "Compiler"
-  },
-  "dartsass\/types\/compiler.html?swift#compileasyncstringsyntaxurlimporteroutputstylesourcemapstyleimportersfunctions" : {
-    "abstract" : "Asynchronous version of compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:).",
-    "name" : "compileAsync(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)",
-    "parent_name" : "Compiler"
-  },
   "dartsass\/types\/compiler.html?swift#compilefileurloutputstylesourcemapstyleimportersfunctions" : {
     "abstract" : "Compile to CSS from a stylesheet file.",
     "name" : "compile(fileURL:outputStyle:sourceMapStyle:importers:functions:)",
@@ -83,9 +73,9 @@
     "name" : "reinit()",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#shutdowngracefullyqueue_" : {
+  "dartsass\/types\/compiler.html?swift#shutdowngracefully" : {
     "abstract" : "Shut down the compiler asynchronously.",
-    "name" : "shutdownGracefully(queue:_:)",
+    "name" : "shutdownGracefully()",
     "parent_name" : "Compiler"
   },
   "dartsass\/types\/compiler.html?swift#syncshutdowngracefully" : {
@@ -97,14 +87,14 @@
     "abstract" : "Methods required to implement a stylesheet importer.",
     "name" : "Importer"
   },
-  "dartsass\/types\/importer3.html?swift#canonicalizeeventloopruleurlfromimport" : {
+  "dartsass\/types\/importer3.html?swift#canonicalizeruleurlfromimport" : {
     "abstract" : "Convert an imported URL to its canonical format.",
-    "name" : "canonicalize(eventLoop:ruleURL:fromImport:)",
+    "name" : "canonicalize(ruleURL:fromImport:)",
     "parent_name" : "Importer"
   },
-  "dartsass\/types\/importer3.html?swift#loadeventloopcanonicalurl" : {
+  "dartsass\/types\/importer3.html?swift#loadcanonicalurl" : {
     "abstract" : "Load a stylesheet from a canonical URL",
-    "name" : "load(eventLoop:canonicalURL:)",
+    "name" : "load(canonicalURL:)",
     "parent_name" : "Importer"
   },
   "dartsass\/types\/importerresults.html?swift" : {

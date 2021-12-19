@@ -67,9 +67,9 @@ class TestInterface: DartSassTestCase {
         XCTAssertEqual(sassOutExpanded, results3.css)
     }
 
-    private func checkCompileFromFile(_ compiler: Compiler, extnsion: String, content: String, expected: String) throws {
+    private func checkCompileFromFile(_ compiler: Compiler, extnsion: String, content: String, expected: String) async throws {
         let url = try FileManager.default.createTempFile(filename: "file.\(extnsion)", contents: content)
-        let results = try compiler.compile(fileURL: url)
+        let results = try await compiler.compile(fileURL: url)
         XCTAssertEqual(expected, results.css)
         XCTAssertEqual(1, results.loadedURLs.count)
         XCTAssertEqual(url, results.loadedURLs[0])
@@ -77,9 +77,13 @@ class TestInterface: DartSassTestCase {
 
     /// Does it work, from a file
     func testCoreFile() throws {
+        try asyncTest(asyncTestCoreFile)
+    }
+
+    func asyncTestCoreFile() async throws {
         let compiler = try newCompiler()
-        try checkCompileFromFile(compiler, extnsion: "scss", content: scssIn, expected: scssOutExpanded)
-        try checkCompileFromFile(compiler, extnsion: "sass", content: sassIn, expected: sassOutExpanded)
+        try await checkCompileFromFile(compiler, extnsion: "scss", content: scssIn, expected: scssOutExpanded)
+        try await checkCompileFromFile(compiler, extnsion: "sass", content: sassIn, expected: sassOutExpanded)
     }
 
     /// Is source map transmitted OK

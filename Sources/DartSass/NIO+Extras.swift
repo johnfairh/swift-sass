@@ -5,7 +5,8 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import NIO
+import NIOCore
+import NIOPosix
 import Dispatch
 
 extension NIOThreadPool {
@@ -40,14 +41,12 @@ final class ProvidedEventLoopGroup {
         }
     }
 
-    func shutdownGracefully(queue: DispatchQueue, _ callback: @escaping (Error?) -> Void) {
+    func shutdownGracefully() async throws {
         switch provider {
         case .shared:
-            queue.async {
-                callback(nil)
-            }
+            return
         case .createNew:
-            eventLoopGroup.shutdownGracefully(queue: queue, callback)
+            try await eventLoopGroup.shutdownGracefully()
         }
     }
 
@@ -62,14 +61,5 @@ final class ProvidedEventLoopGroup {
 
     func next() -> EventLoop {
         eventLoopGroup.next()
-    }
-}
-
-extension Result {
-    var error: Error? {
-        switch self {
-        case .failure(let e): return e
-        case .success: return nil
-        }
     }
 }

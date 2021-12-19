@@ -5,7 +5,7 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import NIO
+import NIOCore
 @_spi(SassCompilerProvider) import Sass
 import struct Foundation.URL
 
@@ -37,6 +37,9 @@ final class CompilerWork {
         let suppressDependencyWarnings: Bool
     }
     private let settings: Settings
+
+    // These vars are protected by the event-loop thread, currently
+    // unsafe to let async-await happen in this layer.
 
     /// Unstarted compilation work
     private var pendingCompilations: [CompilationRequest]
@@ -155,6 +158,9 @@ final class CompilerWork {
         return promise.futureResult
     }
 
+    /// Test hook
+    static var onStuckQuiesce: (() -> Void)? = nil
+
     /// Nudge the quiesce process.
     private func kickQuiesce() {
         if let quiescePromise = quiescePromise {
@@ -163,6 +169,7 @@ final class CompilerWork {
                 quiescePromise.succeed(())
             } else {
                 Compiler.logger.debug("Waiting for outstanding requests: \(activeRequests.count)")
+                CompilerWork.onStuckQuiesce?()
             }
         }
     }

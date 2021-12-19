@@ -15,20 +15,31 @@ import NIO
 class TestResetShutdown: DartSassTestCase {
     // Clean restart case
     func testCleanRestart() throws {
+        try asyncTest(asyncTestCleanRestart)
+    }
+
+    func asyncTestCleanRestart() async throws {
         let compiler = try newCompiler()
-        compiler.sync()
+        await compiler.sync()
         XCTAssertEqual(1, compiler.startCount)
 
-        XCTAssertNoThrow(try compiler.reinit().wait())
+        await XCTAssertNoThrowA(try await compiler.reinit())
         XCTAssertEqual(2, compiler.startCount)
     }
 
     // Deal with missing child & SIGPIPE-avoidance measures
     func testChildTermination() throws {
+        try asyncTest(asyncTestChildTermination)
+    }
+
+    func asyncTestChildTermination() async throws {
         let compiler = try newCompiler()
-        let rc = kill(try compiler.compilerProcessIdentifier.wait()!, SIGTERM)
+        let pid = await compiler.compilerProcessIdentifier!
+        // This seems super flakey on Linux in particular, have upgraded from SIGTERM to SIGKILL
+        // but still sometimes the process doesn't die and happily services the compilation...
+        let rc = kill(pid, SIGKILL)
         XCTAssertEqual(0, rc)
-        print("XCKilled compiler process")
+        print("XCKilled compiler process \(pid)")
         checkProtocolError(compiler)
 
         // check recovered
@@ -44,21 +55,33 @@ class TestResetShutdown: DartSassTestCase {
 
     // Test disabling the timeout works
     func testTimeoutDisabled() throws {
+        try asyncTest(asyncTestTimeoutDisabled)
+    }
+
+    final class VarBox<T>: @unchecked Sendable {
+        var value: T
+        init(_ value: T) { self.value = value }
+    }
+
+    func asyncTestTimeoutDisabled() async throws {
         let badCompiler = try newBadCompiler(timeout: -1)
 
-        var compilationComplete = false
+        let compilationComplete = VarBox(false)
 
-        let compileResult = badCompiler.compileAsync(string: "")
-        compileResult.whenComplete { _ in compilationComplete = true }
+        let compileResult = Task<CompilerResults, Error> {
+            let result = try await badCompiler.compile(string: "")
+            compilationComplete.value = true
+            return result
+        }
 
-        let eventLoop = eventLoopGroup.next()
-        try eventLoop.flatScheduleTask(in: .seconds(1)) { () -> EventLoopFuture<Void> in
-            XCTAssertFalse(compilationComplete)
-            return badCompiler.reinit()
-        }.futureResult.wait()
+        _ = try await Task {
+            try? await Task.sleep(nanoseconds: 1000 * 1000 * 1000)
+            XCTAssertFalse(compilationComplete.value)
+            try await badCompiler.reinit()
+        }.value
 
         do {
-            let results = try compileResult.wait()
+            let results = try await compileResult.value
             XCTFail("Shouldn't have compiled! \(results)")
         } catch let error as LifecycleError {
             XCTAssertTrue(error.description.contains("User requested"))
@@ -69,6 +92,10 @@ class TestResetShutdown: DartSassTestCase {
 
     // Test the 'compiler will not restart' corner
     func testUnrestartableCompiler() throws {
+        try asyncTest(asyncTestUnrestartableCompiler)
+    }
+
+    func asyncTestUnrestartableCompiler() async throws {
         let tmpDir = try FileManager.default.createTemporaryDirectory()
         let realHeadURL = URL(fileURLWithPath: "/usr/bin/tail")
         let tmpHeadURL = tmpDir.appendingPathComponent("tail")
@@ -79,7 +106,7 @@ class TestResetShutdown: DartSassTestCase {
                                    timeout: 1)
         badCompiler.versionsResponder = TestVersionsResponder()
         compilersToShutdown.append(badCompiler)
-        badCompiler.sync()
+        await badCompiler.sync()
 
         // it's now running using the copied program
         try FileManager.default.removeItem(at: tmpHeadURL)
@@ -94,7 +121,7 @@ class TestResetShutdown: DartSassTestCase {
 
         // Try to recover - no dice
         do {
-            try badCompiler.reinit().wait()
+            try await badCompiler.reinit()
             XCTFail("Managed to reinit somehow")
         } catch let error as NSError {
             print(error)
@@ -103,86 +130,82 @@ class TestResetShutdown: DartSassTestCase {
         }
     }
 
-    final class CompilerShutdowner {
-        let compiler: Compiler
-        var callbackMade: Bool
-        let sem: DispatchSemaphore
-
-        init(_ compiler: Compiler) {
-            self.compiler = compiler
-            self.callbackMade = false
-            self.sem = DispatchSemaphore(value: 0)
-        }
-
-        @discardableResult
-        func start() -> Self {
-            compiler.shutdownGracefully() { error in
-                XCTAssertNil(error)
-                self.callbackMade = true
-                self.sem.signal()
-            }
-            return self
-        }
-
-        func wait() {
-            sem.wait()
-            XCTAssertTrue(callbackMade)
-        }
+    func testGracefulShutdown() throws {
+        try asyncTest(asyncTestGracefulShutdown)
     }
 
-    func testGracefulShutdown() throws {
+    func asyncTestGracefulShutdown() async throws {
         let compiler = try newCompiler()
 
-        // Regular async shutdown
-        CompilerShutdowner(compiler).start().wait()
+        // Async shutdown
+        try await compiler.shutdownGracefully()
 
         // No child process
-        XCTAssertNil(try compiler.compilerProcessIdentifier.wait())
+        let pid = await compiler.compilerProcessIdentifier
+        XCTAssertNil(pid)
 
         // Shutdown again is OK
-        CompilerShutdowner(compiler).start().wait()
+        try await compiler.shutdownGracefully()
 
         // Reinit is not OK
-        XCTAssertThrowsError(try compiler.reinit().wait())
+        await XCTAssertThrowsErrorA(try await compiler.reinit())
 
         // Compilation is not OK
         XCTAssertThrowsError(try checkCompilerWorking(compiler))
     }
 
     func testStuckShutdown() throws {
+        try asyncTest(asyncTestStuckShutdown)
+    }
+
+    func asyncTestStuckShutdown() async throws {
         let badCompiler = try newBadCompiler()
 
         // job hangs
-        let compileResult = badCompiler.compileAsync(string: "")
+        let compileResult = Task { try await badCompiler.compile(string: "") }
         // shutdown hangs waiting for job
-        let shutdowner1 = CompilerShutdowner(badCompiler)
-        shutdowner1.start()
+        let shutdowner1 = Task { try await badCompiler.shutdownGracefully() }
         // second chaser shutdown doesn't mess anything up
-        let shutdowner2 = CompilerShutdowner(badCompiler)
-        shutdowner2.start()
+        let shutdowner2 = Task { try await badCompiler.shutdownGracefully() }
 
         // shutdowns both complete OK after the timeout
-        shutdowner1.wait()
-        shutdowner2.wait()
+        try await shutdowner1.value
+        try await shutdowner2.value
         // job fails with timeout
-        XCTAssertThrowsError(try compileResult.wait())
+        await XCTAssertThrowsErrorA(try await compileResult.value)
     }
 
     // Quiesce delayed by client-side activity
     func testClientStuckReset() throws {
+        try asyncTest(asyncTestClientStuckReset)
+    }
+
+    func asyncTestClientStuckReset() async throws {
         let importer = HangingAsyncImporter()
         let compiler = try newCompiler(importers: [.importer(importer)])
-        let hangDone = importer.hangLoad(eventLoop: compiler.eventLoop)
-        let compilerResults = compiler.compileAsync(string: "@import 'something';")
-        _ = try hangDone.wait()
-        XCTAssertNotNil(importer.loadPromise)
-        // now we're all stuck waiting for the client
-        let resetDone = compiler.reinit()
-        // hacky delay to let the event loop run down
-        try compiler.eventLoop.scheduleTask(in: .milliseconds(Int64(200)), {}).futureResult.wait()
-        try importer.resumeLoad()
-        try resetDone.wait()
-        XCTAssertThrowsError(try compilerResults.wait())
+
+        importer.state.onLoadHang = {
+            await withCheckedContinuation { continuation in
+                CompilerWork.onStuckQuiesce = {
+                    CompilerWork.onStuckQuiesce = nil
+                    continuation.resume()
+                }
+                Task {
+                    try await compiler.reinit()
+                }
+            }
+        }
+
+        do {
+            let r = try await compiler.compile(string: "@import 'something';")
+            XCTFail("It worked?! \(r)")
+        } catch {
+            // Don't normally check for text but so hard to see if this test has
+            // actually worked otherwise.
+            XCTAssertEqual("User requested Sass compiler be reinitialized", "\(error)")
+        }
+
+        try checkCompilerWorking(compiler)
     }
 
     // Internal eventloopgroup
@@ -195,9 +218,13 @@ class TestResetShutdown: DartSassTestCase {
 
     // Internal eventloopgroup, async shutdown
     func testInternalEventLoopGroupAsync() throws {
+        try asyncTest(asyncTestInternalEventLoopGroupAsync)
+    }
+
+    func asyncTestInternalEventLoopGroupAsync() async throws {
         let compiler = try Compiler(eventLoopGroupProvider: .createNew)
-        let results = try compiler.compile(string: "")
+        let results = try await compiler.compile(string: "")
         XCTAssertEqual("", results.css)
-        CompilerShutdowner(compiler).start().wait()
+        try await compiler.shutdownGracefully()
     }
 }
