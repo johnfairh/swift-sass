@@ -689,7 +689,7 @@ final class CompilerChild: ChannelInboundHandler {
             Compiler.logger.debug("Rx: \(message.logMessage) while stopping, discarding")
             return
         }
-        Compiler.logger.debug("Rx: \(message.logMessage) while stopping, discarding")
+        Compiler.logger.debug("Rx: \(message.logMessage)")
 
         work.receive(message: message).map {
             if let response = $0 {
