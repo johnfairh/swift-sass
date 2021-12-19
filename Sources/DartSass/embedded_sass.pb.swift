@@ -244,7 +244,8 @@ enum Sass_EmbeddedProtocol_ListSeparator: SwiftProtobuf.Enum {
   /// List elements are separated by a forward slash.
   case slash // = 2
 
-  /// The list's separator hasn't yet been determined.
+  /// The list's separator hasn't yet been determined. This is only allowed for
+  /// singleton and empty lists.
   ///
   /// Singleton lists and empty lists don't have separators defined. This means
   /// that list functions will prefer other lists' separators if possible.
@@ -933,7 +934,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
 
     var id: UInt32 = 0
 
-    /// The result of loading the URL. Mandatory.
+    /// The result of loading the URL. Optional. A null result indicates that the
+    /// importer did not recognize the URL and other importers or load paths
+    /// should be tried.
     var result: Sass_EmbeddedProtocol_InboundMessage.FileImportResponse.OneOf_Result? = nil
 
     /// The absolute `file:` URL to look for the file on the physical
@@ -968,7 +971,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    /// The result of loading the URL. Mandatory.
+    /// The result of loading the URL. Optional. A null result indicates that the
+    /// importer did not recognize the URL and other importers or load paths
+    /// should be tried.
     enum OneOf_Result: Equatable {
       /// The absolute `file:` URL to look for the file on the physical
       /// filesystem.
@@ -1540,6 +1545,47 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
 
   /// A request for a custom filesystem importer to load the contents of a
   /// stylesheet.
+  ///
+  /// A filesystem importer is represented in the compiler as an [importer]. When
+  /// the importer is invoked with a string `string`:
+  ///
+  /// [importer]: https://github.com/sass/sass/tree/main/spec/modules.md#importer
+  ///
+  /// * If `string` is an absolute URL whose scheme is `file`:
+  ///
+  ///   * Let `url` be string.
+  ///
+  /// * Otherwise:
+  ///
+  ///   * Let `fromImport` be `true` if the importer is being run for an
+  ///     `@import` and `false` otherwise.
+  ///
+  ///   * Let `response` be the result of sending a `FileImportRequest` with
+  ///     `string` as its `url` and `fromImport` as `from_import`.
+  ///
+  ///   * If `response.result` is null, return null.
+  ///
+  ///   * Otherwise, if `response.result.error` is set, throw an error.
+  ///
+  ///   * Otherwise, let `url` be `response.result.file_url`.
+  ///
+  /// * Let `resolved` be the result of [resolving `url`].
+  ///
+  /// * If `resolved` is null, return null.
+  ///
+  /// * Let `text` be the contents of the file at `resolved`.
+  ///
+  /// * Let `syntax` be:
+  ///   * "scss" if `url` ends in `.scss`.
+  ///   * "indented" if `url` ends in `.sass`.
+  ///   * "css" if `url` ends in `.css`.
+  ///
+  ///   > The algorithm for resolving a `file:` URL guarantees that `url` will have
+  ///   > one of these extensions.
+  ///
+  /// * Return `text`, `syntax`, and `resolved`.
+  ///
+  /// [resolving `url`]: https://github.com/sass/sass/tree/main/spec/modules.md#resolving-a-file-url
   struct FileImportRequest {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
