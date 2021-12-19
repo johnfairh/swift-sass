@@ -328,6 +328,7 @@ extension Compiler {
         eventLoop.execute {
             try! self.child().receive(message: message)
         }
+        await sync()
     }
 
     func sync() async {

@@ -59,7 +59,7 @@ final class ProvidedEventLoopGroup {
         }
     }
 
-    func next() -> EventLoop {
-        eventLoopGroup.next()
+    func any() -> EventLoop {
+        eventLoopGroup.any()
     }
 }

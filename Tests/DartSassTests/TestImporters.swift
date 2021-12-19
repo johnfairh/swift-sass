@@ -88,6 +88,7 @@ class TestImporters: DartSassTestCase {
 
         try tmpDir1.withCurrentDirectory {
             let compiler = try newCompiler()
+            try checkCompilerWorking(compiler) // make sure child process is actually started...
             try tmpDir2.withCurrentDirectory {
                 let results = try compiler.compile(string: "@import 'imported';", outputStyle: .compressed)
                 XCTAssertEqual(#"a{a:"dir2"}"#, results.css)

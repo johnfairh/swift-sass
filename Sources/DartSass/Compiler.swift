@@ -192,7 +192,7 @@ public final class Compiler: @unchecked Sendable {
                 functions: SassAsyncFunctionMap = [:]) {
         precondition(embeddedCompilerFileURL.isFileURL, "Not a file URL: \(embeddedCompilerFileURL)")
         self.eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider)
-        eventLoop = self.eventLoopGroup.next()
+        eventLoop = self.eventLoopGroup.any()
         initThread = NIOThreadPool(numberOfThreads: 1)
         initThread.start()
         work = nil
