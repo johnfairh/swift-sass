@@ -42,7 +42,7 @@ public struct CompilerResults: Sendable {
     /// `CompilerResults.withFileLocations(...)`.
     ///
     /// If you plan to ship the source map (so it is accessed through `http:` URLs by a browser)
-    /// then you need to use one of the `relative` options to avoid `file:` URLs that won't
+    /// then you need to use one of the `.relative` options to avoid `file:` URLs that won't
     /// make sense to clients.
     ///
     public enum URLStyle {

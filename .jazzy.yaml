@@ -25,7 +25,7 @@ merge_modules: true
 custom_abstracts: SourceDocs/*md
 topic_style: source-order-defs
 remote_autolink:
-  - url: https://apple.github.io/swift-nio/docs/current/NIO/
+  - url: https://apple.github.io/swift-nio/docs/current/NIOCore/
     modules: NIO
   - url: https://apple.github.io/swift-log/docs/current/Logging/
     modules: Logging

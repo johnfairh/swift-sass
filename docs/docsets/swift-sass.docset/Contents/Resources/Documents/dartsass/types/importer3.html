@@ -632,7 +632,7 @@
             
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public protocol Importer</code></pre>
+    <pre><code class="language-swift">public protocol Importer: <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -654,12 +654,12 @@ don’t need this to include the contents of a filesystem directory: see instead
 <a href="../../dartsass/types/importresolver1.html?swift#loadpath_"><code>ImportResolver.loadPath(_:)</code></a>.</p>
 <p>You could use this to present network resources or dynamically constructed content.</p>
 <p>An import has two steps: canonicalization and loading.</p>
-<p><a href="../../dartsass/types/importer3.html?swift#canonicalizeeventloopruleurlfromimport"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
+<p><a href="../../dartsass/types/importer3.html?swift#canonicalizeruleurlfromimport"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
 text the user has written in their rule.  The routine interprets that and returns a <em>canonical</em>
 URL that is absolute with a scheme.</p>
 <p>The compiler most likely implements a cache based on canonical URLs.  If the compiler
 does not have a stylesheet cached for the canonical URL then it calls
-<a href="../../dartsass/types/importer3.html?swift#loadeventloopcanonicalurl"><code>Importer.load(...)</code></a> with that URL to get at the content.</p>
+<a href="../../dartsass/types/importer3.html?swift#loadcanonicalurl"><code>Importer.load(...)</code></a> with that URL to get at the content.</p>
 <h3 class="j2-anchor j2-heading heading" id="file-extension-rules">
 <span data-anchor-id="file-extension-rules">
 File extension rules
@@ -707,7 +707,7 @@ throw an error indicating that the import is ambiguous.</p>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L95-L126">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L95-L124">Show on GitHub</a>
           </nav>
           
           
@@ -725,16 +725,16 @@ throw an error indicating that the import is ambiguous.</p>
   
   
   
-    <section id="canonicalizeeventloopruleurlfromimport" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20canonicalize(eventLoop%3A%20EventLoop,%20ruleURL%3A%20String,%20fromImport%3A%20Bool)%20-%3E%20EventLoopFuture%3CURL%3F%3E" class="dashAnchor j2-item-dash-anchor" data-item-id="canonicalizeeventloopruleurlfromimport"></a>
-    <h4 class="visually-hidden">func canonicalize(eventLoop: EventLoop, ruleURL: String, fromImport: Bool) -&gt; EventLoopFuture&lt;URL?&gt;</h4>
+    <section id="canonicalizeruleurlfromimport" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20canonicalize(ruleURL%3A%20String,%20fromImport%3A%20Bool)%20async%20-%3E%20URL%3F" class="dashAnchor j2-item-dash-anchor" data-item-id="canonicalizeruleurlfromimport"></a>
+    <h4 class="visually-hidden">func canonicalize(ruleURL: String, fromImport: Bool) async -&gt; URL?</h4>
     
     
-    <a class="j2-item-title" href="#_canonicalizeeventloopruleurlfromimport" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_canonicalizeeventloopruleurlfromimport"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>canonicalize<span class="j2-item-secondary">(</span>eventLoop<span class="j2-item-secondary">: EventLoop, </span>ruleURL<span class="j2-item-secondary">: String, </span>fromImport<span class="j2-item-secondary">: Bool) -&gt; EventLoopFuture&lt;URL?&gt;</span></span>
+    <a class="j2-item-title" href="#_canonicalizeruleurlfromimport" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_canonicalizeruleurlfromimport"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>canonicalize<span class="j2-item-secondary">(</span>ruleURL<span class="j2-item-secondary">: String, </span>fromImport<span class="j2-item-secondary">: Bool) async -&gt; URL?</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_canonicalizeeventloopruleurlfromimport">
+    <div class="collapse  j2-item-popopen-wrapper" id="_canonicalizeruleurlfromimport">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -760,8 +760,7 @@ the routine previously returned) then it must be returned unchanged.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">func canonicalize(eventLoop: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Protocols/EventLoop.html">EventLoop</a>, ruleURL: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>, fromImport: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a>)
-    -&gt; <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;<a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?&gt;</code></pre>
+    <pre><code class="language-swift">func canonicalize(ruleURL: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>, fromImport: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a>) async throws -&gt; <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?</code></pre>
   </div>
 
 
@@ -771,11 +770,6 @@ the routine previously returned) then it must be returned unchanged.</p>
   <h5>Parameters</h5>
   <table class="j2-param-table">
     <tbody>
-      
-      <tr>
-        <td><code>eventLoop</code></td>
-        <td><p>The current event loop.</p></td>
-      </tr>
       
       <tr>
         <td><code>ruleURL</code></td>
@@ -811,7 +805,7 @@ import request to have the compiler try the next importer.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L115">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L114">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -823,16 +817,16 @@ import request to have the compiler try the next importer.</p>
   
   
   
-    <section id="loadeventloopcanonicalurl" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20load(eventLoop%3A%20EventLoop,%20canonicalURL%3A%20URL)%20-%3E%20EventLoopFuture%3CImporterResults%3E" class="dashAnchor j2-item-dash-anchor" data-item-id="loadeventloopcanonicalurl"></a>
-    <h4 class="visually-hidden">func load(eventLoop: EventLoop, canonicalURL: URL) -&gt; EventLoopFuture&lt;ImporterResults&gt;</h4>
+    <section id="loadcanonicalurl" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20load(canonicalURL%3A%20URL)%20async%20-%3E%20ImporterResults" class="dashAnchor j2-item-dash-anchor" data-item-id="loadcanonicalurl"></a>
+    <h4 class="visually-hidden">func load(canonicalURL: URL) async -&gt; ImporterResults</h4>
     
     
-    <a class="j2-item-title" href="#_loadeventloopcanonicalurl" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_loadeventloopcanonicalurl"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>load<span class="j2-item-secondary">(</span>eventLoop<span class="j2-item-secondary">: EventLoop, </span>canonicalURL<span class="j2-item-secondary">: URL) -&gt; EventLoopFuture&lt;ImporterResults&gt;</span></span>
+    <a class="j2-item-title" href="#_loadcanonicalurl" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_loadcanonicalurl"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>load<span class="j2-item-secondary">(</span>canonicalURL<span class="j2-item-secondary">: URL) async -&gt; ImporterResults</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_loadeventloopcanonicalurl">
+    <div class="collapse  j2-item-popopen-wrapper" id="_loadcanonicalurl">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -856,9 +850,7 @@ import request to have the compiler try the next importer.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">func load(eventLoop: <a href="https://apple.github.io/swift-nio/docs/current/NIO/Protocols/EventLoop.html">EventLoop</a>, canonicalURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>) -&gt; <a href="https://apple.github.io/swift-nio/docs/current/NIO/Classes/EventLoopFuture.html">EventLoopFuture</a>&lt;
-    <a href="../../dartsass/types/importerresults.html?swift">ImporterResults</a>
-&gt;</code></pre>
+    <pre><code class="language-swift">func load(canonicalURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>) async throws -&gt; <a href="../../dartsass/types/importerresults.html?swift">ImporterResults</a></code></pre>
   </div>
 
 
@@ -870,14 +862,9 @@ import request to have the compiler try the next importer.</p>
     <tbody>
       
       <tr>
-        <td><code>eventLoop</code></td>
-        <td><p>The current event loop.</p></td>
-      </tr>
-      
-      <tr>
         <td><code>canonicalURL</code></td>
         <td><p>A URL previously returned by
-<a href="../../dartsass/types/importer3.html?swift#canonicalizeeventloopruleurlfromimport"><code>canonicalize(...)</code></a> during this compilation.</p></td>
+<a href="../../dartsass/types/importer3.html?swift#canonicalizeruleurlfromimport"><code>canonicalize(...)</code></a> during this compilation.</p></td>
       </tr>
       
     </tbody>
@@ -898,7 +885,7 @@ the description of this error as the reason.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L125">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L123">Show on GitHub</a></span>
             
           </nav>
         </div>

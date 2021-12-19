@@ -670,12 +670,12 @@ don’t need this to include the contents of a filesystem directory: see instead
 <a href="dartsass/types/importresolver1.html?swift#loadpath_"><code>ImportResolver.loadPath(_:)</code></a>.</p>
 <p>You could use this to present network resources or dynamically constructed content.</p>
 <p>An import has two steps: canonicalization and loading.</p>
-<p><a href="dartsass/types/importer3.html?swift#canonicalizeeventloopruleurlfromimport"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
+<p><a href="dartsass/types/importer3.html?swift#canonicalizeruleurlfromimport"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
 text the user has written in their rule.  The routine interprets that and returns a <em>canonical</em>
 URL that is absolute with a scheme.</p>
 <p>The compiler most likely implements a cache based on canonical URLs.  If the compiler
 does not have a stylesheet cached for the canonical URL then it calls
-<a href="dartsass/types/importer3.html?swift#loadeventloopcanonicalurl"><code>Importer.load(...)</code></a> with that URL to get at the content.</p>
+<a href="dartsass/types/importer3.html?swift#loadcanonicalurl"><code>Importer.load(...)</code></a> with that URL to get at the content.</p>
 <h3 class="j2-anchor j2-heading heading" id="file-extension-rules">
 <span data-anchor-id="file-extension-rules">
 File extension rules
@@ -721,7 +721,7 @@ throw an error indicating that the import is ambiguous.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public protocol Importer</code></pre>
+    <pre><code class="language-swift">public protocol Importer: <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -743,7 +743,7 @@ throw an error indicating that the import is ambiguous.</p>
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L95-L126">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L95-L124">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -788,7 +788,7 @@ throw an error indicating that the import is ambiguous.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public struct ImporterResults</code></pre>
+    <pre><code class="language-swift">public struct ImporterResults: <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -855,7 +855,7 @@ throw an error indicating that the import is ambiguous.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public enum ImportResolver</code></pre>
+    <pre><code class="language-swift">public enum ImportResolver: <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -877,7 +877,7 @@ throw an error indicating that the import is ambiguous.</p>
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L129-L134">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L127-L132">Show on GitHub</a></span>
             
           </nav>
         </div>

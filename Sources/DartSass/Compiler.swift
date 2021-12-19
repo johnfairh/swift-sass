@@ -122,7 +122,7 @@ public final class Compiler: @unchecked Sendable {
     /// You must shut down the compiler with `shutdownGracefully()` or
     /// `syncShutdownGracefully()` before letting it go out of scope.
     ///
-    /// - parameter eventLoopGroup: NIO `EventLoopGroup` to use: either `.shared` to use
+    /// - parameter eventLoopGroupProvider: NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.  Default is `.createNew`.
     /// - parameter timeout: Maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
@@ -164,7 +164,7 @@ public final class Compiler: @unchecked Sendable {
     /// You must shut down the compiler with `shutdownGracefully()` or
     /// `syncShutdownGracefully()` before letting it go out of scope.
     ///
-    /// - parameter eventLoopGroup: NIO `EventLoopGroup` to use: either `.shared` to use
+    /// - parameter eventLoopGroupProvider: NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.  Default is `.createNew`.
     /// - parameter embeddedCompilerFileURL: Path of `dart-sass-embedded`
     ///   or something else that speaks the Sass embedded protocol.  Check [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md)
@@ -263,8 +263,6 @@ public final class Compiler: @unchecked Sendable {
     /// Not normally needed; could be used to adjust resource usage or maybe send it a signal if stuck.
     /// The process ID is reported after waiting for any [re]initialization to complete; a value of `nil`
     /// means that the compiler is broken or shutdown.
-    ///
-    /// See `compilerProcessIdentifierFuture` for a NIO-native version.
     public var compilerProcessIdentifier: Int32? {
         get async {
             try? await compilerProcessIdentifierFuture.get()
@@ -272,7 +270,7 @@ public final class Compiler: @unchecked Sendable {
     }
 
     /// A future evaluating to the process ID of the embedded Sass compiler.
-    var compilerProcessIdentifierFuture: EventLoopFuture<Int32?> {
+    private var compilerProcessIdentifierFuture: EventLoopFuture<Int32?> {
         eventLoop.flatSubmit { [self] in
             switch state {
             case .broken, .shutdown:

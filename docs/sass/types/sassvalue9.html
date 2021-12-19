@@ -627,7 +627,8 @@
             
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">open class SassValue: <a href="https://developer.apple.com/documentation/swift/hashable?language=swift">Hashable</a>, <a href="https://developer.apple.com/documentation/swift/sequence?language=swift">Sequence</a>, <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a></code></pre>
+    <pre><code class="language-swift">open class SassValue: <a href="https://developer.apple.com/documentation/swift/hashable?language=swift">Hashable</a>, <a href="https://developer.apple.com/documentation/swift/sequence?language=swift">Sequence</a>, <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a>, @unchecked
+    <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -648,7 +649,8 @@
 <a href="https://developer.apple.com/documentation/swift/sequence?language=swift" class="j2-swift"><code>Sequence</code></a><a href="https://developer.apple.com/documentation/swift/sequence?language=objc" class="j2-objc j2-secondary"><code>Sequence</code></a> conformance to access the list contents.</p>
 <p><code>SassValue</code> is abstract, you cannot create instances. Instead create instances of subtypes
 like <a href="../../sass/types/sasscolor.html?swift"><code>SassColor</code></a>.</p>
-<p>All the <code>SassValue</code> types are immutable.</p>
+<p>All the <code>SassValue</code> types have value semantics and are almost all entirely immutable: the
+only mutability is to do with caching of derived properties.</p>
 
 
 
