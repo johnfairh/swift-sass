@@ -1,16 +1,8 @@
-# Main
+# 0.8.0
 
-## Breaking
-
-* None
-
-## Enhancements
-
-* None
-
-## Bug Fixes
-
-* None
+* Bundle the 1.0.0-beta.14 `dart_sass_embedded` binaries
+* Convert all interfaces to async/await
+* Add `FilesystemImporter`
 
 # 0.7.0
 
