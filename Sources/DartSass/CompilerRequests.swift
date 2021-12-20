@@ -248,7 +248,18 @@ final class CompilationRequest: ManagedCompilerRequest {
     /// Inbound messages.
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
         let promise = eventLoop.makePromise(of: Optional<IBM>.self)
-        promise.completeWithTask { try await self.receiveAsync(message: message) }
+
+        // Handle log-events synchronously because they can be sent back-to-back with compile-done and
+        // are un-acked.  So if left to run async, can race with the compile-done and happen *after*
+        // the client has received their done....
+        switch message.message {
+        case .logEvent(let rsp):
+            promise.completeWith(.init(catching: { try self.receive(log: rsp) }))
+        default:
+            promise.completeWithTask { try await self.receiveAsync(message: message) }
+            break
+        }
+
         return promise.futureResult
     }
 
@@ -271,6 +282,9 @@ final class CompilationRequest: ManagedCompilerRequest {
 
         case .fileImportRequest(let req):
             return try await receive(fileImportRequest: req)
+
+        case .logEvent:
+            preconditionFailure("Unreachable, should be handled synchronously")
 
         case nil, .error, .versionResponse:
             preconditionFailure("Unreachable: message type not associated with CompID: \(message)")

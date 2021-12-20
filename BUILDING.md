@@ -17,3 +17,4 @@ New `swift-sass` release:
 * Rebuild docs
 * Update changelog
 * Commit and tag
+* Github release
