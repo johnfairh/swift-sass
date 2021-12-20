@@ -271,7 +271,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="dartsass/types/importer3.html?swift">Importer</a>
+  <a class="j2-nav-item" href="dartsass/types/importer4.html?swift">Importer</a>
 
 
 
@@ -281,6 +281,15 @@
     
 
   <a class="j2-nav-item" href="dartsass/types/importerresults.html?swift">ImporterResults</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="dartsass/types/filesystemimporter1.html?swift">FilesystemImporter</a>
 
 
 
@@ -624,9 +633,9 @@
           
           
           
-          <p>Write a custom importer by implementing the <a href="dartsass/types/importer3.html?swift"><code>DartSass.Importer</code></a> protocol
-and passing an instance wrapped in a <a href="dartsass/types/importresolver1.html?swift"><code>DartSass.ImportResolver</code></a> to a
-<a href="dartsass/types/compiler.html?swift"><code>DartSass.Compiler</code></a>.</p>
+          <p>Write a custom importer by implementing either the <a href="dartsass/types/importer4.html?swift"><code>DartSass.Importer</code></a> or
+<a href="dartsass/types/filesystemimporter1.html?swift"><code>DartSass.FilesystemImporter</code></a> protocol and passing an instance wrapped in
+a <a href="dartsass/types/importresolver1.html?swift"><code>DartSass.ImportResolver</code></a> to a <a href="dartsass/types/compiler.html?swift"><code>DartSass.Compiler</code></a>.</p>
         </section>
 
         
@@ -641,16 +650,16 @@ and passing an instance wrapped in a <a href="dartsass/types/importresolver1.htm
   
   
   
-    <section id="importer3" class="j2-item j2-swift j2-always">
-    <a name="//apple_ref/cpp/Protocol/protocol%20Importer" class="dashAnchor j2-item-dash-anchor" data-item-id="importer3"></a>
+    <section id="importer4" class="j2-item j2-swift j2-always">
+    <a name="//apple_ref/cpp/Protocol/protocol%20Importer" class="dashAnchor j2-item-dash-anchor" data-item-id="importer4"></a>
     <h4 class="visually-hidden">protocol Importer</h4>
     
     
-    <a class="j2-item-title" href="#_importer3" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importer3"><code>
+    <a class="j2-item-title" href="#_importer4" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importer4"><code>
         <span class="j2-swift j2-always"><span class="j2-item-secondary">protocol </span>Importer</span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_importer3">
+    <div class="collapse  j2-item-popopen-wrapper" id="_importer4">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -670,12 +679,12 @@ don’t need this to include the contents of a filesystem directory: see instead
 <a href="dartsass/types/importresolver1.html?swift#loadpath_"><code>ImportResolver.loadPath(_:)</code></a>.</p>
 <p>You could use this to present network resources or dynamically constructed content.</p>
 <p>An import has two steps: canonicalization and loading.</p>
-<p><a href="dartsass/types/importer3.html?swift#canonicalizeruleurlfromimport"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
+<p><a href="dartsass/types/importer4.html?swift#canonicalizeruleurlfromimport"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
 text the user has written in their rule.  The routine interprets that and returns a <em>canonical</em>
 URL that is absolute with a scheme.</p>
 <p>The compiler most likely implements a cache based on canonical URLs.  If the compiler
 does not have a stylesheet cached for the canonical URL then it calls
-<a href="dartsass/types/importer3.html?swift#loadcanonicalurl"><code>Importer.load(...)</code></a> with that URL to get at the content.</p>
+<a href="dartsass/types/importer4.html?swift#loadcanonicalurl"><code>Importer.load(...)</code></a> with that URL to get at the content.</p>
 <h3 class="j2-anchor j2-heading heading" id="file-extension-rules">
 <span data-anchor-id="file-extension-rules">
 File extension rules
@@ -737,7 +746,7 @@ throw an error indicating that the import is ambiguous.</p>
             
             <span class="j2-item-nav-item">
             
-              <span class="j2-swift j2-always"><a href="dartsass/types/importer3.html?swift">Show members</a></span>
+              <span class="j2-swift j2-always"><a href="dartsass/types/importer4.html?swift">Show members</a></span>
             
             
             </span>
@@ -822,6 +831,74 @@ throw an error indicating that the import is ambiguous.</p>
   
   
   
+    <section id="filesystemimporter1" class="j2-item j2-swift j2-always">
+    <a name="//apple_ref/cpp/Protocol/protocol%20FilesystemImporter" class="dashAnchor j2-item-dash-anchor" data-item-id="filesystemimporter1"></a>
+    <h4 class="visually-hidden">protocol FilesystemImporter</h4>
+    
+    
+    <a class="j2-item-title" href="#_filesystemimporter1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_filesystemimporter1"><code>
+        <span class="j2-swift j2-always"><span class="j2-item-secondary">protocol </span>FilesystemImporter</span>
+        
+      </code></a>
+    <div class="collapse  j2-item-popopen-wrapper" id="_filesystemimporter1">
+      <div class="j2-item-popopen">
+        <div class="j2-item-popopen-pointer" role="none presentation"></div>
+        <div class="j2-item-popopen-body">
+          
+            <div class="clearfix">
+              
+  
+
+
+              
+
+
+<p>Methods required to implement a filesystem-redirecting stylesheet importer.</p>
+<p>Use this to map imports to a filesystem location, letting the Sass compiler deal
+with index directories, file extensions, and actually loading the stylesheet.</p>
+
+
+
+            </div>
+            <h5>Declaration</h5>
+            <div class="j2-item-declaration">
+              
+  <div class="j2-swift j2-always">
+    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
+    <pre><code class="language-swift">public protocol FilesystemImporter: <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
+  </div>
+
+
+
+            </div>
+            
+
+
+
+          
+
+          <nav class="j2-item-nav" aria-label="item details">
+            
+            <span class="j2-item-nav-item">
+            
+              <span class="j2-swift j2-always"><a href="dartsass/types/filesystemimporter1.html?swift">Show members</a></span>
+            
+            
+            </span>
+            
+            
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L130-L147">Show on GitHub</a></span>
+            
+          </nav>
+        </div>
+      </div>
+    </div>
+    
+  </section>
+  
+  
+  
+  
     <section id="importresolver1" class="j2-item j2-swift j2-always">
     <a name="//apple_ref/cpp/enum/enum%20ImportResolver" class="dashAnchor j2-item-dash-anchor" data-item-id="importresolver1"></a>
     <h4 class="visually-hidden">enum ImportResolver</h4>
@@ -877,7 +954,7 @@ throw an error indicating that the import is ambiguous.</p>
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L127-L132">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L150-L157">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -913,11 +990,11 @@ throw an error indicating that the import is ambiguous.</p>
   </div>
   <div id="pagination-next" class="flex-fill text-end">
   
-    <a class="j2-swift" href="dartsass/types/importer3.html?swift" aria-keyshortcuts="n">
+    <a class="j2-swift" href="dartsass/types/importer4.html?swift" aria-keyshortcuts="n">
   Importer<span aria-hidden="true"> &raquo;</span>
 </a>
 
-    <a class="j2-objc j2-secondary" href="dartsass/types/importer3.html?swift" aria-keyshortcuts="n">
+    <a class="j2-objc j2-secondary" href="dartsass/types/importer4.html?swift" aria-keyshortcuts="n">
   Importer<span aria-hidden="true"> &raquo;</span>
 </a>
 

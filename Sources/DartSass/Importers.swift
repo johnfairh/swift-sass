@@ -134,6 +134,9 @@ public protocol FilesystemImporter: Sendable {
     ///   a stylesheet.
     /// - parameter fromImport: Whether this request comes from an `@import` rule.
     ///   See [import-only files](https://sass-lang.com/documentation/at-rules/import#import-only-files).
+    ///   You are free to ignore this flag: the Sass compiler understands it and will choose an import-only file when appropriate.
+    ///   For example, if your custom directory contains `test.scss` and `test.import.scss` then you can return
+    ///   `file://your/custom/path/test` and the compiler will pull in the right file.
     /// - returns: A `file:` URL for the compiler to access,  or `nil` if the importer doesn't recognize the
     ///   import request: the compiler will try the next importer.
     /// - throws: Only when `ruleURL` cannot be resolved:  it is definitely

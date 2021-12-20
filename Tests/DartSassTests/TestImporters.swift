@@ -316,7 +316,7 @@ class TestImporters: DartSassTestCase {
         }
     }
 
-    func testFilesystemNormal() throws {
+    func testFilesystem() throws {
         let dir = try FileManager.default.createTemporaryDirectory()
         defer { try? FileManager.default.removeItem(at: dir) }
         let imp = FilesysImporter(dir)
@@ -363,5 +363,26 @@ class TestImporters: DartSassTestCase {
             XCTFail("Unexpected error: \(error)")
         }
         XCTAssertEqual(4, imp.resolveCount)
+    }
+
+    /// Prove that the dart backend understands import-only
+    func testFilesystemImportOnly() throws {
+        let dir = try FileManager.default.createTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let imp = FilesysImporter(dir)
+
+        let fileURL = dir.appendingPathComponent("test.scss")
+        let importFileURL = dir.appendingPathComponent("test.import.scss")
+
+        try "a { b: true }".write(to: fileURL)
+        try "a { b: false }".write(to: importFileURL)
+        let compiler = try newCompiler(importers: [.filesystemImporter(imp)])
+
+        // Goodpath, import
+        imp.expectImport = true
+        let results = try compiler.compile(string: "@import 'test';", outputStyle: .compressed)
+        XCTAssertEqual(1, imp.resolveCount)
+        XCTAssertEqual(importFileURL, results.loadedURLs[0])
+        XCTAssertEqual("a{b:false}", results.css)
     }
 }
