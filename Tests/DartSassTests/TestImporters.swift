@@ -277,4 +277,91 @@ class TestImporters: DartSassTestCase {
         XCTAssertEqual(expected, s(results.loadedURLs))
         XCTAssertEqual(expected, s(map.sources.map { URL(string: $0.url)! }))
     }
+
+    // MARK: Custom filesystem importers
+
+    class FilesysImporter: FilesystemImporter, @unchecked Sendable {
+        let directoryURL: URL
+        private(set) var resolveCount: Int
+        var nextUnknown: Bool
+        var nextFail: Bool
+        var expectImport: Bool
+
+        struct Error: Swift.Error, CustomStringConvertible {
+            let description: String
+        }
+
+        init(_ directoryURL: URL) {
+            self.directoryURL = directoryURL
+            resolveCount = 0
+            nextUnknown = false
+            nextFail = false
+            expectImport = false
+        }
+
+        func resolve(ruleURL: String, fromImport: Bool) async throws -> URL? {
+            resolveCount += 1
+            XCTAssertEqual(expectImport, fromImport, ruleURL)
+            guard !nextUnknown else {
+                nextUnknown = false
+                return nil
+            }
+
+            guard !nextFail else {
+                nextFail = false
+                throw Error(description: "Programmed fail filesys import")
+            }
+
+            return directoryURL.appendingPathComponent(ruleURL)
+        }
+    }
+
+    func testFilesystemNormal() throws {
+        let dir = try FileManager.default.createTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let imp = FilesysImporter(dir)
+
+        let fileURL = dir.appendingPathComponent("test.scss")
+
+        try "a { b: true }".write(to: fileURL)
+        let compiler = try newCompiler(importers: [.filesystemImporter(imp)])
+
+        // Goodpath, import
+        imp.expectImport = true
+        let results = try compiler.compile(string: "@import 'test';", outputStyle: .compressed)
+        XCTAssertEqual(1, imp.resolveCount)
+        XCTAssertEqual(fileURL, results.loadedURLs[0])
+        XCTAssertEqual("a{b:true}", results.css)
+
+        // Goodpath, use
+        imp.expectImport = false
+        let results2 = try compiler.compile(string: "@use 'test';", outputStyle: .compressed)
+        XCTAssertEqual(2, imp.resolveCount)
+        XCTAssertEqual("a{b:true}", results2.css)
+
+        // Notfound
+        imp.nextUnknown = true
+        do {
+            let res = try compiler.compile(string: "@use 'test';", outputStyle: .compressed)
+            XCTFail("Managed to resolve @use 'test': \(res)")
+        } catch let error as CompilerError {
+            XCTAssertTrue(error.message.contains("Can't find stylesheet"))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+        XCTAssertEqual(3, imp.resolveCount)
+
+        // Err
+        imp.nextUnknown = false
+        imp.nextFail = true
+        do {
+            let res = try compiler.compile(string: "@use 'test';", outputStyle: .compressed)
+            XCTFail("Managed to resolve @use 'test': \(res)")
+        } catch let error as CompilerError {
+            XCTAssertTrue(error.message.contains("Programmed fail"))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+        XCTAssertEqual(4, imp.resolveCount)
+    }
 }

@@ -57,6 +57,7 @@ custom_groups:
         children:
           - DartSass.Importer
           - DartSass.ImporterResults
+          - DartSass.FilesystemImporter
           - DartSass.ImportResolver
 
   - name: Custom Functions

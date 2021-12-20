@@ -270,7 +270,7 @@ final class CompilationRequest: ManagedCompilerRequest {
             return try await receive(functionCallRequest: req)
 
         case .fileImportRequest(let req):
-            throw ProtocolError("Unexpected FileImport-Req: \(req)")
+            return try await receive(fileImportRequest: req)
 
         case nil, .error, .versionResponse:
             preconditionFailure("Unreachable: message type not associated with CompID: \(message)")
@@ -301,13 +301,13 @@ final class CompilationRequest: ManagedCompilerRequest {
     static let baseImporterID = UInt32(4000)
 
     /// Helper
-    private func getImporter(importerID: UInt32) throws -> Importer {
+    private func getImporter<T>(importerID: UInt32, keyPath: KeyPath<ImportResolver, T?>) throws -> T {
         let minImporterID = CompilationRequest.baseImporterID
         let maxImporterID = minImporterID + UInt32(importers.count) - 1
         guard importerID >= minImporterID, importerID <= maxImporterID else {
             throw ProtocolError("Bad importer ID \(importerID), out of range (\(minImporterID)-\(maxImporterID))")
         }
-        guard let importer = importers[Int(importerID - minImporterID)].importer else {
+        guard let importer = importers[Int(importerID - minImporterID)][keyPath: keyPath] else {
             throw ProtocolError("Bad importer ID \(importerID), not an importer")
         }
         return importer
@@ -315,7 +315,7 @@ final class CompilationRequest: ManagedCompilerRequest {
 
     /// Inbound `CanonicalizeRequest` handler
     private func receive(canonicalizeRequest req: OBM.CanonicalizeRequest) async throws -> IBM? {
-        let importer = try getImporter(importerID: req.importerID)
+        let importer = try getImporter(importerID: req.importerID, keyPath: \.importer)
         var rsp = IBM.CanonicalizeResponse.with { $0.id = req.id }
 
         clientStarting()
@@ -341,7 +341,7 @@ final class CompilationRequest: ManagedCompilerRequest {
 
     /// Inbound `ImportRequest` handler
     private func receive(importRequest req: OBM.ImportRequest) async throws -> IBM? {
-        let importer = try getImporter(importerID: req.importerID)
+        let importer = try getImporter(importerID: req.importerID, keyPath: \.importer)
         guard let url = URL(string: req.url) else {
             throw ProtocolError("Malformed import URL: \(req.url)")
         }
@@ -364,6 +364,30 @@ final class CompilationRequest: ManagedCompilerRequest {
 
         self.clientStopped()
         return .with { $0.message = .importResponse(rsp) }
+    }
+
+    /// Inbound `FileImportRequest` handler
+    private func receive(fileImportRequest req: OBM.FileImportRequest) async throws -> IBM? {
+        let importer = try getImporter(importerID: req.importerID, keyPath: \.filesystemImporter)
+        var rsp = IBM.FileImportResponse.with { $0.id = req.id }
+
+        clientStarting()
+
+        do {
+            if let urlPath = try await importer.resolve(ruleURL: req.url, fromImport: req.fromImport) {
+                rsp.fileURL = urlPath.absoluteString
+                self.debug("Tx FileImport-Rsp-Success ReqID=\(req.id)")
+            } else {
+                // leave fileURL as nil
+                self.debug("Tx FileImport-Rsp-Nil ReqID=\(req.id)")
+            }
+        } catch {
+            rsp.error = String(describing: error)
+            self.debug("Tx FileImport-Rsp-Error ReqID=\(req.id)")
+        }
+
+        self.clientStopped()
+        return .with { $0.message = .fileImportResponse(rsp) }
     }
 
     // MARK: Functions
@@ -426,8 +450,15 @@ final class CompilationRequest: ManagedCompilerRequest {
 private extension ImportResolver {
     var importer: Importer? {
         switch self {
-        case .loadPath: return nil
+        case .loadPath, .filesystemImporter: return nil
         case .importer(let i): return i
+        }
+    }
+
+    var filesystemImporter: FilesystemImporter? {
+        switch self {
+        case .loadPath, .importer: return nil
+        case .filesystemImporter(let f): return f
         }
     }
 }

@@ -123,10 +123,32 @@ public protocol Importer: Sendable {
     func load(canonicalURL: URL) async throws -> ImporterResults
 }
 
+/// Methods required to implement a filesystem-redirecting stylesheet importer.
+///
+/// Use this to map imports to a filesystem location, letting the Sass compiler deal
+/// with index directories, file extensions, and actually loading the stylesheet.
+public protocol FilesystemImporter: Sendable {
+    /// Resolve an imported URL to a filesystem location.
+    ///
+    /// - parameter ruleURL: The text following `@import` or `@use` in
+    ///   a stylesheet.
+    /// - parameter fromImport: Whether this request comes from an `@import` rule.
+    ///   See [import-only files](https://sass-lang.com/documentation/at-rules/import#import-only-files).
+    /// - returns: A `file:` URL for the compiler to access,  or `nil` if the importer doesn't recognize the
+    ///   import request: the compiler will try the next importer.
+    /// - throws: Only when `ruleURL` cannot be resolved:  it is definitely
+    ///   this importer's responsibility to do so, but it can't.
+    ///
+    ///   Compilation will stop, quoting the description of the error thrown as the reason.
+    func resolve(ruleURL: String, fromImport: Bool) async throws -> URL?
+}
+
 /// How the Sass compiler should resolve `@import`, `@use`, and `@forward` rules.
 public enum ImportResolver: Sendable {
     /// Search a filesystem directory to resolve the rule.  See [the Sass docs](https://sass-lang.com/documentation/at-rules/import#load-paths).
     case loadPath(URL)
     /// Call back through the `Importer` to resolve the rule.
     case importer(Importer)
+    /// Call back through the `FilesystemImporter` to resolve the rule.
+    case filesystemImporter(FilesystemImporter)
 }
