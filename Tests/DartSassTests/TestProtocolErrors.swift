@@ -148,9 +148,16 @@ class TestProtocolErrors: DartSassTestCase {
     func checkBadMessage(_ msg: Sass_EmbeddedProtocol_OutboundMessage, _ errStr: String) async throws {
         let importer = HangingAsyncImporter()
 
+        struct DummyFilesystemImporter: FilesystemImporter {
+            func resolve(ruleURL: String, fromImport: Bool) async throws -> URL? {
+                nil
+            }
+        }
+
         let compiler = try newCompiler(importers: [
             .importer(importer),
-            .loadPath(URL(fileURLWithPath: "/tmp"))
+            .loadPath(URL(fileURLWithPath: "/tmp")),
+            .filesystemImporter(DummyFilesystemImporter())
         ])
 
         importer.state.onLoadHang = {
@@ -182,15 +189,28 @@ class TestProtocolErrors: DartSassTestCase {
     }
 
     /// Importer ID picks out a loadpath not an importer
-    func testImporterBadImporterType() throws {
-        try asyncTest(asyncTestImporterBadImporterType)
+    func testImporterBadImporterType1() throws {
+        try asyncTest(asyncTestImporterBadImporterType1)
     }
 
-    func asyncTestImporterBadImporterType() async throws {
+    func asyncTestImporterBadImporterType1() async throws {
         try await checkBadImportMessage(.with {
             $0.compilationID = RequestID.peekNext
             $0.id = 42
             $0.importerID = 4001
+        }, "not an importer")
+    }
+
+    /// Importer ID picks out a fileimporter not an importer
+    func testImporterBadImporterType2() throws {
+        try asyncTest(asyncTestImporterBadImporterType2)
+    }
+
+    func asyncTestImporterBadImporterType2() async throws {
+        try await checkBadImportMessage(.with {
+            $0.compilationID = RequestID.peekNext
+            $0.id = 42
+            $0.importerID = 4002
         }, "not an importer")
     }
 
@@ -205,6 +225,19 @@ class TestProtocolErrors: DartSassTestCase {
             $0.id = 42
             $0.importerID = 4000
         }, "Malformed import URL")
+    }
+
+    /// FileImporter
+    func testFileImporterBadID() throws {
+        try asyncTest(asyncTestFileImporterBadID)
+    }
+
+    func asyncTestFileImporterBadID() async throws {
+        try await checkBadFileImport(.with {
+            $0.compilationID = RequestID.peekNext
+            $0.id = 42
+            $0.importerID = 4000
+        }, "Bad importer ID 4000")
     }
 
     // FnCall requests
@@ -246,19 +279,6 @@ class TestProtocolErrors: DartSassTestCase {
             $0.id = 42
             $0.name = "mysterious"
         }, "Host function name")
-    }
-
-    /// File import is in the API but not implemented anywhere...
-    func testUnexpectedFileImport() throws {
-        try asyncTest(asyncTestUnexpectedFileImport)
-    }
-
-    func asyncTestUnexpectedFileImport() async throws {
-        try await checkBadFileImport(.with {
-            $0.compilationID = RequestID.peekNext
-            $0.id = 108
-            $0.importerID = 22
-        }, "Unexpected FileImport-Req")
     }
 
     // Misc bits of unconvertible API
@@ -329,6 +349,9 @@ extension Compiler {
             try! self.child().receive(message: message)
         }
         await sync()
+        try? await Task.sleep(nanoseconds: 10000) // i'm sorry this whole thing needs a redesign
+                                                  // for async-await, can't get my head around how
+                                                  // to inject errors in a controlled way.
     }
 
     func sync() async {

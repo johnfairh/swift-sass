@@ -129,6 +129,8 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer {
             path = url.path
         case .importer:
             importerID = id
+        case .filesystemImporter:
+            fileImporterID = id
         }
     }
 }

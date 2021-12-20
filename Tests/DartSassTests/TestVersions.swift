@@ -43,8 +43,8 @@ class TestVersions: DartSassTestCase {
     }
 
     func asyncTestVersionReport() async throws {
-        let expectedPackage = "1.0.0-beta.12"
-        let expectedCompiler = "1.42.1"
+        let expectedPackage = "1.0.0-beta.14"
+        let expectedCompiler = "1.45.0"
         let compiler = try newCompiler()
         let version = try await XCTUnwrapA(await compiler.compilerVersion)
         XCTAssertEqual(expectedCompiler, version)

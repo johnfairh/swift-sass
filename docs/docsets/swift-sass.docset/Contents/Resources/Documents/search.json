@@ -83,16 +83,25 @@
     "name" : "syncShutdownGracefully()",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/importer3.html?swift" : {
+  "dartsass\/types\/filesystemimporter1.html?swift" : {
+    "abstract" : "Methods required to implement a filesystem-redirecting stylesheet importer.",
+    "name" : "FilesystemImporter"
+  },
+  "dartsass\/types\/filesystemimporter1.html?swift#resolveruleurlfromimport" : {
+    "abstract" : "Resolve an imported URL to a filesystem location.",
+    "name" : "resolve(ruleURL:fromImport:)",
+    "parent_name" : "FilesystemImporter"
+  },
+  "dartsass\/types\/importer4.html?swift" : {
     "abstract" : "Methods required to implement a stylesheet importer.",
     "name" : "Importer"
   },
-  "dartsass\/types\/importer3.html?swift#canonicalizeruleurlfromimport" : {
+  "dartsass\/types\/importer4.html?swift#canonicalizeruleurlfromimport" : {
     "abstract" : "Convert an imported URL to its canonical format.",
     "name" : "canonicalize(ruleURL:fromImport:)",
     "parent_name" : "Importer"
   },
-  "dartsass\/types\/importer3.html?swift#loadcanonicalurl" : {
+  "dartsass\/types\/importer4.html?swift#loadcanonicalurl" : {
     "abstract" : "Load a stylesheet from a canonical URL",
     "name" : "load(canonicalURL:)",
     "parent_name" : "Importer"
@@ -124,6 +133,11 @@
   "dartsass\/types\/importresolver1.html?swift" : {
     "abstract" : "How the Sass compiler should resolve @import, @use, and @forward rules.",
     "name" : "ImportResolver"
+  },
+  "dartsass\/types\/importresolver1.html?swift#filesystemimporter_" : {
+    "abstract" : "Call back through the FilesystemImporter to resolve the rule.",
+    "name" : "filesystemImporter(_:)",
+    "parent_name" : "ImportResolver"
   },
   "dartsass\/types\/importresolver1.html?swift#importer_" : {
     "abstract" : "Call back through the Importer to resolve the rule.",

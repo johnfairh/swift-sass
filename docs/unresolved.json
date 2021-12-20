@@ -21,7 +21,7 @@
   },
   {
     "context" : "index",
-    "name" : "1.0.0-beta.12"
+    "name" : "1.0.0-beta.14"
   },
   {
     "context" : "ImportResolver",
@@ -116,7 +116,11 @@
     "name" : "deinit"
   },
   {
-    "context" : "init(_:syntax:sourceMapURL:)",
+    "context" : "resolve(ruleURL:fromImport:)",
+    "name" : "file:\/\/your\/custom\/path\/test"
+  },
+  {
+    "context" : "resolve(ruleURL:fromImport:)",
     "name" : "file:"
   },
   {
@@ -204,7 +208,7 @@
     "name" : "range"
   },
   {
-    "context" : "canonicalize(ruleURL:fromImport:)",
+    "context" : "resolve(ruleURL:fromImport:)",
     "name" : "ruleURL"
   },
   {
@@ -234,6 +238,14 @@
   {
     "context" : "index",
     "name" : "swift-sass"
+  },
+  {
+    "context" : "resolve(ruleURL:fromImport:)",
+    "name" : "test.import.scss"
+  },
+  {
+    "context" : "resolve(ruleURL:fromImport:)",
+    "name" : "test.scss"
   },
   {
     "context" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)",
