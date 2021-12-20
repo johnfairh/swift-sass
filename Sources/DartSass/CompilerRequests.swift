@@ -268,9 +268,6 @@ final class CompilationRequest: ManagedCompilerRequest {
         case .compileResponse(let rsp):
             return try receive(compileResponse: rsp)
 
-        case .logEvent(let rsp):
-            return try receive(log: rsp)
-
         case .canonicalizeRequest(let req):
             return try await receive(canonicalizeRequest: req)
 

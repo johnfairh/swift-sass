@@ -9,6 +9,7 @@
 // doesn't add any value over using dart-sass!
 
 import DartSass
+import LibSass
 import Foundation
 
 func compileWithDartSass(input: URL) async throws -> CompilerResults {
@@ -19,9 +20,8 @@ func compileWithDartSass(input: URL) async throws -> CompilerResults {
 }
 
 func compileWithLibSass(input: URL) throws -> CompilerResults {
-    preconditionFailure()
-    //    let compiler = LibSass.Compiler(messageStyle: .terminalColored)
-    //    return try compiler.compile(fileURL: input)
+    let compiler = LibSass.Compiler(messageStyle: .terminalColored)
+    return try compiler.compile(fileURL: input)
 }
 
 @main
