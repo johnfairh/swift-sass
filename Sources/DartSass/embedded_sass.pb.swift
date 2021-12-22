@@ -1346,7 +1346,7 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
       /// A message describing the reason for the failure.
       var message: String = String()
 
-      /// The span associated with the failure. Optional.
+      /// The span associated with the failure. Mandatory.
       var span: Sass_EmbeddedProtocol_SourceSpan {
         get {return _span ?? Sass_EmbeddedProtocol_SourceSpan()}
         set {_span = newValue}
@@ -2228,9 +2228,14 @@ struct Sass_EmbeddedProtocol_Value {
     /// across all functions for *all* compilations. Mandatory.
     var id: UInt32 = 0
 
-    /// The signatures for this function. This must be a valid Sass function
-    /// signature that could appear in after `@function` in a Sass stylesheet,
-    /// such as `mix($color1, $color2, $weight: 50%)`. Mandatory.
+    /// The signature for this function. Mandatory.
+    ///
+    /// If this isn't a valid Sass function signature that could appear after
+    /// `@function` in a Sass stylesheet (such as `mix($color1, $color2, $weight:
+    /// 50%)`), the compiler must treat the function's return value as invalid.
+    ///
+    /// > This ensures that the host doesn't need to be able to correctly parse
+    /// > the entire function declaration syntax.
     ///
     /// The compiler may not invoke the function by its name, since it's not
     /// guaranteed to be globally unique. However, it may use the name to
