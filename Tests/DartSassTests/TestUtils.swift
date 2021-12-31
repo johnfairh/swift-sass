@@ -137,7 +137,7 @@ final class HangingAsyncImporter: Importer {
         URL(string: "custom://\(ruleURL)")
     }
 
-    func load(canonicalURL: URL) async throws -> ImporterResults {
+    func load(canonicalURL: URL) async throws -> ImporterResults? {
         if let onLoadHang = state.onLoadHang {
             await onLoadHang()
             state.onLoadHang = nil

@@ -21,7 +21,7 @@
   },
   {
     "context" : "index",
-    "name" : "1.0.0-beta.14"
+    "name" : "1.0.0-beta.15"
   },
   {
     "context" : "ImportResolver",
@@ -94,6 +94,10 @@
   {
     "context" : "==(SassCalculation, SassCalculation)",
     "name" : "calc(5px + 5px)"
+  },
+  {
+    "context" : "load(canonicalURL:)",
+    "name" : "canonicalURL"
   },
   {
     "context" : "clamp",

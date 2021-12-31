@@ -716,7 +716,7 @@ throw an error indicating that the import is ambiguous.</p>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L95-L124">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L95-L125">Show on GitHub</a>
           </nav>
           
           
@@ -827,12 +827,12 @@ import request to have the compiler try the next importer.</p>
   
   
     <section id="loadcanonicalurl" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20load(canonicalURL%3A%20URL)%20async%20-%3E%20ImporterResults" class="dashAnchor j2-item-dash-anchor" data-item-id="loadcanonicalurl"></a>
-    <h4 class="visually-hidden">func load(canonicalURL: URL) async -&gt; ImporterResults</h4>
+    <a name="//apple_ref/cpp/Method/func%20load(canonicalURL%3A%20URL)%20async%20-%3E%20ImporterResults%3F" class="dashAnchor j2-item-dash-anchor" data-item-id="loadcanonicalurl"></a>
+    <h4 class="visually-hidden">func load(canonicalURL: URL) async -&gt; ImporterResults?</h4>
     
     
     <a class="j2-item-title" href="#_loadcanonicalurl" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_loadcanonicalurl"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>load<span class="j2-item-secondary">(</span>canonicalURL<span class="j2-item-secondary">: URL) async -&gt; ImporterResults</span></span>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>load<span class="j2-item-secondary">(</span>canonicalURL<span class="j2-item-secondary">: URL) async -&gt; ImporterResults?</span></span>
         
       </code></a>
     <div class="collapse  j2-item-popopen-wrapper" id="_loadcanonicalurl">
@@ -859,7 +859,7 @@ import request to have the compiler try the next importer.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">func load(canonicalURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>) async throws -&gt; <a href="../../dartsass/types/importerresults.html?swift">ImporterResults</a></code></pre>
+    <pre><code class="language-swift">func load(canonicalURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>) async throws -&gt; <a href="../../dartsass/types/importerresults.html?swift">ImporterResults</a>?</code></pre>
   </div>
 
 
@@ -886,7 +886,8 @@ the description of this error as the reason.</p>
 
 
   <h5>Return Value</h5>
-  <p>The stylesheet and optional source map.</p>
+  <p>The stylesheet and its metadata, or <code>nil</code> if the <code>canonicalURL</code> doesn’t
+resolve to a stylesheet.</p>
 
 
           
@@ -894,7 +895,7 @@ the description of this error as the reason.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L123">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L124">Show on GitHub</a></span>
             
           </nav>
         </div>

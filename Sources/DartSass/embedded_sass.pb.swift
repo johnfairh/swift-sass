@@ -846,7 +846,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
 
     var id: UInt32 = 0
 
-    /// The result of loading the URL. Mandatory.
+    /// The result of loading the URL. Optional. If this is `null`, it indicates
+    /// that the importer either did not recognize the URL, or could not find a
+    /// stylesheet at the location it referred to.
     var result: Sass_EmbeddedProtocol_InboundMessage.ImportResponse.OneOf_Result? = nil
 
     /// The contents of the loaded stylesheet.
@@ -869,7 +871,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    /// The result of loading the URL. Mandatory.
+    /// The result of loading the URL. Optional. If this is `null`, it indicates
+    /// that the importer either did not recognize the URL, or could not find a
+    /// stylesheet at the location it referred to.
     enum OneOf_Result: Equatable {
       /// The contents of the loaded stylesheet.
       case success(Sass_EmbeddedProtocol_InboundMessage.ImportResponse.ImportSuccess)

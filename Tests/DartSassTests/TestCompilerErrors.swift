@@ -273,7 +273,7 @@ final class StaticImporter: Importer {
         URL(string: "static://\(ruleURL)")
     }
 
-    func load(canonicalURL: URL) async throws -> ImporterResults {
+    func load(canonicalURL: URL) async throws -> ImporterResults? {
         ImporterResults(scss)
     }
 }

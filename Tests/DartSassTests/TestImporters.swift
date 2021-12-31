@@ -135,12 +135,18 @@ class TestImporters: DartSassTestCase {
 
         /// Fail the next import
         var failNextImport: String? = nil
+        var nilNextImport = false
         var failedImportCount = 0
+        var nilImportCount = 0
 
-        func load(canonicalURL: URL) async throws -> ImporterResults {
+        func load(canonicalURL: URL) async throws -> ImporterResults? {
             if let failNextImport = failNextImport {
                 failedImportCount += 1
                 throw Error(message: failNextImport)
+            }
+            if nilNextImport {
+                nilImportCount += 1
+                return nil
             }
             return ImporterResults(css, syntax: .css, sourceMapURL: canonicalURL)
         }
@@ -194,6 +200,14 @@ class TestImporters: DartSassTestCase {
         }
     }
 
+    // load not-found (still don't really understand why this is here, canon works but then this fails?)
+    func testImportNil() throws {
+        try checkFaultyImporter(customize: { $0.nilNextImport = true }) { i, e in
+            XCTAssertTrue(e.message.contains("Can't find stylesheet"))
+            XCTAssertEqual(1, i.nilImportCount)
+        }
+    }
+
     // Async importer
     func testAsyncImporter() throws {
         let importer = HangingAsyncImporter()
@@ -239,7 +253,7 @@ class TestImporters: DartSassTestCase {
                 return URL(string: "test://\(ruleURL)")
             }
 
-            func load(canonicalURL: URL) async throws -> ImporterResults {
+            func load(canonicalURL: URL) async throws -> ImporterResults? {
                 ImporterResults("", syntax: .css, sourceMapURL: canonicalURL)
             }
         }

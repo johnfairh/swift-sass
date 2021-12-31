@@ -268,9 +268,6 @@ final class CompilationRequest: ManagedCompilerRequest {
         case .compileResponse(let rsp):
             return try receive(compileResponse: rsp)
 
-        case .logEvent(let rsp):
-            return try receive(log: rsp)
-
         case .canonicalizeRequest(let req):
             return try await receive(canonicalizeRequest: req)
 
@@ -364,13 +361,17 @@ final class CompilationRequest: ManagedCompilerRequest {
         clientStarting()
 
         do {
-            let results = try await importer.load(canonicalURL: url)
-            rsp.success = .with { msg in
-                msg.contents = results.contents
-                msg.syntax = .init(results.syntax)
-                results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
+            if let results = try await importer.load(canonicalURL: url) {
+                rsp.success = .with { msg in
+                    msg.contents = results.contents
+                    msg.syntax = .init(results.syntax)
+                    results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
+                }
+                self.debug("Tx Import-Rsp-Success ReqID=\(req.id)")
+            } else {
+                rsp.result = nil
+                self.debug("Tx Import-Rsp-Null ReqID=\(req.id)")
             }
-            self.debug("Tx Import-Rsp-Success ReqID=\(req.id)")
         } catch {
             rsp.error = String(describing: error)
             self.debug("Tx Import-Rsp-Error ReqID=\(req.id)")

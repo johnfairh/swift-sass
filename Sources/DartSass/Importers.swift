@@ -117,10 +117,11 @@ public protocol Importer: Sendable {
     ///
     /// - parameter canonicalURL: A URL previously returned by
     ///   `canonicalize(...)` during this compilation.
-    /// - returns: The stylesheet and optional source map.
+    /// - returns: The stylesheet and its metadata, or `nil` if the `canonicalURL` doesn't
+    ///   resolve to a stylesheet.
     /// - throws: If the stylesheet cannot be loaded.  Compilation will stop, quoting
     ///   the description of this error as the reason.
-    func load(canonicalURL: URL) async throws -> ImporterResults
+    func load(canonicalURL: URL) async throws -> ImporterResults?
 }
 
 /// Methods required to implement a filesystem-redirecting stylesheet importer.

@@ -100,7 +100,7 @@ interface is entirely Swift 5.5 async-await.
 * Swift 5.5
 * macOS 11 (tested on macOS 11.3 IA64)
 * Linux (tested on Ubuntu 18.04.5)
-* Embedded Sass Protocol version 1.0.0-beta.15
+* Embedded Sass Protocol version 1.0.0-beta.17
 
 ## Installation
 
@@ -127,7 +127,7 @@ it manually, ship it as part of your program's distribution, and use
 
 There is no need to install a Dart runtime or SDK as part of this, the
 `dart-sass-embedded` program is standalone.  The version required is
-`1.0.0-beta.14`.
+`1.0.0-beta.15`.
 
 ## On LibSass
 
