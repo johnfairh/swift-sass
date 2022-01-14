@@ -248,7 +248,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------
 
 charcode, dart_style, fixnum, http_parser, pool, shelf_web_socket, source_maps,
-source_span, stack_trace, string_scanner and yaml license:
+stack_trace, string_scanner and yaml license:
 
 Copyright 2014, the Dart project authors. All rights reserved.
 Redistribution and use in source and binary forms, with or without
@@ -885,7 +885,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 --------------------------------------------------------------------------------
 
-glob, http, matcher, path, pub_semver, shelf, test and watcher license:
+glob, http, matcher, path, pub_semver, shelf, source_span, test and watcher
+license:
 
 Copyright 2014, the Dart project authors. 
 

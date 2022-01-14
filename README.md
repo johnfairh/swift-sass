@@ -127,7 +127,7 @@ it manually, ship it as part of your program's distribution, and use
 
 There is no need to install a Dart runtime or SDK as part of this, the
 `dart-sass-embedded` program is standalone.  The version required is
-`1.0.0-beta.15`.
+`1.0.0-beta.16`.
 
 ## On LibSass
 
