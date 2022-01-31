@@ -593,6 +593,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     /// (files loaded from a different importer than the input).
     var quietDeps: Bool = false
 
+    /// Whether to include sources in the generated sourcemap
+    var sourceMapIncludeSources: Bool = false
+
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
     /// The input stylesheet to parse. Mandatory.
@@ -2638,8 +2641,9 @@ extension Sass_EmbeddedProtocol_InboundMessage: SwiftProtobuf.Message, SwiftProt
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every case branch when no optimizations are
-    // enabled. https://github.com/apple/swift-protobuf/issues/1034
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     switch self.message {
     case .compileRequest?: try {
       guard case .compileRequest(let v)? = self.message else { preconditionFailure() }
@@ -2723,6 +2727,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     9: .standard(proto: "alert_ascii"),
     10: .same(proto: "verbose"),
     11: .standard(proto: "quiet_deps"),
+    12: .standard(proto: "source_map_include_sources"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -2761,18 +2766,20 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
       case 9: try { try decoder.decodeSingularBoolField(value: &self.alertAscii) }()
       case 10: try { try decoder.decodeSingularBoolField(value: &self.verbose) }()
       case 11: try { try decoder.decodeSingularBoolField(value: &self.quietDeps) }()
+      case 12: try { try decoder.decodeSingularBoolField(value: &self.sourceMapIncludeSources) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if self.id != 0 {
       try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
     }
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every case branch when no optimizations are
-    // enabled. https://github.com/apple/swift-protobuf/issues/1034
     switch self.input {
     case .string?: try {
       guard case .string(let v)? = self.input else { preconditionFailure() }
@@ -2808,6 +2815,9 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     if self.quietDeps != false {
       try visitor.visitSingularBoolField(value: self.quietDeps, fieldNumber: 11)
     }
+    if self.sourceMapIncludeSources != false {
+      try visitor.visitSingularBoolField(value: self.sourceMapIncludeSources, fieldNumber: 12)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -2822,6 +2832,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     if lhs.alertAscii != rhs.alertAscii {return false}
     if lhs.verbose != rhs.verbose {return false}
     if lhs.quietDeps != rhs.quietDeps {return false}
+    if lhs.sourceMapIncludeSources != rhs.sourceMapIncludeSources {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -2852,6 +2863,10 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.StringInput: Swift
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if !self.source.isEmpty {
       try visitor.visitSingularStringField(value: self.source, fieldNumber: 1)
     }
@@ -2861,9 +2876,9 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.StringInput: Swift
     if self.syntax != .scss {
       try visitor.visitSingularEnumField(value: self.syntax, fieldNumber: 3)
     }
-    if let v = self._importer {
+    try { if let v = self._importer {
       try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
-    }
+    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -2922,8 +2937,9 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer: SwiftPro
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every case branch when no optimizations are
-    // enabled. https://github.com/apple/swift-protobuf/issues/1034
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     switch self.importer {
     case .path?: try {
       guard case .path(let v)? = self.importer else { preconditionFailure() }
@@ -2986,12 +3002,13 @@ extension Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse: SwiftProtob
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if self.id != 0 {
       try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
     }
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every case branch when no optimizations are
-    // enabled. https://github.com/apple/swift-protobuf/issues/1034
     switch self.result {
     case .url?: try {
       guard case .url(let v)? = self.result else { preconditionFailure() }
@@ -3056,12 +3073,13 @@ extension Sass_EmbeddedProtocol_InboundMessage.ImportResponse: SwiftProtobuf.Mes
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if self.id != 0 {
       try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
     }
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every case branch when no optimizations are
-    // enabled. https://github.com/apple/swift-protobuf/issues/1034
     switch self.result {
     case .success?: try {
       guard case .success(let v)? = self.result else { preconditionFailure() }
@@ -3165,12 +3183,13 @@ extension Sass_EmbeddedProtocol_InboundMessage.FileImportResponse: SwiftProtobuf
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if self.id != 0 {
       try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
     }
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every case branch when no optimizations are
-    // enabled. https://github.com/apple/swift-protobuf/issues/1034
     switch self.result {
     case .fileURL?: try {
       guard case .fileURL(let v)? = self.result else { preconditionFailure() }
@@ -3237,12 +3256,13 @@ extension Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse: SwiftProtob
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if self.id != 0 {
       try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
     }
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every case branch when no optimizations are
-    // enabled. https://github.com/apple/swift-protobuf/issues/1034
     switch self.result {
     case .success?: try {
       guard case .success(let v)? = self.result else { preconditionFailure() }
@@ -3399,8 +3419,9 @@ extension Sass_EmbeddedProtocol_OutboundMessage: SwiftProtobuf.Message, SwiftPro
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every case branch when no optimizations are
-    // enabled. https://github.com/apple/swift-protobuf/issues/1034
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     switch self.message {
     case .error?: try {
       guard case .error(let v)? = self.message else { preconditionFailure() }
@@ -3549,12 +3570,13 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse: SwiftProtobuf.M
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if self.id != 0 {
       try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
     }
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every case branch when no optimizations are
-    // enabled. https://github.com/apple/swift-protobuf/issues/1034
     switch self.result {
     case .success?: try {
       guard case .success(let v)? = self.result else { preconditionFailure() }
@@ -3646,12 +3668,16 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure: 
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if !self.message.isEmpty {
       try visitor.visitSingularStringField(value: self.message, fieldNumber: 1)
     }
-    if let v = self._span {
+    try { if let v = self._span {
       try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-    }
+    } }()
     if !self.stackTrace.isEmpty {
       try visitor.visitSingularStringField(value: self.stackTrace, fieldNumber: 3)
     }
@@ -3700,6 +3726,10 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if self.compilationID != 0 {
       try visitor.visitSingularUInt32Field(value: self.compilationID, fieldNumber: 1)
     }
@@ -3709,9 +3739,9 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
     if !self.message.isEmpty {
       try visitor.visitSingularStringField(value: self.message, fieldNumber: 3)
     }
-    if let v = self._span {
+    try { if let v = self._span {
       try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
-    }
+    } }()
     if !self.stackTrace.isEmpty {
       try visitor.visitSingularStringField(value: self.stackTrace, fieldNumber: 5)
     }
@@ -3936,15 +3966,16 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest: SwiftProtob
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if self.id != 0 {
       try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
     }
     if self.compilationID != 0 {
       try visitor.visitSingularUInt32Field(value: self.compilationID, fieldNumber: 2)
     }
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every case branch when no optimizations are
-    // enabled. https://github.com/apple/swift-protobuf/issues/1034
     switch self.identifier {
     case .name?: try {
       guard case .name(let v)? = self.identifier else { preconditionFailure() }
@@ -4043,15 +4074,19 @@ extension Sass_EmbeddedProtocol_SourceSpan: SwiftProtobuf.Message, SwiftProtobuf
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if !self.text.isEmpty {
       try visitor.visitSingularStringField(value: self.text, fieldNumber: 1)
     }
-    if let v = self._start {
+    try { if let v = self._start {
       try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-    }
-    if let v = self._end {
+    } }()
+    try { if let v = self._end {
       try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
-    }
+    } }()
     if !self.url.isEmpty {
       try visitor.visitSingularStringField(value: self.url, fieldNumber: 4)
     }
@@ -4297,8 +4332,9 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every case branch when no optimizations are
-    // enabled. https://github.com/apple/swift-protobuf/issues/1034
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     switch self.value {
     case .string?: try {
       guard case .string(let v)? = self.value else { preconditionFailure() }
@@ -4689,12 +4725,16 @@ extension Sass_EmbeddedProtocol_Value.Map.Entry: SwiftProtobuf.Message, SwiftPro
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if let v = self._key {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    try { if let v = self._key {
       try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
-    }
-    if let v = self._value {
+    } }()
+    try { if let v = self._value {
       try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-    }
+    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -4965,8 +5005,9 @@ extension Sass_EmbeddedProtocol_Value.Calculation.CalculationValue: SwiftProtobu
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
       // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      // allocates stack space for every if/case branch local when no optimizations
+      // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+      // https://github.com/apple/swift-protobuf/issues/1182
       switch _storage._value {
       case .number?: try {
         guard case .number(let v)? = _storage._value else { preconditionFailure() }
@@ -5059,15 +5100,19 @@ extension Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation: SwiftPro
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every if/case branch local when no optimizations
+      // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+      // https://github.com/apple/swift-protobuf/issues/1182
       if _storage._operator != .plus {
         try visitor.visitSingularEnumField(value: _storage._operator, fieldNumber: 1)
       }
-      if let v = _storage._left {
+      try { if let v = _storage._left {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-      }
-      if let v = _storage._right {
+      } }()
+      try { if let v = _storage._right {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
-      }
+      } }()
     }
     try unknownFields.traverse(visitor: &visitor)
   }
