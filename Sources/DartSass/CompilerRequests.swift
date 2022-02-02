@@ -220,13 +220,14 @@ final class CompilationRequest: ManagedCompilerRequest {
             msg.id = RequestID.next
             msg.input = input
             msg.style = .init(outputStyle)
-            msg.sourceMap = .init(sourceMapStyle)
+            msg.sourceMap = sourceMapStyle.createSourceMap
             msg.importers = .init(importers, startingID: firstFreeImporterID)
             msg.globalFunctions = functionsMap.values.map { $0.0 }
             msg.alertAscii = false
             msg.alertColor = settings.messageStyle.isColored
             msg.verbose = settings.verboseDeprecations
             msg.quietDeps = settings.suppressDependencyWarnings
+            msg.sourceMapIncludeSources = sourceMapStyle.embedSourceMap
         }
         self.messages = []
         self.promise = promise

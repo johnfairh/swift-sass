@@ -153,12 +153,13 @@ extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse {
     }
 }
 
-extension Bool {
-    init(_ sourceMapStyle: SourceMapStyle) {
-        switch sourceMapStyle {
-        case .none: self = false
-        case .embeddedSources, .separateSources: self = true
-        }
+extension SourceMapStyle {
+    var createSourceMap: Bool {
+        self != .none
+    }
+
+    var embedSourceMap: Bool {
+        self == .embeddedSources
     }
 }
 

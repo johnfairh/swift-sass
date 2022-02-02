@@ -101,8 +101,15 @@ class TestInterface: DartSassTestCase {
             XCTAssertEqual("AACI;EACI", srcmap.mappings)
             XCTAssertEqual(1, srcmap.sources.count)
             XCTAssertEqual("custom://bar", srcmap.sources[0].url)
-            // dart sass can't embed source map sources yet
-            XCTAssertNil(srcmap.sources[0].content)
+
+            switch style {
+            case .separateSources:
+                XCTAssertNil(srcmap.sources[0].content)
+            case .embeddedSources:
+                XCTAssertEqual(scssIn, try XCTUnwrap(srcmap.sources[0].content))
+            case .none:
+                XCTFail("swift is dumb")
+            }
         }
     }
 
