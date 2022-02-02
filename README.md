@@ -98,9 +98,9 @@ interface is entirely Swift 5.5 async-await.
 ## Requirements
 
 * Swift 5.5
-* macOS 11 (tested on macOS 11.3 IA64)
+* macOS 11+ (tested on macOS 12.1 IA64)
 * Linux (tested on Ubuntu 18.04.5)
-* Embedded Sass Protocol version 1.0.0-beta.17
+* Embedded Sass Protocol version 1.0.0
 
 ## Installation
 
@@ -127,7 +127,7 @@ it manually, ship it as part of your program's distribution, and use
 
 There is no need to install a Dart runtime or SDK as part of this, the
 `dart-sass-embedded` program is standalone.  The version required is
-`1.0.0-beta.16`.
+`1.49.7`.
 
 ## On LibSass
 
