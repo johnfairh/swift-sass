@@ -23,10 +23,6 @@ and communicates with it using the
 come across another implementation of the 'compiler' side of the protocol then
 that should work fine too.
 
-The Sass embedding technology is pretty new.  Right now the [embedded compiler
-releases](https://github.com/sass/dart-sass-embedded/releases) are all tagged
-as alphas.
-
 This package doesn't support LibSass right now.  [More info](#on-libsass).
 
 ## Examples
@@ -41,10 +37,10 @@ let results = try await compiler.compile(fileURL: scssFileURL)
 
 print(results.css)
 ```
-Although the compiler output is more structured, you'd probably be just as well
-off running the binary directly.  The reason to use this package is to provide
-custom implementations of `@use` rules to load content, and custom functions to
-provide application-specific behavior:
+Although the compiler output is more structured, if this is all you want to do
+then you're probably better off running the binary directly.  The reason to use
+this package is to provide custom implementations of `@use` rules to load
+content, and custom functions to provide application-specific behavior:
 ```swift
 
 struct ExtrasImporter: Importer {
@@ -99,7 +95,7 @@ interface is entirely Swift 5.5 async-await.
 
 * Swift 5.5
 * macOS 11+ (tested on macOS 12.1 IA64)
-* Linux (tested on Ubuntu 18.04.5)
+* Linux (tested on Ubuntu 20.04.3)
 * Embedded Sass Protocol version 1.0.0
 
 ## Installation
@@ -110,7 +106,7 @@ Package dependency:
 ```swift
 .package(name: "swift-sass",
          url: "https://github.com/johnfairh/swift-sass.git",
-         from: "0.8.0")
+         from: "1.0.0")
 ```
 
 Target dependency:
@@ -119,7 +115,7 @@ Target dependency:
 ```
 
 The Swift package bundles the embedded Dart Sass compiler for macOS and Linux
-(specifically Ubuntu Xenial/16.04 64-bit).  For other platforms you will need
+(specifically Ubuntu Focal/20.04 64-bit).  For other platforms you will need
 to either download the correct version from
 [the release page](https://github.com/sass/dart-sass-embedded/release) or build
 it manually, ship it as part of your program's distribution, and use

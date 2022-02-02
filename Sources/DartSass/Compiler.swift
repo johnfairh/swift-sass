@@ -112,7 +112,7 @@ public final class Compiler: @unchecked Sendable {
 
     /// Use the bundled Dart Sass compiler as the Sass compiler.
     ///
-    /// The bundled Dart Sass compiler is built for macOS (Intel) or Ubuntu Xenial (16.04) 64-bit.
+    /// The bundled Dart Sass compiler is built on macOS (11.6) or Ubuntu (20.04) Intel 64-bit.
     /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)`
     /// supplying the path of the correct Dart Sass compiler.
     ///

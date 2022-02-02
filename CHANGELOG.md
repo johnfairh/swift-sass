@@ -1,3 +1,8 @@
+# 1.0.0
+
+* Bundle the 1.49.7 `dart_sass_embedded` binaries
+* Support generating source maps with embedded source stylesheets
+
 # 0.8.0
 
 * Bundle the 1.0.0-beta.14 `dart_sass_embedded` binaries
