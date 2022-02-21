@@ -20,10 +20,6 @@
     "name" : "\/index"
   },
   {
-    "context" : "index",
-    "name" : "1.49.7"
-  },
-  {
     "context" : "ImportResolver",
     "name" : "@forward"
   },
