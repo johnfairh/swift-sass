@@ -38,12 +38,21 @@ class TestVersions: DartSassTestCase {
         XCTAssertThrowsError(try tooHigh.check())
     }
 
+    func readSassVersion() throws -> String {
+        let url = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("VERSION_DART_SASS")
+        return try String(contentsOf: url).trimmingCharacters(in: .newlines)
+    }
+
     func testVersionReport() throws {
         try asyncTest(asyncTestVersionReport)
     }
 
     func asyncTestVersionReport() async throws {
-        let expectedVersion = "1.49.7"
+        let expectedVersion = try readSassVersion()
         let compiler = try newCompiler()
         let version = try await XCTUnwrapA(await compiler.compilerVersion)
         XCTAssertEqual(expectedVersion, version)
