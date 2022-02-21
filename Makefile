@@ -23,7 +23,7 @@ protobuf:
 
 # Update the local copies of dart-sass-embedded 
 # Only needed when there's a new release of the compiler to pick up
-sass_embedded_version := 1.49.7
+sass_embedded_version := $(shell cat VERSION_DART_SASS)
 
 sass_embedded_release_url := https://github.com/sass/dart-sass-embedded/releases/download/${sass_embedded_version}/sass_embedded-${sass_embedded_version}
 

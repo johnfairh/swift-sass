@@ -3,12 +3,10 @@ New protocol release:
 * `make protobuf`
 * Update `Versions.minProtocolVersion`
 * Update README 'Requirements'
-* Check `TestVersions` first
 
 New `dart_sass_embedded` release:
-* Update `sass_embedded_version` in `Makefile`
+* Update `VERSION_DART_SASS`
 * `make dart_sass_embedded`
-* Update README 'Installation'
 
 New `swift-sass` release:
 * `swift package update` & Xcode -> File -> Swift Packages -> Update...
