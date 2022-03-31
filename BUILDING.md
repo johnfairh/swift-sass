@@ -6,6 +6,7 @@ New protocol release:
 
 New `dart_sass_embedded` release:
 * Update `VERSION_DART_SASS`
+* Update README Sass badge
 * `make dart_sass_embedded`
 
 New `swift-sass` release:
