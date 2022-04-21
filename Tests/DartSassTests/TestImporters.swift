@@ -78,21 +78,26 @@ class TestImporters: DartSassTestCase {
         XCTAssertEqual(secondaryCssBlue, results.css)
     }
 
-    // implicit loadpath works
+    // no implicit loadpath - 1.50.1 spec clarification
     func testImplicitLoadPath() throws {
-        let tmpDir1 = try FileManager.default.createTemporaryDirectory()
-        let tmpDir2 = try FileManager.default.createTemporaryDirectory()
+        let tmpDir = try FileManager.default.createTemporaryDirectory()
         let filename = "imported.scss"
-        try "a { a: 'dir1'; }".write(to: tmpDir1.appendingPathComponent(filename))
-        try "a { a: 'dir2'; }".write(to: tmpDir2.appendingPathComponent(filename))
+        try "a { a: 'hello'; }".write(to: tmpDir.appendingPathComponent(filename))
 
-        try tmpDir1.withCurrentDirectory {
+        try tmpDir.withCurrentDirectory {
             let compiler = try newCompiler()
             try checkCompilerWorking(compiler) // make sure child process is actually started...
-            try tmpDir2.withCurrentDirectory {
+            do {
                 let results = try compiler.compile(string: "@import 'imported';", outputStyle: .compressed)
-                XCTAssertEqual(#"a{a:"dir2"}"#, results.css)
+                XCTFail("Managed to resolve import: \(results)")
+            } catch {
+                print(error)
             }
+
+            let results = try compiler.compile(string: "@import 'imported';",
+                                               outputStyle: .compressed,
+                                               importers: [.loadPath(tmpDir.absoluteURL)])
+            XCTAssertEqual(#"a{a:"hello"}"#, results.css)
         }
     }
 
