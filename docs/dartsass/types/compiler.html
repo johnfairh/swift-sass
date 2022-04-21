@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../../css/fw2020.css">
     
     
-   <title>Compiler - Swift Sass v1.3.0</title>
+   <title>Compiler - Swift Sass v1.4.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./../../" data-doc-path="dartsass/types/compiler.html" data-assets-path="../../">
@@ -31,7 +31,7 @@
     
     <a href="../../index.html">
     
-    Swift Sass v1.3.0</a>
+    Swift Sass v1.4.0</a>
   </div>
   
   <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
@@ -681,7 +681,7 @@ per-compilation list, in order within each list.</li>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L40-L583">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L40-L581">Show on GitHub</a>
           </nav>
           
           
@@ -1042,7 +1042,8 @@ Default <code>nil</code> meaning unknown.</p></td>
       <tr>
         <td><code>importer</code></td>
         <td><p>Rule to resolve <code>@import</code> etc. from <code>string</code> relative to <code>url</code>.  Default <code>nil</code>
-meaning the current filesystem directory is used.</p></td>
+meaning no filesystem importer is configured.  Unlike some Sass implementations this means that
+imports of files from the current directory don’t work automatically: add a loadpath to <code>importers</code>.</p></td>
       </tr>
       
       <tr>
@@ -1085,7 +1086,7 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L390-L414">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L391-L418">Show on GitHub</a></span>
             
           </nav>
         </div>

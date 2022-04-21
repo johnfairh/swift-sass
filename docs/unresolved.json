@@ -180,6 +180,10 @@
     "name" : "https:"
   },
   {
+    "context" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)",
+    "name" : "importers"
+  },
+  {
     "context" : "max",
     "name" : "max()"
   },
