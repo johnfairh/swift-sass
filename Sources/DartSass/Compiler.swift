@@ -377,7 +377,8 @@ public final class Compiler: @unchecked Sendable {
     ///   - url: The absolute URL to associate with `string`, from where it was loaded.
     ///     Default `nil` meaning unknown.
     ///   - importer: Rule to resolve `@import` etc. from `string` relative to `url`.  Default `nil`
-    ///     meaning the current filesystem directory is used.
+    ///     meaning no filesystem importer is configured.  Unlike some Sass implementations this means that
+    ///     imports of files from the current directory don't work automatically: add a loadpath to `importers`.
     ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
     ///   - sourceMapStyle: Kind of source map to create for the CSS.  Default `.separateSources`.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
@@ -401,9 +402,12 @@ public final class Compiler: @unchecked Sendable {
                 input: .string(.with { m in
                     m.source = string
                     m.syntax = .init(syntax)
-                    url.flatMap { m.url = $0.absoluteString }
-                    m.importer = .init(findImplicitImporter(importer: importer),
-                                       id: CompilationRequest.baseImporterID)
+                    url.map {
+                        m.url = $0.absoluteString
+                    }
+                    importer.map {
+                        m.importer = .init($0, id: CompilationRequest.baseImporterID)
+                    }
                 }),
                 outputStyle: outputStyle,
                 sourceMapStyle: sourceMapStyle,
@@ -411,12 +415,6 @@ public final class Compiler: @unchecked Sendable {
                 stringImporter: importer,
                 functions: functions)
         }.get()
-    }
-
-    // Compile from string, no importer given, supposed to try the current directory.
-    // but the child process's CWD could be different to ours - so we can't let it resolve.
-    private func findImplicitImporter(importer: ImportResolver?) -> ImportResolver {
-        importer ?? .loadPath(URL(fileURLWithPath: FileManager.default.currentDirectoryPath))
     }
 
     /// Consider the pending work queue.  When we change `state` or add to `pendingCompilations`.`
