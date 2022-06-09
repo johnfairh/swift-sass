@@ -11,6 +11,9 @@ let package = Package(
       .library(
         name: "DartSass",
         targets: ["DartSass"]),
+      .library(
+        name: "LibSass",
+        targets: ["LibSass"]),
       .executable(
         name: "ssassc",
         targets: ["Cli"]),
@@ -63,6 +66,9 @@ let package = Package(
       .target(
         name: "DartSassEmbeddedLinux",
         resources: [.copy("sass_embedded")]),
+      .target(
+        name: "TestHelpers",
+        path: "Tests/TestHelpers"),
       .testTarget(
         name: "DartSassTests",
         dependencies: ["DartSass"]),
@@ -71,6 +77,17 @@ let package = Package(
         dependencies: ["Sass"]),
       .executableTarget(
         name: "Cli",
-        dependencies: ["DartSass"]),
+        dependencies: ["DartSass", "LibSass"]),
+      .systemLibrary(
+        name: "clibsass4"),
+      .target(
+        name: "LibSass",
+        dependencies: [
+          .target(name: "Sass"),
+          .target(name: "clibsass4")
+        ]),
+      .testTarget(
+        name: "LibSassTests",
+        dependencies: ["LibSass", "TestHelpers", "SourceMapper"]),
     ]
 )

@@ -18,6 +18,18 @@ build_tool: spm
 modules:
   - Sass
   - DartSass
+  - LibSass
+build_tool_arguments:
+  - "-Xcc"
+  - "-I${PWD}"
+  - "-Xcc"
+  - "-I${PWD}/libsass4/include"
+  - "-Xlinker"
+  - "-L${PWD}/libsass4/lib"
+  - "-Xlinker"
+  - "-rpath"
+  - "-Xlinker"
+  - "${PWD}/libsass4/lib"
 docset_module_name: swift-sass
 title: Swift Sass v1.4.0
 module_version: 1.4.0
@@ -33,11 +45,11 @@ rewrite_link_urls:
   - https://github.com/johnfairh/swift-sass/blob/main
 custom_groups:
   - name: Sass Compilation
-    abstract: Main types for using the Sass compiler.
     topics:
-      - name: Compiler
+      - name: Compilers
         children:
-          - DartSass.Compiler
+          - DartSass.Compiler [Compiler (Dart)]
+          - LibSass.Compiler [Compiler (LibSass)]
       - name: Inputs
         children:
           - Syntax
@@ -59,6 +71,10 @@ custom_groups:
           - DartSass.ImporterResults
           - DartSass.FilesystemImporter
           - DartSass.ImportResolver
+      - name: LibSass
+        children:
+          - LibSass.ImporterResults
+          - LibSass.ImportResolver
 
   - name: Custom Functions
     children:

@@ -23,6 +23,8 @@
 		025C624F255D2C9300AEA420 /* BinaryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C624E255D2C9300AEA420 /* BinaryProtocol.swift */; };
 		025C6252255D54C000AEA420 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6251255D54C000AEA420 /* Errors.swift */; };
 		026E4D39260E103E00E916BF /* Importers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 026E4D38260E103E00E916BF /* Importers.swift */; };
+		026E4D4C2610E43400E916BF /* LibSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02B1C8CC25EFB8180053920D /* LibSass.framework */; };
+		027FEF95265FA48A008D1E17 /* LibSassFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 027FEF94265FA48A008D1E17 /* LibSassFunctions.swift */; };
 		0285E828256C4C2900956F18 /* TestFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E827256C4C2900956F18 /* TestFunctions.swift */; };
 		0285E82B256D9ABB00956F18 /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E82A256D9ABB00956F18 /* List.swift */; };
 		0285E82E256EDB6700956F18 /* TestList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0285E82D256EDB6700956F18 /* TestList.swift */; };
@@ -52,6 +54,14 @@
 		029B4F8E257E569D00A768D2 /* TestResetShutdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F8D257E569D00A768D2 /* TestResetShutdown.swift */; };
 		029B4F91257E578600A768D2 /* TestProtocolErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F90257E578600A768D2 /* TestProtocolErrors.swift */; };
 		029B4F94258005C000A768D2 /* NIO+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029B4F93258005C000A768D2 /* NIO+Extras.swift */; };
+		029D3C372604E89400E1B6BC /* TestBadpath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C99825F3972E0053920D /* TestBadpath.swift */; };
+		029D3C3F2604E89400E1B6BC /* TestImporters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029D3C2425FCD97900E1B6BC /* TestImporters.swift */; };
+		029D3C402604E89400E1B6BC /* TestGoodpath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C8F525EFBD430053920D /* TestGoodpath.swift */; };
+		029D3C452604E89400E1B6BC /* TestHelpers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02B1C96A25F285AE0053920D /* TestHelpers.framework */; };
+		029D3C652604E93F00E1B6BC /* LibSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02B1C8CC25EFB8180053920D /* LibSass.framework */; };
+		029D3C812604EA8A00E1B6BC /* Importers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029D3C802604EA8A00E1B6BC /* Importers.swift */; };
+		029D3C872606751400E1B6BC /* TestFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029D3C862606751400E1B6BC /* TestFunctions.swift */; };
+		029D3C8D260BADC300E1B6BC /* TestApiCorners.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029D3C8C260BADC300E1B6BC /* TestApiCorners.swift */; };
 		02A1A96F25B5AAEA0045E28F /* CompilerRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */; };
 		02A1A97A25B70A8B0045E28F /* Versions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A97925B70A8B0045E28F /* Versions.swift */; };
 		02A1A99125B774420045E28F /* Semver in Frameworks */ = {isa = PBXBuildFile; productRef = 02A1A99025B774420045E28F /* Semver */; };
@@ -66,6 +76,14 @@
 		02CEF371270F5806007DBDB7 /* TestCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF370270F5806007DBDB7 /* TestCalculation.swift */; };
 		02CEF373271455B6007DBDB7 /* ProtobufValueConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF372271455B6007DBDB7 /* ProtobufValueConversion.swift */; };
 		02D1B25026C7D377006B2CB1 /* ArgumentList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D1B24F26C7D377006B2CB1 /* ArgumentList.swift */; };
+		02B1C8D825EFB8290053920D /* Sass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0289BB1825666B060004544A /* Sass.framework */; };
+		02B1C8D925EFB8290053920D /* Sass.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0289BB1825666B060004544A /* Sass.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		02B1C93825F0EDF40053920D /* LibSass4.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C93025F0EDEE0053920D /* LibSass4.swift */; };
+		02B1C93D25F23AC30053920D /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C93C25F23AC30053920D /* Compiler.swift */; };
+		02B1C94825F243770053920D /* LibSassConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C94725F243770053920D /* LibSassConversion.swift */; };
+		02B1C97E25F285C20053920D /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B1C95D25F283E40053920D /* TestHelpers.swift */; };
+		02B1C98325F2860C0053920D /* TestHelpers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02B1C96A25F285AE0053920D /* TestHelpers.framework */; };
+		02CB4F6226D79E3F00B15D7C /* ArgumentList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB4F6126D79E3F00B15D7C /* ArgumentList.swift */; };
 		02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 02E0ED7E2586172C0080E954 /* SwiftProtobuf */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
 		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
@@ -81,6 +99,13 @@
 			remoteGlobalIDString = "swift-sass::DartSass";
 			remoteInfo = DartSass;
 		};
+		026E4D4E2610E43400E916BF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 02B1C8CB25EFB8180053920D;
+			remoteInfo = LibSass;
+		};
 		0289BB2425666BA70004544A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
@@ -94,6 +119,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 02903F2325A73AA20049106E;
 			remoteInfo = DartSassEmbeddedMacOS;
+		};
+		029D3C662604E94B00E1B6BC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 02B1C8CB25EFB8180053920D;
+			remoteInfo = LibSass;
+		};
+		02B1C8DA25EFB8290053920D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0289BB1725666B060004544A;
+			remoteInfo = Sass;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -118,6 +157,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		029D3C472604E89400E1B6BC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		02A3BC0A2585314200BBF99E /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -126,6 +174,17 @@
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
+		};
+		02B1C8DC25EFB82A0053920D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				02B1C8D925EFB8290053920D /* Sass.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -141,6 +200,7 @@
 		025C624E255D2C9300AEA420 /* BinaryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryProtocol.swift; sourceTree = "<group>"; };
 		025C6251255D54C000AEA420 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		026E4D38260E103E00E916BF /* Importers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Importers.swift; sourceTree = "<group>"; };
+		027FEF94265FA48A008D1E17 /* LibSassFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibSassFunctions.swift; sourceTree = "<group>"; };
 		0285E827256C4C2900956F18 /* TestFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFunctions.swift; sourceTree = "<group>"; };
 		0285E82A256D9ABB00956F18 /* List.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = List.swift; sourceTree = "<group>"; };
 		0285E82D256EDB6700956F18 /* TestList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestList.swift; sourceTree = "<group>"; };
@@ -169,6 +229,11 @@
 		029B4F8D257E569D00A768D2 /* TestResetShutdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestResetShutdown.swift; sourceTree = "<group>"; };
 		029B4F90257E578600A768D2 /* TestProtocolErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolErrors.swift; sourceTree = "<group>"; };
 		029B4F93258005C000A768D2 /* NIO+Extras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NIO+Extras.swift"; sourceTree = "<group>"; };
+		029D3C2425FCD97900E1B6BC /* TestImporters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestImporters.swift; sourceTree = "<group>"; };
+		029D3C4B2604E89400E1B6BC /* LibSassTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LibSassTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		029D3C802604EA8A00E1B6BC /* Importers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Importers.swift; sourceTree = "<group>"; };
+		029D3C862606751400E1B6BC /* TestFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFunctions.swift; sourceTree = "<group>"; };
+		029D3C8C260BADC300E1B6BC /* TestApiCorners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestApiCorners.swift; sourceTree = "<group>"; };
 		02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerRequests.swift; sourceTree = "<group>"; };
 		02A1A97925B70A8B0045E28F /* Versions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Versions.swift; sourceTree = "<group>"; };
 		02A1A99525B99C560045E28F /* TestVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestVersions.swift; sourceTree = "<group>"; };
@@ -180,6 +245,15 @@
 		02CEF370270F5806007DBDB7 /* TestCalculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCalculation.swift; sourceTree = "<group>"; };
 		02CEF372271455B6007DBDB7 /* ProtobufValueConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtobufValueConversion.swift; sourceTree = "<group>"; };
 		02D1B24F26C7D377006B2CB1 /* ArgumentList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArgumentList.swift; sourceTree = "<group>"; };
+		02B1C8CC25EFB8180053920D /* LibSass.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LibSass.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		02B1C8F525EFBD430053920D /* TestGoodpath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestGoodpath.swift; sourceTree = "<group>"; };
+		02B1C93025F0EDEE0053920D /* LibSass4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibSass4.swift; sourceTree = "<group>"; };
+		02B1C93C25F23AC30053920D /* Compiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compiler.swift; sourceTree = "<group>"; };
+		02B1C94725F243770053920D /* LibSassConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibSassConversion.swift; sourceTree = "<group>"; };
+		02B1C95D25F283E40053920D /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
+		02B1C96A25F285AE0053920D /* TestHelpers.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TestHelpers.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		02B1C99825F3972E0053920D /* TestBadpath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestBadpath.swift; sourceTree = "<group>"; };
+		02CB4F6126D79E3F00B15D7C /* ArgumentList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArgumentList.swift; sourceTree = "<group>"; };
 		OBJ_10 /* Compiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compiler.swift; sourceTree = "<group>"; };
 		OBJ_11 /* embedded_sass.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = embedded_sass.pb.swift; sourceTree = "<group>"; };
 		OBJ_15 /* TestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
@@ -205,11 +279,36 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		029D3C442604E89400E1B6BC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+				029D3C652604E93F00E1B6BC /* LibSass.framework in Frameworks */,
+				029D3C452604E89400E1B6BC /* TestHelpers.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		02A3BC092585314200BBF99E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				026E4D4C2610E43400E916BF /* LibSass.framework in Frameworks */,
 				02A3BC172585329C00BBF99E /* DartSass.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		02B1C8C925EFB8180053920D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				02B1C8D825EFB8290053920D /* Sass.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		02B1C96725F285AE0053920D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,6 +334,7 @@
 			buildActionMask = 0;
 			files = (
 				02025A0325893D480086A4D0 /* DartSass.framework in Frameworks */,
+				02B1C98325F2860C0053920D /* TestHelpers.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,6 +367,7 @@
 				02440A1E2576B24B008F0862 /* ValueConvertible.swift */,
 				0285E830256EE56E00956F18 /* Constants.swift */,
 				0285E82A256D9ABB00956F18 /* List.swift */,
+				02CB4F6126D79E3F00B15D7C /* ArgumentList.swift */,
 				0285E83E256FBC2400956F18 /* Map.swift */,
 				0289BB3F256BDE460004544A /* String.swift */,
 				0285E8452570363A00956F18 /* Number.swift */,
@@ -317,6 +418,41 @@
 			path = Sources/Cli;
 			sourceTree = "<group>";
 		};
+		02B1C8CD25EFB8180053920D /* LibSass */ = {
+			isa = PBXGroup;
+			children = (
+				02B1C93C25F23AC30053920D /* Compiler.swift */,
+				029D3C802604EA8A00E1B6BC /* Importers.swift */,
+				02B1C93025F0EDEE0053920D /* LibSass4.swift */,
+				02B1C94725F243770053920D /* LibSassConversion.swift */,
+				027FEF94265FA48A008D1E17 /* LibSassFunctions.swift */,
+			);
+			name = LibSass;
+			path = Sources/LibSass;
+			sourceTree = SOURCE_ROOT;
+		};
+		02B1C8F425EFBCEC0053920D /* LibSassTests */ = {
+			isa = PBXGroup;
+			children = (
+				02B1C8F525EFBD430053920D /* TestGoodpath.swift */,
+				02B1C99825F3972E0053920D /* TestBadpath.swift */,
+				029D3C2425FCD97900E1B6BC /* TestImporters.swift */,
+				029D3C862606751400E1B6BC /* TestFunctions.swift */,
+				029D3C8C260BADC300E1B6BC /* TestApiCorners.swift */,
+			);
+			name = LibSassTests;
+			path = Tests/LibSassTests;
+			sourceTree = SOURCE_ROOT;
+		};
+		02B1C95C25F283A20053920D /* TestHelpers */ = {
+			isa = PBXGroup;
+			children = (
+				02B1C95D25F283E40053920D /* TestHelpers.swift */,
+			);
+			name = TestHelpers;
+			path = Tests/TestHelpers;
+			sourceTree = "<group>";
+		};
 		OBJ_105 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -325,6 +461,9 @@
 				0289BB1825666B060004544A /* Sass.framework */,
 				02A3BC0C2585314200BBF99E /* Cli */,
 				02903F2425A73AA20049106E /* DartSassEmbeddedMacOS.framework */,
+				02B1C8CC25EFB8180053920D /* LibSass.framework */,
+				02B1C96A25F285AE0053920D /* TestHelpers.framework */,
+				029D3C4B2604E89400E1B6BC /* LibSassTests.xctest */,
 			);
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -334,6 +473,8 @@
 			children = (
 				0289BB42256BEB2B0004544A /* SassTests */,
 				OBJ_13 /* DartSassTests */,
+				02B1C95C25F283A20053920D /* TestHelpers */,
+				02B1C8F425EFBCEC0053920D /* LibSassTests */,
 			);
 			name = Tests;
 			sourceTree = SOURCE_ROOT;
@@ -371,6 +512,7 @@
 			children = (
 				0289BB1925666B060004544A /* Sass */,
 				OBJ_8 /* DartSass */,
+				02B1C8CD25EFB8180053920D /* LibSass */,
 				02903F2525A73AA20049106E /* DartSassEmbeddedMacOS */,
 				02512B5825A7414100CB8833 /* DartSassEmbeddedLinux */,
 			);
@@ -403,6 +545,20 @@
 
 /* Begin PBXHeadersBuildPhase section */
 		02903F1F25A73AA20049106E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		02B1C8C725EFB8180053920D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		02B1C96525F285AE0053920D /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -450,6 +606,26 @@
 			productReference = 02903F2425A73AA20049106E /* DartSassEmbeddedMacOS.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		029D3C2E2604E89400E1B6BC /* LibSassTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 029D3C482604E89400E1B6BC /* Build configuration list for PBXNativeTarget "LibSassTests" */;
+			buildPhases = (
+				029D3C312604E89400E1B6BC /* Sources */,
+				029D3C442604E89400E1B6BC /* Frameworks */,
+				029D3C472604E89400E1B6BC /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				029D3C672604E94B00E1B6BC /* PBXTargetDependency */,
+			);
+			name = LibSassTests;
+			packageProductDependencies = (
+			);
+			productName = SassEmbeddedTests;
+			productReference = 029D3C4B2604E89400E1B6BC /* LibSassTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		02A3BC0B2585314200BBF99E /* Cli */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 02A3BC102585314200BBF99E /* Build configuration list for PBXNativeTarget "Cli" */;
@@ -461,11 +637,52 @@
 			buildRules = (
 			);
 			dependencies = (
+				026E4D4F2610E43400E916BF /* PBXTargetDependency */,
 			);
 			name = Cli;
 			productName = Cli;
 			productReference = 02A3BC0C2585314200BBF99E /* Cli */;
 			productType = "com.apple.product-type.tool";
+		};
+		02B1C8CB25EFB8180053920D /* LibSass */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 02B1C8D125EFB8180053920D /* Build configuration list for PBXNativeTarget "LibSass" */;
+			buildPhases = (
+				02B1C8C725EFB8180053920D /* Headers */,
+				02B1C8C825EFB8180053920D /* Sources */,
+				02B1C8C925EFB8180053920D /* Frameworks */,
+				02B1C8CA25EFB8180053920D /* Resources */,
+				02B1C8DC25EFB82A0053920D /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				02B1C8DB25EFB8290053920D /* PBXTargetDependency */,
+			);
+			name = LibSass;
+			packageProductDependencies = (
+			);
+			productName = LibSass;
+			productReference = 02B1C8CC25EFB8180053920D /* LibSass.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		02B1C96925F285AE0053920D /* TestHelpers */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 02B1C96F25F285AE0053920D /* Build configuration list for PBXNativeTarget "TestHelpers" */;
+			buildPhases = (
+				02B1C96525F285AE0053920D /* Headers */,
+				02B1C96625F285AE0053920D /* Sources */,
+				02B1C96725F285AE0053920D /* Frameworks */,
+				02B1C96825F285AE0053920D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TestHelpers;
+			productName = TestHelpers;
+			productReference = 02B1C96A25F285AE0053920D /* TestHelpers.framework */;
+			productType = "com.apple.product-type.framework";
 		};
 		"swift-sass::DartSass" /* DartSass */ = {
 			isa = PBXNativeTarget;
@@ -535,6 +752,13 @@
 					02A3BC0B2585314200BBF99E = {
 						CreatedOnToolsVersion = 12.2;
 					};
+					02B1C8CB25EFB8180053920D = {
+						CreatedOnToolsVersion = 12.4;
+						LastSwiftMigration = 1240;
+					};
+					02B1C96925F285AE0053920D = {
+						CreatedOnToolsVersion = 12.4;
+					};
 				};
 			};
 			buildConfigurationList = OBJ_2 /* Build configuration list for PBXProject "swift-sass" */;
@@ -559,8 +783,11 @@
 				0289BB1725666B060004544A /* Sass */,
 				"swift-sass::DartSass" /* DartSass */,
 				"swift-sass::DartSassTests" /* DartSassTests */,
+				02B1C8CB25EFB8180053920D /* LibSass */,
 				02A3BC0B2585314200BBF99E /* Cli */,
 				02903F2325A73AA20049106E /* DartSassEmbeddedMacOS */,
+				02B1C96925F285AE0053920D /* TestHelpers */,
+				029D3C2E2604E89400E1B6BC /* LibSassTests */,
 			);
 		};
 /* End PBXProject section */
@@ -578,6 +805,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				02903F3825A73D5A0049106E /* sass_embedded in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		02B1C8CA25EFB8180053920D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		02B1C96825F285AE0053920D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -602,7 +843,7 @@
 				02CEF36F270F569A007DBDB7 /* Calculation.swift in Sources */,
 				0285E84F257266D800956F18 /* Units.swift in Sources */,
 				02440A1625765786008F0862 /* CompilerFunction.swift in Sources */,
-				02D1B25026C7D377006B2CB1 /* ArgumentList.swift in Sources */,
+				02CB4F6226D79E3F00B15D7C /* ArgumentList.swift in Sources */,
 				0285E831256EE56E00956F18 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -615,11 +856,43 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		029D3C312604E89400E1B6BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				029D3C372604E89400E1B6BC /* TestBadpath.swift in Sources */,
+				029D3C3F2604E89400E1B6BC /* TestImporters.swift in Sources */,
+				029D3C402604E89400E1B6BC /* TestGoodpath.swift in Sources */,
+				029D3C8D260BADC300E1B6BC /* TestApiCorners.swift in Sources */,
+				029D3C872606751400E1B6BC /* TestFunctions.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		02A3BC082585314200BBF99E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				02A3BC0F2585314200BBF99E /* ssassc.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		02B1C8C825EFB8180053920D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				02B1C93825F0EDF40053920D /* LibSass4.swift in Sources */,
+				02B1C94825F243770053920D /* LibSassConversion.swift in Sources */,
+				02B1C93D25F23AC30053920D /* Compiler.swift in Sources */,
+				029D3C812604EA8A00E1B6BC /* Importers.swift in Sources */,
+				027FEF95265FA48A008D1E17 /* LibSassFunctions.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		02B1C96625F285AE0053920D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				02B1C97E25F285C20053920D /* TestHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -671,6 +944,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		026E4D4F2610E43400E916BF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 02B1C8CB25EFB8180053920D /* LibSass */;
+			targetProxy = 026E4D4E2610E43400E916BF /* PBXContainerItemProxy */;
+		};
 		0289BB2525666BA70004544A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 0289BB1725666B060004544A /* Sass */;
@@ -680,6 +958,16 @@
 			isa = PBXTargetDependency;
 			target = 02903F2325A73AA20049106E /* DartSassEmbeddedMacOS */;
 			targetProxy = 02903F3E25A73DE90049106E /* PBXContainerItemProxy */;
+		};
+		029D3C672604E94B00E1B6BC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 02B1C8CB25EFB8180053920D /* LibSass */;
+			targetProxy = 029D3C662604E94B00E1B6BC /* PBXContainerItemProxy */;
+		};
+		02B1C8DB25EFB8290053920D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0289BB1725666B060004544A /* Sass */;
+			targetProxy = 02B1C8DA25EFB8290053920D /* PBXContainerItemProxy */;
 		};
 		OBJ_135 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -982,6 +1270,80 @@
 			};
 			name = Release;
 		};
+		029D3C492604E89400E1B6BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/clibsass4",
+					"$(SRCROOT)/libsass4/include",
+					"$(SRCROOT)",
+				);
+				INFOPLIST_FILE = "swift-sass.xcodeproj/LibSassTests_Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@loader_path/Frameworks",
+					"$(SRCROOT)/libsass4/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_VERSION = 5.0;
+				TARGET_NAME = LibSassTests;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Debug;
+		};
+		029D3C4A2604E89400E1B6BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/clibsass4",
+					"$(SRCROOT)/libsass4/include",
+					"$(SRCROOT)",
+				);
+				INFOPLIST_FILE = "swift-sass.xcodeproj/LibSassTests_Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@loader_path/Frameworks",
+					"$(SRCROOT)/libsass4/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_VERSION = 5.0;
+				TARGET_NAME = LibSassTests;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Release;
+		};
 		02A3BC112585314200BBF99E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1030,6 +1392,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Sources/clibsass4",
+					"$(SRCROOT)/libsass4/include",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1082,10 +1449,314 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Sources/clibsass4",
+					"$(SRCROOT)/libsass4/include",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		02B1C8D225EFB8180053920D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Sources/clibsass4",
+					"$(SRCROOT)/libsass4/include",
+					"$(SRCROOT)",
+				);
+				INFOPLIST_FILE = "swift-sass.xcodeproj/LibSass_Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/libsass4/lib";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = LibSass;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		02B1C8D325EFB8180053920D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Sources/clibsass4",
+					"$(SRCROOT)/libsass4/include",
+					"$(SRCROOT)",
+				);
+				INFOPLIST_FILE = "swift-sass.xcodeproj/LibSass_Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/libsass4/lib";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = LibSass;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		02B1C97025F285AE0053920D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "swift-sass.xcodeproj/TestHelpers_Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = TestHelpers;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		02B1C97125F285AE0053920D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "swift-sass.xcodeproj/TestHelpers_Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = TestHelpers;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
 		};
@@ -1162,13 +1833,19 @@
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 				);
-				HEADER_SEARCH_PATHS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/libsass4",
+					"$(SRCROOT)/libsass4/include",
+					"$(SRCROOT)",
+				);
 				INFOPLIST_FILE = "swift-sass.xcodeproj/DartSassTests_Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",
 					"@loader_path/Frameworks",
+					"$(SRCROOT)/libsass4/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_CFLAGS = "$(inherited)";
@@ -1192,13 +1869,19 @@
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 				);
-				HEADER_SEARCH_PATHS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/libsass4",
+					"$(SRCROOT)/libsass4/include",
+					"$(SRCROOT)",
+				);
 				INFOPLIST_FILE = "swift-sass.xcodeproj/DartSassTests_Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",
 					"@loader_path/Frameworks",
+					"$(SRCROOT)/libsass4/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_CFLAGS = "$(inherited)";
@@ -1286,11 +1969,38 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		029D3C482604E89400E1B6BC /* Build configuration list for PBXNativeTarget "LibSassTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				029D3C492604E89400E1B6BC /* Debug */,
+				029D3C4A2604E89400E1B6BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		02A3BC102585314200BBF99E /* Build configuration list for PBXNativeTarget "Cli" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				02A3BC112585314200BBF99E /* Debug */,
 				02A3BC122585314200BBF99E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		02B1C8D125EFB8180053920D /* Build configuration list for PBXNativeTarget "LibSass" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				02B1C8D225EFB8180053920D /* Debug */,
+				02B1C8D325EFB8180053920D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		02B1C96F25F285AE0053920D /* Build configuration list for PBXNativeTarget "TestHelpers" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				02B1C97025F285AE0053920D /* Debug */,
+				02B1C97125F285AE0053920D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

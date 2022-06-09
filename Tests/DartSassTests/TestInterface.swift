@@ -8,6 +8,7 @@
 import XCTest
 import DartSass
 import SourceMapper
+import TestHelpers
 
 ///
 /// Tests to check the normal operation of the sass compiler -- not testing the compiler itself,
@@ -119,8 +120,8 @@ class TestInterface: DartSassTestCase {
 
         // Current dart-sass-embedded maps everything !compressed down to expanded
         // so this is a bit scuffed...
-        let styles: [CssStyle] = [.compressed, .compact, .nested]
-        let expected = [scssOutCompressed, scssOutExpanded, scssOutExpanded]
+        let styles: [CssStyle] = [.compressed, .expanded, .nested, .compact]
+        let expected = [scssOutCompressed, scssOutExpanded, scssOutExpanded, scssOutExpanded]
         try zip(styles, expected).forEach { tc in
             let results = try compiler.compile(string: scssIn, syntax: .scss, outputStyle: tc.0)
             XCTAssertEqual(tc.1, results.css, String(describing: tc.0))

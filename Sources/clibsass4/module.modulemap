@@ -1,0 +1,9 @@
+/* This is hairier than it should be because Swift PM does not let you
+   prepend include search paths and so an existing libsass installation
+   always wins over a private one.
+*/
+module CLibSass4
+{
+  umbrella header "libsass4.h"
+  link "sass"
+}

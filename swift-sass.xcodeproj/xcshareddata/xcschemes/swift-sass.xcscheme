@@ -48,6 +48,34 @@
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "02B1C8CB25EFB8180053920D"
+               BuildableName = "LibSass.framework"
+               BlueprintName = "LibSass"
+               ReferencedContainer = "container:swift-sass.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "02B1C96925F285AE0053920D"
+               BuildableName = "TestHelpers.framework"
+               BlueprintName = "TestHelpers"
+               ReferencedContainer = "container:swift-sass.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -64,6 +92,16 @@
                BlueprintIdentifier = "swift-sass::DartSassTests"
                BuildableName = "DartSassTests.xctest"
                BlueprintName = "DartSassTests"
+               ReferencedContainer = "container:swift-sass.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "029D3C2E2604E89400E1B6BC"
+               BuildableName = "LibSassTests.xctest"
+               BlueprintName = "LibSassTests"
                ReferencedContainer = "container:swift-sass.xcodeproj">
             </BuildableReference>
          </TestableReference>
