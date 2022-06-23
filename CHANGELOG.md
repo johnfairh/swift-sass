@@ -1,3 +1,7 @@
+# 1.5.0
+
+* Bundle the 1.53.0 `dart_sass_embedded` binaries
+
 # 1.4.0
 
 * Bundle the 1.50.1 `dart_sass_embedded` binaries
