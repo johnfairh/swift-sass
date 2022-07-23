@@ -7,7 +7,7 @@ Distributed under the MIT license, see LICENSE.
 ![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg)
 [![codecov](https://codecov.io/gh/johnfairh/swift-sass/branch/main/graph/badge.svg?token=0NAP6IA9EB)](https://codecov.io/gh/johnfairh/swift-sass)
 ![Tests](https://github.com/johnfairh/swift-sass/workflows/Tests/badge.svg)
-![Sass](https://img.shields.io/badge/sass-1.53.0-purple)
+![Sass](https://img.shields.io/badge/sass-1.54.0-purple)
 
 # Swift Sass
 
@@ -97,7 +97,7 @@ interface is entirely Swift 5.5 async-await.
 * Swift 5.5
 * macOS 11+ (tested on macOS 12.1 IA64)
 * Linux (tested on Ubuntu 20.04.3)
-* Embedded Sass Protocol version 1.0.0
+* Embedded Sass Protocol version 1.1.0
 
 ## Installation
 

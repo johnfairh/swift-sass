@@ -596,6 +596,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     /// Whether to include sources in the generated sourcemap
     var sourceMapIncludeSources: Bool = false
 
+    /// Whether to emit a `@charset`/BOM for non-ASCII stylesheets.
+    var charset: Bool = false
+
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
     /// The input stylesheet to parse. Mandatory.
@@ -2728,6 +2731,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     10: .same(proto: "verbose"),
     11: .standard(proto: "quiet_deps"),
     12: .standard(proto: "source_map_include_sources"),
+    13: .same(proto: "charset"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -2767,6 +2771,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
       case 10: try { try decoder.decodeSingularBoolField(value: &self.verbose) }()
       case 11: try { try decoder.decodeSingularBoolField(value: &self.quietDeps) }()
       case 12: try { try decoder.decodeSingularBoolField(value: &self.sourceMapIncludeSources) }()
+      case 13: try { try decoder.decodeSingularBoolField(value: &self.charset) }()
       default: break
       }
     }
@@ -2818,6 +2823,9 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     if self.sourceMapIncludeSources != false {
       try visitor.visitSingularBoolField(value: self.sourceMapIncludeSources, fieldNumber: 12)
     }
+    if self.charset != false {
+      try visitor.visitSingularBoolField(value: self.charset, fieldNumber: 13)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -2833,6 +2841,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     if lhs.verbose != rhs.verbose {return false}
     if lhs.quietDeps != rhs.quietDeps {return false}
     if lhs.sourceMapIncludeSources != rhs.sourceMapIncludeSources {return false}
+    if lhs.charset != rhs.charset {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
