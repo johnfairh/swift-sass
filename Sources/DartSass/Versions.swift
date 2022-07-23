@@ -27,8 +27,7 @@ struct Versions: CustomStringConvertible {
     }
 
     /// Minimum supported version of the Embedded Sass Protocol that we support, from here up to the next major.
-    static let minProtocolVersion = Semver(major: 1, minor: 0, patch: 0,
-                                           prereleaseIdentifiers: ["beta", "17"])
+    static let minProtocolVersion = Semver(major: 1, minor: 1, patch: 0)
 
     /// Check the versions reported by the compiler are OK.
     func check() throws {
