@@ -23,9 +23,9 @@
     "abstract" : "A Sass compiler that uses Dart Sass as an embedded child process.",
     "name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#compilefileurloutputstylesourcemapstyleimportersfunctions" : {
+  "dartsass\/types\/compiler.html?swift#compilefileurloutputstylesourcemapstyleincludecharsetimportersfunctions" : {
     "abstract" : "Compile to CSS from a stylesheet file.",
-    "name" : "compile(fileURL:outputStyle:sourceMapStyle:importers:functions:)",
+    "name" : "compile(fileURL:outputStyle:sourceMapStyle:includeCharset:importers:functions:)",
     "parent_name" : "Compiler"
   },
   "dartsass\/types\/compiler.html?swift#compilername" : {
@@ -48,9 +48,9 @@
     "name" : "compilerVersion",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#compilestringsyntaxurlimporteroutputstylesourcemapstyleimportersfunctions" : {
+  "dartsass\/types\/compiler.html?swift#compilestringsyntaxurlimporteroutputstylesourcemapstyleincludecharsetimportersfunctions" : {
     "abstract" : "Compile to CSS from an inline stylesheet.",
-    "name" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)",
+    "name" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:includeCharset:importers:functions:)",
     "parent_name" : "Compiler"
   },
   "dartsass\/types\/compiler.html?swift#initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" : {

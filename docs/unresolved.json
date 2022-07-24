@@ -20,6 +20,10 @@
     "name" : "\/index"
   },
   {
+    "context" : "compile(fileURL:outputStyle:sourceMapStyle:includeCharset:importers:functions:)",
+    "name" : "@charset"
+  },
+  {
     "context" : "ImportResolver",
     "name" : "@forward"
   },
@@ -124,7 +128,7 @@
     "name" : "file:"
   },
   {
-    "context" : "compile(fileURL:outputStyle:sourceMapStyle:importers:functions:)",
+    "context" : "compile(fileURL:outputStyle:sourceMapStyle:includeCharset:importers:functions:)",
     "name" : "fileURL"
   },
   {
@@ -180,7 +184,7 @@
     "name" : "https:"
   },
   {
-    "context" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)",
+    "context" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:includeCharset:importers:functions:)",
     "name" : "importers"
   },
   {
@@ -228,7 +232,7 @@
     "name" : "sourceRoot"
   },
   {
-    "context" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)",
+    "context" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:includeCharset:importers:functions:)",
     "name" : "string"
   },
   {
@@ -252,7 +256,7 @@
     "name" : "test.scss"
   },
   {
-    "context" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:importers:functions:)",
+    "context" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:includeCharset:importers:functions:)",
     "name" : "url"
   },
   {

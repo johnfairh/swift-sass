@@ -252,6 +252,7 @@ extension Compiler {
                  importer: ImportResolver? = nil,
                  outputStyle: CssStyle = .expanded,
                  sourceMapStyle: SourceMapStyle = .separateSources,
+                 includeCharset: Bool = false,
                  importers: [ImportResolver] = [],
                  functions: SassAsyncFunctionMap = [:]) throws -> CompilerResults {
         let expectation = XCTestExpectation(description: "async compile completion")
@@ -261,7 +262,7 @@ extension Compiler {
             defer { expectation.fulfill() }
 
             do {
-                errorBox.result = try await compile(string: string, syntax: syntax, url: url, importer: importer, outputStyle: outputStyle, sourceMapStyle: sourceMapStyle, importers: importers, functions: functions)
+                errorBox.result = try await compile(string: string, syntax: syntax, url: url, importer: importer, outputStyle: outputStyle, sourceMapStyle: sourceMapStyle, includeCharset: includeCharset, importers: importers, functions: functions)
             } catch {
                 errorBox.err = error
             }

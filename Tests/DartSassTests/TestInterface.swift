@@ -157,4 +157,14 @@ class TestInterface: DartSassTestCase {
             XCTFail("Unexpected error: \(error)")
         }
     }
+
+    func testCharset() throws {
+        let compiler = try newCompiler()
+
+        let ascii = try compiler.compile(string: #"a { color: "red"} "#, includeCharset: true)
+        XCTAssertFalse(ascii.css.starts(with: #"@charset "UTF-8""#))
+
+        let utf8 = try compiler.compile(string: #"a { color: "😀"} "#, includeCharset: true)
+        XCTAssertTrue(utf8.css.starts(with: #"@charset "UTF-8""#))
+    }
 }

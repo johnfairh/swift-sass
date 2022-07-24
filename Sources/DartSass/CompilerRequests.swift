@@ -204,6 +204,7 @@ final class CompilationRequest: ManagedCompilerRequest {
          input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
          outputStyle: CssStyle,
          sourceMapStyle: SourceMapStyle,
+         includeCharset: Bool,
          settings: CompilerWork.Settings,
          importers: [ImportResolver],
          stringImporter: ImportResolver?,
@@ -228,6 +229,7 @@ final class CompilationRequest: ManagedCompilerRequest {
             msg.verbose = settings.verboseDeprecations
             msg.quietDeps = settings.suppressDependencyWarnings
             msg.sourceMapIncludeSources = sourceMapStyle.embedSourceMap
+            msg.charset = includeCharset
         }
         self.messages = []
         self.promise = promise
