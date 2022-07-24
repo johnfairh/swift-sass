@@ -79,6 +79,7 @@ final class CompilerWork {
     func addPendingCompilation(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
                                outputStyle: CssStyle,
                                sourceMapStyle: SourceMapStyle,
+                               includeCharset: Bool,
                                importers: [ImportResolver],
                                stringImporter: ImportResolver? = nil,
                                functions: SassAsyncFunctionMap) -> EventLoopFuture<CompilerResults> {
@@ -91,6 +92,7 @@ final class CompilerWork {
             input: input,
             outputStyle: outputStyle,
             sourceMapStyle: sourceMapStyle,
+            includeCharset: includeCharset,
             settings: settings,
             importers: globalImporters + importers,
             stringImporter: stringImporter,

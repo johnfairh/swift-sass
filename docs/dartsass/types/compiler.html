@@ -681,7 +681,7 @@ per-compilation list, in order within each list.</li>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L40-L581">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L40-L587">Show on GitHub</a>
           </nav>
           
           
@@ -970,16 +970,16 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   
   
   
-    <section id="compilestringsyntaxurlimporteroutputstylesourcemapstyleimportersfunctions" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20compile(string%3A%20String,%20syntax%3A%20Syntax,%20url%3A%20URL%3F,%20importer%3A%20ImportResolver%3F,%20outputStyle%3A%20CssStyle,%20sourceMapStyle%3A%20SourceMapStyle,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassAsyncFunctionMap)%20async%20-%3E%20CompilerResults" class="dashAnchor j2-item-dash-anchor" data-item-id="compilestringsyntaxurlimporteroutputstylesourcemapstyleimportersfunctions"></a>
-    <h4 class="visually-hidden">func compile(string: String, syntax: Syntax, url: URL?, importer: ImportResolver?, outputStyle: CssStyle, sourceMapStyle: SourceMapStyle, importers: [ImportResolver], functions: SassAsyncFunctionMap) async -&gt; CompilerResults</h4>
+    <section id="compilestringsyntaxurlimporteroutputstylesourcemapstyleincludecharsetimportersfunctions" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20compile(string%3A%20String,%20syntax%3A%20Syntax,%20url%3A%20URL%3F,%20importer%3A%20ImportResolver%3F,%20outputStyle%3A%20CssStyle,%20sourceMapStyle%3A%20SourceMapStyle,%20includeCharset%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassAsyncFunctionMap)%20async%20-%3E%20CompilerResults" class="dashAnchor j2-item-dash-anchor" data-item-id="compilestringsyntaxurlimporteroutputstylesourcemapstyleincludecharsetimportersfunctions"></a>
+    <h4 class="visually-hidden">func compile(string: String, syntax: Syntax, url: URL?, importer: ImportResolver?, outputStyle: CssStyle, sourceMapStyle: SourceMapStyle, includeCharset: Bool, importers: [ImportResolver], functions: SassAsyncFunctionMap) async -&gt; CompilerResults</h4>
     
     
-    <a class="j2-item-title" href="#_compilestringsyntaxurlimporteroutputstylesourcemapstyleimportersfunctions" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_compilestringsyntaxurlimporteroutputstylesourcemapstyleimportersfunctions"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>compile<span class="j2-item-secondary">(</span>string<span class="j2-item-secondary">: String, </span>syntax<span class="j2-item-secondary">: Syntax, </span>url<span class="j2-item-secondary">: URL?, </span>importer<span class="j2-item-secondary">: ImportResolver?, </span>outputStyle<span class="j2-item-secondary">: CssStyle, </span>sourceMapStyle<span class="j2-item-secondary">: SourceMapStyle, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassAsyncFunctionMap) async -&gt; CompilerResults</span></span>
+    <a class="j2-item-title" href="#_compilestringsyntaxurlimporteroutputstylesourcemapstyleincludecharsetimportersfunctions" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_compilestringsyntaxurlimporteroutputstylesourcemapstyleincludecharsetimportersfunctions"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>compile<span class="j2-item-secondary">(</span>string<span class="j2-item-secondary">: String, </span>syntax<span class="j2-item-secondary">: Syntax, </span>url<span class="j2-item-secondary">: URL?, </span>importer<span class="j2-item-secondary">: ImportResolver?, </span>outputStyle<span class="j2-item-secondary">: CssStyle, </span>sourceMapStyle<span class="j2-item-secondary">: SourceMapStyle, </span>includeCharset<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassAsyncFunctionMap) async -&gt; CompilerResults</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_compilestringsyntaxurlimporteroutputstylesourcemapstyleimportersfunctions">
+    <div class="collapse  j2-item-popopen-wrapper" id="_compilestringsyntaxurlimporteroutputstylesourcemapstyleincludecharsetimportersfunctions">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -1010,6 +1010,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
     importer: <a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>? = nil,
     outputStyle: <a href="../../sass/types/cssstyle.html?swift">CssStyle</a> = .expanded,
     sourceMapStyle: <a href="../../sass/types/sourcemapstyle.html?swift">SourceMapStyle</a> = .separateSources,
+    includeCharset: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
     importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:]
 ) async throws -&gt; <a href="../../sass/types/compilerresults.html?swift">CompilerResults</a></code></pre>
@@ -1057,6 +1058,11 @@ imports of files from the current directory don’t work automatically: add a lo
       </tr>
       
       <tr>
+        <td><code>includeCharset</code></td>
+        <td><p>If the output is non-ASCII, whether to include <code>@charset</code>.</p></td>
+      </tr>
+      
+      <tr>
         <td><code>importers</code></td>
         <td><p>Rules for resolving <code>@import</code> etc. for this compilation, used in order after
 any set globally.  Default none.</p></td>
@@ -1086,7 +1092,7 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L391-L418">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L395-L424">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1098,16 +1104,16 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
   
   
   
-    <section id="compilefileurloutputstylesourcemapstyleimportersfunctions" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20compile(fileURL%3A%20URL,%20outputStyle%3A%20CssStyle,%20sourceMapStyle%3A%20SourceMapStyle,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassAsyncFunctionMap)%20async%20-%3E%20CompilerResults" class="dashAnchor j2-item-dash-anchor" data-item-id="compilefileurloutputstylesourcemapstyleimportersfunctions"></a>
-    <h4 class="visually-hidden">func compile(fileURL: URL, outputStyle: CssStyle, sourceMapStyle: SourceMapStyle, importers: [ImportResolver], functions: SassAsyncFunctionMap) async -&gt; CompilerResults</h4>
+    <section id="compilefileurloutputstylesourcemapstyleincludecharsetimportersfunctions" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20compile(fileURL%3A%20URL,%20outputStyle%3A%20CssStyle,%20sourceMapStyle%3A%20SourceMapStyle,%20includeCharset%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassAsyncFunctionMap)%20async%20-%3E%20CompilerResults" class="dashAnchor j2-item-dash-anchor" data-item-id="compilefileurloutputstylesourcemapstyleincludecharsetimportersfunctions"></a>
+    <h4 class="visually-hidden">func compile(fileURL: URL, outputStyle: CssStyle, sourceMapStyle: SourceMapStyle, includeCharset: Bool, importers: [ImportResolver], functions: SassAsyncFunctionMap) async -&gt; CompilerResults</h4>
     
     
-    <a class="j2-item-title" href="#_compilefileurloutputstylesourcemapstyleimportersfunctions" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_compilefileurloutputstylesourcemapstyleimportersfunctions"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>compile<span class="j2-item-secondary">(</span>fileURL<span class="j2-item-secondary">: URL, </span>outputStyle<span class="j2-item-secondary">: CssStyle, </span>sourceMapStyle<span class="j2-item-secondary">: SourceMapStyle, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassAsyncFunctionMap) async -&gt; CompilerResults</span></span>
+    <a class="j2-item-title" href="#_compilefileurloutputstylesourcemapstyleincludecharsetimportersfunctions" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_compilefileurloutputstylesourcemapstyleincludecharsetimportersfunctions"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>compile<span class="j2-item-secondary">(</span>fileURL<span class="j2-item-secondary">: URL, </span>outputStyle<span class="j2-item-secondary">: CssStyle, </span>sourceMapStyle<span class="j2-item-secondary">: SourceMapStyle, </span>includeCharset<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassAsyncFunctionMap) async -&gt; CompilerResults</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_compilefileurloutputstylesourcemapstyleimportersfunctions">
+    <div class="collapse  j2-item-popopen-wrapper" id="_compilefileurloutputstylesourcemapstyleincludecharsetimportersfunctions">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -1135,6 +1141,7 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
     fileURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>,
     outputStyle: <a href="../../sass/types/cssstyle.html?swift">CssStyle</a> = .expanded,
     sourceMapStyle: <a href="../../sass/types/sourcemapstyle.html?swift">SourceMapStyle</a> = .separateSources,
+    includeCharset: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
     importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:]
 ) async throws -&gt; <a href="../../sass/types/compilerresults.html?swift">CompilerResults</a></code></pre>
@@ -1162,6 +1169,11 @@ expected syntax of the contents, so it must be css/scss/sass.</p></td>
       <tr>
         <td><code>sourceMapStyle</code></td>
         <td><p>Kind of source map to create for the CSS.  Default <code>.separateSources</code>.</p></td>
+      </tr>
+      
+      <tr>
+        <td><code>includeCharset</code></td>
+        <td><p>If the output is non-ASCII, whether to include <code>@charset</code>.</p></td>
       </tr>
       
       <tr>
@@ -1194,7 +1206,7 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L356-L370">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L357-L373">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1487,7 +1499,7 @@ Probably in <a href="https://semver.org/spec/v2.0.0.html">semver</a> format.
 
 <p>Restart the embedded Sass compiler.</p>
 <p>Normally a single instance of the compiler’s process persists across all invocations to
-<a href="../../dartsass/types/compiler.html?swift#compilefileurloutputstylesourcemapstyleimportersfunctions"><code>compile(...)</code></a> on this <a href="../../dartsass/types/compiler.html?swift"><code>Compiler</code></a> instance.   This method stops the current
+<a href="../../dartsass/types/compiler.html?swift#compilefileurloutputstylesourcemapstyleincludecharsetimportersfunctions"><code>compile(...)</code></a> on this <a href="../../dartsass/types/compiler.html?swift"><code>Compiler</code></a> instance.   This method stops the current
 compiler process and starts a new one: the intended use is for compilers whose
 resource usage escalates over time and need calming down.  You probably don’t need to
 call it.</p>

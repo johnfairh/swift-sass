@@ -346,6 +346,7 @@ public final class Compiler: @unchecked Sendable {
     ///     expected syntax of the contents, so it must be css/scss/sass.
     ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
     ///   - sourceMapStyle: Kind of source map to create for the CSS.  Default `.separateSources`.
+    ///   - includeCharset: If the output is non-ASCII, whether to include `@charset`.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
     ///     `fileURL`'s directory and any set globally..  Default none.
     ///   - functions: Functions for this compilation, overriding any with the same name previously
@@ -356,6 +357,7 @@ public final class Compiler: @unchecked Sendable {
     public func compile(fileURL: URL,
                         outputStyle: CssStyle = .expanded,
                         sourceMapStyle: SourceMapStyle = .separateSources,
+                        includeCharset: Bool = false,
                         importers: [ImportResolver] = [],
                         functions: SassAsyncFunctionMap = [:]) async throws -> CompilerResults {
         try await eventLoop.flatSubmit { [self] in
@@ -364,6 +366,7 @@ public final class Compiler: @unchecked Sendable {
                 input: .path(fileURL.path),
                 outputStyle: outputStyle,
                 sourceMapStyle: sourceMapStyle,
+                includeCharset: includeCharset,
                 importers: .init(importers),
                 functions: functions)
         }.get()
@@ -381,6 +384,7 @@ public final class Compiler: @unchecked Sendable {
     ///     imports of files from the current directory don't work automatically: add a loadpath to `importers`.
     ///   - outputStyle: How to format the produced CSS.  Default `.expanded`.
     ///   - sourceMapStyle: Kind of source map to create for the CSS.  Default `.separateSources`.
+    ///   - includeCharset: If the output is non-ASCII, whether to include `@charset`.
     ///   - importers: Rules for resolving `@import` etc. for this compilation, used in order after
     ///     any set globally.  Default none.
     ///   - functions: Functions for this compilation, overriding any with the same name previously
@@ -394,6 +398,7 @@ public final class Compiler: @unchecked Sendable {
                         importer: ImportResolver? = nil,
                         outputStyle: CssStyle = .expanded,
                         sourceMapStyle: SourceMapStyle = .separateSources,
+                        includeCharset: Bool = false,
                         importers: [ImportResolver] = [],
                         functions: SassAsyncFunctionMap = [:]) async throws -> CompilerResults {
         try await eventLoop.flatSubmit { [self] in
@@ -411,6 +416,7 @@ public final class Compiler: @unchecked Sendable {
                 }),
                 outputStyle: outputStyle,
                 sourceMapStyle: sourceMapStyle,
+                includeCharset: includeCharset,
                 importers: importers,
                 stringImporter: importer,
                 functions: functions)
