@@ -2,6 +2,15 @@
 
 import PackageDescription
 
+// Not cross-compile correct but SPM doesn't expose?
+var architectures = ["arm64", "x64"]
+#if arch(arm64)
+let arch = "arm64"
+#else
+let arch = "x64"
+#endif
+let excluded = architectures.filter { $0 != arch }
+
 let package = Package(
     name: "swift-sass",
     platforms: [
@@ -59,10 +68,12 @@ let package = Package(
         ]),
       .target(
         name: "DartSassEmbeddedMacOS",
-        resources: [.copy("sass_embedded")]),
+        exclude: excluded,
+        resources: [.copy(arch)]),
       .target(
         name: "DartSassEmbeddedLinux",
-        resources: [.copy("sass_embedded")]),
+        exclude: excluded,
+        resources: [.copy(arch)]),
       .testTarget(
         name: "DartSassTests",
         dependencies: ["DartSass"]),

@@ -44,7 +44,7 @@
 		0289BB40256BDE460004544A /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB3F256BDE460004544A /* String.swift */; };
 		0289BB4A256BEE760004544A /* TestString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB49256BEE760004544A /* TestString.swift */; };
 		02903F3325A73C1C0049106E /* DartSassEmbeddedMacOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02903F3225A73C1C0049106E /* DartSassEmbeddedMacOS.swift */; };
-		02903F3825A73D5A0049106E /* sass_embedded in Resources */ = {isa = PBXBuildFile; fileRef = 02903F3725A73D5A0049106E /* sass_embedded */; };
+		02903F3825A73D5A0049106E /* x64 in Resources */ = {isa = PBXBuildFile; fileRef = 02903F3725A73D5A0049106E /* x64 */; };
 		02903F3C25A73DE90049106E /* DartSassEmbeddedMacOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02903F2425A73AA20049106E /* DartSassEmbeddedMacOS.framework */; };
 		02903F3D25A73DE90049106E /* DartSassEmbeddedMacOS.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 02903F2425A73AA20049106E /* DartSassEmbeddedMacOS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C7256000A400F6BE14 /* TestInterface.swift */; };
@@ -163,7 +163,7 @@
 		0289BB49256BEE760004544A /* TestString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestString.swift; sourceTree = "<group>"; };
 		02903F2425A73AA20049106E /* DartSassEmbeddedMacOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DartSassEmbeddedMacOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		02903F3225A73C1C0049106E /* DartSassEmbeddedMacOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DartSassEmbeddedMacOS.swift; sourceTree = "<group>"; };
-		02903F3725A73D5A0049106E /* sass_embedded */ = {isa = PBXFileReference; lastKnownFileType = folder; path = sass_embedded; sourceTree = "<group>"; };
+		02903F3725A73D5A0049106E /* x64 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = x64; sourceTree = "<group>"; };
 		0291E7C7256000A400F6BE14 /* TestInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestInterface.swift; sourceTree = "<group>"; };
 		0291E7C92562E82F00F6BE14 /* TestCompilerErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCompilerErrors.swift; sourceTree = "<group>"; };
 		029B4F8D257E569D00A768D2 /* TestResetShutdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestResetShutdown.swift; sourceTree = "<group>"; };
@@ -301,7 +301,7 @@
 		02903F2525A73AA20049106E /* DartSassEmbeddedMacOS */ = {
 			isa = PBXGroup;
 			children = (
-				02903F3725A73D5A0049106E /* sass_embedded */,
+				02903F3725A73D5A0049106E /* x64 */,
 				02903F3225A73C1C0049106E /* DartSassEmbeddedMacOS.swift */,
 			);
 			name = DartSassEmbeddedMacOS;
@@ -577,7 +577,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				02903F3825A73D5A0049106E /* sass_embedded in Resources */,
+				02903F3825A73D5A0049106E /* x64 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
