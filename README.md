@@ -107,7 +107,7 @@ Package dependency:
 ```swift
 .package(name: "swift-sass",
          url: "https://github.com/johnfairh/swift-sass.git",
-         from: "1.4.0")
+         from: "1.5.0")
 ```
 
 Target dependency:
@@ -116,8 +116,12 @@ Target dependency:
 ```
 
 The Swift package bundles the embedded Dart Sass compiler for macOS and Linux
-(specifically Ubuntu Focal/20.04 64-bit).  For other platforms you will need
-to either download the correct version from
+(specifically Ubuntu Focal/20.04 64-bit) both x86_64 and arm64.  The correct
+binary is selected at build time.  The selection is made based on the host
+architecture though -- so if you want to cross-compile you'll need to assemble
+the results manually.
+
+For other platforms you will need to either download the correct version from
 [the release page](https://github.com/sass/dart-sass-embedded/release) or build
 it manually, ship it as part of your program's distribution, and use
 [this initializer](https://johnfairh.github.io/swift-sass/sassembedded/types/compiler.html?swift#initeventloopgroupprovidertimeoutimportersfunctions).
@@ -134,7 +138,7 @@ implementations, and was
 [deprecated in 2020](https://sass-lang.com/blog/libsass-is-deprecated).
 However, work is underway to revive the project and it may be that LibSass 4
 emerges as an alternative Sass implementation with the same level of language
-support as Dart Sass.
+support as Dart Sass.  As of summer 2022 this revival effort is on hold.
 
 See the experimental [libsass4 branch](https://github.com/johnfairh/swift-sass/tree/libsass4)
 for the current state of development: if LibSass itself manages to get to a

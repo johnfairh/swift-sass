@@ -22,10 +22,16 @@ enum DartSassEmbedded {
     static func getURL() throws -> URL {
         let programName = getenv("DART_SASS_EMBEDDED_NAME").flatMap { String(cString: $0) } ?? "dart-sass-embedded"
         guard let bundle = DartSassEmbeddedBundle.bundle,
+              let topDir = bundle.resourceURL?.resolvingSymlinksInPath(),
+              case let contents = try FileManager.default.contentsOfDirectory(at: topDir, includingPropertiesForKeys: nil),
+              let arch = contents.first?.lastPathComponent,
               let url = bundle.url(forResource: programName,
                                     withExtension: nil,
-                                    subdirectory: "sass_embedded") else {
+                                    subdirectory: "\(arch)/sass_embedded") else {
             throw LifecycleError("No `\(programName)` is available for the current platform.")
+
+            // This archdir stuff is a mess - struggling with SPM not being able to rename stuff, or something
+            // to let us collapse the file structure.
         }
         return url
     }
