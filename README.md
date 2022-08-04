@@ -95,8 +95,8 @@ interface is entirely Swift 5.5 async-await.
 ## Requirements
 
 * Swift 5.5
-* macOS 11+ (tested on macOS 12.1 IA64)
-* Linux (tested on Ubuntu 20.04.3)
+* macOS 11+ (tested on macOS 12.5 x64)
+* Linux (tested on Ubuntu 20.04.3 x64)
 * Embedded Sass Protocol version 1.1.0
 
 ## Installation
@@ -118,7 +118,7 @@ Target dependency:
 The Swift package bundles the embedded Dart Sass compiler for macOS and Linux
 (specifically Ubuntu Focal/20.04 64-bit) both x86_64 and arm64.  The correct
 binary is selected at build time.  The selection is made based on the host
-architecture though -- so if you want to cross-compile you'll need to assemble
+architecture though, so if you want to cross-compile you'll need to assemble
 the results manually.
 
 For other platforms you will need to either download the correct version from

@@ -29,5 +29,6 @@ sass_embedded_release_url := https://github.com/sass/dart-sass-embedded/releases
 
 dart_sass_embedded:
 	curl -L ${sass_embedded_release_url}-macos-x64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedMacOS/x64
+	curl -L ${sass_embedded_release_url}-macos-arm64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedMacOS/arm64
 	curl -L ${sass_embedded_release_url}-linux-x64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedLinux/x64
 	curl -L ${sass_embedded_release_url}-linux-arm64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedLinux/arm64
