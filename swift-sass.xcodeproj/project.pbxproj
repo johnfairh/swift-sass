@@ -11,7 +11,6 @@
 		021281DF265A8352000C7256 /* SourceMapper in Frameworks */ = {isa = PBXBuildFile; productRef = 021281DE265A8352000C7256 /* SourceMapper */; };
 		021281E1265A8384000C7256 /* CompilerResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021281E0265A8384000C7256 /* CompilerResults.swift */; };
 		021281E7265BC76F000C7256 /* TestCompilerResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021281E6265BC76F000C7256 /* TestCompilerResults.swift */; };
-		0240C97726DCFE4000F9C32C /* NIOConcurrencyHelpers in Frameworks */ = {isa = PBXBuildFile; productRef = 0240C97626DCFE4000F9C32C /* NIOConcurrencyHelpers */; };
 		0240C97926DCFE4500F9C32C /* NIOPosix in Frameworks */ = {isa = PBXBuildFile; productRef = 0240C97826DCFE4500F9C32C /* NIOPosix */; };
 		0240C97B26DCFE4900F9C32C /* NIOCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0240C97A26DCFE4900F9C32C /* NIOCore */; };
 		02440A1625765786008F0862 /* CompilerFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1525765786008F0862 /* CompilerFunction.swift */; };
@@ -61,12 +60,12 @@
 		02A3BC052581600700BBF99E /* AsyncFunctionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC042581600700BBF99E /* AsyncFunctionTypes.swift */; };
 		02A3BC0F2585314200BBF99E /* ssassc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0E2585314200BBF99E /* ssassc.swift */; };
 		02A3BC172585329C00BBF99E /* DartSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::DartSass::Product" /* DartSass.framework */; };
-		02CB4F6426D7A32200B15D7C /* _NIOConcurrency in Frameworks */ = {isa = PBXBuildFile; productRef = 02CB4F6326D7A32200B15D7C /* _NIOConcurrency */; };
 		02CEF36F270F569A007DBDB7 /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF36E270F569A007DBDB7 /* Calculation.swift */; };
 		02CEF371270F5806007DBDB7 /* TestCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF370270F5806007DBDB7 /* TestCalculation.swift */; };
 		02CEF373271455B6007DBDB7 /* ProtobufValueConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF372271455B6007DBDB7 /* ProtobufValueConversion.swift */; };
 		02D1B25026C7D377006B2CB1 /* ArgumentList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D1B24F26C7D377006B2CB1 /* ArgumentList.swift */; };
 		02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 02E0ED7E2586172C0080E954 /* SwiftProtobuf */; };
+		02EB2AF3289BD07800DA44BE /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = 02EB2AF2289BD07800DA44BE /* Atomics */; };
 		OBJ_118 /* Exec.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Exec.swift */; };
 		OBJ_119 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Compiler.swift */; };
 		OBJ_120 /* embedded_sass.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* embedded_sass.pb.swift */; };
@@ -219,14 +218,13 @@
 			files = (
 				02440A2A257957B5008F0862 /* NIOFoundationCompat in Frameworks */,
 				0240C97926DCFE4500F9C32C /* NIOPosix in Frameworks */,
-				0240C97726DCFE4000F9C32C /* NIOConcurrencyHelpers in Frameworks */,
 				02903F3C25A73DE90049106E /* DartSassEmbeddedMacOS.framework in Frameworks */,
 				0240C97B26DCFE4900F9C32C /* NIOCore in Frameworks */,
 				0289BB2225666BA70004544A /* Sass.framework in Frameworks */,
 				02E0ED7F2586172C0080E954 /* SwiftProtobuf in Frameworks */,
 				02A1A99125B774420045E28F /* Semver in Frameworks */,
+				02EB2AF3289BD07800DA44BE /* Atomics in Frameworks */,
 				02A346E9257AAE3D00A14905 /* Logging in Frameworks */,
-				02CB4F6426D7A32200B15D7C /* _NIOConcurrency in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -487,10 +485,9 @@
 				02A346E8257AAE3D00A14905 /* Logging */,
 				02E0ED7E2586172C0080E954 /* SwiftProtobuf */,
 				02A1A99025B774420045E28F /* Semver */,
-				02CB4F6326D7A32200B15D7C /* _NIOConcurrency */,
-				0240C97626DCFE4000F9C32C /* NIOConcurrencyHelpers */,
 				0240C97826DCFE4500F9C32C /* NIOPosix */,
 				0240C97A26DCFE4900F9C32C /* NIOCore */,
+				02EB2AF2289BD07800DA44BE /* Atomics */,
 			);
 			productName = DartSass;
 			productReference = "swift-sass::DartSass::Product" /* DartSass.framework */;
@@ -551,6 +548,7 @@
 				02E0ED79258617180080E954 /* XCRemoteSwiftPackageReference "swift-protobuf" */,
 				02A1A98F25B774420045E28F /* XCRemoteSwiftPackageReference "Semver.swift" */,
 				021281DD265A8352000C7256 /* XCRemoteSwiftPackageReference "SourceMapper" */,
+				02EB2AF1289BD07800DA44BE /* XCRemoteSwiftPackageReference "swift-atomics" */,
 			);
 			productRefGroup = OBJ_105 /* Products */;
 			projectDirPath = "";
@@ -1365,6 +1363,14 @@
 				minimumVersion = 1.14.0;
 			};
 		};
+		02EB2AF1289BD07800DA44BE /* XCRemoteSwiftPackageReference "swift-atomics" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-atomics.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1372,11 +1378,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 021281DD265A8352000C7256 /* XCRemoteSwiftPackageReference "SourceMapper" */;
 			productName = SourceMapper;
-		};
-		0240C97626DCFE4000F9C32C /* NIOConcurrencyHelpers */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */;
-			productName = NIOConcurrencyHelpers;
 		};
 		0240C97826DCFE4500F9C32C /* NIOPosix */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1403,15 +1404,15 @@
 			package = 02A346E7257AAE3D00A14905 /* XCRemoteSwiftPackageReference "swift-log" */;
 			productName = Logging;
 		};
-		02CB4F6326D7A32200B15D7C /* _NIOConcurrency */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 02440A252576C7DA008F0862 /* XCRemoteSwiftPackageReference "swift-nio" */;
-			productName = _NIOConcurrency;
-		};
 		02E0ED7E2586172C0080E954 /* SwiftProtobuf */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 02E0ED79258617180080E954 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
 			productName = SwiftProtobuf;
+		};
+		02EB2AF2289BD07800DA44BE /* Atomics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02EB2AF1289BD07800DA44BE /* XCRemoteSwiftPackageReference "swift-atomics" */;
+			productName = Atomics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

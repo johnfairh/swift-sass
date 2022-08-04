@@ -38,6 +38,9 @@ let package = Package(
         url: "https://github.com/apple/swift-log.git",
         from: "1.4.0"),
       .package(
+        url: "https://github.com/apple/swift-atomics.git",
+        from: "1.0.2"),
+      .package(
         name: "Semver",
         url: "https://github.com/johnfairh/Semver.swift.git",
         from: "1.2.2"),
@@ -61,8 +64,8 @@ let package = Package(
           .product(name: "SwiftProtobuf", package: "SwiftProtobuf"),
           .product(name: "NIOCore", package: "swift-nio"),
           .product(name: "NIOPosix", package: "swift-nio"),
-          .product(name: "NIOConcurrencyHelpers", package: "swift-nio"),
           .product(name: "NIOFoundationCompat", package: "swift-nio"),
+          .product(name: "Atomics", package: "swift-atomics"),
           .product(name: "Logging", package: "swift-log"),
           .product(name: "Semver", package: "Semver"),
         ]),

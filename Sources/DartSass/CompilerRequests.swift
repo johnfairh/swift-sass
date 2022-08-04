@@ -6,9 +6,9 @@
 //
 
 import NIOCore
-import NIOConcurrencyHelpers
 import struct Foundation.URL
-import Dispatch
+import class Dispatch.DispatchSemaphore
+import Atomics
 @_spi(SassCompilerProvider) import Sass
 
 // Protocols and classes modelling compiler communication sequences
@@ -24,13 +24,13 @@ import Dispatch
 // MARK: Request ID allocation
 
 enum RequestID {
-    private static var _next = NIOAtomic<UInt32>.makeAtomic(value: 4000)
+    private static var _next = ManagedAtomic<UInt32>(4000)
     fileprivate static var next: UInt32 {
-        _next.add(1)
+        _next.loadThenWrappingIncrement(ordering: .relaxed)
     }
     // For tests
     static var peekNext: UInt32 {
-        _next.load()
+        _next.load(ordering: .relaxed)
     }
 }
 
