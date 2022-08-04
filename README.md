@@ -7,7 +7,7 @@ Distributed under the MIT license, see LICENSE.
 ![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg)
 [![codecov](https://codecov.io/gh/johnfairh/swift-sass/branch/main/graph/badge.svg?token=0NAP6IA9EB)](https://codecov.io/gh/johnfairh/swift-sass)
 ![Tests](https://github.com/johnfairh/swift-sass/workflows/Tests/badge.svg)
-![Sass](https://img.shields.io/badge/sass-1.54.0-purple)
+![Sass](https://img.shields.io/badge/sass-1.54.2-purple)
 
 # Swift Sass
 
@@ -107,7 +107,7 @@ Package dependency:
 ```swift
 .package(name: "swift-sass",
          url: "https://github.com/johnfairh/swift-sass.git",
-         from: "1.5.0")
+         from: "1.6.0")
 ```
 
 Target dependency:
