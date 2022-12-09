@@ -567,13 +567,15 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     var importers: [Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer] = []
 
     /// Signatures for custom global functions whose behavior is defined by the
-    /// host. These must be valid Sass function signatures that could appear in
-    /// after `@function` in a Sass stylesheet, such as
-    /// `mix($color1, $color2, $weight: 50%)`.
+    /// host.
+    ///
+    /// If this is not a valid Sass function signature that could appear after
+    /// `@function` in a Sass stylesheet (such as `mix($color1, $color2, $weight:
+    /// 50%)`), or if it conflicts with a function name that's built into the
+    /// Sass language, the compiler must treat the compilation as failed.
     ///
     /// Compilers must ensure that pure-Sass functions take precedence over
-    /// custom global functions. They must also reject any custom function names
-    /// that conflict with function names built into the Sass language.
+    /// custom global functions.
     var globalFunctions: [String] = []
 
     /// Whether to use terminal colors in the formatted message of errors and
@@ -782,8 +784,10 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     /// stylesheet at the location it referred to.
     var result: Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse.OneOf_Result? = nil
 
-    /// The successfully canonicalized URL. This must be an absolute URL,
-    /// including scheme.
+    /// The successfully canonicalized URL.
+    ///
+    /// If this is not an absolute URL (including scheme), the compiler must
+    /// treat that as an error thrown by the importer.
     var url: String {
       get {
         if case .url(let v)? = result {return v}
@@ -811,8 +815,10 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     /// that the importer either did not recognize the URL, or could not find a
     /// stylesheet at the location it referred to.
     enum OneOf_Result: Equatable {
-      /// The successfully canonicalized URL. This must be an absolute URL,
-      /// including scheme.
+      /// The successfully canonicalized URL.
+      ///
+      /// If this is not an absolute URL (including scheme), the compiler must
+      /// treat that as an error thrown by the importer.
       case url(String)
       /// An error message explaining why canonicalization failed.
       ///
@@ -925,7 +931,8 @@ struct Sass_EmbeddedProtocol_InboundMessage {
       /// acceptable as well. If no URL is supplied, a `data:` URL is generated
       /// automatically from `contents`.
       ///
-      /// If this is provided, it must be an absolute URL, including scheme.
+      /// If this is provided and is not an absolute URL (including scheme) the
+      /// compiler must treat that as an error thrown by the importer.
       var sourceMapURL: String = String()
 
       var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -952,9 +959,10 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     /// The absolute `file:` URL to look for the file on the physical
     /// filesystem.
     ///
-    /// The host must ensure that this URL follows the format for an absolute
-    /// `file:` URL on the current operating system without a hostname, and the
-    /// compiler must verify this to the best of its ability. See
+    /// The compiler must verify to the best of its ability that this URL
+    /// follows the format for an absolute `file:` URL on the current operating
+    /// system without a hostname. If it doesn't, the compiler must treat that
+    /// as an error thrown by the importer. See
     /// https://en.wikipedia.org/wiki/File_URI_scheme for details on the
     /// format.
     ///
@@ -988,9 +996,10 @@ struct Sass_EmbeddedProtocol_InboundMessage {
       /// The absolute `file:` URL to look for the file on the physical
       /// filesystem.
       ///
-      /// The host must ensure that this URL follows the format for an absolute
-      /// `file:` URL on the current operating system without a hostname, and the
-      /// compiler must verify this to the best of its ability. See
+      /// The compiler must verify to the best of its ability that this URL
+      /// follows the format for an absolute `file:` URL on the current operating
+      /// system without a hostname. If it doesn't, the compiler must treat that
+      /// as an error thrown by the importer. See
       /// https://en.wikipedia.org/wiki/File_URI_scheme for details on the
       /// format.
       ///
@@ -2242,7 +2251,8 @@ struct Sass_EmbeddedProtocol_Value {
     ///
     /// If this isn't a valid Sass function signature that could appear after
     /// `@function` in a Sass stylesheet (such as `mix($color1, $color2, $weight:
-    /// 50%)`), the compiler must treat the function's return value as invalid.
+    /// 50%)`), the compiler must treat it as though the function that returned
+    /// this `HostFunction` threw an error.
     ///
     /// > This ensures that the host doesn't need to be able to correctly parse
     /// > the entire function declaration syntax.
