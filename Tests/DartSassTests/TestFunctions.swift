@@ -56,6 +56,26 @@ class TestFunctions: DartSassTestCase {
         }
     }
 
+    // Function syntax fails compile not compiler
+
+    func testBadFunctionDecl() throws {
+        let badFunction: SassAsyncFunctionMap = [
+            "" : { _ in SassConstants.null }
+        ]
+
+        let compiler = try newCompiler(functions: badFunction)
+        // hmm should we do a nul compile to check these function defs?
+
+        do {
+            let results = try compiler.compile(string: "")
+            XCTFail("Managed to compile with bad function nonsense: \(results)")
+        } catch let error as CompilerError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
     // Local func overrides global
 
     let globalOverrideFunction: SassAsyncFunctionMap = [
