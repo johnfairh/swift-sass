@@ -1,8 +1,13 @@
+# 1.7.0
+
+* Bundle the 1.60.0 `dart_sass_embedded` binaries
+
 # 1.6.0
 
 * Bundle the 1.54.2 `dart_sass_embedded` binaries -- this is the first release
   to include binaries for both arm64 and x86 architectures for both macOS and
   Linux, selecting the right one when the package is built.
+* Support `includeCharset` option on compilations.
 
 # 1.5.0
 

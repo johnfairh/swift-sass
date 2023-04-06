@@ -95,7 +95,7 @@ interface is entirely Swift 5.5 async-await.
 ## Requirements
 
 * Swift 5.5
-* macOS 11+ (tested on macOS 12.5 x64)
+* macOS 11+ (tested on macOS 13.2 x64)
 * Linux (tested on Ubuntu 20.04.3 x64)
 * Embedded Sass Protocol version 1.1.0
 
@@ -107,7 +107,7 @@ Package dependency:
 ```swift
 .package(name: "swift-sass",
          url: "https://github.com/johnfairh/swift-sass.git",
-         from: "1.6.0")
+         from: "1.7.0")
 ```
 
 Target dependency:
@@ -138,7 +138,8 @@ implementations, and was
 [deprecated in 2020](https://sass-lang.com/blog/libsass-is-deprecated).
 However, work is underway to revive the project and it may be that LibSass 4
 emerges as an alternative Sass implementation with the same level of language
-support as Dart Sass.  As of summer 2022 this revival effort is on hold.
+support as Dart Sass.  As of spring 2023 this revival effort is on hold: I'm
+not holding my breath.
 
 See the experimental [libsass4 branch](https://github.com/johnfairh/swift-sass/tree/libsass4)
 for the current state of development: if LibSass itself manages to get to a

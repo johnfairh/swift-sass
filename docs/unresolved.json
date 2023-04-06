@@ -52,8 +52,16 @@
     "name" : "DartSass"
   },
   {
+    "context" : "init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
+    "name" : "EventLoopGroup"
+  },
+  {
     "context" : "double",
     "name" : "Int(exactly: n.double)"
+  },
+  {
+    "context" : "init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
+    "name" : "NIOEventLoopGroupProvider"
   },
   {
     "context" : "init(uniqueKeysWithValues:)",
