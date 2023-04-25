@@ -231,7 +231,7 @@ class TestImporters: DartSassTestCase {
                                            outputStyle: .compressed)
         XCTAssertEqual("a{color:red}", results.css)
         XCTAssertEqual(2, results.loadedURLs.count)
-        let srcmap = try SourceMap(string: XCTUnwrap(results.sourceMap), checkMappings: true)
+        let srcmap = try SourceMap(XCTUnwrap(results.sourceMap))
         XCTAssertEqual(1, srcmap.sources.count)
         XCTAssertEqual("test://vfs/something", srcmap.sources[0].url)
     }
@@ -285,7 +285,7 @@ class TestImporters: DartSassTestCase {
                    div { b: 'c' }
                    """
         let results = try compiler.compile(string: scss, syntax: .scss, url: rootURL)
-        let map = try SourceMap(string: XCTUnwrap(results.sourceMap))
+        let map = try SourceMap(XCTUnwrap(results.sourceMap))
         XCTAssertEqual(3, map.sources.count)
         XCTAssertEqual(3, results.loadedURLs.count)
 

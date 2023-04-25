@@ -88,7 +88,7 @@ public struct CompilerResults: Sendable {
             throw NoSourceMapError()
         }
 
-        let sourceMap = try SourceMap(string: sourceMapString)
+        var sourceMap = try SourceMap(sourceMapString)
         sourceMap.file = cssFileURL.lastPathComponent
 
         let actualSourceMapURL: String
@@ -113,7 +113,7 @@ public struct CompilerResults: Sendable {
 
         return CompilerResults(
             css: css + "\n/*# sourceMappingURL=\(actualSourceMapURL) */\n",
-            sourceMap: try sourceMap.encodeString(continueOnError: true),
+            sourceMap: try sourceMap.encodeString(),
             messages: messages,
             loadedURLs: loadedURLs)
     }

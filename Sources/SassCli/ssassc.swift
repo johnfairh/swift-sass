@@ -1,6 +1,6 @@
 //
 //  ssassc.swift
-//  Cli
+//  SassCli
 //
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //

@@ -9,10 +9,10 @@ test:
 	swift test --enable-code-coverage
 
 test_linux:
-	docker run -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:5.6 make test
+	docker run -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:5.7 swift test
 
 shell_linux:
-	docker run -it -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:5.6 /bin/bash
+	docker run -it -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:5.7 /bin/bash
 
 # Regenerate the protocol buffer structures.
 # Only needed when the embedded-protocol submodule is changed.

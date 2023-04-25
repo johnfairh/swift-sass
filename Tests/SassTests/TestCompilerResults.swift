@@ -21,7 +21,7 @@ class TestCompilerResults: XCTestCase {
     }
 
     func checkSourceMap(_ mapStr: String, file: String? = nil, sourceRoot: String? = nil, sources: [String] = []) throws {
-        let map = try SourceMap(string: mapStr)
+        let map = try SourceMap(mapStr)
         if let file = file {
             XCTAssertEqual(file, map.file)
         }
@@ -30,7 +30,7 @@ class TestCompilerResults: XCTestCase {
     }
 
     func makeCompilerResults(sources: [String] = []) -> CompilerResults {
-        let map = SourceMap()
+        var map = SourceMap()
         map.sources = sources.map { .init(url: $0) }
         return CompilerResults(css: "Some CSS\n", sourceMap: try! map.encodeString(), messages: [], loadedURLs: [])
     }

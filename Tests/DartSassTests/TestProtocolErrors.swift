@@ -33,7 +33,7 @@ class TestProtocolErrors: DartSassTestCase {
         }
 
         checkProtocolError(compiler, "108")
-        _ = try? f.wait()
+        _ = try? await f.get()
 
         try checkCompilerWorking(compiler)
         XCTAssertEqual(2, compiler.startCount)

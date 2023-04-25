@@ -96,7 +96,7 @@ class TestInterface: DartSassTestCase {
             XCTAssertEqual(1, results.loadedURLs.count)
             XCTAssertEqual("custom://bar", results.loadedURLs.first?.absoluteString)
 
-            let srcmap = try SourceMap(string: XCTUnwrap(results.sourceMap), checkMappings: true)
+            let srcmap = try SourceMap(XCTUnwrap(results.sourceMap))
             XCTAssertEqual(SourceMap.VERSION, srcmap.version)
             XCTAssertEqual("AACI;EACI", srcmap.mappings)
             XCTAssertEqual(1, srcmap.sources.count)

@@ -94,10 +94,10 @@ interface is entirely Swift 5.5 async-await.
 
 ## Requirements
 
-* Swift 5.5
-* macOS 11+ (tested on macOS 13.2 x64)
-* Linux (tested on Ubuntu 20.04.3 x64)
-* Embedded Sass Protocol version 1.1.0
+* Swift 5.7
+* macOS 12+ (tested on macOS 13.2 x64)
+* Linux (tested on Ubuntu 22.04 x64)
+* Embedded Sass Protocol version 1.2.0
 
 ## Installation
 

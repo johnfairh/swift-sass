@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/johnfairh/SourceMapper.git",
       "state" : {
-        "revision" : "c190c938a66148ad6965b87cd1329c600aef0a5e",
-        "version" : "1.0.0"
+        "revision" : "2c86d8f44beb2c41effa2f9c5f6cf29b871bf3b9",
+        "version" : "2.0.0"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "9b2848d76f5caad08b97e71a04345aa5bdb23a06",
-        "version" : "2.49.0"
+        "revision" : "f7c46552983b06b0958a1a4c8bc5199406ae4c8a",
+        "version" : "2.51.0"
       }
     },
     {
