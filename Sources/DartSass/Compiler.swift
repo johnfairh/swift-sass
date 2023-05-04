@@ -37,66 +37,70 @@ import Logging
 /// * Consult the stylesheet's associated importer.
 /// * Consult every `DartSass.ImportResolver` given to the compiler, first the global list then the
 ///   per-compilation list, in order within each list.
-public final class Compiler: @unchecked Sendable {
+public actor Compiler {
     private let eventLoopGroup: ProvidedEventLoopGroup
 
     /// NIO event loop we're bound to.  Internal for test.
-    let eventLoop: EventLoop
+    let eventLoop: EventLoop // XXX
 
-    /// Child process initialization involves blocking steps and happens outside of NIO.
+    /// Child process initialization involves blocking steps and happens outside of NIO/Swift concurrency
     private let initThread: NIOThreadPool
 
     enum State {
-        /// No child, new jobs wait on promise with new state.
-        case initializing(EventLoopFuture<Void>)
+        /// No child, new jobs wait for state change.
+        case initializing
         /// Child up, checking it's working before accepting compilations.
-        case checking(CompilerChild, EventLoopFuture<Void>)
+        case checking(CompilerChild)
         /// Child is running and accepting compilation jobs.
         case running(CompilerChild)
         /// Child is broken.  Fail new jobs with the error.  Reinit permitted.
         case broken(Error)
         /// System is shutting down, ongoing jobs will complete but no new.
-        /// Shutdown will be done when promise completes.
-        case quiescing(CompilerChild, EventLoopFuture<Void>)
+        /// Shutdown will be done when state changes.
+        case quiescing(CompilerChild)
         /// Compiler is shut down.  Fail new jobs.
         case shutdown
 
         var child: CompilerChild? {
             switch self {
-            case .checking(let c, _), .running(let c), .quiescing(let c, _): return c
-            case .initializing(_), .broken(_), .shutdown: return nil
+            case .checking(let c), .running(let c), .quiescing(let c): return c
+            case .initializing, .broken, .shutdown: return nil
             }
         }
 
-        var future: EventLoopFuture<Void>? {
-            switch self {
-            case .initializing(let f), .checking(_, let f), .quiescing(_, let f): return f
-            case .running, .broken, .shutdown: return nil
-            }
-        }
-
-        @discardableResult
-        mutating func toInitializing(_ future: EventLoopFuture<Void>) -> EventLoopFuture<Void> {
-            self = .initializing(future)
-            return future
-        }
-
-        mutating func inittingToChecking(_ child: CompilerChild) {
-            self = .checking(child, future!)
-        }
-
-        mutating func checkingToRunning() {
-            self = .running(child!)
-        }
-
-        mutating func toQuiescing(_ future: EventLoopFuture<Void>) -> EventLoopFuture<Void> {
-            self = .quiescing(child!, future)
-            return future
-        }
+//        mutating func toInitializing() {
+//            self = .initializing
+//        }
+//
+//        mutating func inittingToChecking(_ child: CompilerChild) {
+//            self = .checking(child)
+//        }
+//
+//        mutating func checkingToRunning() {
+//            self = .running(child!)
+//        }
+//
+//        mutating func toQuiescing() {
+//            self = .quiescing(child!)
+//        }
     }
 
     /// Compiler process state.  Internal for test access.
     private(set) var state: State
+
+    /// Jobs waiting on compiler state change.  Internal because Swift access control.
+    var continuationQueue: ContinuationQueue
+
+    /// Change the compiler state and resume anyone waiting.
+    func setState(_ state: State) {
+        self.state = state
+        kickWaitingTasks()
+    }
+
+    /// Suspend the current task until the compiler state changes
+    func waitForStateChange() async {
+        await suspendTask()
+    }
 
     /// Number of times we've tried to start the embedded Sass compiler.
     private(set) var startCount: Int
@@ -138,13 +142,13 @@ public final class Compiler: @unchecked Sendable {
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
     /// - throws: `LifecycleError` if the program can't be found.
-    public convenience init(eventLoopGroupProvider: NIOEventLoopGroupProvider = .createNew,
-                            timeout: Int = 60,
-                            messageStyle: CompilerMessageStyle = .plain,
-                            verboseDeprecations: Bool = false,
-                            suppressDependencyWarnings: Bool = false,
-                            importers: [ImportResolver] = [],
-                            functions: SassAsyncFunctionMap = [:]) throws {
+    public init(eventLoopGroupProvider: NIOEventLoopGroupProvider = .createNew,
+                timeout: Int = 60,
+                messageStyle: CompilerMessageStyle = .plain,
+                verboseDeprecations: Bool = false,
+                suppressDependencyWarnings: Bool = false,
+                importers: [ImportResolver] = [],
+                functions: SassAsyncFunctionMap = [:]) throws {
         let url = try DartSassEmbedded.getURL()
         self.init(eventLoopGroupProvider: eventLoopGroupProvider,
                   embeddedCompilerFileURL: url,
@@ -208,7 +212,8 @@ public final class Compiler: @unchecked Sendable {
                                             suppressDependencyWarnings: suppressDependencyWarnings),
                             importers: importers,
                             functions: functions)
-        state.toInitializing(startCompiler())
+        setState(.initializing)
+        startCompiler()
     }
 
     deinit {
@@ -265,21 +270,14 @@ public final class Compiler: @unchecked Sendable {
     /// means that the compiler is broken or shutdown.
     public var compilerProcessIdentifier: Int32? {
         get async {
-            try? await compilerProcessIdentifierFuture.get()
-        }
-    }
-
-    /// A future evaluating to the process ID of the embedded Sass compiler.
-    private var compilerProcessIdentifierFuture: EventLoopFuture<Int32?> {
-        eventLoop.flatSubmit { [self] in
-            switch state {
-            case .broken, .shutdown:
-                return eventLoop.makeSucceededFuture(nil)
-            case .checking(let child, _), .running(let child), .quiescing(let child, _):
-                return eventLoop.makeSucceededFuture(child.processIdentifier)
-            case .initializing(let future):
-                return future.flatMap {
-                    self.compilerProcessIdentifierFuture
+            while true {
+                switch state {
+                case .broken, .shutdown:
+                    return nil
+                case .checking(let child), .running(let child), .quiescing(let child):
+                    return child.processIdentifier
+                case .initializing:
+                    await waitForStateChange()
                 }
             }
         }
@@ -584,6 +582,9 @@ public final class Compiler: @unchecked Sendable {
             return future
         }
     }
+}
+
+extension Compiler: WithContinuationQueue {
 }
 
 /// NIO layer
