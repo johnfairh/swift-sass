@@ -8,7 +8,7 @@
 import struct Foundation.URL
 import class Foundation.FileManager // cwd
 import Dispatch
-import NIOCore
+@_spi(AsyncChannel) import NIOCore
 import NIOPosix
 import Logging
 @_exported import Sass
@@ -42,9 +42,6 @@ public actor Compiler {
 
     /// NIO event loop we're bound to.  Internal for test.
     let eventLoop: EventLoop // XXX
-
-    /// Child process initialization involves blocking steps and happens outside of NIO/Swift concurrency
-    private let initThread: NIOThreadPool
 
     enum State {
         /// No child, new jobs wait for state change.
@@ -89,17 +86,19 @@ public actor Compiler {
     private(set) var state: State
 
     /// Jobs waiting on compiler state change.  Internal because Swift access control.
-    var continuationQueue: ContinuationQueue
+    private var stateWaitingQueue: ContinuationQueue2
 
     /// Change the compiler state and resume anyone waiting.
     func setState(_ state: State) {
         self.state = state
-        kickWaitingTasks()
+        //        kickWaitingTasks()
+        Task { await stateWaitingQueue.kick() } // XXX is this OK?
     }
 
     /// Suspend the current task until the compiler state changes
     func waitForStateChange() async {
-        await suspendTask()
+        //        await suspendTask()
+        await stateWaitingQueue.wait()
     }
 
     /// Number of times we've tried to start the embedded Sass compiler.
@@ -198,7 +197,6 @@ public actor Compiler {
         self.eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider)
         eventLoop = self.eventLoopGroup.any()
         initThread = NIOThreadPool(numberOfThreads: 1)
-        initThread.start()
         work = nil
         self.embeddedCompilerFileURL = embeddedCompilerFileURL
         state = .shutdown
@@ -212,14 +210,81 @@ public actor Compiler {
                                             suppressDependencyWarnings: suppressDependencyWarnings),
                             importers: importers,
                             functions: functions)
-        setState(.initializing)
-        startCompiler()
     }
 
     deinit {
         guard case .shutdown = state else {
             preconditionFailure("Compiler not shutdown: \(state)")
         }
+    }
+
+    /// Run and maintain the Sass compiler.
+    /// Cancelling this ``Task`` initiates a graceful exit of the compiler and causes the
+    /// routine to return.  Otherwise the routine will not return
+    /// It throws and returns if the compiler is fucked up and won't start
+    /// XXX
+    func run() async throws {
+        guard case .shutdown = state else {
+            preconditionFailure("Bad state to run Sass compiler: \(state)")
+        }
+
+        let initThread = NIOThreadPool(numberOfThreads: 1)
+        initThread.start()
+
+        while !Task.isCancelled {
+            setState(.initializing)
+
+            precondition(!work.hasActiveRequests)
+            startCount += 1
+
+            let child = try await initThread.runIfActive(eventLoop: eventLoop) { [self] in // XXX need to catch this stuff
+                try CompilerChild(eventLoop: eventLoop,
+                                  fileURL: embeddedCompilerFileURL,
+                                  work: work,
+                                  errorHandler: { [unowned self] in self.handle(error: $0) })
+            }.get()
+
+            try await child.addChannelHandlers()
+
+            // version etc
+
+
+            startCompiler()
+            // do a 1-shot channel read for the version response?
+            // or make it work with loop, just have a Task that handles the version response?
+            if broken {
+                assert work quiesced
+                break -- go to shutdown then throw
+            }
+            await child.processMessages()
+
+            quiesce work
+            // await compilerWork.quiesce()
+            //
+            // actor CompilerWork {
+            //    var outstandingWork: Int
+            //    var quiesced: CheckedContinuation<Void, Never>?
+            //
+            //    func quiesce() async {
+            //       guard outstandingWork > 0 else { return }
+            //       assert(quiesced.nil?)
+            //       await withCheckedContinuation { self.quiesced = $0 }
+            //       assert(outstandingWork == 0)
+            //       assert(quiesced.nil?)
+            //    }
+            //
+            //    func kickQuiesce() {
+            //       guard let quiesced, outstandingWork == 0 else { return }
+            //       self.quiesced = nil
+            //       quiesced.resume()
+            //    }
+
+            // go round again, cancelled check decides reinit/shutdown
+        }
+
+        // do shutdown post-quiesce here
+        try? await initThread.shutdownGracefully()
+        // checkstate 'shutdown'
     }
 
     /// Restart the embedded Sass compiler.
@@ -584,15 +649,15 @@ public actor Compiler {
     }
 }
 
-extension Compiler: WithContinuationQueue {
-}
+//extension Compiler: WithContinuationQueue {
+//}
 
 /// NIO layer
 ///
 /// Looks after the actual child process.
 /// Knows how to set up the channel pipeline.
 /// Routes inbound messages to CompilerWork.
-final class CompilerChild: ChannelInboundHandler {
+actor CompilerChild: ChannelInboundHandler {
     typealias InboundIn = Sass_EmbeddedProtocol_OutboundMessage
 
     /// Our event loop
@@ -602,7 +667,7 @@ final class CompilerChild: ChannelInboundHandler {
     /// The work manager
     private let work: CompilerWork
     /// Error handling
-    private let errorHandler: (Error) -> Void
+    private let errorHandler: (Error) async -> Void
     /// Cancellation protocol
     private var stopping: Bool
 
@@ -611,15 +676,18 @@ final class CompilerChild: ChannelInboundHandler {
         child.process.processIdentifier
     }
 
-    /// Test
+    /// Internal for test XXX why is it settable
     var channel: Channel {
         child.channel
     }
 
+    /// The compiler's "Inbound" messages are our "Outbound" and vice-versa.
+    private(set) var asyncChannel: NIOAsyncChannel<Sass_EmbeddedProtocol_OutboundMessage, Sass_EmbeddedProtocol_InboundMessage>!
+
     /// Create a new Sass compiler process.
     ///
     /// Must not be called in an event loop!  But I don't know how to check that.
-    init(eventLoop: EventLoop, fileURL: URL, work: CompilerWork, errorHandler: @escaping (Error) -> Void) throws {
+    init(eventLoop: EventLoop, fileURL: URL, work: CompilerWork, errorHandler: @escaping (Error) async -> Void) throws {
         self.child = try Exec.spawn(fileURL, group: eventLoop)
         self.eventLoop = eventLoop
         self.work = work
@@ -635,56 +703,65 @@ final class CompilerChild: ChannelInboundHandler {
         // Don't want to interlock it because (a) more quiesce phases and (b) don't trust
         // the library to guarantee a timely call.
         self.child.process.terminationHandler = { _ in
-            eventLoop.execute {
-                if !self.stopping {
-                    errorHandler(ProtocolError("Compiler process exitted unexpectedly"))
-                }
-            }
+            Task { await self.childTerminationHandler() }
+        }
+    }
+
+    private func childTerminationHandler() async {
+        if !stopping {
+            await errorHandler(ProtocolError("Compiler process exitted unexpectedly"))
         }
     }
 
     /// Connect Sass protocol handlers.
-    func addChannelHandlers() -> EventLoopFuture<CompilerChild> {
-        ProtocolWriter.addHandler(to: child.channel)
-            .flatMap {
-                ProtocolReader.addHandler(to: self.child.channel)
-            }.flatMap {
-                self.child.channel.pipeline.addHandler(self)
-            }.map {
-                self
-            }
+    func addChannelHandlers() async throws  { // XXX move EVentLoop to param here?
+        try await ProtocolWriter.addHandler(to: channel).get()
+        try await ProtocolReader.addHandler(to: channel).get()
+        asyncChannel = try await eventLoop.submit { [channel] in
+            try NIOAsyncChannel(synchronouslyWrapping: channel)
+        }.get()
     }
 
     /// Send a message to the Sass compiler with error detection.
-    @discardableResult
-    func send(message: Sass_EmbeddedProtocol_InboundMessage) -> EventLoopFuture<Void> {
-        eventLoop.preconditionInEventLoop()
+    func send(message: Sass_EmbeddedProtocol_InboundMessage) async {
+        precondition(asyncChannel != nil)
         guard !stopping else {
             // Race condition of compiler reset vs. async host function
-            return eventLoop.makeSucceededFuture(())
+            return
         }
 
-        return child.channel.writeAndFlush(message).flatMapError { error in
+        do {
+            try await asyncChannel.outboundWriter.write(message) // == writeAndFlush
+        } catch {
             // tough to reliably hit this error.  if we kill the process while trying to write to
             // it we get this on Darwin maybe 20% of the time vs. the write working, leaving the
             // sigchld handler to clean up.
-            self.errorHandler(ProtocolError("Write to Sass compiler failed: \(error)"))
-            return self.eventLoop.makeFailedFuture(error)
+            await errorHandler(ProtocolError("Write to Sass compiler failed: \(error)"))
         }
     }
 
-    func send(messages: [Sass_EmbeddedProtocol_InboundMessage]) {
-        messages.forEach { send(message: $0) }
+    /// Send a bunch of messages in order. XXX what is this for??
+    func send(messages: [Sass_EmbeddedProtocol_InboundMessage]) async {
+        for m in messages {
+            await send(message: m)
+        }
     }
 
-    /// Called from the pipeline handler with a new message
-    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
-        eventLoop.preconditionInEventLoop()
-        receive(message: unwrapInboundIn(data))
+    /// Process messages from the child until it dies or the task is cancelled
+    func processMessages() async {
+        precondition(asyncChannel != nil)
+        do {
+            for try await message in asyncChannel.inboundStream {
+                await receive(message: message)
+            }
+        } catch {
+            /// Called from NIO up the stack if something goes wrong with the inbound connection.... maybe ... XXX
+            await errorHandler(ProtocolError("Read from Sass compiler failed: \(error)"))
+        }
     }
 
     /// Split out for test access
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) {
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async {
         guard !stopping else {
             // I don't really understand how this happens but have test proof on Linux
             // on Github Actions env, seems to be an inbound buffer where something can
@@ -694,18 +771,13 @@ final class CompilerChild: ChannelInboundHandler {
         }
         Compiler.logger.debug("Rx: \(message.logMessage)")
 
-        work.receive(message: message).map {
-            if let response = $0 {
-                self.send(message: response)
+        do {
+            if let response = try work.receive(message: message) {
+                await send(message: response)
             }
-        }.whenFailure {
-            self.errorHandler($0)
+        } catch {
+            await errorHandler(error)
         }
-    }
-
-    /// Called from NIO up the stack if something goes wrong with the inbound connection
-    func errorCaught(context: ChannelHandlerContext, error: Error) {
-        errorHandler(ProtocolError("Read from Sass compiler failed: \(error)"))
     }
 
     /// Shutdown point - stop the child process to clean up the channel.
@@ -715,7 +787,8 @@ final class CompilerChild: ChannelInboundHandler {
         stopping = true
         child.process.terminationHandler = nil
         child.terminate()
-        if let error = error {
+        // asyncChannel = nil ?? XXX
+        if let error {
             work.cancelAllActive(with: error)
         }
     }

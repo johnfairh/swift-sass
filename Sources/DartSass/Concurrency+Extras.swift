@@ -5,6 +5,22 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
+actor ContinuationQueue2 {
+    typealias Element = CheckedContinuation<Void, Never>
+    private var waiting: [Element] = []
+
+    func wait() async {
+        await withCheckedContinuation { continuation in
+            waiting.append(continuation)
+        }
+    }
+
+    func kick() {
+        let kicked = waiting
+        waiting = []
+        kicked.forEach { $0.resume() }
+    }
+}
 /// List of waiting tasks with defined/reentrant kicking order
 struct ContinuationQueue {
     typealias Element = CheckedContinuation<Void, Never>
@@ -36,4 +52,10 @@ extension WithContinuationQueue {
     func kickWaitingTasks() {
         continuationQueue.kick()
     }
+}
+
+// MARK: weird things probably meaning I don't understand something
+
+func preconditionFailure(_ msg: String) {
+    Swift.preconditionFailure(msg)
 }
