@@ -51,7 +51,7 @@ public actor Compiler {
         /// Child is running and accepting compilation jobs.
         case running(CompilerChild)
         /// Child is broken.  Fail new jobs with the error.  Reinit permitted.
-        case broken(Error)
+        case broken(any Error)
         /// System is shutting down, ongoing jobs will complete but no new.
         /// Shutdown will be done when state changes.
         case quiescing(CompilerChild)
@@ -194,9 +194,8 @@ public actor Compiler {
                 importers: [ImportResolver] = [],
                 functions: SassAsyncFunctionMap = [:]) {
         precondition(embeddedCompilerFileURL.isFileURL, "Not a file URL: \(embeddedCompilerFileURL)")
-        self.eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider)
+        self.eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider) // XXX need to shut this MF down
         eventLoop = self.eventLoopGroup.any()
-        initThread = NIOThreadPool(numberOfThreads: 1)
         work = nil
         self.embeddedCompilerFileURL = embeddedCompilerFileURL
         state = .shutdown
@@ -219,72 +218,94 @@ public actor Compiler {
     }
 
     /// Run and maintain the Sass compiler.
+    ///
     /// Cancelling this ``Task`` initiates a graceful exit of the compiler and causes the
-    /// routine to return.  Otherwise the routine will not return
-    /// It throws and returns if the compiler is fucked up and won't start
-    /// XXX
+    /// routine to return normally.
+    ///
+    /// The routine returns abnormally by throwing an error if there is something seriously
+    /// wrong, for example the embedded compiler cannot start or the version is wrong.
+    /// It's unlikely there's anything a software client can do to fix this kind of problem, but you
+    /// are welcome to call `run()` again to have another go.
+    ///
+    /// Minor errors such as compiler process crashes or timeouts do not cause the routine
+    /// to return, these are handled internally.
     func run() async throws {
-        guard case .shutdown = state else {
+        guard case .shutdown = state else { // XXX or broken
             preconditionFailure("Bad state to run Sass compiler: \(state)")
         }
+
+        var brokenError: (any Error)? = nil
 
         let initThread = NIOThreadPool(numberOfThreads: 1)
         initThread.start()
 
-        while !Task.isCancelled {
-            setState(.initializing)
+        do {
+            while !Task.isCancelled {
+                setState(.initializing)
 
-            precondition(!work.hasActiveRequests)
-            startCount += 1
+                precondition(!work.hasActiveRequests)
+                startCount += 1
 
-            let child = try await initThread.runIfActive(eventLoop: eventLoop) { [self] in // XXX need to catch this stuff
-                try CompilerChild(eventLoop: eventLoop,
-                                  fileURL: embeddedCompilerFileURL,
-                                  work: work,
-                                  errorHandler: { [unowned self] in self.handle(error: $0) })
-            }.get()
+                let child = try await initThread.runIfActive(eventLoop: eventLoop) { [self] in
+                    try CompilerChild(eventLoop: eventLoop,
+                                      fileURL: embeddedCompilerFileURL,
+                                      work: work,
+                                      errorHandler: { [unowned self] in await self.handle(error: $0) })
+                }.get()
 
-            try await child.addChannelHandlers()
+                try await child.addChannelHandlers()
 
-            // version etc
+                debug("Compiler is started, starting healthcheck")
+                setState(.checking(child))
 
+                // Kick off the child task to deal with compiler responses
+                async let messageLoopTask: Void = runMessageLoop()
 
-            startCompiler()
-            // do a 1-shot channel read for the version response?
-            // or make it work with loop, just have a Task that handles the version response?
-            if broken {
-                assert work quiesced
-                break -- go to shutdown then throw
+                let something = try sendVersionRequest(to: child)
+                try versions.check()
+                self.versions = versions
+
+                // Might already be quiescing here, race with msgloop task
+                if case .checking = state {
+                    setState(.running(child))
+                    await waitForStateChange()
+                }
+                await messageLoopTask
+
+                guard case .quiescing = state else {
+                    preconditionFailure("Expected quiescing, is \(state)")
+                }
+                await work.quiesce()
+
+                // go round again, back to initting
             }
-            await child.processMessages()
-
-            quiesce work
-            // await compilerWork.quiesce()
-            //
-            // actor CompilerWork {
-            //    var outstandingWork: Int
-            //    var quiesced: CheckedContinuation<Void, Never>?
-            //
-            //    func quiesce() async {
-            //       guard outstandingWork > 0 else { return }
-            //       assert(quiesced.nil?)
-            //       await withCheckedContinuation { self.quiesced = $0 }
-            //       assert(outstandingWork == 0)
-            //       assert(quiesced.nil?)
-            //    }
-            //
-            //    func kickQuiesce() {
-            //       guard let quiesced, outstandingWork == 0 else { return }
-            //       self.quiesced = nil
-            //       quiesced.resume()
-            //    }
-
-            // go round again, cancelled check decides reinit/shutdown
+        } catch {
+            debug("Can't start the compiler at all: \(error)")
+            await state.child?.stopAndCancelWork(with: error)
+            setState(.broken(error))
         }
 
-        // do shutdown post-quiesce here
+        // Clean up and propagate errors
+        // Should be `defer` but Swift cba to do async there...
         try? await initThread.shutdownGracefully()
-        // checkstate 'shutdown'
+
+        if case let .broken(error) = state {
+            throw error
+        } else {
+            setState(.shutdown)
+        }
+    }
+
+    /// Deal with inbound messages.
+    ///
+    /// This is supposed to run as a structured child task of the `run()` task with cancellation propagation.
+    private func runMessageLoop() async {
+        let child = state.child!
+        debug("MessageQueueTask in") // XXX bringup tracing
+        await child.processMessages()
+        debug("MessageQueueTask message-loop returned, cancelled = \(Task.isCancelled)")
+        setState(.quiescing(child))
+        debug("MessageQueueTask set quiescing")
     }
 
     /// Restart the embedded Sass compiler.
@@ -296,10 +317,8 @@ public actor Compiler {
     /// call it.
     ///
     /// Any outstanding compilations are failed.
-    public func reinit() async throws {
-        try await eventLoop.flatSubmit {
-            self.handle(error: LifecycleError("User requested Sass compiler be reinitialized"))
-        }.get()
+    public func reinit() async {
+        await handle(error: LifecycleError("User requested Sass compiler be reinitialized"))
     }
 
     /// Shut down the compiler asynchronously.
@@ -649,9 +668,6 @@ public actor Compiler {
     }
 }
 
-//extension Compiler: WithContinuationQueue {
-//}
-
 /// NIO layer
 ///
 /// Looks after the actual child process.
@@ -672,9 +688,7 @@ actor CompilerChild: ChannelInboundHandler {
     private var stopping: Bool
 
     /// API
-    var processIdentifier: Int32 {
-        child.process.processIdentifier
-    }
+    nonisolated let processIdentifier: Int32
 
     /// Internal for test XXX why is it settable
     var channel: Channel {
@@ -689,6 +703,7 @@ actor CompilerChild: ChannelInboundHandler {
     /// Must not be called in an event loop!  But I don't know how to check that.
     init(eventLoop: EventLoop, fileURL: URL, work: CompilerWork, errorHandler: @escaping (Error) async -> Void) throws {
         self.child = try Exec.spawn(fileURL, group: eventLoop)
+        self.processIdentifier = child.process.processIdentifier
         self.eventLoop = eventLoop
         self.work = work
         self.errorHandler = errorHandler

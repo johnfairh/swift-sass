@@ -9,6 +9,26 @@ import NIOCore
 @_spi(SassCompilerProvider) import Sass
 import struct Foundation.URL
 
+
+// actor CompilerWork {
+//    var outstandingWork: Int
+//    var quiesced: CheckedContinuation<Void, Never>?
+//
+//    func quiesce() async {
+//       guard outstandingWork > 0 else { return }
+//       assert(quiesced.nil?)
+//       await withCheckedContinuation { self.quiesced = $0 }
+//       assert(outstandingWork == 0)
+//       assert(quiesced.nil?)
+//    }
+//
+//    func kickQuiesce() {
+//       guard let quiesced, outstandingWork == 0 else { return }
+//       self.quiesced = nil
+//       quiesced.resume()
+//    }
+
+
 /// The part of the compiler that deals with actual Sass things rather than process management.
 /// It understands the contents of the Sass protocol messages.
 ///
