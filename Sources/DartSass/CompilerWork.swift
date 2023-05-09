@@ -61,8 +61,6 @@ final class CompilerWork {
     // These vars are protected by the event-loop thread, currently
     // unsafe to let async-await happen in this layer.
 
-    /// Unstarted compilation work
-//    private var pendingCompilations: [CompilationRequest]
     /// Active compilation work indexed by CompilationID
     private var activeRequests: [UInt32 : CompilerRequest]
     /// Promise tracking active work quiesce
@@ -80,49 +78,17 @@ final class CompilerWork {
         self.settings = settings
         globalImporters = importers
         globalFunctions = functions
-//        pendingCompilations = []
         activeRequests = [:]
         quiescePromise = nil
     }
 
     deinit {
-//        precondition(pendingCompilations.isEmpty)
         precondition(!hasActiveRequests)
     }
 
     var hasActiveRequests: Bool {
         !activeRequests.isEmpty
     }
-
-//    /// Add a new compilation request to the pending queue.
-//    /// Return the future for the job.
-//    func addPendingCompilation(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
-//                               outputStyle: CssStyle,
-//                               sourceMapStyle: SourceMapStyle,
-//                               includeCharset: Bool,
-//                               importers: [ImportResolver],
-//                               stringImporter: ImportResolver? = nil,
-//                               functions: SassAsyncFunctionMap) -> EventLoopFuture<CompilerResults> {
-//        eventLoop.preconditionInEventLoop()
-//
-//        let promise = eventLoop.makePromise(of: CompilerResults.self)
-//
-//        let compilation = CompilationRequest(
-//            promise: promise,
-//            input: input,
-//            outputStyle: outputStyle,
-//            sourceMapStyle: sourceMapStyle,
-//            includeCharset: includeCharset,
-//            settings: settings,
-//            importers: globalImporters + importers,
-//            stringImporter: stringImporter,
-//            functionsMap: globalFunctions.overridden(with: functions))
-//
-//        pendingCompilations.append(compilation)
-//
-//        return promise.futureResult
-//    }
-//
 
     func startCompilation(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
                           outputStyle: CssStyle,
@@ -132,9 +98,7 @@ final class CompilerWork {
                           stringImporter: ImportResolver? = nil,
                           functions: SassAsyncFunctionMap,
                           continuation: CheckedContinuation<CompilerResults, any Error>) -> Sass_EmbeddedProtocol_InboundMessage {
-
         let compilationRequest = CompilationRequest(
-            promise: promise,
             input: input,
             outputStyle: outputStyle,
             sourceMapStyle: sourceMapStyle,
@@ -142,7 +106,13 @@ final class CompilerWork {
             settings: settings,
             importers: globalImporters + importers,
             stringImporter: stringImporter,
-            functionsMap: globalFunctions.overridden(with: functions))
+            functionsMap: globalFunctions.overridden(with: functions)) { req, res in
+                Task {
+                    self.activeRequests[req.requestID] = nil
+                    continuation.resume(with: res)
+                    self.kickQuiesce()
+                }
+            }
 
         start(request: compilationRequest)
 
@@ -151,19 +121,21 @@ final class CompilerWork {
 
     private func start<R: TypedCompilerRequest>(request: R) {
         activeRequests[request.requestID] = request
-        request.start(timeout: timeout)?.whenSuccess { [self] in
+        request.start(timeoutSeconds: timeout) {
             resetRequest(
                 ProtocolError("Timeout: \(request.debugPrefix) timed out after \(timeout)s"))
-        }
-        request.futureResult.whenComplete { result in
-            self.activeRequests[request.requestID] = nil
-            self.kickQuiesce()
         }
     }
 
     /// Start a version request.  Bypass any pending queue.
     func startVersionRequest(continuation: CheckedContinuation<Versions, any Error>) -> Sass_EmbeddedProtocol_InboundMessage {
-        let request = VersionRequest(promise: promise)
+        let request = VersionRequest() { req, res in
+            Task {
+                self.activeRequests[req.requestID] = nil
+                continuation.resume(with: res)
+                self.kickQuiesce()
+            }
+        }
         start(request: request)
         return .with { $0.versionRequest = request.versionReq }
     }

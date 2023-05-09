@@ -38,11 +38,11 @@ enum RequestID {
 
 protocol CompilerRequest: AnyObject {
     /// Notify that the initial request has been sent.  Return any timeout handler.
-    func start(timeout: Int) -> EventLoopFuture<Void>?
+    func start(timeoutSeconds: Int, onTimeout: () async -> Void)
     /// Handle a compiler response for `requestID`
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage?
     /// Abandon the request
-    func cancel(with error: Error)
+    func cancel(with error: any Error)
 
     var requestID: UInt32 { get }
     var debugPrefix: String { get }
@@ -58,17 +58,7 @@ extension CompilerRequest {
 
 protocol TypedCompilerRequest: CompilerRequest {
     associatedtype ResultType
-    var promise: EventLoopPromise<ResultType> { get }
-}
-
-extension TypedCompilerRequest {
-    var futureResult: EventLoopFuture<ResultType> {
-        promise.futureResult
-    }
-
-    var eventLoop: EventLoop {
-        futureResult.eventLoop
-    }
+    var clientDone: (Self, Result<ResultType, any Error>) -> Void { get }
 }
 
 // MARK: ManagedCompilerRequest
@@ -104,36 +94,39 @@ struct Lock {
 }
 
 private protocol ManagedCompilerRequest: TypedCompilerRequest {
-    var timer: Scheduled<Void>? { get set }
+    var timer: Task? { get set }
     var state: CompilerRequestState { get set }
     var stateLock: Lock { get }
 }
 
 extension ManagedCompilerRequest {
-    /// Initialization - adopters must call during init
-    func initCompilerRequest() {
-        futureResult.whenComplete { [self] in
-            precondition(!state.isInClient)
-            timer?.cancel()
-            switch $0 {
-            case .success(_):
-                debug("complete: success")
-            case .failure(let error):
-                if error is CompilerError {
-                    debug("complete: compiler error")
-                } else {
-                    debug("complete: protocol error")
-                }
+    func sendDone(_ result: Result<ResultType, any Error>) {
+        precondition(!state.isInClient)
+        timer?.cancel()
+        switch result {
+        case .success(_):
+            debug("complete: success")
+        case .failure(let error):
+            if error is CompilerError {
+                debug("complete: compiler error")
+            } else {
+                debug("complete: protocol error")
             }
         }
+        clientDone(self, result)
     }
 
     /// Notify that the initial compile-req has been sent.  Return any timeout handler.
-    func start(timeout: Int) -> EventLoopFuture<Void>? {
+    func start(timeoutSeconds: Int, onTimeout: @escaping () async -> Void ) {
         if timeout >= 0 {
             debug("send \(requestName), starting \(timeout)s timer")
-            timer = eventLoop.scheduleTask(in: .seconds(Int64(timeout))) { }
-            return timer?.futureResult
+            timer = Task {
+                do {
+                    try Task.sleep(for: .seconds(timeoutSeconds))
+                    await onTimeout()
+                } catch {
+                }
+            }
         }
         debug("send \(requestName), no timeout")
         return nil
@@ -141,11 +134,11 @@ extension ManagedCompilerRequest {
 
     /// Abandon the job with a given error - because it never gets a chance to start or as a result
     /// of a timeout -> reset, or because of a protocol error on another job.
-    func cancel(with error: Error) {
+    func cancel(with error: any Error) {
         timer?.cancel()
         stateLock.locked {
             if !state.isInClient {
-                promise.fail(error)
+                sendDone(.failure(error))
             } else {
                 debug("waiting to cancel while hostfn/importer runs")
                 state = .client_error(error)
@@ -170,7 +163,7 @@ extension ManagedCompilerRequest {
             precondition(oldState.isInClient)
             if case let .client_error(error) = oldState {
                 debug("hostfn/importer done, cancelling")
-                promise.fail(error)
+                sendDone(.failure(error))
             }
         }
     }
@@ -180,8 +173,7 @@ extension ManagedCompilerRequest {
 
 final class CompilationRequest: ManagedCompilerRequest {
     // Protocol reqs
-    private(set) var promise: EventLoopPromise<CompilerResults>
-    fileprivate var timer: Scheduled<Void>?
+    fileprivate var timer: Task?
     fileprivate var state: CompilerRequestState
     fileprivate let stateLock: Lock
 
@@ -195,20 +187,22 @@ final class CompilationRequest: ManagedCompilerRequest {
     private let functions: SassAsyncFunctionMap
     private var messages: [CompilerMessage]
 
+    private var done: (CompilationRequest, Result<CompilerResults, any Error>) -> Void
+
     var requestID: UInt32 {
         compileReq.id
     }
 
     /// Format and remember all the gorpy stuff we need to run a job.
-    init(promise: EventLoopPromise<CompilerResults>,
-         input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
+    init(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
          outputStyle: CssStyle,
          sourceMapStyle: SourceMapStyle,
          includeCharset: Bool,
          settings: CompilerWork.Settings,
          importers: [ImportResolver],
          stringImporter: ImportResolver?,
-         functionsMap: [SassFunctionSignature : (String, SassAsyncFunction)]) {
+         functionsMap: [SassFunctionSignature : (String, SassAsyncFunction)],
+         done: @escaping (CompilationRequest, Result<CompilerResults, any Error>) -> Void) {
         var firstFreeImporterID = CompilationRequest.baseImporterID
         if let stringImporter = stringImporter {
             self.importers = [stringImporter] + importers
@@ -232,11 +226,10 @@ final class CompilationRequest: ManagedCompilerRequest {
             msg.charset = includeCharset
         }
         self.messages = []
-        self.promise = promise
         self.state = .normal
         self.timer = nil
         self.stateLock = Lock()
-        initCompilerRequest()
+        self.done = done
     }
 
     // Receive empire.
@@ -279,9 +272,9 @@ final class CompilationRequest: ManagedCompilerRequest {
     private func receive(compileResponse: OBM.CompileResponse) throws -> IBM? {
         switch compileResponse.result {
         case .success(let s):
-            promise.succeed(.init(s, messages: messages))
+            sendDone(.success(CompilerResults(s, messages: messages)))
         case .failure(let f):
-            promise.fail(CompilerError(f, messages: messages))
+            sendDone(.failure(CompilerError(f, messages: messages)))
         case nil:
             throw ProtocolError("Malformed Compile-Rsp, missing `result`: \(compileResponse)")
         }
@@ -469,10 +462,10 @@ private extension ImportResolver {
 
 final class VersionRequest: ManagedCompilerRequest {
     // Protocol reqs
-    private(set) var promise: EventLoopPromise<Versions>
-    fileprivate var timer: Scheduled<Void>?
+    fileprivate var timer: Task?
     fileprivate var state: CompilerRequestState
     fileprivate var stateLock: Lock
+    fileprivate let done: (VersionRequest, Result<Versions, any Error>) -> Void
 
     // Version-specific
     let versionReq: Sass_EmbeddedProtocol_InboundMessage.VersionRequest
@@ -485,13 +478,12 @@ final class VersionRequest: ManagedCompilerRequest {
         versionReq.id
     }
 
-    init(promise: EventLoopPromise<Versions>) {
-        self.promise = promise
+    init(done: @escaping (VersionRequest, Result<Versions, any Error>) -> Void) {
         self.state = .normal
         self.timer = nil
         self.stateLock = Lock()
         self.versionReq = .with { $0.id = RequestID.next }
-        initCompilerRequest()
+        self.done = done
     }
 
     /// Inbound messages.
@@ -499,7 +491,7 @@ final class VersionRequest: ManagedCompilerRequest {
         guard case .versionResponse(let vers) = message.message else {
             throw ProtocolError("Unexpected response to Version-Req: \(message)")
         }
-        promise.succeed(.init(vers))
+        sendDone(.success(Versions(vers)))
         return nil
     }
 }

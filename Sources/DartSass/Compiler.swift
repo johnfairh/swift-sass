@@ -216,8 +216,6 @@ public actor Compiler {
             preconditionFailure("Bad state to run Sass compiler: \(state)")
         }
 
-        var brokenError: (any Error)? = nil
-
         let initThread = NIOThreadPool(numberOfThreads: 1)
         initThread.start()
 
