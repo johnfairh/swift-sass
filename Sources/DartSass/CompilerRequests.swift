@@ -40,7 +40,7 @@ protocol CompilerRequest: AnyObject {
     /// Notify that the initial request has been sent.  Return any timeout handler.
     func start(timeout: Int) -> EventLoopFuture<Void>?
     /// Handle a compiler response for `requestID`
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?>
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage?
     /// Abandon the request
     func cancel(with error: Error)
 
@@ -249,24 +249,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     private typealias IBM = Sass_EmbeddedProtocol_InboundMessage
 
     /// Inbound messages.
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
-        let promise = eventLoop.makePromise(of: Optional<IBM>.self)
-
-        // Handle log-events synchronously because they can be sent back-to-back with compile-done and
-        // are un-acked.  So if left to run async, can race with the compile-done and happen *after*
-        // the client has received their done....
-        switch message.message {
-        case .logEvent(let rsp):
-            promise.completeWith(.init(catching: { try self.receive(log: rsp) }))
-        default:
-            promise.completeWithTask { try await self.receiveAsync(message: message) }
-            break
-        }
-
-        return promise.futureResult
-    }
-
-    func receiveAsync(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage? {
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage? {
         switch message.message {
         case .compileResponse(let rsp):
             return try receive(compileResponse: rsp)
@@ -283,12 +266,13 @@ final class CompilationRequest: ManagedCompilerRequest {
         case .fileImportRequest(let req):
             return try await receive(fileImportRequest: req)
 
-        case .logEvent:
-            preconditionFailure("Unreachable, should be handled synchronously")
+        case .logEvent(let rsp):
+            return try receive(log: rsp)
 
         case nil, .error, .versionResponse:
             preconditionFailure("Unreachable: message type not associated with CompID: \(message)")
         }
+        return nil
     }
 
     /// Inbound `CompileResponse` handler
@@ -511,11 +495,11 @@ final class VersionRequest: ManagedCompilerRequest {
     }
 
     /// Inbound messages.
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage? {
         guard case .versionResponse(let vers) = message.message else {
-            return eventLoop.makeProtocolError("Unexpected response to Version-Req: \(message)")
+            throw ProtocolError("Unexpected response to Version-Req: \(message)")
         }
         promise.succeed(.init(vers))
-        return eventLoop.makeSucceededFuture(nil)
+        return nil
     }
 }

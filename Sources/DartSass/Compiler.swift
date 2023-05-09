@@ -52,7 +52,7 @@ public actor Compiler {
         case running(CompilerChild)
         /// Child is broken.  Fail new jobs with the error.  Reinit permitted.
         case broken(any Error)
-        /// System is shutting down, ongoing jobs will complete but no new.
+        /// System is shutting down, ongoing jobs will complete but no new. XXX can be ->init too
         /// Shutdown will be done when state changes.
         case quiescing(CompilerChild)
         /// Compiler is shut down.  Fail new jobs.
@@ -64,40 +64,22 @@ public actor Compiler {
             case .initializing, .broken, .shutdown: return nil
             }
         }
-
-//        mutating func toInitializing() {
-//            self = .initializing
-//        }
-//
-//        mutating func inittingToChecking(_ child: CompilerChild) {
-//            self = .checking(child)
-//        }
-//
-//        mutating func checkingToRunning() {
-//            self = .running(child!)
-//        }
-//
-//        mutating func toQuiescing() {
-//            self = .quiescing(child!)
-//        }
     }
 
     /// Compiler process state.  Internal for test access.
     private(set) var state: State
 
-    /// Jobs waiting on compiler state change.  Internal because Swift access control.
+    /// Jobs waiting on compiler state change.
     private var stateWaitingQueue: ContinuationQueue2
 
     /// Change the compiler state and resume anyone waiting.
     func setState(_ state: State) {
         self.state = state
-        //        kickWaitingTasks()
-        Task { await stateWaitingQueue.kick() } // XXX is this OK?
+        Task { await stateWaitingQueue.kick() } // XXX is this OK?, better make thing async?
     }
 
     /// Suspend the current task until the compiler state changes
     func waitForStateChange() async {
-        //        await suspendTask()
         await stateWaitingQueue.wait()
     }
 
@@ -202,7 +184,7 @@ public actor Compiler {
         startCount = 0
         // self init done
         work = CompilerWork(eventLoop: eventLoop,
-                            resetRequest: { [unowned self] in handle(error: $0) },
+                            resetRequest: { [unowned self] in handleError($0) },
                             timeout: timeout,
                             settings: .init(messageStyle: messageStyle,
                                             verboseDeprecations: verboseDeprecations,
@@ -239,6 +221,8 @@ public actor Compiler {
         let initThread = NIOThreadPool(numberOfThreads: 1)
         initThread.start()
 
+        // XXX might need cancellation check to catch Task cancellation during init
+        //        debug("Shutdown during startup, deferring") not exactly that
         do {
             while !Task.isCancelled {
                 setState(.initializing)
@@ -246,11 +230,12 @@ public actor Compiler {
                 precondition(!work.hasActiveRequests)
                 startCount += 1
 
+                // Get onto the thread to start the child and bootstrap the NIO connections.
                 let child = try await initThread.runIfActive(eventLoop: eventLoop) { [self] in
                     try CompilerChild(eventLoop: eventLoop,
                                       fileURL: embeddedCompilerFileURL,
                                       work: work,
-                                      errorHandler: { [unowned self] in await self.handle(error: $0) })
+                                      errorHandler: { [unowned self] in await self.handleError($0) })
                 }.get()
 
                 try await child.addChannelHandlers()
@@ -261,7 +246,7 @@ public actor Compiler {
                 // Kick off the child task to deal with compiler responses
                 async let messageLoopTask: Void = runMessageLoop()
 
-                let something = try sendVersionRequest(to: child)
+                let versions = try await sendVersionRequest(to: child)
                 try versions.check()
                 self.versions = versions
 
@@ -275,7 +260,11 @@ public actor Compiler {
                 guard case .quiescing = state else {
                     preconditionFailure("Expected quiescing, is \(state)")
                 }
+                let reason = Task.isCancelled ? "shutdown" : "restart"
+                debug("Quiescing work for \(reason)")
                 await work.quiesce()
+                debug("No outstanding compilations, shutting down compiler")
+                // XXX child.stopAndCancelWork ?? tbd
 
                 // go round again, back to initting
             }
@@ -318,33 +307,7 @@ public actor Compiler {
     ///
     /// Any outstanding compilations are failed.
     public func reinit() async {
-        await handle(error: LifecycleError("User requested Sass compiler be reinitialized"))
-    }
-
-    /// Shut down the compiler asynchronously.
-    ///
-    /// You must call this (or `syncShutdownGracefully()` before the last reference to the
-    /// `Compiler` is released.
-    ///
-    /// Waits for work to wind down naturally and shuts down internal threads.  There's no way back
-    /// from this state: to do more compilation you will need a new object.
-    ///
-    public func shutdownGracefully() async throws {
-        try await eventLoop.flatSubmit { self.shutdown() }.get()
-        try await eventLoopGroup.shutdownGracefully()
-    }
-
-    /// Shut down the compiler synchronously.
-    ///
-    /// See `shutdownGracefully()`.
-    ///
-    /// Do not call this from an event loop thread.
-    public func syncShutdownGracefully() throws {
-        try eventLoop.flatSubmit {
-            self.shutdown()
-        }.wait()
-
-        try eventLoopGroup.syncShutdownGracefully()
+        await handleError(LifecycleError("User requested Sass compiler be reinitialized"))
     }
 
     /// The process ID of the embedded Sass compiler.
@@ -370,7 +333,7 @@ public actor Compiler {
     /// The name of the underlying Sass implementation.  `nil` if unknown.
     public var compilerName: String? {
         get async {
-            try! await versionsFuture.map { $0?.compilerName }.get()
+            await stableVersions?.compilerName
         }
     }
 
@@ -378,7 +341,7 @@ public actor Compiler {
     /// [semver](https://semver.org/spec/v2.0.0.html) format. `nil` if unknown (never got a version).
     public var compilerVersion: String? {
         get async {
-            try! await versionsFuture.map { $0?.compilerVersionString }.get()
+            await stableVersions?.compilerVersionString
         }
     }
 
@@ -387,21 +350,19 @@ public actor Compiler {
     /// `nil` if unknown (never got a version).
     public var compilerPackageVersion: String? {
         get async {
-            try! await versionsFuture.map { $0?.packageVersionString }.get()
+            await stableVersions?.packageVersionString
         }
     }
 
-    private var versionsFuture: EventLoopFuture<Versions?> {
-        eventLoop.flatSubmit { [self] in
-            switch state {
-            case .broken, .shutdown, .running, .quiescing:
-                return eventLoop.makeSucceededFuture(versions)
-            case .checking(_, let future), .initializing(let future):
-                let promise = eventLoop.makePromise(of: Optional<Versions>.self)
-                future.whenComplete { _ in
-                    promise.succeed(self.versions)
+    private var stableVersions: Versions? {
+        get async {
+            while true {
+                switch state {
+                case .broken, .shutdown, .running, .quiescing:
+                    return versions
+                case .checking, .initializing:
+                    await waitForStateChange()
                 }
-                return promise.futureResult
             }
         }
     }
@@ -420,6 +381,8 @@ public actor Compiler {
     private func debug(_ msg: @autoclosure () -> String) {
         Compiler.logger.debug(.init(stringLiteral: msg()))
     }
+
+    // MARK: Compilation entrypoints
 
     /// Compile to CSS from a stylesheet file.
     ///
@@ -442,16 +405,40 @@ public actor Compiler {
                         includeCharset: Bool = false,
                         importers: [ImportResolver] = [],
                         functions: SassAsyncFunctionMap = [:]) async throws -> CompilerResults {
-        try await eventLoop.flatSubmit { [self] in
-            defer { kickPendingCompilations() }
-            return work.addPendingCompilation(
-                input: .path(fileURL.path),
-                outputStyle: outputStyle,
-                sourceMapStyle: sourceMapStyle,
-                includeCharset: includeCharset,
-                importers: .init(importers),
-                functions: functions)
-        }.get()
+        try await withCheckedThrowingContinuation { continuation in
+            Task {
+                try await waitUntilReadyToCompile()
+                let msg = work.startCompilation(input: .path(fileURL.path),
+                                                outputStyle: outputStyle,
+                                                sourceMapStyle: sourceMapStyle,
+                                                includeCharset: includeCharset,
+                                                importers: .init(importers),
+                                                functions: functions,
+                                                continuation: continuation)
+                // if we move the WorkActive queue into this actor then 'state'
+                // gets synchronized with it.  We still have the next line, that
+                // shoots off to the child's executor, meaning that a statechange
+                // to quiescing with or without a 'handleError'->'stopAndCancelWork'
+                // can occur.  If SACW happens then we're good: the 'send' is ignored
+                // because 'child.stopped' and the req is cleaned up by SACW.
+                // If we just have the 'run' task cancelled then we get 'quiescing',
+                // work.quiesce will know to wait for 1 and we'll actually be good too,
+                // because SACW won't happen so the child will be happy.
+                //
+                // huh - the key gain is to synchronize the work queue with state, not
+                // doing that means we can add things to the queue AFTER SACW which will
+                // be stuck forever
+                //
+                // The dual behaviour, task.cancel vs. error, is in fact exactly what the
+                // old 'dignified shutdown' did, allowing existing work to run.  So fine,
+                // we should lean in to that.
+                //
+                // XXX big tbd here is what the NIO stream does with cancellation, it may just
+                // XXX abort meaning there is no gracefulness to be had and we have to throw
+                // XXX in the SACW in all cases.
+                await state.child!.send(message: msg)
+            }
+        }
     }
 
     /// Compile to CSS from an inline stylesheet.
@@ -483,189 +470,122 @@ public actor Compiler {
                         includeCharset: Bool = false,
                         importers: [ImportResolver] = [],
                         functions: SassAsyncFunctionMap = [:]) async throws -> CompilerResults {
-        try await eventLoop.flatSubmit { [self] in
-            defer { kickPendingCompilations() }
-            return work.addPendingCompilation(
-                input: .string(.with { m in
-                    m.source = string
-                    m.syntax = .init(syntax)
-                    url.map {
-                        m.url = $0.absoluteString
-                    }
-                    importer.map {
-                        m.importer = .init($0, id: CompilationRequest.baseImporterID)
-                    }
-                }),
-                outputStyle: outputStyle,
-                sourceMapStyle: sourceMapStyle,
-                includeCharset: includeCharset,
-                importers: importers,
-                stringImporter: importer,
-                functions: functions)
-        }.get()
-    }
-
-    /// Consider the pending work queue.  When we change `state` or add to `pendingCompilations`.`
-    private func kickPendingCompilations() {
-        eventLoop.preconditionInEventLoop()
-
-        switch state {
-        case .broken(let error):
-            // jobs submitted while restarting the compiler; restart failed: fail them.
-            work.cancelAllPending(with: LifecycleError("Sass compiler failed to restart after previous error: \(error)"))
-
-        case .shutdown, .quiescing:
-            // jobs submitted after/during shutdown: fail them.
-            work.cancelAllPending(with: LifecycleError("Compiler has been shutdown, not accepting further work"))
-
-        case .initializing, .checking:
-            // jobs submitted while [re]starting the compiler: wait.
-            break
-
-        case .running(let child):
-            // goodpath
-            child.send(messages: work.startAllPending())
+        try await withCheckedThrowingContinuation { continuation in
+            Task {
+                try await waitUntilReadyToCompile()
+                let msg = work.startCompilation(
+                    input: .string(.with { m in
+                        m.source = string
+                        m.syntax = .init(syntax)
+                        url.map {
+                            m.url = $0.absoluteString
+                        }
+                        importer.map {
+                            m.importer = .init($0, id: CompilationRequest.baseImporterID)
+                        }
+                    }),
+                    outputStyle: outputStyle,
+                    sourceMapStyle: sourceMapStyle,
+                    includeCharset: includeCharset,
+                    importers: importers,
+                    stringImporter: importer,
+                    functions: functions,
+                    continuation: continuation)
+                await state.child!.send(message: msg)
+            }
         }
     }
 
-    /// Startup ceremony
-    ///
-    /// Get onto the thread to start the child and bootstrap the NIO connections.
-    /// Then back to the event loop to add handlers and kick the state machine.
-    ///
-    /// When this future completes the system is either in running or broken.
-    private func startCompiler() -> EventLoopFuture<Void> {
-        precondition(!work.hasActiveRequests)
-        startCount += 1
-        return initThread.runIfActive(eventLoop: eventLoop) { [self] in
-            try CompilerChild(eventLoop: eventLoop,
-                              fileURL: embeddedCompilerFileURL,
-                              work: work,
-                              errorHandler: { [unowned self] in self.handle(error: $0) })
-        }.flatMap { child in
-            child.addChannelHandlers()
-        }.flatMap { child -> EventLoopFuture<Versions> in
-            self.debug("Compiler is started, starting healthcheck")
-            self.state.inittingToChecking(child)
-            return self.sendVersionRequest(to: child)
-        }.flatMapThrowing { versions in
-            try versions.check()
-            self.versions = versions
-            self.state.checkingToRunning()
-            self.kickPendingCompilations()
-        }.flatMapErrorThrowing { error in
-            self.debug("Can't start the compiler at all: \(error)")
-            self.state.child?.stopAndCancelWork(with: error)
-            self.state = .broken(error)
-            self.kickPendingCompilations()
-            throw error
+    private func waitUntilReadyToCompile() async throws {
+        while true {
+            switch state {
+            case .broken(let error):
+                // submitted while restarting the compiler; restart failed: fail
+                throw LifecycleError("Sass compiler failed to start after unrecoverable rror: \(error)")
+
+            case .shutdown:
+                // submitted after/during shutdown: fail
+                throw LifecycleError("Sass compiler is not started, not accepting work")
+
+            case .initializing, .quiescing, .checking:
+                // submitted while [re]starting the compiler: wait
+                await waitForStateChange()
+
+            case .running:
+                // ready to go
+                break
+            }
         }
     }
+
+    // MARK: Version query
 
     // Unit-test hook to inject/drop version request
     var versionsResponder: VersionsResponder? = nil
 
-    private func sendVersionRequest(to child: CompilerChild) -> EventLoopFuture<Versions> {
-        let (future, reqMsg) = work.startVersionRequest()
-
-        if let responder = versionsResponder {
-            responder.provideVersions(eventLoop: eventLoop, msg: reqMsg) {
-                child.receive(message: $0)
+    private func sendVersionRequest(to child: CompilerChild) async throws -> Versions {
+        try await withCheckedThrowingContinuation { continuation in
+            Task {
+                guard case .checking(let child) = state else {
+                    debug("Cancelling versions query")
+                    throw CancellationError()
+                }
+                let msg = work.startVersionRequest(continuation: continuation)
+                if let versionsResponder {
+                    let rsp = await versionsResponder.provideVersions(msg: msg)
+                    await child.receive(message: rsp)
+                } else {
+                    await child.send(message: msg)
+                }
             }
-        } else {
-            child.send(message: reqMsg)
         }
-        return future
     }
 
     /// Central transport/protocol error detection and 'recovery'.
     ///
     /// Errors come from:
-    /// 1. Write transport errors, reported by a promise from `CompilerChild.send(message:to:)`
-    /// 2. Read transport errors, reported by the channel handler from `CompilerChild.errorCaught(...)`
+    /// 1. Write transport errors, reported by `CompilerChild.send(...)`
+    /// 2. Read transport errors, reported by the `CompilerChild.processMessages(...)`
     /// 3. Protocol errors reported by the Sass compiler, from `CompilerWork.receieveGlobal(message:)`
     /// 4. Protocol errors detected by us, from `CompilationRequest.receive(message)`.
     /// 5. User-injected restarts, from `reinit()`.
     /// 6. Timeouts, from `CompilerWork`'s reset API.
     ///
-    /// In all cases we brutally restart the compiler and fail back all the jobs.  Need experience of how this
-    /// actually fails before doing anything more.
-    @discardableResult
-    func handle(error: Error) -> EventLoopFuture<Void> {
-        eventLoop.preconditionInEventLoop()
-
+    /// In all cases we brutally restart the compiler and fail back all the jobs.
+    /// In the async world this is collapsing into "child?.SACW" which is good...
+    func handleError(_ error: any Error) async {
         switch state {
-        case .initializing(let future):
-            return future
+        case .initializing:
+            // Nothing to do, if something fails we'll notice
+            break
 
-        case .checking(let child, let future):
+        case .checking(let child):
             // Timeout or something while checking the version, kick the process
             // and let the init process handle the error.
             debug("Error while checking compiler, stopping it")
-            child.stopAndCancelWork(with: error)
-            return future
+            await child.stopAndCancelWork(with: error)
 
         case .running(let child):
             debug("Restarting compiler from running")
-            child.stopAndCancelWork(with: error)
-            return state.toInitializing(
-                work.quiesce().flatMap {
-                    self.debug("No outstanding compilations, restarting compiler")
-                    return self.startCompiler()
-                })
+            await child.stopAndCancelWork(with: error)
+            // XXX hopefully that's it - channel will die and cause quiesce
 
         case .broken:
-            debug("Restarting compiler from broken")
-            return state.toInitializing(startCompiler())
+            // Not sure how this happens (reinit?)
+            debug("Error (\(error)) while broken - doing nothing")
 
-        case .quiescing(let child, let future):
-            // Nasty corner - stay in this state but try to
-            // hurry things along.
+        case .quiescing(let child):
+            // Corner/race stay in this state but try to hurry things along.
             debug("Error while quiescing, stopping compiler")
-            child.stopAndCancelWork(with: error)
-            return future
+            await child.stopAndCancelWork(with: error)
 
         case .shutdown:
-            return eventLoop.makeLifecycleError("Compiler has been shutdown, ignoring: \(error)")
+            // Nothing to do
+            debug("Error (\(error)) while shutdown - doing nothing")
         }
     }
 
-    /// Graceful shutdown.
-    ///
-    /// Let all work finish normally, then kill the child process and go to the terminal state.
-    private func shutdown() -> EventLoopFuture<Void> {
-        eventLoop.preconditionInEventLoop()
-
-        switch state {
-        case .initializing(let initFuture), .checking(_, let initFuture):
-            debug("Shutdown during startup, deferring")
-            // Nasty corner - wait for the init to resolve and then
-            // try again!
-            return initFuture.flatMap { _ in
-                self.debug("Reissuing deferred shutdown")
-                return self.shutdown()
-            }
-
-        case .running(let child):
-            debug("Shutdown from running")
-            return state.toQuiescing(
-                work.quiesce().flatMap { () -> EventLoopFuture<Void> in
-                    self.debug("No outstanding compilations, shutting down compiler")
-                    child.stopAndCancelWork()
-                    return self.initThread.shutdownGracefully(eventLoop: self.eventLoop)
-                }.map {
-                    self.debug("Compiler is shutdown")
-                    self.state = .shutdown
-                })
-
-        case .broken, .shutdown:
-            state = .shutdown
-            return eventLoop.makeSucceededFuture(())
-
-        case .quiescing(_, let future):
-            return future
-        }
-    }
+    // XXX then - compilerwork merge - closure for done to include book-keeping and continuation resumption
 }
 
 /// NIO layer
@@ -690,7 +610,7 @@ actor CompilerChild: ChannelInboundHandler {
     /// API
     nonisolated let processIdentifier: Int32
 
-    /// Internal for test XXX why is it settable
+    /// Internal for test
     var channel: Channel {
         child.channel
     }
@@ -755,12 +675,12 @@ actor CompilerChild: ChannelInboundHandler {
         }
     }
 
-    /// Send a bunch of messages in order. XXX what is this for??
-    func send(messages: [Sass_EmbeddedProtocol_InboundMessage]) async {
-        for m in messages {
-            await send(message: m)
-        }
-    }
+//    /// Send a bunch of messages in order. XXX what is this for??
+//    func send(messages: [Sass_EmbeddedProtocol_InboundMessage]) async {
+//        for m in messages {
+//            await send(message: m)
+//        }
+//    }
 
     /// Process messages from the child until it dies or the task is cancelled
     func processMessages() async {
@@ -787,7 +707,7 @@ actor CompilerChild: ChannelInboundHandler {
         Compiler.logger.debug("Rx: \(message.logMessage)")
 
         do {
-            if let response = try work.receive(message: message) {
+            if let response = try await work.receive(message: message) {
                 await send(message: response)
             }
         } catch {
@@ -811,7 +731,5 @@ actor CompilerChild: ChannelInboundHandler {
 
 /// Version response injection for testing
 protocol VersionsResponder {
-    func provideVersions(eventLoop: EventLoop,
-                         msg: Sass_EmbeddedProtocol_InboundMessage,
-                         callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void)
+    func provideVersions(msg: Sass_EmbeddedProtocol_InboundMessage) async -> Sass_EmbeddedProtocol_OutboundMessage
 }

@@ -62,7 +62,7 @@ final class CompilerWork {
     // unsafe to let async-await happen in this layer.
 
     /// Unstarted compilation work
-    private var pendingCompilations: [CompilationRequest]
+//    private var pendingCompilations: [CompilationRequest]
     /// Active compilation work indexed by CompilationID
     private var activeRequests: [UInt32 : CompilerRequest]
     /// Promise tracking active work quiesce
@@ -80,13 +80,13 @@ final class CompilerWork {
         self.settings = settings
         globalImporters = importers
         globalFunctions = functions
-        pendingCompilations = []
+//        pendingCompilations = []
         activeRequests = [:]
         quiescePromise = nil
     }
 
     deinit {
-        precondition(pendingCompilations.isEmpty)
+//        precondition(pendingCompilations.isEmpty)
         precondition(!hasActiveRequests)
     }
 
@@ -94,20 +94,46 @@ final class CompilerWork {
         !activeRequests.isEmpty
     }
 
-    /// Add a new compilation request to the pending queue.
-    /// Return the future for the job.
-    func addPendingCompilation(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
-                               outputStyle: CssStyle,
-                               sourceMapStyle: SourceMapStyle,
-                               includeCharset: Bool,
-                               importers: [ImportResolver],
-                               stringImporter: ImportResolver? = nil,
-                               functions: SassAsyncFunctionMap) -> EventLoopFuture<CompilerResults> {
-        eventLoop.preconditionInEventLoop()
+//    /// Add a new compilation request to the pending queue.
+//    /// Return the future for the job.
+//    func addPendingCompilation(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
+//                               outputStyle: CssStyle,
+//                               sourceMapStyle: SourceMapStyle,
+//                               includeCharset: Bool,
+//                               importers: [ImportResolver],
+//                               stringImporter: ImportResolver? = nil,
+//                               functions: SassAsyncFunctionMap) -> EventLoopFuture<CompilerResults> {
+//        eventLoop.preconditionInEventLoop()
+//
+//        let promise = eventLoop.makePromise(of: CompilerResults.self)
+//
+//        let compilation = CompilationRequest(
+//            promise: promise,
+//            input: input,
+//            outputStyle: outputStyle,
+//            sourceMapStyle: sourceMapStyle,
+//            includeCharset: includeCharset,
+//            settings: settings,
+//            importers: globalImporters + importers,
+//            stringImporter: stringImporter,
+//            functionsMap: globalFunctions.overridden(with: functions))
+//
+//        pendingCompilations.append(compilation)
+//
+//        return promise.futureResult
+//    }
+//
 
-        let promise = eventLoop.makePromise(of: CompilerResults.self)
+    func startCompilation(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
+                          outputStyle: CssStyle,
+                          sourceMapStyle: SourceMapStyle,
+                          includeCharset: Bool,
+                          importers: [ImportResolver],
+                          stringImporter: ImportResolver? = nil,
+                          functions: SassAsyncFunctionMap,
+                          continuation: CheckedContinuation<CompilerResults, any Error>) -> Sass_EmbeddedProtocol_InboundMessage {
 
-        let compilation = CompilationRequest(
+        let compilationRequest = CompilationRequest(
             promise: promise,
             input: input,
             outputStyle: outputStyle,
@@ -118,27 +144,9 @@ final class CompilerWork {
             stringImporter: stringImporter,
             functionsMap: globalFunctions.overridden(with: functions))
 
-        pendingCompilations.append(compilation)
+        start(request: compilationRequest)
 
-        return promise.futureResult
-    }
-
-    /// Cancel any pending (unstarted) jobs.
-    func cancelAllPending(with error: Error) {
-        let copy = pendingCompilations
-        pendingCompilations = []
-        copy.forEach {
-            $0.cancel(with: error)
-        }
-    }
-
-    /// Start all pending (unstarted) jobs.
-    /// Actually just return the messages to send, we don't do the actual I/O here.
-    /// But do tasks assuming they've been sent.
-    func startAllPending() -> [Sass_EmbeddedProtocol_InboundMessage] {
-        pendingCompilations.forEach { self.start(request: $0) }
-        defer { pendingCompilations = [] }
-        return pendingCompilations.map { job in .with { $0.compileRequest = job.compileReq } }
+        return .with { $0.compileRequest = compilationRequest.compileReq }
     }
 
     private func start<R: TypedCompilerRequest>(request: R) {
@@ -154,12 +162,10 @@ final class CompilerWork {
     }
 
     /// Start a version request.  Bypass any pending queue.
-    func startVersionRequest() -> (EventLoopFuture<Versions>, Sass_EmbeddedProtocol_InboundMessage) {
-        eventLoop.preconditionInEventLoop()
-        let promise = eventLoop.makePromise(of: Versions.self)
+    func startVersionRequest(continuation: CheckedContinuation<Versions, any Error>) -> Sass_EmbeddedProtocol_InboundMessage {
         let request = VersionRequest(promise: promise)
         start(request: request)
-        return (promise.futureResult, .with { $0.versionRequest = request.versionReq })
+        return .with { $0.versionRequest = request.versionReq }
     }
 
     /// Try to cancel any active jobs.  This means stop waiting for the Sass compiler to respond,
@@ -197,27 +203,25 @@ final class CompilerWork {
     }
 
     /// Handle an inbound message from the Sass compiler.
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage? {
         if let requestID = message.requestID {
             guard let compilation = activeRequests[requestID] else {
-                return eventLoop.makeProtocolError("Received message for unknown ReqID=\(requestID): \(message)")
+                throw ProtocolError("Received message for unknown ReqID=\(requestID): \(message)")
             }
-            return compilation.receive(message: message)
+            return try await compilation.receive(message: message)
         }
 
-        return receiveGlobal(message: message)
+        return try receiveGlobal(message: message)
     }
 
     /// Global message handler
     /// ie. messages not associated with a compilation ID.
-    private func receiveGlobal(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
-        eventLoop.preconditionInEventLoop()
-
+    private func receiveGlobal(message: Sass_EmbeddedProtocol_OutboundMessage) throws -> Sass_EmbeddedProtocol_InboundMessage? {
         switch message.message {
         case .error(let error):
-            return eventLoop.makeProtocolError("Sass compiler signalled a protocol error, type=\(error.type), ID=\(error.id): \(error.message)")
+            throw ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), ID=\(error.id): \(error.message)")
         default:
-            return eventLoop.makeProtocolError("Sass compiler sent something uninterpretable: \(message)")
+            throw ProtocolError("Sass compiler sent something uninterpretable: \(message)")
         }
     }
 }
