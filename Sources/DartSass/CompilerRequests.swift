@@ -268,7 +268,6 @@ final class CompilationRequest: ManagedCompilerRequest {
         case nil, .error, .versionResponse:
             preconditionFailure("Unreachable: message type not associated with CompID: \(message)")
         }
-        return nil
     }
 
     /// Inbound `CompileResponse` handler

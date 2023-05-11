@@ -217,7 +217,7 @@ public actor Compiler {
     ///
     /// Minor errors such as compiler process crashes or timeouts do not cause the routine
     /// to return, these are handled internally.
-    func run() async throws {
+    public func run() async throws {
         guard case .shutdown = state else { // XXX or broken
             preconditionFailure("Bad state to run Sass compiler: \(state)")
         }
