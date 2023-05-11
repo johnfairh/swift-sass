@@ -89,6 +89,9 @@ public actor Compiler {
     /// The path of the compiler program
     private let embeddedCompilerFileURL: URL
 
+    /// Fixed settings for the compiler
+    private let settings: Settings
+
     /// The actual compilation work
     private var work: CompilerWork!
 
@@ -182,15 +185,16 @@ public actor Compiler {
         self.embeddedCompilerFileURL = embeddedCompilerFileURL
         state = .shutdown
         startCount = 0
+        settings = Settings(timeout: timeout,
+                            globalImporters: importers,
+                            globalFunctions: functions,
+                            messageStyle: messageStyle,
+                            verboseDeprecations: verboseDeprecations,
+                            suppressDependencyWarnings: suppressDependencyWarnings)
         // self init done
         work = CompilerWork(eventLoop: eventLoop,
                             resetRequest: { [unowned self] in handleError($0) },
-                            timeout: timeout,
-                            settings: .init(messageStyle: messageStyle,
-                                            verboseDeprecations: verboseDeprecations,
-                                            suppressDependencyWarnings: suppressDependencyWarnings),
-                            importers: importers,
-                            functions: functions)
+                            settings: settings)
     }
 
     deinit {
@@ -278,9 +282,8 @@ public actor Compiler {
 
         if case let .broken(error) = state {
             throw error
-        } else {
-            setState(.shutdown)
         }
+        setState(.shutdown)
     }
 
     /// Deal with inbound messages.

@@ -38,7 +38,7 @@ enum RequestID {
 
 protocol CompilerRequest: AnyObject {
     /// Notify that the initial request has been sent.  Return any timeout handler.
-    func start(timeoutSeconds: Int, onTimeout: () async -> Void)
+    func start(timeoutSeconds: Int, onTimeout: @escaping () async -> Void)
     /// Handle a compiler response for `requestID`
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage?
     /// Abandon the request
@@ -94,7 +94,7 @@ struct Lock {
 }
 
 private protocol ManagedCompilerRequest: TypedCompilerRequest {
-    var timer: Task? { get set }
+    var timer: Task<Void, Never>? { get set }
     var state: CompilerRequestState { get set }
     var stateLock: Lock { get }
 }
@@ -118,18 +118,21 @@ extension ManagedCompilerRequest {
 
     /// Notify that the initial compile-req has been sent.  Return any timeout handler.
     func start(timeoutSeconds: Int, onTimeout: @escaping () async -> Void ) {
-        if timeout >= 0 {
-            debug("send \(requestName), starting \(timeout)s timer")
+        if timeoutSeconds >= 0 {
+            debug("send \(requestName), starting \(timeoutSeconds)s timer")
             timer = Task {
                 do {
-                    try Task.sleep(for: .seconds(timeoutSeconds))
+                    if #available(macOS 13.0, *) {
+                        try await Task.sleep(for: .seconds(timeoutSeconds))
+                    } else {
+                        try await Task.sleep(nanoseconds: UInt64(timeoutSeconds * 1000 * 1000 * 1000))
+                    }
                     await onTimeout()
                 } catch {
                 }
             }
         }
         debug("send \(requestName), no timeout")
-        return nil
     }
 
     /// Abandon the job with a given error - because it never gets a chance to start or as a result
@@ -173,9 +176,10 @@ extension ManagedCompilerRequest {
 
 final class CompilationRequest: ManagedCompilerRequest {
     // Protocol reqs
-    fileprivate var timer: Task?
+    fileprivate var timer: Task<Void, Never>?
     fileprivate var state: CompilerRequestState
     fileprivate let stateLock: Lock
+    let clientDone: (CompilationRequest, Result<CompilerResults, any Error>) -> Void
 
     // Debug
     var debugPrefix: String { "CompID=\(requestID)" }
@@ -187,7 +191,6 @@ final class CompilationRequest: ManagedCompilerRequest {
     private let functions: SassAsyncFunctionMap
     private var messages: [CompilerMessage]
 
-    private var done: (CompilationRequest, Result<CompilerResults, any Error>) -> Void
 
     var requestID: UInt32 {
         compileReq.id
@@ -198,7 +201,7 @@ final class CompilationRequest: ManagedCompilerRequest {
          outputStyle: CssStyle,
          sourceMapStyle: SourceMapStyle,
          includeCharset: Bool,
-         settings: CompilerWork.Settings,
+         settings: Compiler.Settings,
          importers: [ImportResolver],
          stringImporter: ImportResolver?,
          functionsMap: [SassFunctionSignature : (String, SassAsyncFunction)],
@@ -229,7 +232,7 @@ final class CompilationRequest: ManagedCompilerRequest {
         self.state = .normal
         self.timer = nil
         self.stateLock = Lock()
-        self.done = done
+        self.clientDone = done
     }
 
     // Receive empire.
@@ -462,10 +465,10 @@ private extension ImportResolver {
 
 final class VersionRequest: ManagedCompilerRequest {
     // Protocol reqs
-    fileprivate var timer: Task?
+    fileprivate var timer: Task<Void, Never>?
     fileprivate var state: CompilerRequestState
     fileprivate var stateLock: Lock
-    fileprivate let done: (VersionRequest, Result<Versions, any Error>) -> Void
+    let clientDone: (VersionRequest, Result<Versions, any Error>) -> Void
 
     // Version-specific
     let versionReq: Sass_EmbeddedProtocol_InboundMessage.VersionRequest
@@ -483,7 +486,7 @@ final class VersionRequest: ManagedCompilerRequest {
         self.timer = nil
         self.stateLock = Lock()
         self.versionReq = .with { $0.id = RequestID.next }
-        self.done = done
+        self.clientDone = done
     }
 
     /// Inbound messages.

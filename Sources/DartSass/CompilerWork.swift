@@ -9,25 +9,22 @@ import NIOCore
 @_spi(SassCompilerProvider) import Sass
 import struct Foundation.URL
 
-
-// actor CompilerWork {
-//    var outstandingWork: Int
-//    var quiesced: CheckedContinuation<Void, Never>?
-//
-//    func quiesce() async {
-//       guard outstandingWork > 0 else { return }
-//       assert(quiesced.nil?)
-//       await withCheckedContinuation { self.quiesced = $0 }
-//       assert(outstandingWork == 0)
-//       assert(quiesced.nil?)
-//    }
-//
-//    func kickQuiesce() {
-//       guard let quiesced, outstandingWork == 0 else { return }
-//       self.quiesced = nil
-//       quiesced.resume()
-//    }
-
+extension Compiler {
+    struct Settings {
+        /// Configured max timeout, seconds
+        let timeout: Int
+        /// Configured global importer rules, for all compilations
+        let globalImporters: [ImportResolver]
+        /// Configured functions, for all compilations
+        let globalFunctions: SassAsyncFunctionMap
+        /// Message formatting style,
+        let messageStyle: CompilerMessageStyle
+        /// Deprecation warning verbosity
+        let verboseDeprecations: Bool
+        /// Warning scope
+        let suppressDependencyWarnings: Bool
+    }
+}
 
 /// The part of the compiler that deals with actual Sass things rather than process management.
 /// It understands the contents of the Sass protocol messages.
@@ -40,46 +37,25 @@ final class CompilerWork {
     private let eventLoop: EventLoop
     /// Async callback to request the system be reset
     private let resetRequest: (Error) -> Void
-    /// Configured max timeout, seconds
-    private let timeout: Int
-    /// Configured global importer rules, for all compilations
-    private let globalImporters: [ImportResolver]
-    /// Configured functions, for all compilations
-    private let globalFunctions: SassAsyncFunctionMap
-
-    /// Global settings passed through to Sass
-    struct Settings {
-        /// Message formatting style,
-        let messageStyle: CompilerMessageStyle
-        /// Deprecation warning verbosity
-        let verboseDeprecations: Bool
-        /// Warning scope
-        let suppressDependencyWarnings: Bool
-    }
-    private let settings: Settings
+    /// Compiler settings
+    private let settings: Compiler.Settings
 
     // These vars are protected by the event-loop thread, currently
     // unsafe to let async-await happen in this layer.
 
     /// Active compilation work indexed by CompilationID
     private var activeRequests: [UInt32 : CompilerRequest]
-    /// Promise tracking active work quiesce
-    private var quiescePromise: EventLoopPromise<Void>?
+    /// Task waiting for quiesce
+    private var quiesceContinuation: CheckedContinuation<Void, Never>?
 
     init(eventLoop: EventLoop,
          resetRequest: @escaping (Error) -> Void,
-         timeout: Int,
-         settings: Settings,
-         importers: [ImportResolver],
-         functions: SassAsyncFunctionMap) {
+         settings: Compiler.Settings) {
         self.eventLoop = eventLoop
         self.resetRequest = resetRequest
-        self.timeout = timeout
         self.settings = settings
-        globalImporters = importers
-        globalFunctions = functions
         activeRequests = [:]
-        quiescePromise = nil
+        quiesceContinuation = nil
     }
 
     deinit {
@@ -104,9 +80,9 @@ final class CompilerWork {
             sourceMapStyle: sourceMapStyle,
             includeCharset: includeCharset,
             settings: settings,
-            importers: globalImporters + importers,
+            importers: settings.globalImporters + importers,
             stringImporter: stringImporter,
-            functionsMap: globalFunctions.overridden(with: functions)) { req, res in
+            functionsMap: settings.globalFunctions.overridden(with: functions)) { req, res in
                 Task {
                     self.activeRequests[req.requestID] = nil
                     continuation.resume(with: res)
@@ -121,9 +97,9 @@ final class CompilerWork {
 
     private func start<R: TypedCompilerRequest>(request: R) {
         activeRequests[request.requestID] = request
-        request.start(timeoutSeconds: timeout) {
-            resetRequest(
-                ProtocolError("Timeout: \(request.debugPrefix) timed out after \(timeout)s"))
+        request.start(timeoutSeconds: settings.timeout) {
+            self.resetRequest(
+                ProtocolError("Timeout: \(request.debugPrefix) timed out after \(self.settings.timeout)s"))
         }
     }
 
@@ -150,12 +126,12 @@ final class CompilerWork {
     }
 
     /// Start a process that notifies when all active jobs are complete.
-    func quiesce() -> EventLoopFuture<Void> {
-        precondition(quiescePromise == nil, "Overlapping quiesce requests")
-        let promise = eventLoop.makePromise(of: Void.self)
-        quiescePromise = promise
-        kickQuiesce()
-        return promise.futureResult
+    func quiesce() async {
+        precondition(quiesceContinuation == nil, "Overlapping quiesce requests")
+        await withCheckedContinuation {
+            quiesceContinuation = $0
+            kickQuiesce()
+        }
     }
 
     /// Test hook
@@ -163,10 +139,10 @@ final class CompilerWork {
 
     /// Nudge the quiesce process.
     private func kickQuiesce() {
-        if let quiescePromise = quiescePromise {
+        if let quiesceContinuation {
             if activeRequests.isEmpty {
-                self.quiescePromise = nil
-                quiescePromise.succeed(())
+                self.quiesceContinuation = nil
+                quiesceContinuation.resume()
             } else {
                 Compiler.logger.debug("Waiting for outstanding requests: \(activeRequests.count)")
                 CompilerWork.onStuckQuiesce?()
