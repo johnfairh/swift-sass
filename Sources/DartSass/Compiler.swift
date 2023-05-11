@@ -293,11 +293,9 @@ public actor Compiler {
     /// This is supposed to run as a structured child task of the `run()` task with cancellation propagation.
     private func runMessageLoop() async {
         let child = state.child!
-        debug("MessageQueueTask in") // XXX bringup tracing
         await child.processMessages()
-        debug("MessageQueueTask message-loop returned, cancelled = \(Task.isCancelled)")
+        debug("Compiler message-loop ended, cancelled = \(Task.isCancelled)")
         setState(.quiescing(child))
-        debug("MessageQueueTask set quiescing")
     }
 
     /// Restart the embedded Sass compiler.
@@ -516,7 +514,7 @@ public actor Compiler {
 
             case .running:
                 // ready to go
-                break
+                return
             }
         }
     }
@@ -701,6 +699,8 @@ actor CompilerChild: ChannelInboundHandler {
             for try await message in asyncChannel.inboundStream {
                 await receive(message: message)
             }
+        } catch is CancellationError {
+            return
         } catch {
             /// Called from NIO up the stack if something goes wrong with the inbound connection.... maybe ... XXX
             await errorHandler(ProtocolError("Read from Sass compiler failed: \(error)"))

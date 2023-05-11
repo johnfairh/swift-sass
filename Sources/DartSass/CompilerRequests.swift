@@ -118,21 +118,23 @@ extension ManagedCompilerRequest {
 
     /// Notify that the initial compile-req has been sent.  Return any timeout handler.
     func start(timeoutSeconds: Int, onTimeout: @escaping () async -> Void ) {
-        if timeoutSeconds >= 0 {
-            debug("send \(requestName), starting \(timeoutSeconds)s timer")
-            timer = Task {
-                do {
-                    if #available(macOS 13.0, *) {
-                        try await Task.sleep(for: .seconds(timeoutSeconds))
-                    } else {
-                        try await Task.sleep(nanoseconds: UInt64(timeoutSeconds * 1000 * 1000 * 1000))
-                    }
-                    await onTimeout()
-                } catch {
+        guard timeoutSeconds >= 0 else {
+            debug("send \(requestName), no timeout")
+            return
+        }
+
+        debug("send \(requestName), starting \(timeoutSeconds)s timer")
+        timer = Task {
+            do {
+                if #available(macOS 13.0, *) {
+                    try await Task.sleep(for: .seconds(timeoutSeconds))
+                } else {
+                    try await Task.sleep(nanoseconds: UInt64(timeoutSeconds * 1000 * 1000 * 1000))
                 }
+                await onTimeout()
+            } catch {
             }
         }
-        debug("send \(requestName), no timeout")
     }
 
     /// Abandon the job with a given error - because it never gets a chance to start or as a result

@@ -46,7 +46,14 @@ class TestInterface: DartSassTestCase {
     """
 
     func testNuSass() async throws {
-        print("OK")
+        Compiler.logger.logLevel = .debug
+        let compiler = try Compiler.init()
+        async let _ = compiler.run()
+        let results = try await compiler.compile(string: scssIn, sourceMapStyle: .none)
+        XCTAssertNil(results.sourceMap)
+        XCTAssertTrue(results.messages.isEmpty)
+        XCTAssertTrue(results.loadedURLs.isEmpty)
+        XCTAssertEqual(scssOutExpanded, results.css)
     }
 
     /// Does it work, goodpath, no imports, scss/sass/css inline input
