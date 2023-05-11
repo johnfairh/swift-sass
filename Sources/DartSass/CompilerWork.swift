@@ -32,36 +32,7 @@ extension Compiler {
 /// Looks after global Sass state, a queue of pending work and a set of active work.
 /// It can quiesce active work.  It manages compiler timeouts.
 /// It has an API back to CompilerControl to call for a reset if things get too much.
-final class CompilerWork {
-    /// Event loop we're all running on
-    private let eventLoop: EventLoop
-    /// Async callback to request the system be reset
-    private let resetRequest: (Error) -> Void
-    /// Compiler settings
-    private let settings: Compiler.Settings
-
-    // These vars are protected by the event-loop thread, currently
-    // unsafe to let async-await happen in this layer.
-
-    /// Active compilation work indexed by CompilationID
-    private var activeRequests: [UInt32 : CompilerRequest]
-    /// Task waiting for quiesce
-    private var quiesceContinuation: CheckedContinuation<Void, Never>?
-
-    init(eventLoop: EventLoop,
-         resetRequest: @escaping (Error) -> Void,
-         settings: Compiler.Settings) {
-        self.eventLoop = eventLoop
-        self.resetRequest = resetRequest
-        self.settings = settings
-        activeRequests = [:]
-        quiesceContinuation = nil
-    }
-
-    deinit {
-        precondition(!hasActiveRequests)
-    }
-
+extension Compiler {
     var hasActiveRequests: Bool {
         !activeRequests.isEmpty
     }
@@ -98,8 +69,7 @@ final class CompilerWork {
     private func start<R: TypedCompilerRequest>(request: R) {
         activeRequests[request.requestID] = request
         request.start(timeoutSeconds: settings.timeout) {
-            self.resetRequest(
-                ProtocolError("Timeout: \(request.debugPrefix) timed out after \(self.settings.timeout)s"))
+            await self.handleError(ProtocolError("Timeout: \(request.debugPrefix) timed out after \(self.settings.timeout)s"))
         }
     }
 
@@ -144,8 +114,8 @@ final class CompilerWork {
                 self.quiesceContinuation = nil
                 quiesceContinuation.resume()
             } else {
-                Compiler.logger.debug("Waiting for outstanding requests: \(activeRequests.count)")
-                CompilerWork.onStuckQuiesce?()
+                debug("Waiting for outstanding requests: \(activeRequests.count)")
+                Compiler.onStuckQuiesce?()
             }
         }
     }

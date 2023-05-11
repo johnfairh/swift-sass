@@ -90,13 +90,16 @@ public actor Compiler {
     private let embeddedCompilerFileURL: URL
 
     /// Fixed settings for the compiler
-    private let settings: Settings
-
-    /// The actual compilation work
-    private var work: CompilerWork!
+    let settings: Settings
 
     /// Most recently received version of compiler
     private var versions: Versions?
+
+    /// Active compilation work indexed by RequestID
+    var activeRequests: [UInt32 : CompilerRequest]
+
+    /// Task waiting for quiesce
+    var quiesceContinuation: CheckedContinuation<Void, Never>?
 
     /// Use the bundled Dart Sass compiler as the Sass compiler.
     ///
@@ -179,9 +182,8 @@ public actor Compiler {
                 importers: [ImportResolver] = [],
                 functions: SassAsyncFunctionMap = [:]) {
         precondition(embeddedCompilerFileURL.isFileURL, "Not a file URL: \(embeddedCompilerFileURL)")
-        self.eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider) // XXX need to shut this MF down
+        eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider) // XXX need to shut this MF down
         eventLoop = self.eventLoopGroup.any()
-        work = nil
         self.embeddedCompilerFileURL = embeddedCompilerFileURL
         state = .shutdown
         startCount = 0
@@ -191,13 +193,13 @@ public actor Compiler {
                             messageStyle: messageStyle,
                             verboseDeprecations: verboseDeprecations,
                             suppressDependencyWarnings: suppressDependencyWarnings)
-        // self init done
-        work = CompilerWork(eventLoop: eventLoop,
-                            resetRequest: { [unowned self] in handleError($0) },
-                            settings: settings)
+        stateWaitingQueue = ContinuationQueue2()
+        activeRequests = [:]
+        quiesceContinuation = nil
     }
 
     deinit {
+        precondition(activeRequests.isEmpty)// !hasActiveRequests) WTF Swift async-await in deinit is weird
         guard case .shutdown = state else {
             preconditionFailure("Compiler not shutdown: \(state)")
         }
@@ -229,14 +231,14 @@ public actor Compiler {
             while !Task.isCancelled {
                 setState(.initializing)
 
-                precondition(!work.hasActiveRequests)
+                precondition(!hasActiveRequests)
                 startCount += 1
 
                 // Get onto the thread to start the child and bootstrap the NIO connections.
                 let child = try await initThread.runIfActive(eventLoop: eventLoop) { [self] in
                     try CompilerChild(eventLoop: eventLoop,
                                       fileURL: embeddedCompilerFileURL,
-                                      work: work,
+                                      workHandler: { [unowned self] in try await self.receive(message: $0) },
                                       errorHandler: { [unowned self] in await self.handleError($0) })
                 }.get()
 
@@ -264,15 +266,15 @@ public actor Compiler {
                 }
                 let reason = Task.isCancelled ? "shutdown" : "restart"
                 debug("Quiescing work for \(reason)")
-                await work.quiesce()
+                await quiesce()
                 debug("No outstanding compilations, shutting down compiler")
-                // XXX child.stopAndCancelWork ?? tbd
+                // XXX stopAndCancelWork ?? tbd
 
                 // go round again, back to initting
             }
         } catch {
             debug("Can't start the compiler at all: \(error)")
-            await state.child?.stopAndCancelWork(with: error)
+            await stopAndCancelWork(child: state.child, with: error)
             setState(.broken(error))
         }
 
@@ -379,7 +381,7 @@ public actor Compiler {
     /// that are also reported through errors thrown from some API.
     public static var logger = Logger(label: "dart-sass")
 
-    private func debug(_ msg: @autoclosure () -> String) {
+    func debug(_ msg: @autoclosure () -> String) {
         Compiler.logger.debug(.init(stringLiteral: msg()))
     }
 
@@ -409,13 +411,13 @@ public actor Compiler {
         try await withCheckedThrowingContinuation { continuation in
             Task {
                 try await waitUntilReadyToCompile()
-                let msg = work.startCompilation(input: .path(fileURL.path),
-                                                outputStyle: outputStyle,
-                                                sourceMapStyle: sourceMapStyle,
-                                                includeCharset: includeCharset,
-                                                importers: .init(importers),
-                                                functions: functions,
-                                                continuation: continuation)
+                let msg = startCompilation(input: .path(fileURL.path),
+                                           outputStyle: outputStyle,
+                                           sourceMapStyle: sourceMapStyle,
+                                           includeCharset: includeCharset,
+                                           importers: .init(importers),
+                                           functions: functions,
+                                           continuation: continuation)
                 // if we move the WorkActive queue into this actor then 'state'
                 // gets synchronized with it.  We still have the next line, that
                 // shoots off to the child's executor, meaning that a statechange
@@ -474,7 +476,7 @@ public actor Compiler {
         try await withCheckedThrowingContinuation { continuation in
             Task {
                 try await waitUntilReadyToCompile()
-                let msg = work.startCompilation(
+                let msg = startCompilation(
                     input: .string(.with { m in
                         m.source = string
                         m.syntax = .init(syntax)
@@ -531,7 +533,7 @@ public actor Compiler {
                     debug("Cancelling versions query")
                     throw CancellationError()
                 }
-                let msg = work.startVersionRequest(continuation: continuation)
+                let msg = startVersionRequest(continuation: continuation)
                 if let versionsResponder {
                     let rsp = await versionsResponder.provideVersions(msg: msg)
                     await child.receive(message: rsp)
@@ -564,11 +566,11 @@ public actor Compiler {
             // Timeout or something while checking the version, kick the process
             // and let the init process handle the error.
             debug("Error while checking compiler, stopping it")
-            await child.stopAndCancelWork(with: error)
+            await stopAndCancelWork(child: child, with: error)
 
         case .running(let child):
             debug("Restarting compiler from running")
-            await child.stopAndCancelWork(with: error)
+            await stopAndCancelWork(child: child, with: error)
             // XXX hopefully that's it - channel will die and cause quiesce
 
         case .broken:
@@ -578,7 +580,7 @@ public actor Compiler {
         case .quiescing(let child):
             // Corner/race stay in this state but try to hurry things along.
             debug("Error while quiescing, stopping compiler")
-            await child.stopAndCancelWork(with: error)
+            await stopAndCancelWork(child: child, with: error)
 
         case .shutdown:
             // Nothing to do
@@ -586,7 +588,12 @@ public actor Compiler {
         }
     }
 
-    // XXX then - compilerwork merge - closure for done to include book-keeping and continuation resumption
+    func stopAndCancelWork(child: CompilerChild?, with error: (any Error)?) async {
+        await child?.stop() // XXX should this just be `state.child` ??
+        if let error {
+            cancelAllActive(with: error)
+        }
+    }
 }
 
 /// NIO layer
@@ -601,10 +608,12 @@ actor CompilerChild: ChannelInboundHandler {
     private let eventLoop: EventLoop
     /// The child process
     private let child: Exec.Child
-    /// The work manager
-    private let work: CompilerWork
+    /// Message handling (ex. the work manager)
+    typealias WorkHandler = (Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage?
+    private let workHandler: WorkHandler
     /// Error handling
-    private let errorHandler: (Error) async -> Void
+    typealias ErrorHandler = (any Error) async -> Void
+    private let errorHandler: ErrorHandler
     /// Cancellation protocol
     private var stopping: Bool
 
@@ -622,11 +631,11 @@ actor CompilerChild: ChannelInboundHandler {
     /// Create a new Sass compiler process.
     ///
     /// Must not be called in an event loop!  But I don't know how to check that.
-    init(eventLoop: EventLoop, fileURL: URL, work: CompilerWork, errorHandler: @escaping (Error) async -> Void) throws {
+    init(eventLoop: EventLoop, fileURL: URL, workHandler: @escaping WorkHandler, errorHandler: @escaping ErrorHandler) throws {
         self.child = try Exec.spawn(fileURL, group: eventLoop)
         self.processIdentifier = child.process.processIdentifier
         self.eventLoop = eventLoop
-        self.work = work
+        self.workHandler = workHandler
         self.errorHandler = errorHandler
         self.stopping = false
 
@@ -647,6 +656,15 @@ actor CompilerChild: ChannelInboundHandler {
         if !stopping {
             await errorHandler(ProtocolError("Compiler process exitted unexpectedly"))
         }
+    }
+
+    /// Shutdown point - stop the child process to clean up the channel.
+    /// Rely on `Compiler.stopAndCancelWork()` sequencing with the active work queue.
+    func stop() {
+        stopping = true
+        child.process.terminationHandler = nil
+        child.terminate()
+        // asyncChannel = nil ?? XXX
     }
 
     /// Connect Sass protocol handlers.
@@ -676,13 +694,6 @@ actor CompilerChild: ChannelInboundHandler {
         }
     }
 
-//    /// Send a bunch of messages in order. XXX what is this for??
-//    func send(messages: [Sass_EmbeddedProtocol_InboundMessage]) async {
-//        for m in messages {
-//            await send(message: m)
-//        }
-//    }
-
     /// Process messages from the child until it dies or the task is cancelled
     func processMessages() async {
         precondition(asyncChannel != nil)
@@ -708,24 +719,11 @@ actor CompilerChild: ChannelInboundHandler {
         Compiler.logger.debug("Rx: \(message.logMessage)")
 
         do {
-            if let response = try await work.receive(message: message) {
+            if let response = try await workHandler(message) {
                 await send(message: response)
             }
         } catch {
             await errorHandler(error)
-        }
-    }
-
-    /// Shutdown point - stop the child process to clean up the channel.
-    /// Cascade to `CompilerWork` so it stops waiting for responses -- this is a little bit spaghetti but it's helpful
-    /// to keep them tightly bound.
-    func stopAndCancelWork(with error: Error? = nil) {
-        stopping = true
-        child.process.terminationHandler = nil
-        child.terminate()
-        // asyncChannel = nil ?? XXX
-        if let error {
-            work.cancelAllActive(with: error)
         }
     }
 }

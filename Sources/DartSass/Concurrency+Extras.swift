@@ -56,6 +56,10 @@ extension WithContinuationQueue {
 
 // MARK: weird things probably meaning I don't understand something
 
-func preconditionFailure(_ msg: String) {
+func preconditionFailure(_ msg: String) -> Never {
     Swift.preconditionFailure(msg)
+}
+
+func precondition(_ cond: Bool) {
+    Swift.precondition(cond)
 }
