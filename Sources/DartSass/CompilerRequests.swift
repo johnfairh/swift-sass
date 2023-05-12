@@ -109,6 +109,8 @@ extension ManagedCompilerRequest {
         case .failure(let error):
             if error is CompilerError {
                 debug("complete: compiler error")
+            } else if error is CancellationError {
+                debug("complete: cancellation error")
             } else {
                 debug("complete: protocol error")
             }

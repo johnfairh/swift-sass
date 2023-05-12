@@ -44,7 +44,7 @@ extension Compiler {
                           importers: [ImportResolver],
                           stringImporter: ImportResolver? = nil,
                           functions: SassAsyncFunctionMap,
-                          continuation: CheckedContinuation<CompilerResults, any Error>) -> Sass_EmbeddedProtocol_InboundMessage {
+                          continuation: Compiler.Continuation) -> Sass_EmbeddedProtocol_InboundMessage {
         let compilationRequest = CompilationRequest(
             input: input,
             outputStyle: outputStyle,

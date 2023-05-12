@@ -12,37 +12,40 @@ import Foundation
 
 class DartSassTestCase: XCTestCase {
 
-//    var eventLoopGroup: EventLoopGroup! = nil
-//
-//    var compilersToShutdown: [Compiler] = []
-//
-//    override func setUpWithError() throws {
-//        XCTAssertNil(eventLoopGroup)
-//        eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-//        Compiler.logger.logLevel = .debug
-//    }
-//
-//    override func tearDownWithError() throws {
-//        try compilersToShutdown.forEach {
-//            try $0.syncShutdownGracefully()
-//        }
-//        compilersToShutdown = []
-//        try eventLoopGroup.syncShutdownGracefully()
-//        eventLoopGroup = nil
-//    }
-//
-//    func newCompiler(importers: [ImportResolver] = []) throws -> Compiler {
-//        try newCompiler(importers: importers, functions: [:])
-//    }
-//
-//    func newCompiler(importers: [ImportResolver] = [], functions: SassAsyncFunctionMap) throws -> Compiler {
-//        let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-//                             importers: importers,
-//                             functions: functions)
-//        compilersToShutdown.append(c)
-//        return c
-//    }
-//
+    var eventLoopGroup: EventLoopGroup! = nil
+
+    typealias CompilerTask = Task<Void, any Error>
+
+    var compilersToShutdown: [(Compiler, CompilerTask)] = []
+
+    override func setUpWithError() throws {
+        XCTAssertNil(eventLoopGroup)
+        eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+        Compiler.logger.logLevel = .debug
+    }
+
+    override func tearDown() async throws {
+        for (_, task) in compilersToShutdown {
+            task.cancel()
+            try await task.value
+        }
+        compilersToShutdown = []
+        try await eventLoopGroup.shutdownGracefully()
+        eventLoopGroup = nil
+    }
+
+    func newCompiler(importers: [ImportResolver] = []) throws -> Compiler {
+        try newCompiler(importers: importers, functions: [:])
+    }
+
+    func newCompiler(importers: [ImportResolver] = [], functions: SassAsyncFunctionMap) throws -> Compiler {
+        let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+                             importers: importers,
+                             functions: functions)
+        compilersToShutdown.append((c, Task { try await c.run() }))
+        return c
+    }
+
 //    func newBadCompiler(timeout: Int = 1) throws -> Compiler {
 //        let c = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
 //                         embeddedCompilerFileURL: URL(fileURLWithPath: "/usr/bin/tail"),

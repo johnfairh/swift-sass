@@ -264,14 +264,12 @@ public actor Compiler {
                 guard case .quiescing = state else {
                     preconditionFailure("Expected quiescing, is \(state)")
                 }
-                let reason = Task.isCancelled ? "shutdown" : "restart"
-                debug("Quiescing work for \(reason)")
+                debug("Quiescing work for \(Task.isCancelled ? "shutdown" : "restart")")
                 await quiesce()
-                debug("No outstanding compilations, shutting down compiler")
-                // XXX stopAndCancelWork ?? tbd
-
-                // go round again, back to initting
+                debug("Quiesce complete, no outstanding compilations")
             }
+        } catch is CancellationError {
+            // means we got cancelled waiting for the version query - go straight to shutdown.
         } catch {
             debug("Can't start the compiler at all: \(error)")
             await stopAndCancelWork(child: state.child, with: error)
@@ -286,6 +284,7 @@ public actor Compiler {
             throw error
         }
         setState(.shutdown)
+        debug("Compiler is shutdown")
     }
 
     /// Deal with inbound messages.
@@ -296,6 +295,9 @@ public actor Compiler {
         await child.processMessages()
         debug("Compiler message-loop ended, cancelled = \(Task.isCancelled)")
         setState(.quiescing(child))
+        if Task.isCancelled {
+            await stopAndCancelWork(child: child, with: CancellationError())
+        }
     }
 
     /// Restart the embedded Sass compiler.
@@ -385,6 +387,8 @@ public actor Compiler {
 
     // MARK: Compilation entrypoints
 
+    typealias Continuation = CheckedContinuation<CompilerResults, any Error>
+
     /// Compile to CSS from a stylesheet file.
     ///
     /// - parameters:
@@ -408,7 +412,7 @@ public actor Compiler {
                         functions: SassAsyncFunctionMap = [:]) async throws -> CompilerResults {
         try await withCheckedThrowingContinuation { continuation in
             Task {
-                try await waitUntilReadyToCompile()
+                try await waitUntilReadyToCompile(continuation: continuation) // XXX return child
                 let msg = startCompilation(input: .path(fileURL.path),
                                            outputStyle: outputStyle,
                                            sourceMapStyle: sourceMapStyle,
@@ -416,27 +420,6 @@ public actor Compiler {
                                            importers: .init(importers),
                                            functions: functions,
                                            continuation: continuation)
-                // if we move the WorkActive queue into this actor then 'state'
-                // gets synchronized with it.  We still have the next line, that
-                // shoots off to the child's executor, meaning that a statechange
-                // to quiescing with or without a 'handleError'->'stopAndCancelWork'
-                // can occur.  If SACW happens then we're good: the 'send' is ignored
-                // because 'child.stopped' and the req is cleaned up by SACW.
-                // If we just have the 'run' task cancelled then we get 'quiescing',
-                // work.quiesce will know to wait for 1 and we'll actually be good too,
-                // because SACW won't happen so the child will be happy.
-                //
-                // huh - the key gain is to synchronize the work queue with state, not
-                // doing that means we can add things to the queue AFTER SACW which will
-                // be stuck forever
-                //
-                // The dual behaviour, task.cancel vs. error, is in fact exactly what the
-                // old 'dignified shutdown' did, allowing existing work to run.  So fine,
-                // we should lean in to that.
-                //
-                // XXX big tbd here is what the NIO stream does with cancellation, it may just
-                // XXX abort meaning there is no gracefulness to be had and we have to throw
-                // XXX in the SACW in all cases.
                 await state.child!.send(message: msg)
             }
         }
@@ -473,7 +456,7 @@ public actor Compiler {
                         functions: SassAsyncFunctionMap = [:]) async throws -> CompilerResults {
         try await withCheckedThrowingContinuation { continuation in
             Task {
-                try await waitUntilReadyToCompile()
+                try await waitUntilReadyToCompile(continuation: continuation)
                 let msg = startCompilation(
                     input: .string(.with { m in
                         m.source = string
@@ -497,24 +480,30 @@ public actor Compiler {
         }
     }
 
-    private func waitUntilReadyToCompile() async throws {
+    private func waitUntilReadyToCompile(continuation: Continuation) async throws {
         while true {
+            let err: (any Error)?
             switch state {
             case .broken(let error):
                 // submitted while restarting the compiler; restart failed: fail
-                throw LifecycleError("Sass compiler failed to start after unrecoverable rror: \(error)")
+                err = LifecycleError("Sass compiler failed to start after unrecoverable rror: \(error)")
 
             case .shutdown:
                 // submitted after/during shutdown: fail
-                throw LifecycleError("Sass compiler is not started, not accepting work")
+                err = LifecycleError("Sass compiler is not started, not accepting work")
 
             case .initializing, .quiescing, .checking:
                 // submitted while [re]starting the compiler: wait
+                err = nil
                 await waitForStateChange()
 
             case .running:
                 // ready to go
                 return
+            }
+            if let err {
+                continuation.resume(throwing: err)
+                throw err
             }
         }
     }
@@ -528,8 +517,9 @@ public actor Compiler {
         try await withCheckedThrowingContinuation { continuation in
             Task {
                 guard case .checking(let child) = state else {
-                    debug("Cancelling versions query")
-                    throw CancellationError()
+                    debug("Cancelling versions query, state moved on to \(state)")
+                    continuation.resume(throwing: CancellationError())
+                    return
                 }
                 let msg = startVersionRequest(continuation: continuation)
                 if let versionsResponder {
@@ -640,11 +630,6 @@ actor CompilerChild: ChannelInboundHandler {
         // The termination handler is always called when the process ends.
         // Only cascade this up into a compiler restart when we're not already
         // stopping, ie. we didn't just ask the process to end.
-
-        // This vs. `stopAndCancelWork()` vs. the eventLoop becoming invalid is still
-        // racy because we don't flush out any pending call here before stopping the event loop.
-        // Don't want to interlock it because (a) more quiesce phases and (b) don't trust
-        // the library to guarantee a timely call.
         self.child.process.terminationHandler = { _ in
             Task { await self.childTerminationHandler() }
         }
@@ -659,10 +644,11 @@ actor CompilerChild: ChannelInboundHandler {
     /// Shutdown point - stop the child process to clean up the channel.
     /// Rely on `Compiler.stopAndCancelWork()` sequencing with the active work queue.
     func stop() {
-        stopping = true
-        child.process.terminationHandler = nil
-        child.terminate()
-        // asyncChannel = nil ?? XXX
+        if !stopping {
+            stopping = true
+            child.process.terminationHandler = nil
+            child.terminate()
+        }
     }
 
     /// Connect Sass protocol handlers.
