@@ -13,6 +13,14 @@ import NIOPosix
 import Logging
 @_exported import Sass
 
+// NEW MODEL
+//
+// * run() is internal, task kicked off from ctor, initial state is initting to q work
+// * broken(err) is not terminal - keep going inside run() as before
+// * shutdown() async API like NIO objects comes back - cancels the run task, goes to
+//   shutdown state
+// * shutdown state is terminal, no re-dos, like V1
+
 // Compiler -- interface, control state machine
 // CompilerChild -- Child process, NIO reads and writes
 // CompilerWork -- Sass stuff, protocol, job management
@@ -73,15 +81,17 @@ public actor Compiler {
     private var stateWaitingQueue: ContinuationQueue2
 
     /// Change the compiler state and resume anyone waiting.
-    func setState(_ state: State) {
+    private func setState(_ state: State) async {
         self.state = state
-        Task { await stateWaitingQueue.kick() } // XXX is this OK?, better make thing async?
+        await stateWaitingQueue.kick()
     }
 
     /// Suspend the current task until the compiler state changes
-    func waitForStateChange() async {
+    private func waitForStateChange() async {
         await stateWaitingQueue.wait()
     }
+
+    private var runTask: Task<Void, Never>?
 
     /// Number of times we've tried to start the embedded Sass compiler.
     private(set) var startCount: Int
@@ -185,7 +195,7 @@ public actor Compiler {
         eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider) // XXX need to shut this MF down
         eventLoop = self.eventLoopGroup.any()
         self.embeddedCompilerFileURL = embeddedCompilerFileURL
-        state = .shutdown
+        state = .initializing
         startCount = 0
         settings = Settings(timeout: timeout,
                             globalImporters: importers,
@@ -196,6 +206,14 @@ public actor Compiler {
         stateWaitingQueue = ContinuationQueue2()
         activeRequests = [:]
         quiesceContinuation = nil
+        runTask = nil
+        Task { // what the fuck is up with this...
+            await self.initThunk()
+        }
+    }
+
+    private func initThunk() {
+        runTask = Task { await run() }
     }
 
     deinit {
@@ -207,45 +225,34 @@ public actor Compiler {
 
     /// Run and maintain the Sass compiler.
     ///
-    /// Cancelling this ``Task`` initiates a graceful exit of the compiler and causes the
-    /// routine to return normally.
-    ///
-    /// The routine returns abnormally by throwing an error if there is something seriously
-    /// wrong, for example the embedded compiler cannot start or the version is wrong.
-    /// It's unlikely there's anything a software client can do to fix this kind of problem, but you
-    /// are welcome to call `run()` again to have another go.
-    ///
-    /// Minor errors such as compiler process crashes or timeouts do not cause the routine
-    /// to return, these are handled internally.
-    public func run() async throws {
-        guard case .shutdown = state else { // XXX or broken
-            preconditionFailure("Bad state to run Sass compiler: \(state)")
+    /// Cancelling this ``Task`` initiates a graceful exit of the compiler.
+    private func run() async {
+        guard case .initializing = state else {
+            preconditionFailure("Unexpected state at run(): \(state)")
         }
 
         let initThread = NIOThreadPool(numberOfThreads: 1)
         initThread.start()
 
-        // XXX might need cancellation check to catch Task cancellation during init
-        //        debug("Shutdown during startup, deferring") not exactly that
-        do {
-            while !Task.isCancelled {
-                setState(.initializing)
+        while !Task.isCancelled {
+            do {
+                await setState(.initializing)
 
                 precondition(!hasActiveRequests)
                 startCount += 1
 
                 // Get onto the thread to start the child and bootstrap the NIO connections.
-                let child = try await initThread.runIfActive(eventLoop: eventLoop) { [self] in
-                    try CompilerChild(eventLoop: eventLoop,
-                                      fileURL: embeddedCompilerFileURL,
-                                      workHandler: { [unowned self] in try await self.receive(message: $0) },
-                                      errorHandler: { [unowned self] in await self.handleError($0) })
+                let child = try await initThread.runIfActive(eventLoop: eventLoop) {
+                    try CompilerChild(eventLoop: self.eventLoop,
+                                      fileURL: self.embeddedCompilerFileURL,
+                                      workHandler: { [unowned self] in try await receive(message: $0) },
+                                      errorHandler: { [unowned self] in await handleError($0) })
                 }.get()
 
                 try await child.addChannelHandlers()
 
                 debug("Compiler is started, starting healthcheck")
-                setState(.checking(child))
+                await setState(.checking(child))
 
                 // Kick off the child task to deal with compiler responses
                 async let messageLoopTask: Void = runMessageLoop()
@@ -256,7 +263,7 @@ public actor Compiler {
 
                 // Might already be quiescing here, race with msgloop task
                 if case .checking = state {
-                    setState(.running(child))
+                    await setState(.running(child))
                     await waitForStateChange()
                 }
                 await messageLoopTask
@@ -267,34 +274,32 @@ public actor Compiler {
                 debug("Quiescing work for \(Task.isCancelled ? "shutdown" : "restart")")
                 await quiesce()
                 debug("Quiesce complete, no outstanding compilations")
+            } catch is CancellationError {
+                // means we got cancelled waiting for the version query - go straight to shutdown.
+            } catch {
+                debug("Can't start the compiler at all: \(error)")
+                await stopAndCancelWork(child: state.child, with: error)
+                await setState(.broken(error))
+                await waitForStateChange()
             }
-        } catch is CancellationError {
-            // means we got cancelled waiting for the version query - go straight to shutdown.
-        } catch {
-            debug("Can't start the compiler at all: \(error)")
-            await stopAndCancelWork(child: state.child, with: error)
-            setState(.broken(error))
         }
 
         // Clean up and propagate errors
         // Should be `defer` but Swift cba to do async there...
         try? await initThread.shutdownGracefully()
 
-        if case let .broken(error) = state {
-            throw error
-        }
-        setState(.shutdown)
+        await setState(.shutdown)
         debug("Compiler is shutdown")
     }
 
     /// Deal with inbound messages.
     ///
-    /// This is supposed to run as a structured child task of the `run()` task with cancellation propagation.
+    /// This runs as a structured child task of `runTask` with cancellation propagation.
     private func runMessageLoop() async {
         let child = state.child!
         await child.processMessages()
         debug("Compiler message-loop ended, cancelled = \(Task.isCancelled)")
-        setState(.quiescing(child))
+        await setState(.quiescing(child))
         if Task.isCancelled {
             await stopAndCancelWork(child: child, with: CancellationError())
         }
@@ -311,6 +316,25 @@ public actor Compiler {
     /// Any outstanding compilations are failed.
     public func reinit() async {
         await handleError(LifecycleError("User requested Sass compiler be reinitialized"))
+    }
+
+    /// Shut down the compiler asynchronously.
+    ///
+    /// You must call this before the last reference to the `Compiler` is released.
+    ///
+    /// Cancels any outstanding work and shuts down internal threads. There’s no way back
+    /// from this state: to do more compilation you will need a new object.
+    public func shutdownGracefully() async {
+        while runTask == nil {
+            await waitForStateChange()
+        }
+        runTask?.cancel()
+        while true {
+            if case .shutdown = state {
+                break
+            }
+            await waitForStateChange()
+        }
     }
 
     /// The process ID of the embedded Sass compiler.
@@ -490,7 +514,7 @@ public actor Compiler {
 
             case .shutdown:
                 // submitted after/during shutdown: fail
-                err = LifecycleError("Sass compiler is not started, not accepting work")
+                err = LifecycleError("Sass compiler has been shut down, not accepting work")
 
             case .initializing, .quiescing, .checking:
                 // submitted while [re]starting the compiler: wait
@@ -559,11 +583,11 @@ public actor Compiler {
         case .running(let child):
             debug("Restarting compiler from running")
             await stopAndCancelWork(child: child, with: error)
-            // XXX hopefully that's it - channel will die and cause quiesce
 
         case .broken:
-            // Not sure how this happens (reinit?)
-            debug("Error (\(error)) while broken - doing nothing")
+            // Reinit attempt
+            debug("Error (\(error)) while broken, reinit compiler")
+            await setState(.initializing)
 
         case .quiescing(let child):
             // Corner/race stay in this state but try to hurry things along.
@@ -576,7 +600,7 @@ public actor Compiler {
         }
     }
 
-    func stopAndCancelWork(child: CompilerChild?, with error: (any Error)?) async {
+    private func stopAndCancelWork(child: CompilerChild?, with error: (any Error)?) async {
         await child?.stop() // XXX should this just be `state.child` ??
         if let error {
             cancelAllActive(with: error)

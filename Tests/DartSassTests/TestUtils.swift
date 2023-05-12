@@ -16,7 +16,7 @@ class DartSassTestCase: XCTestCase {
 
     typealias CompilerTask = Task<Void, any Error>
 
-    var compilersToShutdown: [(Compiler, CompilerTask)] = []
+    var compilersToShutdown: [Compiler] = []
 
     override func setUpWithError() throws {
         XCTAssertNil(eventLoopGroup)
@@ -25,9 +25,8 @@ class DartSassTestCase: XCTestCase {
     }
 
     override func tearDown() async throws {
-        for (_, task) in compilersToShutdown {
-            task.cancel()
-            try await task.value
+        for compiler in compilersToShutdown {
+            await compiler.shutdownGracefully()
         }
         compilersToShutdown = []
         try await eventLoopGroup.shutdownGracefully()
@@ -42,7 +41,7 @@ class DartSassTestCase: XCTestCase {
         let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
                              importers: importers,
                              functions: functions)
-        compilersToShutdown.append((c, Task { try await c.run() }))
+        compilersToShutdown.append(c)
         return c
     }
 

@@ -13,7 +13,6 @@ import Foundation
 
 func compileWithDartSass(input: URL) async throws -> CompilerResults {
     let compiler = try DartSass.Compiler(messageStyle: .terminalColored)
-    async let _ = compiler.run()
     return try await compiler.compile(fileURL: input)
 }
 

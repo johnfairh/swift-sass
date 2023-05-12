@@ -9,22 +9,6 @@ import NIOCore
 import NIOPosix
 import Dispatch
 
-extension NIOThreadPool {
-    /// I'm probably doing something wrong by having a thread in service to my event loop but oh well.
-    /// Provide a event-loop friendly shutdown API.
-    func shutdownGracefully(eventLoop: EventLoop) -> EventLoopFuture<Void> {
-        let promise = eventLoop.makePromise(of: Void.self)
-        shutdownGracefully { error in
-            if let error = error {
-                promise.fail(error) // this is in fact unreachable in current NIO...
-            } else {
-                promise.succeed(())
-            }
-        }
-        return promise.futureResult
-    }
-}
-
 /// This eventloopgroupprovide thing is like, a hint at a reasonable API ... why does it have NIO in the name ...
 /// Try to wrap it up into something less unwieldy.
 final class ProvidedEventLoopGroup {
@@ -47,15 +31,6 @@ final class ProvidedEventLoopGroup {
             return
         case .createNew:
             try await eventLoopGroup.shutdownGracefully()
-        }
-    }
-
-    func syncShutdownGracefully() throws {
-        switch provider {
-        case .shared:
-            break
-        case .createNew:
-            try eventLoopGroup.syncShutdownGracefully()
         }
     }
 
