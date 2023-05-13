@@ -124,40 +124,41 @@ class TestInterface: DartSassTestCase {
     }
 
     func testNil() async throws {
-        let compiler = try newCompiler()
+        let _ = try newCompiler()
     }
 
-//    /// Bad explicitly given compiler
-//    func testNotACompiler() throws {
-//        do {
-//            let notACompiler = URL(fileURLWithPath: "/tmp/fred")
-//            let compiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-//                                    embeddedCompilerFileURL: notACompiler)
-//            defer { try! compiler.syncShutdownGracefully() }
-//            let results = try compiler.compile(string: "")
-//            XCTFail("Got results: \(results)")
-//        } catch let error as LifecycleError {
-//            print(error)
-//        } catch {
-//            XCTFail("Unexpected error: \(error)")
-//        }
-//    }
-//
-//    /// Missing from bundle/not a bundled platform
-//    func testBundleMissing() throws {
-//        putenv(strdup("DART_SASS_EMBEDDED_NAME=unreal")) /* leak it */
-//        defer { unsetenv("DART_SASS_EMBEDDED_NAME") }
-//
-//        do {
-//            let compiler = try Compiler(eventLoopGroupProvider: .createNew)
-//            XCTFail("Created compiler without dart: \(compiler)")
-//        } catch let error as LifecycleError {
-//            print(error)
-//        } catch {
-//            XCTFail("Unexpected error: \(error)")
-//        }
-//    }
-//
+    /// Bad explicitly given compiler
+    func testNotACompiler() async throws {
+        let notACompiler = URL(fileURLWithPath: "/tmp/fred")
+        let compiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+                                embeddedCompilerFileURL: notACompiler)
+        do {
+            let results = try await compiler.compile(string: "")
+            XCTFail("Got results: \(results)")
+        } catch let error as LifecycleError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+
+        await compiler.shutdownGracefully()
+    }
+
+    /// Missing from bundle/not a bundled platform
+    func testBundleMissing() throws {
+        putenv(strdup("DART_SASS_EMBEDDED_NAME=unreal")) /* leak it */
+        defer { unsetenv("DART_SASS_EMBEDDED_NAME") }
+
+        do {
+            let compiler = try Compiler(eventLoopGroupProvider: .createNew)
+            XCTFail("Created compiler without dart: \(compiler)")
+        } catch let error as LifecycleError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
     func testCharset() async throws {
         let compiler = try newCompiler()
 

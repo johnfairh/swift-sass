@@ -311,10 +311,14 @@ public actor Compiler {
     /// Cancels any outstanding work and shuts down internal threads. There’s no way back
     /// from this state: to do more compilation you will need a new object.
     public func shutdownGracefully() async {
-        while runTask == nil {
+        while runTask == nil { // dumb window during init thunk
             await waitForStateChange()
         }
+        debug("Shutdown request from \(state), active count=\(activeRequests.count)")
         runTask?.cancel()
+        if state.isBroken {
+            await setState(.initializing)
+        }
         while !state.isShutdown {
             await waitForStateChange()
         }
@@ -493,7 +497,7 @@ public actor Compiler {
             switch state {
             case .broken(let error):
                 // submitted while restarting the compiler; restart failed: fail
-                err = LifecycleError("Sass compiler failed to start after unrecoverable rror: \(error)")
+                err = LifecycleError("Sass compiler failed to start after unrecoverable error: \(error)")
 
             case .shutdown:
                 // submitted after/during shutdown: fail
@@ -726,15 +730,8 @@ protocol VersionsResponder {
 
 /// Dumb enum helpers
 extension Compiler.State {
-    var isShutdown: Bool {
-        if case .shutdown = self {
-            return true
-        }
-        return false
-    }
-
-    var isInitializing: Bool {
-        if case .initializing = self {
+    var isBroken: Bool {
+        if case .broken = self {
             return true
         }
         return false
@@ -747,8 +744,22 @@ extension Compiler.State {
         return false
     }
 
+    var isInitializing: Bool {
+        if case .initializing = self {
+            return true
+        }
+        return false
+    }
+
     var isQuiescing: Bool {
         if case .quiescing = self {
+            return true
+        }
+        return false
+    }
+
+    var isShutdown: Bool {
+        if case .shutdown = self {
             return true
         }
         return false
