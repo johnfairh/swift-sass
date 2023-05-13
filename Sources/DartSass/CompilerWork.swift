@@ -31,12 +31,12 @@ extension Compiler {
 ///
 /// Looks after global Sass state, a queue of pending work and a set of active work.
 /// It can quiesce active work.  It manages compiler timeouts.
-/// It has an API back to CompilerControl to call for a reset if things get too much.
+///
+/// This used to be a separate class but in concurrency-land it got messed up
 extension Compiler {
-    var hasActiveRequests: Bool {
-        !activeRequests.isEmpty
-    }
+    // MARK: Work Starting
 
+    /// Create and start tracking  a compilation request
     func startCompilation(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
                           outputStyle: CssStyle,
                           sourceMapStyle: SourceMapStyle,
@@ -44,7 +44,7 @@ extension Compiler {
                           importers: [ImportResolver],
                           stringImporter: ImportResolver? = nil,
                           functions: SassAsyncFunctionMap,
-                          continuation: Compiler.Continuation) -> Sass_EmbeddedProtocol_InboundMessage {
+                          continuation: Continuation<CompilerResults>) -> Sass_EmbeddedProtocol_InboundMessage {
         let compilationRequest = CompilationRequest(
             input: input,
             outputStyle: outputStyle,
@@ -53,37 +53,44 @@ extension Compiler {
             settings: settings,
             importers: settings.globalImporters + importers,
             stringImporter: stringImporter,
-            functionsMap: settings.globalFunctions.overridden(with: functions)) { req, res in
-                Task {
-                    self.activeRequests[req.requestID] = nil
-                    continuation.resume(with: res)
-                    self.kickQuiesce()
-                }
-            }
+            functionsMap: settings.globalFunctions.overridden(with: functions),
+            done: makeDone(continuation))
 
         start(request: compilationRequest)
 
         return .with { $0.compileRequest = compilationRequest.compileReq }
     }
 
-    private func start<R: TypedCompilerRequest>(request: R) {
+    /// Create and start tracking  version request
+    func startVersionRequest(continuation: Continuation<Versions>) -> Sass_EmbeddedProtocol_InboundMessage {
+        let request = VersionRequest(done: makeDone(continuation))
+        start(request: request)
+        return .with { $0.versionRequest = request.versionReq }
+    }
+
+    private func makeDone<R>(_ continuation: Continuation<R>) ->
+        (any CompilerRequest, Result<R, any Error>) -> Void {
+            { req, res in
+                Task {
+                    self.activeRequests[req.requestID] = nil
+                    continuation.resume(with: res)
+                    self.kickQuiesce()
+                }
+
+            }
+    }
+
+    private func start<R: CompilerRequest>(request: R) {
         activeRequests[request.requestID] = request
         request.start(timeoutSeconds: settings.timeout) {
             await self.handleError(ProtocolError("Timeout: \(request.debugPrefix) timed out after \(self.settings.timeout)s"))
         }
     }
 
-    /// Start a version request.  Bypass any pending queue.
-    func startVersionRequest(continuation: CheckedContinuation<Versions, any Error>) -> Sass_EmbeddedProtocol_InboundMessage {
-        let request = VersionRequest() { req, res in
-            Task {
-                self.activeRequests[req.requestID] = nil
-                continuation.resume(with: res)
-                self.kickQuiesce()
-            }
-        }
-        start(request: request)
-        return .with { $0.versionRequest = request.versionReq }
+    // MARK: Active work management
+
+    var hasActiveRequests: Bool {
+        !activeRequests.isEmpty
     }
 
     /// Try to cancel any active jobs.  This means stop waiting for the Sass compiler to respond,
@@ -119,6 +126,8 @@ extension Compiler {
             }
         }
     }
+
+    // MARK: Message Dispatch
 
     /// Handle an inbound message from the Sass compiler.
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage? {

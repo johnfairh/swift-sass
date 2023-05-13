@@ -15,8 +15,7 @@ import Atomics
 // Debug logging, multi-message exchanges, client activity
 // Cancelling, timeout.
 //
-// CompilerRequest/TypedCompilerRequest --- interface protocol to CompilerWork.
-//     Split in two because of Swift associated-type limitations
+// CompilerRequest --- interface protocol to CompilerWork.
 // ManagedCompilerRequest -- protocol to share timeout/cancelling behaviour
 // CompilationRequest -- class modelling a compilation request
 // VersionRequest -- class modelling a version request
@@ -47,6 +46,9 @@ protocol CompilerRequest: AnyObject {
     var requestID: UInt32 { get }
     var debugPrefix: String { get }
     var requestName: String { get }
+
+    associatedtype ResultType
+    var clientDone: (Self, Result<ResultType, any Error>) -> Void { get }
 }
 
 extension CompilerRequest {
@@ -54,11 +56,6 @@ extension CompilerRequest {
     func debug(_ message: String) {
         Compiler.logger.debug("\(debugPrefix): \(message)")
     }
-}
-
-protocol TypedCompilerRequest: CompilerRequest {
-    associatedtype ResultType
-    var clientDone: (Self, Result<ResultType, any Error>) -> Void { get }
 }
 
 // MARK: ManagedCompilerRequest
@@ -93,7 +90,7 @@ struct Lock {
     }
 }
 
-private protocol ManagedCompilerRequest: TypedCompilerRequest {
+private protocol ManagedCompilerRequest: CompilerRequest {
     var timer: Task<Void, Never>? { get set }
     var state: CompilerRequestState { get set }
     var stateLock: Lock { get }
@@ -194,7 +191,6 @@ final class CompilationRequest: ManagedCompilerRequest {
     private let importers: [ImportResolver]
     private let functions: SassAsyncFunctionMap
     private var messages: [CompilerMessage]
-
 
     var requestID: UInt32 {
         compileReq.id

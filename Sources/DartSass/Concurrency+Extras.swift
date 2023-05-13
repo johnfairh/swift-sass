@@ -46,6 +46,6 @@ func preconditionFailure(_ msg: String) -> Never {
     Swift.preconditionFailure(msg)
 }
 
-func precondition(_ cond: Bool) {
-    Swift.precondition(cond)
+func precondition(_ cond: Bool, _ msg: String = "") {
+    Swift.precondition(cond, msg)
 }
