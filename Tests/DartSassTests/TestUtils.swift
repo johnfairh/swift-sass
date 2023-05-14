@@ -45,38 +45,38 @@ class DartSassTestCase: XCTestCase {
         return c
     }
 
-//    func newBadCompiler(timeout: Int = 1) throws -> Compiler {
-//        let c = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-//                         embeddedCompilerFileURL: URL(fileURLWithPath: "/usr/bin/tail"),
-//                         timeout: timeout)
-//        c.versionsResponder = TestVersionsResponder()
-//        compilersToShutdown.append(c)
-//        return c
-//    }
-//
-//    // Helper to trigger & validate a protocol error
-//    func checkProtocolError(_ compiler: Compiler, _ text: String? = nil, protocolNotLifecycle: Bool = true) {
-//        do {
-//            let results = try compiler.compile(string: "")
-//            XCTFail("Managed to compile with compiler that should have failed: \(results)")
-//        } catch {
-//            if (error is ProtocolError && protocolNotLifecycle) ||
-//                (error is LifecycleError && !protocolNotLifecycle) {
-//                if let text = text {
-//                    let errText = String(describing: error)
-//                    XCTAssertTrue(errText.contains(text))
-//                }
-//            } else {
-//                XCTFail("Unexpected error: \(error)")
-//            }
-//        }
-//    }
-//
-//    // Helper to check a compiler is working normally
-//    func checkCompilerWorking(_ compiler: Compiler) throws {
-//        let results = try compiler.compile(string: "")
-//        XCTAssertEqual("", results.css)
-//    }
+    func newBadCompiler(timeout: Int = 1) async throws -> Compiler {
+        let c = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+                         embeddedCompilerFileURL: URL(fileURLWithPath: "/usr/bin/tail"),
+                         timeout: timeout)
+        await c.setVersionsResponder(TestVersionsResponder())
+        compilersToShutdown.append(c)
+        return c
+    }
+
+    // Helper to trigger & validate a protocol error
+    func checkProtocolError(_ compiler: Compiler, _ text: String? = nil, protocolNotLifecycle: Bool = true) async {
+        do {
+            let results = try await compiler.compile(string: "")
+            XCTFail("Managed to compile with compiler that should have failed: \(results)")
+        } catch {
+            if (error is ProtocolError && protocolNotLifecycle) ||
+                (error is LifecycleError && !protocolNotLifecycle) {
+                if let text {
+                    let errText = String(describing: error)
+                    XCTAssertTrue(errText.contains(text))
+                }
+            } else {
+                XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
+
+    // Helper to check a compiler is working normally
+    func checkCompilerWorking(_ compiler: Compiler) async throws {
+        let results = try await compiler.compile(string: "")
+        XCTAssertEqual("", results.css)
+    }
 }
 
 extension String {
@@ -148,26 +148,23 @@ final class HangingAsyncImporter: Importer {
     }
 }
 
-//struct TestVersionsResponder: VersionsResponder {
-//    static let defaultVersions =
-//        Versions(protocolVersionString: Versions.minProtocolVersion.toString(),
-//                 packageVersionString: "0.0.1",
-//                 compilerVersionString: "0.0.1",
-//                 compilerName: "ProbablyDartSass")
-//
-//    private let versions: Versions
-//    init(_ versions: Versions = Self.defaultVersions) {
-//        self.versions = versions
-//    }
-//
-//    func provideVersions(eventLoop: EventLoop,
-//                         msg: Sass_EmbeddedProtocol_InboundMessage,
-//                         callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) {
-//        eventLoop.scheduleTask(in: .milliseconds(100)) {
-//            callback(.with {$0.versionResponse = .init(versions, id: msg.versionRequest.id) })
-//        }
-//    }
-//}
+struct TestVersionsResponder: VersionsResponder {
+    static let defaultVersions =
+        Versions(protocolVersionString: Versions.minProtocolVersion.toString(),
+                 packageVersionString: "0.0.1",
+                 compilerVersionString: "0.0.1",
+                 compilerName: "ProbablyDartSass")
+
+    private let versions: Versions
+    init(_ versions: Versions = Self.defaultVersions) {
+        self.versions = versions
+    }
+
+    func provideVersions(msg: Sass_EmbeddedProtocol_InboundMessage) async -> Sass_EmbeddedProtocol_OutboundMessage {
+        try? await Task.sleep(for: .milliseconds(100))
+        return .with { $0.versionResponse = .init(versions, id: msg.versionRequest.id) }
+    }
+}
 
 extension XCTest {
     func XCTAssertThrowsErrorA<T>(
@@ -210,94 +207,17 @@ extension XCTest {
         }
         return t
     }
+
+    func XCTAssertEqualA<T>(
+        _ expression1: @autoclosure () throws -> T,
+        _ expression2: @autoclosure () async throws -> T,
+        _ message: @autoclosure () -> String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) async rethrows where T : Equatable {
+        let e2 = try await expression2()
+        XCTAssertEqual(try expression1(), e2, message(), file: file, line: line)
+    }
 }
 
 struct AsyncUnwrapError: Error {}
-
-// An incredible hack adapted from @kirilltitov to work around the lack of async
-// xctest support in Swift PM and corelibs-xctest.
-
-final class ErrBox<T>: @unchecked Sendable {
-    var err: Error?
-    var result: T?
-    init() {
-        err = nil
-        result = nil
-    }
-}
-
-func asyncTest(_ method: @escaping () async throws -> Void) throws -> Void {
-    let expectation = XCTestExpectation(description: "async test completion")
-    let errorBox = ErrBox<Void>()
-
-    Task {
-        defer { expectation.fulfill() }
-
-        do {
-            try await method()
-        } catch {
-            errorBox.err = error
-        }
-    }
-
-    _ = XCTWaiter.wait(for: [expectation], timeout: 60 * 60 * 24 * 30)
-
-    try errorBox.err.map { throw $0 }
-}
-
-// More hax to work around lack of async swift test stuff
-
-extension Compiler {
-    func compile(string: String,
-                 syntax: Syntax = .scss,
-                 url: URL? = nil,
-                 importer: ImportResolver? = nil,
-                 outputStyle: CssStyle = .expanded,
-                 sourceMapStyle: SourceMapStyle = .separateSources,
-                 includeCharset: Bool = false,
-                 importers: [ImportResolver] = [],
-                 functions: SassAsyncFunctionMap = [:]) throws -> CompilerResults {
-        let expectation = XCTestExpectation(description: "async compile completion")
-        let errorBox = ErrBox<CompilerResults>()
-
-        Task {
-            defer { expectation.fulfill() }
-
-            do {
-                errorBox.result = try await compile(string: string, syntax: syntax, url: url, importer: importer, outputStyle: outputStyle, sourceMapStyle: sourceMapStyle, includeCharset: includeCharset, importers: importers, functions: functions)
-            } catch {
-                errorBox.err = error
-            }
-        }
-
-        _ = XCTWaiter.wait(for: [expectation], timeout: 60 * 60 * 24 * 30)
-
-        try errorBox.err.map { throw $0 }
-        return errorBox.result!
-    }
-
-    public func compile(fileURL: URL,
-                        outputStyle: CssStyle = .expanded,
-                        sourceMapStyle: SourceMapStyle = .separateSources,
-                        importers: [ImportResolver] = [],
-                        functions: SassAsyncFunctionMap = [:]) throws -> CompilerResults {
-        let expectation = XCTestExpectation(description: "async compile completion2")
-        let errorBox = ErrBox<CompilerResults>()
-
-        Task {
-            defer { expectation.fulfill() }
-
-            do {
-                errorBox.result = try await compile(fileURL: fileURL, outputStyle: outputStyle, sourceMapStyle: sourceMapStyle, importers: importers, functions: functions)
-            } catch {
-                errorBox.err = error
-            }
-        }
-
-        _ = XCTWaiter.wait(for: [expectation], timeout: 60 * 60 * 24 * 30)
-
-        try errorBox.err.map { throw $0 }
-        return errorBox.result!
-
-    }
-}

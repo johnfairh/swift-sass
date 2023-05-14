@@ -300,8 +300,33 @@ public actor Compiler {
     /// call it.
     ///
     /// Any outstanding compilations are failed.
-    public func reinit() async {
-        await handleError(LifecycleError("User requested Sass compiler be reinitialized"))
+    ///
+    /// Throws an error if the compiler cannot be restarted due to error or because `shutdownGracefully()`
+    /// has already been called.
+    public func reinit() async throws {
+        // Figure out if we need to prompt a reset
+        if state.isRunning || state.isBroken {
+            await handleError(LifecycleError("User requested Sass compiler be reinitialized"))
+            while !state.isInitializing {
+                await waitForStateChange()
+            }
+        }
+
+        // Now wait for the reset to finish
+        while true {
+            switch state {
+            case .initializing, .checking, .quiescing:
+                await waitForStateChange()
+            case .running:
+                // reset complete
+                return
+            case .broken(let error):
+                debug("Restart failed: \(error)")
+                throw error
+            case .shutdown:
+                throw LifecycleError("Attempt to reinit() compiler that is already shut down")
+            }
+        }
     }
 
     /// Shut down the compiler asynchronously.
@@ -320,6 +345,16 @@ public actor Compiler {
             await setState(.initializing)
         }
         while !state.isShutdown {
+            await waitForStateChange()
+        }
+    }
+
+    /// Test hook
+    func waitForRunning() async { await waitFor(\.isRunning) }
+    func waitForBroken() async { await waitFor(\.isBroken) }
+
+    func waitFor(_ statekp: KeyPath<State, Bool>) async {
+        while !state[keyPath: statekp] {
             await waitForStateChange()
         }
     }
@@ -522,7 +557,10 @@ public actor Compiler {
     // MARK: Version query
 
     // Unit-test hook to inject/drop version request
-    var versionsResponder: VersionsResponder? = nil
+    private var versionsResponder: VersionsResponder? = nil
+    func setVersionsResponder(_ responder: VersionsResponder?) {
+        self.versionsResponder = responder
+    }
 
     private func sendVersionRequest(to child: CompilerChild) async throws -> Versions {
         try await withCheckedThrowingContinuation { continuation in
@@ -554,7 +592,7 @@ public actor Compiler {
     /// 6. Timeouts, from `CompilerWork`'s reset API.
     ///
     /// In all cases we brutally restart the compiler and fail back all the jobs.
-    /// In the async world this is collapsing into "child?.SACW" which is good...
+    /// In the async world this is collapsing into "SACW" which is good...
     func handleError(_ error: any Error) async {
         switch state {
         case .initializing:
@@ -657,6 +695,9 @@ actor CompilerChild: ChannelInboundHandler {
             stopping = true
             child.process.terminationHandler = nil
             child.terminate()
+            // Linux weirdness - `terminate` doesn't cause the AsyncChannel to finish,
+            // so we have to poke it...  bit yikes.
+            asyncChannel?.outboundWriter.finish()
         }
     }
 
@@ -753,6 +794,13 @@ extension Compiler.State {
 
     var isQuiescing: Bool {
         if case .quiescing = self {
+            return true
+        }
+        return false
+    }
+
+    var isRunning: Bool {
+        if case .running = self {
             return true
         }
         return false

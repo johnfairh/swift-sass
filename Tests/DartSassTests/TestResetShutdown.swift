@@ -5,131 +5,117 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-//import XCTest
-//import NIO
-//@testable import DartSass
-//
-/////
-///// Tests around resets, timeouts, and shutdown.
-/////
-//class TestResetShutdown: DartSassTestCase {
-//    // Clean restart case
-//    func testCleanRestart() throws {
-//        try asyncTest(asyncTestCleanRestart)
-//    }
-//
-//    func asyncTestCleanRestart() async throws {
-//        let compiler = try newCompiler()
-//        await compiler.sync()
-//        XCTAssertEqual(1, compiler.startCount)
-//
-//        await XCTAssertNoThrowA(try await compiler.reinit())
-//        XCTAssertEqual(2, compiler.startCount)
-//    }
-//
-//    // Deal with missing child & SIGPIPE-avoidance measures
-//    func testChildTermination() throws {
-//        try asyncTest(asyncTestChildTermination)
-//    }
-//
-//    func asyncTestChildTermination() async throws {
-//        let compiler = try newCompiler()
-//        let pid = await compiler.compilerProcessIdentifier!
-//        // This seems super flakey on Linux in particular, have upgraded from SIGTERM to SIGKILL
-//        // but still sometimes the process doesn't die and happily services the compilation...
-//        let rc = kill(pid, SIGKILL)
-//        XCTAssertEqual(0, rc)
-//        print("XCKilled compiler process \(pid)")
-//        checkProtocolError(compiler)
-//
-//        // check recovered
-//        try checkCompilerWorking(compiler)
-//    }
-//
-//    // Check we detect stuck requests
-//    func testTimeout() throws {
-//        let badCompiler = try newBadCompiler()
-//
-//        checkProtocolError(badCompiler, "Timeout")
-//    }
-//
-//    // Test disabling the timeout works
-//    func testTimeoutDisabled() throws {
-//        try asyncTest(asyncTestTimeoutDisabled)
-//    }
-//
-//    final class VarBox<T>: @unchecked Sendable {
-//        var value: T
-//        init(_ value: T) { self.value = value }
-//    }
-//
-//    func asyncTestTimeoutDisabled() async throws {
-//        let badCompiler = try newBadCompiler(timeout: -1)
-//
-//        let compilationComplete = VarBox(false)
-//
-//        let compileResult = Task<CompilerResults, Error> {
-//            let result = try await badCompiler.compile(string: "")
-//            compilationComplete.value = true
-//            return result
-//        }
-//
-//        _ = try await Task {
-//            try? await Task.sleep(nanoseconds: 1000 * 1000 * 1000)
-//            XCTAssertFalse(compilationComplete.value)
-//            try await badCompiler.reinit()
-//        }.value
-//
-//        do {
-//            let results = try await compileResult.value
-//            XCTFail("Shouldn't have compiled! \(results)")
-//        } catch let error as LifecycleError {
-//            XCTAssertTrue(error.description.contains("User requested"))
-//        } catch {
-//            XCTFail("Unexpected error: \(error)")
-//        }
-//    }
-//
-//    // Test the 'compiler will not restart' corner
-//    func testUnrestartableCompiler() throws {
-//        try asyncTest(asyncTestUnrestartableCompiler)
-//    }
-//
-//    func asyncTestUnrestartableCompiler() async throws {
-//        let tmpDir = try FileManager.default.createTemporaryDirectory()
-//        let realHeadURL = URL(fileURLWithPath: "/usr/bin/tail")
-//        let tmpHeadURL = tmpDir.appendingPathComponent("tail")
-//        try FileManager.default.copyItem(at: realHeadURL, to: tmpHeadURL)
-//
-//        let badCompiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-//                                   embeddedCompilerFileURL: tmpHeadURL,
-//                                   timeout: 1)
-//        badCompiler.versionsResponder = TestVersionsResponder()
-//        compilersToShutdown.append(badCompiler)
-//        await badCompiler.sync()
-//
-//        // it's now running using the copied program
-//        try FileManager.default.removeItem(at: tmpHeadURL)
-//
-//        // Use the instance we have up, will timeout & be killed
-//        // ho hum, on GitHub Actions sometimes we get a pipe error instead
-//        // either is fine, as long as it fails somehow.
-//        checkProtocolError(badCompiler)
-//
-//        // Should be in idle_broken, restart not possible
-//        checkProtocolError(badCompiler, "failed to restart", protocolNotLifecycle: false)
-//
-//        // Try to recover - no dice
-//        do {
-//            try await badCompiler.reinit()
-//            XCTFail("Managed to reinit somehow")
-//        } catch let error as NSError {
-//            print(error)
-//        } catch {
-//            XCTFail("Unexpected error: \(error)")
-//        }
-//    }
-//
+import XCTest
+import NIO
+@testable import DartSass
+
+///
+/// Tests around resets, timeouts, and shutdown.
+///
+class TestResetShutdown: DartSassTestCase {
+    // Clean restart case
+    func testCleanRestart() async throws {
+        let compiler = try newCompiler()
+        await compiler.waitForRunning()
+        await XCTAssertEqualA(1, await compiler.startCount)
+
+        try await compiler.reinit()
+        await XCTAssertEqualA(2, await compiler.startCount)
+    }
+
+    // Deal with missing child & SIGPIPE-avoidance measures
+    func testChildTermination() async throws {
+        let compiler = try newCompiler()
+        await compiler.waitForRunning()
+        let pid = await compiler.compilerProcessIdentifier!
+
+        // This seems super flakey on Linux in particular, have upgraded from SIGTERM to SIGKILL
+        // but still sometimes the process doesn't die and happily services the compilation...
+        let rc = kill(pid, SIGKILL)
+        XCTAssertEqual(0, rc)
+        print("XCKilled compiler process \(pid)")
+        await checkProtocolError(compiler)
+
+        // check recovered
+        try await checkCompilerWorking(compiler)
+    }
+
+    // Check we detect stuck requests
+    func testTimeout() async throws {
+        let badCompiler = try await newBadCompiler()
+
+        await checkProtocolError(badCompiler, "Timeout")
+    }
+
+    // Test disabling the timeout works
+
+    final class VarBox<T>: @unchecked Sendable {
+        var value: T
+        init(_ value: T) { self.value = value }
+    }
+
+    func testTimeoutDisabled() async throws {
+        let badCompiler = try await newBadCompiler(timeout: -1)
+
+        let compilationComplete = VarBox(false)
+
+        let compileResult = Task {
+            let result = try await badCompiler.compile(string: "")
+            compilationComplete.value = true
+            return result
+        }
+
+        try? await Task.sleep(for: .seconds(1))
+        XCTAssertFalse(compilationComplete.value)
+        try await badCompiler.reinit()
+
+        do {
+            let results = try await compileResult.value
+            XCTFail("Shouldn't have compiled! \(results)")
+        } catch let error as LifecycleError {
+            XCTAssertTrue(error.description.contains("User requested"))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    // Test the 'compiler will not restart' corner
+    func testUnrestartableCompiler() async throws {
+        let tmpDir = try FileManager.default.createTemporaryDirectory()
+        let realHeadURL = URL(fileURLWithPath: "/usr/bin/tail")
+        let tmpHeadURL = tmpDir.appendingPathComponent("tail")
+        try FileManager.default.copyItem(at: realHeadURL, to: tmpHeadURL)
+
+        let badCompiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+                                   embeddedCompilerFileURL: tmpHeadURL,
+                                   timeout: 1)
+        await badCompiler.setVersionsResponder(TestVersionsResponder())
+        compilersToShutdown.append(badCompiler)
+        await badCompiler.waitForRunning()
+
+        // it's now running using the copied program
+        try FileManager.default.removeItem(at: tmpHeadURL)
+
+        // Use the instance we have up, will timeout & be killed
+        // ho hum, on GitHub Actions sometimes we get a pipe error instead
+        // either is fine, as long as it fails somehow.
+        await checkProtocolError(badCompiler)
+        await badCompiler.waitForBroken()
+
+        // Should be in idle_broken, restart not possible
+        await checkProtocolError(badCompiler, "failed to start", protocolNotLifecycle: false)
+
+        // Try to recover - no dice
+        do {
+            try await badCompiler.reinit()
+            XCTFail("Managed to reinit somehow")
+        } catch let error as NSError {
+            print(error)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
 //    func testGracefulShutdown() throws {
 //        try asyncTest(asyncTestGracefulShutdown)
 //    }
@@ -227,4 +213,4 @@
 //        XCTAssertEqual("", results.css)
 //        try await compiler.shutdownGracefully()
 //    }
-//}
+}

@@ -14,7 +14,7 @@ let excluded = architectures.filter { $0 != arch }
 let package = Package(
     name: "swift-sass",
     platforms: [
-      .macOS("12.0"),
+      .macOS("13.0"),
     ],
     products: [
       .library(

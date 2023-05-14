@@ -5,10 +5,10 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-//import XCTest
-//import NIO
-//@testable import DartSass
-//
+import XCTest
+import NIO
+@testable import DartSass
+
 /////
 ///// Tests around duff message content to & from the compiler
 /////
@@ -335,7 +335,7 @@
 //    }
 //}
 //
-//extension Compiler {
+extension Compiler {
 //    func child() throws -> CompilerChild {
 //        guard let child = state.child else {
 //            throw ProtocolError("Wrong state for child")
@@ -356,6 +356,5 @@
 //
 //    func sync() async {
 //        let _ = await compilerProcessIdentifier
-//        XCTAssertNil(state.future)
 //    }
-//}
+}
