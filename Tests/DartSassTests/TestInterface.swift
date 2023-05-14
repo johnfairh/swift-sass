@@ -45,6 +45,11 @@ class TestInterface: DartSassTestCase {
     }
     """
 
+    /// Dumb test that we can create and shut down, typically does an early version-cancel
+    func testNil() async throws {
+        let _ = try newCompiler()
+    }
+
     /// Does it work, goodpath, no imports, scss/sass/css inline input
     func testCoreInline() async throws {
         let compiler = try newCompiler()
@@ -123,15 +128,12 @@ class TestInterface: DartSassTestCase {
         }
     }
 
-    func testNil() async throws {
-        let _ = try newCompiler()
-    }
-
     /// Bad explicitly given compiler
     func testNotACompiler() async throws {
         let notACompiler = URL(fileURLWithPath: "/tmp/fred")
         let compiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
                                 embeddedCompilerFileURL: notACompiler)
+        compilersToShutdown.append(compiler)
         do {
             let results = try await compiler.compile(string: "")
             XCTFail("Got results: \(results)")
@@ -140,8 +142,6 @@ class TestInterface: DartSassTestCase {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
-
-        await compiler.shutdownGracefully()
     }
 
     /// Missing from bundle/not a bundled platform
@@ -159,6 +159,7 @@ class TestInterface: DartSassTestCase {
         }
     }
 
+    /// Charset flag
     func testCharset() async throws {
         let compiler = try newCompiler()
 
