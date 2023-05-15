@@ -232,7 +232,7 @@ public actor Compiler {
                 let child = try await initThread.runIfActive(eventLoop: eventLoop) {
                     try CompilerChild(eventLoop: self.eventLoop,
                                       fileURL: self.embeddedCompilerFileURL,
-                                      workHandler: { [unowned self] in try await receive(message: $0) },
+                                      workHandler: { [unowned self] in try await receive(message: $0, reply: $1) },
                                       errorHandler: { [unowned self] in await handleError($0) })
                 }.get()
 
@@ -644,7 +644,7 @@ actor CompilerChild: ChannelInboundHandler {
     /// The child process
     private let child: Exec.Child
     /// Message handling (ex. the work manager)
-    typealias WorkHandler = (Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage?
+    typealias WorkHandler = (Sass_EmbeddedProtocol_OutboundMessage, @escaping ReplyFn) async throws -> Void
     private let workHandler: WorkHandler
     /// Error handling
     typealias ErrorHandler = (any Error) async -> Void
@@ -695,9 +695,15 @@ actor CompilerChild: ChannelInboundHandler {
             stopping = true
             child.process.terminationHandler = nil
             child.terminate()
-            // Linux weirdness - `terminate` doesn't cause the AsyncChannel to finish,
-            // so we have to poke it...  bit yikes.
-            asyncChannel?.outboundWriter.finish()
+            // Linux weirdness - `terminate` doesn't cause the AsyncChannel to finish even though
+            //
+            // it definitely stops the process - so we have to poke it:
+            // 1) asyncChannel?.outboundWriter.finish() --- worked once then never again
+            // 2) kill(processIdentifier, -9) --- no effect
+            // 3) horrendous multi-layered Task version of msgLoopTask enabling Swift concurrency
+            //    cancel -- which NIO is far more interested in than the pipe going broken -- seems
+            //    to work.  Fuck me.
+            msgLoopTask?.cancel()
         }
     }
 
@@ -728,22 +734,37 @@ actor CompilerChild: ChannelInboundHandler {
         }
     }
 
+    private var msgLoopTask: Task<Void, Never>?
+
     /// Process messages from the child until it dies or the task is cancelled
+    ///
+    /// See `stop()` for why this nonsense is so nonsensical.
     func processMessages() async {
+        await withTaskCancellationHandler {
+            msgLoopTask = Task {
+                await processMessages2()
+            }
+            await msgLoopTask?.value
+        } onCancel: {
+            Task { await msgLoopTask?.cancel() }
+        }
+    }
+
+    private func processMessages2() async {
         precondition(asyncChannel != nil)
         do {
             for try await message in asyncChannel.inboundStream {
+                // only 'async' because of hop to Compiler actor - is non-blocking synchronous on client side
                 await receive(message: message)
             }
         } catch is CancellationError {
-            return
         } catch {
             /// Called from NIO up the stack if something goes wrong with the inbound connection.... maybe ... XXX
             await errorHandler(ProtocolError("Read from Sass compiler failed: \(error)"))
         }
     }
 
-    /// Split out for test access
+    /// Split out for test access (XXX rly?)
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async {
         guard !stopping else {
             // I don't really understand how this happens but have test proof on Linux
@@ -755,8 +776,8 @@ actor CompilerChild: ChannelInboundHandler {
         Compiler.logger.debug("Rx: \(message.logMessage)")
 
         do {
-            if let response = try await workHandler(message) {
-                await send(message: response)
+            try await workHandler(message) {
+                await self.send(message: $0)
             }
         } catch {
             await errorHandler(error)

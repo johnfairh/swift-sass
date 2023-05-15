@@ -35,11 +35,13 @@ enum RequestID {
 
 // MARK: CompilerRequest
 
+typealias ReplyFn = (Sass_EmbeddedProtocol_InboundMessage) async -> Void
+
 protocol CompilerRequest: AnyObject {
     /// Notify that the initial request has been sent.  Return any timeout handler.
     func start(timeoutSeconds: Int, onTimeout: @escaping () async -> Void)
     /// Handle a compiler response for `requestID`
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage?
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage, reply: @escaping ReplyFn) throws
     /// Abandon the request
     func cancel(with error: any Error)
 
@@ -245,25 +247,25 @@ final class CompilationRequest: ManagedCompilerRequest {
     private typealias IBM = Sass_EmbeddedProtocol_InboundMessage
 
     /// Inbound messages.
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage? {
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage, reply: @escaping ReplyFn) throws {
         switch message.message {
         case .compileResponse(let rsp):
-            return try receive(compileResponse: rsp)
+            try receive(compileResponse: rsp)
 
         case .canonicalizeRequest(let req):
-            return try await receive(canonicalizeRequest: req)
+            try receive(canonicalizeRequest: req, reply: reply)
 
         case .importRequest(let req):
-            return try await receive(importRequest: req)
+            try receive(importRequest: req, reply: reply)
 
         case .functionCallRequest(let req):
-            return try await receive(functionCallRequest: req)
+            try receive(functionCallRequest: req, reply: reply)
 
         case .fileImportRequest(let req):
-            return try await receive(fileImportRequest: req)
+            try receive(fileImportRequest: req, reply: reply)
 
         case .logEvent(let rsp):
-            return try receive(log: rsp)
+            try receive(log: rsp)
 
         case nil, .error, .versionResponse:
             preconditionFailure("Unreachable: message type not associated with CompID: \(message)")
@@ -271,7 +273,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     }
 
     /// Inbound `CompileResponse` handler
-    private func receive(compileResponse: OBM.CompileResponse) throws -> IBM? {
+    private func receive(compileResponse: OBM.CompileResponse) throws {
         switch compileResponse.result {
         case .success(let s):
             sendDone(.success(CompilerResults(s, messages: messages)))
@@ -280,13 +282,11 @@ final class CompilationRequest: ManagedCompilerRequest {
         case nil:
             throw ProtocolError("Malformed Compile-Rsp, missing `result`: \(compileResponse)")
         }
-        return nil
     }
 
     /// Inbound `LogEvent` handler
-    private func receive(log: OBM.LogEvent) throws -> IBM? {
+    private func receive(log: OBM.LogEvent) throws {
         try messages.append(.init(log))
-        return nil
     }
 
     // MARK: Importers
@@ -307,93 +307,99 @@ final class CompilationRequest: ManagedCompilerRequest {
     }
 
     /// Inbound `CanonicalizeRequest` handler
-    private func receive(canonicalizeRequest req: OBM.CanonicalizeRequest) async throws -> IBM? {
+    private func receive(canonicalizeRequest req: OBM.CanonicalizeRequest, reply: @escaping ReplyFn) throws {
         let importer = try getImporter(importerID: req.importerID, keyPath: \.importer)
-        var rsp = IBM.CanonicalizeResponse.with { $0.id = req.id }
 
         clientStarting()
 
-        do {
-            let canonURL = try await importer.canonicalize(ruleURL: req.url,
-                                                           fromImport: req.fromImport)
-            if let canonURL = canonURL {
-                rsp.url = canonURL.absoluteString
-                self.debug("Tx Canon-Rsp-Success ReqID=\(req.id)")
-            } else {
-                // leave result nil -> can't deal with this request
-                self.debug("Tx Canon-Rsp-Nil ReqID=\(req.id)")
+        Task.detached {
+            var rsp = IBM.CanonicalizeResponse.with { $0.id = req.id }
+            do {
+                let canonURL = try await importer.canonicalize(ruleURL: req.url,
+                                                               fromImport: req.fromImport)
+                if let canonURL = canonURL {
+                    rsp.url = canonURL.absoluteString
+                    self.debug("Tx Canon-Rsp-Success ReqID=\(req.id)")
+                } else {
+                    // leave result nil -> can't deal with this request
+                    self.debug("Tx Canon-Rsp-Nil ReqID=\(req.id)")
+                }
+            } catch {
+                rsp.error = String(describing: error)
+                self.debug("Tx Canon-Rsp-Error ReqID=\(req.id)")
             }
-        } catch {
-            rsp.error = String(describing: error)
-            self.debug("Tx Canon-Rsp-Error ReqID=\(req.id)")
-        }
 
-        self.clientStopped()
-        return .with { $0.message = .canonicalizeResponse(rsp) }
+            await reply(.with { $0.message = .canonicalizeResponse(rsp) })
+            self.clientStopped()
+        }
     }
 
     /// Inbound `ImportRequest` handler
-    private func receive(importRequest req: OBM.ImportRequest) async throws -> IBM? {
+    private func receive(importRequest req: OBM.ImportRequest, reply: @escaping ReplyFn) throws {
         let importer = try getImporter(importerID: req.importerID, keyPath: \.importer)
         guard let url = URL(string: req.url) else {
             throw ProtocolError("Malformed import URL: \(req.url)")
         }
-        var rsp = IBM.ImportResponse.with { $0.id = req.id }
 
         clientStarting()
 
-        do {
-            if let results = try await importer.load(canonicalURL: url) {
-                rsp.success = .with { msg in
-                    msg.contents = results.contents
-                    msg.syntax = .init(results.syntax)
-                    results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
-                }
-                self.debug("Tx Import-Rsp-Success ReqID=\(req.id)")
-            } else {
-                rsp.result = nil
-                self.debug("Tx Import-Rsp-Null ReqID=\(req.id)")
-            }
-        } catch {
-            rsp.error = String(describing: error)
-            self.debug("Tx Import-Rsp-Error ReqID=\(req.id)")
-        }
+        Task.detached {
+            var rsp = IBM.ImportResponse.with { $0.id = req.id }
 
-        self.clientStopped()
-        return .with { $0.message = .importResponse(rsp) }
+            do {
+                if let results = try await importer.load(canonicalURL: url) {
+                    rsp.success = .with { msg in
+                        msg.contents = results.contents
+                        msg.syntax = .init(results.syntax)
+                        results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
+                    }
+                    self.debug("Tx Import-Rsp-Success ReqID=\(req.id)")
+                } else {
+                    rsp.result = nil
+                    self.debug("Tx Import-Rsp-Null ReqID=\(req.id)")
+                }
+            } catch {
+                rsp.error = String(describing: error)
+                self.debug("Tx Import-Rsp-Error ReqID=\(req.id)")
+            }
+
+            await reply(.with { $0.message = .importResponse(rsp) })
+            self.clientStopped()
+        }
     }
 
     /// Inbound `FileImportRequest` handler
-    private func receive(fileImportRequest req: OBM.FileImportRequest) async throws -> IBM? {
+    private func receive(fileImportRequest req: OBM.FileImportRequest, reply: @escaping ReplyFn) throws {
         let importer = try getImporter(importerID: req.importerID, keyPath: \.filesystemImporter)
-        var rsp = IBM.FileImportResponse.with { $0.id = req.id }
 
         clientStarting()
 
-        do {
-            if let urlPath = try await importer.resolve(ruleURL: req.url, fromImport: req.fromImport) {
-                rsp.fileURL = urlPath.absoluteString
-                self.debug("Tx FileImport-Rsp-Success ReqID=\(req.id)")
-            } else {
-                // leave fileURL as nil
-                self.debug("Tx FileImport-Rsp-Nil ReqID=\(req.id)")
+        Task.detached {
+            var rsp = IBM.FileImportResponse.with { $0.id = req.id }
+            do {
+                if let urlPath = try await importer.resolve(ruleURL: req.url, fromImport: req.fromImport) {
+                    rsp.fileURL = urlPath.absoluteString
+                    self.debug("Tx FileImport-Rsp-Success ReqID=\(req.id)")
+                } else {
+                    // leave fileURL as nil
+                    self.debug("Tx FileImport-Rsp-Nil ReqID=\(req.id)")
+                }
+            } catch {
+                rsp.error = String(describing: error)
+                self.debug("Tx FileImport-Rsp-Error ReqID=\(req.id)")
             }
-        } catch {
-            rsp.error = String(describing: error)
-            self.debug("Tx FileImport-Rsp-Error ReqID=\(req.id)")
-        }
 
-        self.clientStopped()
-        return .with { $0.message = .fileImportResponse(rsp) }
+            await reply(.with { $0.message = .fileImportResponse(rsp) })
+            self.clientStopped()
+        }
     }
 
     // MARK: Functions
 
     /// Inbound 'FunctionCallRequest' handler
-    private func receive(functionCallRequest req: OBM.FunctionCallRequest) async throws -> IBM? {
+    private func receive(functionCallRequest req: OBM.FunctionCallRequest, reply: @escaping ReplyFn) throws {
         /// Helper to run the callback after we locate it
-        func doSassFunction(_ fn: @escaping SassAsyncFunction) async throws -> IBM? {
-            var rsp = IBM.FunctionCallResponse.with { $0.id = req.id }
+        func doSassFunction(_ fn: @escaping SassAsyncFunction) throws {
 
             // Set up to monitor accesses to any `SassArgumentList`s
             var accessedArgLists = Set<UInt32>()
@@ -408,18 +414,22 @@ final class CompilationRequest: ManagedCompilerRequest {
 
             clientStarting()
 
-            do {
-                let resultValue = try await fn(args)
-                rsp.success = .init(resultValue)
-                self.debug("Tx FnCall-Rsp-Success ReqID=\(req.id)")
-            } catch {
-                rsp.error = String(describing: error)
-                self.debug("Tx FnCall-Rsp-Success ReqID=\(req.id)")
-            }
+            Task.detached {
+                var rsp = IBM.FunctionCallResponse.with { $0.id = req.id }
 
-            rsp.accessedArgumentLists = Array(accessedArgLists)
-            self.clientStopped()
-            return .with { $0.message = .functionCallResponse(rsp) }
+                do {
+                    let resultValue = try await fn(args)
+                    rsp.success = .init(resultValue)
+                    self.debug("Tx FnCall-Rsp-Success ReqID=\(req.id)")
+                } catch {
+                    rsp.error = String(describing: error)
+                    self.debug("Tx FnCall-Rsp-Success ReqID=\(req.id)")
+                }
+
+                rsp.accessedArgumentLists = [] // XXX TODO WTF Array(accessedArgLists)
+                await reply(.with { $0.message = .functionCallResponse(rsp) })
+                self.clientStopped()
+            }
         }
 
         switch req.identifier {
@@ -428,15 +438,16 @@ final class CompilationRequest: ManagedCompilerRequest {
                 throw ProtocolError("Host function ID=\(id) not registered.")
             }
             if let asyncFunc = sassDynamicFunc as? SassAsyncDynamicFunction {
-                return try await doSassFunction(asyncFunc.asyncFunction)
+                try doSassFunction(asyncFunc.asyncFunction)
+            } else {
+                try doSassFunction(SyncFunctionAdapter(sassDynamicFunc.function))
             }
-            return try await doSassFunction(SyncFunctionAdapter(sassDynamicFunc.function))
 
         case .name(let name):
             guard let sassFunc = functions[name] else {
                 throw ProtocolError("Host function name '\(name)' not registered.")
             }
-            return try await doSassFunction(sassFunc)
+            try doSassFunction(sassFunc)
 
         case nil:
             throw ProtocolError("Missing 'identifier' field in FunctionCallRequest")
@@ -489,11 +500,10 @@ final class VersionRequest: ManagedCompilerRequest {
     }
 
     /// Inbound messages.
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage? {
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage, reply: @escaping ReplyFn) throws {
         guard case .versionResponse(let vers) = message.message else {
             throw ProtocolError("Unexpected response to Version-Req: \(message)")
         }
         sendDone(.success(Versions(vers)))
-        return nil
     }
 }

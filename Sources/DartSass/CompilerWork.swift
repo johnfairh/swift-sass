@@ -130,20 +130,20 @@ extension Compiler {
     // MARK: Message Dispatch
 
     /// Handle an inbound message from the Sass compiler.
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage? {
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage, reply: @escaping ReplyFn) throws {
         if let requestID = message.requestID {
             guard let compilation = activeRequests[requestID] else {
                 throw ProtocolError("Received message for unknown ReqID=\(requestID): \(message)")
             }
-            return try await compilation.receive(message: message)
+            try compilation.receive(message: message, reply: reply)
+        } else {
+            try receiveGlobal(message: message)
         }
-
-        return try receiveGlobal(message: message)
     }
 
     /// Global message handler
     /// ie. messages not associated with a compilation ID.
-    private func receiveGlobal(message: Sass_EmbeddedProtocol_OutboundMessage) throws -> Sass_EmbeddedProtocol_InboundMessage? {
+    private func receiveGlobal(message: Sass_EmbeddedProtocol_OutboundMessage) throws {
         switch message.message {
         case .error(let error):
             throw ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), ID=\(error.id): \(error.message)")

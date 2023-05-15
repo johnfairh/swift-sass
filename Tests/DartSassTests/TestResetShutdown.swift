@@ -116,101 +116,80 @@ class TestResetShutdown: DartSassTestCase {
         }
     }
 
-//    func testGracefulShutdown() throws {
-//        try asyncTest(asyncTestGracefulShutdown)
-//    }
-//
-//    func asyncTestGracefulShutdown() async throws {
-//        let compiler = try newCompiler()
-//
-//        // Async shutdown
-//        try await compiler.shutdownGracefully()
-//
-//        // No child process
-//        let pid = await compiler.compilerProcessIdentifier
-//        XCTAssertNil(pid)
-//
-//        // Shutdown again is OK
-//        try await compiler.shutdownGracefully()
-//
-//        // Reinit is not OK
-//        await XCTAssertThrowsErrorA(try await compiler.reinit())
-//
-//        // Compilation is not OK
-//        XCTAssertThrowsError(try checkCompilerWorking(compiler))
-//    }
-//
-//    func testStuckShutdown() throws {
-//        try asyncTest(asyncTestStuckShutdown)
-//    }
-//
-//    func asyncTestStuckShutdown() async throws {
-//        let badCompiler = try newBadCompiler()
-//
-//        // job hangs
-//        let compileResult = Task { try await badCompiler.compile(string: "") }
-//        // shutdown hangs waiting for job
-//        let shutdowner1 = Task { try await badCompiler.shutdownGracefully() }
-//        // second chaser shutdown doesn't mess anything up
-//        let shutdowner2 = Task { try await badCompiler.shutdownGracefully() }
-//
-//        // shutdowns both complete OK after the timeout
-//        try await shutdowner1.value
-//        try await shutdowner2.value
-//        // job fails with timeout
-//        await XCTAssertThrowsErrorA(try await compileResult.value)
-//    }
-//
-//    // Quiesce delayed by client-side activity
-//    func testClientStuckReset() throws {
-//        try asyncTest(asyncTestClientStuckReset)
-//    }
-//
-//    func asyncTestClientStuckReset() async throws {
-//        let importer = HangingAsyncImporter()
-//        let compiler = try newCompiler(importers: [.importer(importer)])
-//
-//        importer.state.onLoadHang = {
-//            await withCheckedContinuation { continuation in
-//                CompilerWork.onStuckQuiesce = {
-//                    CompilerWork.onStuckQuiesce = nil
-//                    continuation.resume()
-//                }
-//                Task {
-//                    try await compiler.reinit()
-//                }
-//            }
-//        }
-//
-//        do {
-//            let r = try await compiler.compile(string: "@import 'something';")
-//            XCTFail("It worked?! \(r)")
-//        } catch {
-//            // Don't normally check for text but so hard to see if this test has
-//            // actually worked otherwise.
-//            XCTAssertEqual("User requested Sass compiler be reinitialized", "\(error)")
-//        }
-//
-//        try checkCompilerWorking(compiler)
-//    }
-//
-//    // Internal eventloopgroup
-//    func testInternalEventLoopGroup() throws {
-//        let compiler = try Compiler(eventLoopGroupProvider: .createNew)
-//        let results = try compiler.compile(string: "")
-//        XCTAssertEqual("", results.css)
-//        try compiler.syncShutdownGracefully()
-//    }
-//
-//    // Internal eventloopgroup, async shutdown
-//    func testInternalEventLoopGroupAsync() throws {
-//        try asyncTest(asyncTestInternalEventLoopGroupAsync)
-//    }
-//
-//    func asyncTestInternalEventLoopGroupAsync() async throws {
-//        let compiler = try Compiler(eventLoopGroupProvider: .createNew)
-//        let results = try await compiler.compile(string: "")
-//        XCTAssertEqual("", results.css)
-//        try await compiler.shutdownGracefully()
-//    }
+    func testGracefulShutdown() async throws {
+        let compiler = try newCompiler()
+
+        // Shutdown
+        await compiler.shutdownGracefully()
+
+        // No child process
+        let pid = await compiler.compilerProcessIdentifier
+        XCTAssertNil(pid)
+
+        // Shutdown again is OK
+        await compiler.shutdownGracefully()
+
+        // Reinit is not OK
+        await XCTAssertThrowsErrorA(try await compiler.reinit())
+
+        // Compilation is not OK
+        await XCTAssertThrowsErrorA(try await checkCompilerWorking(compiler))
+    }
+
+    /// Shutdown with outstanding I/O - not as interesting as in V1 which would quiesce first then cancel
+    func testStuckShutdown() async throws {
+        let badCompiler = try await newBadCompiler()
+        await badCompiler.waitForRunning()
+
+        // job hangs
+        let compileResult = Task { try await badCompiler.compile(string: "") }
+
+        try? await Task.sleep(for: .milliseconds(300))
+        // shutdown hangs waiting for job
+        async let shutdowner1: Void = badCompiler.shutdownGracefully()
+        // second chaser shutdown doesn't mess anything up
+        async let shutdowner2: Void = badCompiler.shutdownGracefully()
+
+        // shutdowns both complete OK after the timeout
+        await shutdowner1
+        await shutdowner2
+        // job fails with timeout
+        await XCTAssertThrowsErrorA(try await compileResult.value)
+    }
+
+    // Quiesce delayed by client-side activity
+    func testClientStuckReset() async throws {
+        let importer = HangingAsyncImporter()
+        let compiler = try newCompiler(importers: [.importer(importer)])
+
+        importer.state.onLoadHang = {
+            await withCheckedContinuation { continuation in
+                Compiler.onStuckQuiesce = {
+                    Compiler.onStuckQuiesce = nil
+                    continuation.resume()
+                }
+                Task {
+                    try await compiler.reinit()
+                }
+            }
+        }
+
+        do {
+            let r = try await compiler.compile(string: "@import 'something';")
+            XCTFail("It worked?! \(r)")
+        } catch {
+            // Don't normally check for text but so hard to see if this test has
+            // actually worked otherwise.
+            XCTAssertEqual("User requested Sass compiler be reinitialized", "\(error)")
+        }
+
+        try await checkCompilerWorking(compiler)
+    }
+
+    // Internal eventloopgroup
+    func testInternalEventLoopGroup() async throws {
+        let compiler = try Compiler(eventLoopGroupProvider: .createNew)
+        try await checkCompilerWorking(compiler)
+        await compiler.shutdownGracefully()
+    }
 }
