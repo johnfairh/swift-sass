@@ -72,11 +72,11 @@ extension Compiler {
         (any CompilerRequest, Result<R, any Error>) -> Void {
             { req, res in
                 Task {
-                    self.activeRequests[req.requestID] = nil
-                    continuation.resume(with: res)
-                    self.kickQuiesce()
+                    if self.activeRequests.removeValue(forKey: req.requestID) != nil {
+                        continuation.resume(with: res)
+                        self.kickQuiesce()
+                    }
                 }
-
             }
     }
 

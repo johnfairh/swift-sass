@@ -160,7 +160,7 @@ struct TestVersionsResponder: VersionsResponder {
         self.versions = versions
     }
 
-    func provideVersions(msg: Sass_EmbeddedProtocol_InboundMessage) async -> Sass_EmbeddedProtocol_OutboundMessage {
+    func provideVersions(msg: Sass_EmbeddedProtocol_InboundMessage) async -> Sass_EmbeddedProtocol_OutboundMessage? {
         try? await Task.sleep(for: .milliseconds(100))
         return .with { $0.versionResponse = .init(versions, id: msg.versionRequest.id) }
     }

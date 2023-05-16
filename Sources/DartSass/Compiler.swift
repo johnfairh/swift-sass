@@ -72,9 +72,10 @@ public actor Compiler {
     private var stateWaitingQueue: ContinuationQueue2
 
     /// Change the compiler state and resume anyone waiting.
-    private func setState(_ state: State) async {
+    private func setState(_ state: State, fn: String = #function) {
+//        debug("\(fn): \(self.state) -> \(state)")
         self.state = state
-        await stateWaitingQueue.kick()
+        Task.detached { await self.stateWaitingQueue.kick() }
     }
 
     /// Suspend the current task until the compiler state changes
@@ -223,7 +224,7 @@ public actor Compiler {
 
         while !Task.isCancelled {
             do {
-                await setState(.initializing)
+                setState(.initializing)
 
                 precondition(!hasActiveRequests)
                 startCount += 1
@@ -239,7 +240,7 @@ public actor Compiler {
                 try await child.addChannelHandlers()
 
                 debug("Compiler is started, starting healthcheck")
-                await setState(.checking(child))
+                setState(.checking(child))
 
                 // Kick off the child task to deal with compiler responses
                 async let messageLoopTask: Void = runMessageLoop()
@@ -250,7 +251,7 @@ public actor Compiler {
 
                 // Might already be quiescing here, race with msgloop task
                 if state.isChecking {
-                    await setState(.running(child))
+                    setState(.running(child))
                     await waitForStateChange()
                 }
 
@@ -263,10 +264,12 @@ public actor Compiler {
             } catch is CancellationError {
                 // means we got cancelled waiting for the version query - go straight to shutdown.
             } catch {
+                setState(.broken(error))
                 debug("Can't start the compiler at all: \(error)")
                 await stopAndCancelWork(with: error)
-                await setState(.broken(error))
-                await waitForStateChange()
+                while state.isBroken {
+                    await waitForStateChange()
+                }
             }
         }
 
@@ -274,7 +277,7 @@ public actor Compiler {
         try? await initThread.shutdownGracefully()
         try? await eventLoopGroup.shutdownGracefully()
 
-        await setState(.shutdown)
+        setState(.shutdown)
         debug("Compiler is shutdown")
     }
 
@@ -285,7 +288,7 @@ public actor Compiler {
         let child = state.child!
         await child.processMessages()
         debug("Compiler message-loop ended, cancelled = \(Task.isCancelled)")
-        await setState(.quiescing(child))
+        setState(.quiescing(child))
         if Task.isCancelled {
             await stopAndCancelWork(with: CancellationError())
         }
@@ -341,11 +344,13 @@ public actor Compiler {
         }
         debug("Shutdown request from \(state), active count=\(activeRequests.count)")
         runTask?.cancel()
-        if state.isBroken {
-            await setState(.initializing)
-        }
+
         while !state.isShutdown {
-            await waitForStateChange()
+            if state.isBroken {
+                setState(.initializing)
+            } else {
+                await waitForStateChange()
+            }
         }
     }
 
@@ -572,8 +577,9 @@ public actor Compiler {
                 }
                 let msg = startVersionRequest(continuation: continuation)
                 if let versionsResponder {
-                    let rsp = await versionsResponder.provideVersions(msg: msg)
-                    await child.receive(message: rsp)
+                    if let rsp = await versionsResponder.provideVersions(msg: msg) {
+                        await child.receive(message: rsp)
+                    }
                 } else {
                     await child.send(message: msg)
                 }
@@ -612,7 +618,7 @@ public actor Compiler {
         case .broken:
             // Reinit attempt
             debug("Error (\(error)) while broken, reinit compiler")
-            await setState(.initializing)
+            setState(.initializing)
 
         case .quiescing:
             // Corner/race stay in this state but try to hurry things along.
@@ -787,7 +793,7 @@ actor CompilerChild: ChannelInboundHandler {
 
 /// Version response injection for testing
 protocol VersionsResponder {
-    func provideVersions(msg: Sass_EmbeddedProtocol_InboundMessage) async -> Sass_EmbeddedProtocol_OutboundMessage
+    func provideVersions(msg: Sass_EmbeddedProtocol_InboundMessage) async -> Sass_EmbeddedProtocol_OutboundMessage?
 }
 
 /// Dumb enum helpers
