@@ -101,22 +101,22 @@ extension FileManager {
         return directoryURL
     }
 
-    public static func preservingCurrentDirectory<T>(_ code: () throws -> T) rethrows -> T {
+    public static func preservingCurrentDirectory<T>(_ code: () async throws -> T) async rethrows -> T {
         let fileManager = FileManager.default
         let cwd = fileManager.currentDirectoryPath
         defer {
             let rc = fileManager.changeCurrentDirectoryPath(cwd)
             precondition(rc)
         }
-        return try code()
+        return try await code()
     }
 }
 
 extension URL {
-    public func withCurrentDirectory<T>(code: () throws -> T) throws -> T {
-        try FileManager.preservingCurrentDirectory {
+    public func withCurrentDirectory<T>(code: () async throws -> T) async throws -> T {
+        try await FileManager.preservingCurrentDirectory {
             FileManager.default.changeCurrentDirectoryPath(path)
-            return try code()
+            return try await code()
         }
     }
 }

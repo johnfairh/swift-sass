@@ -611,9 +611,10 @@ public actor Compiler {
             debug("Error while checking compiler, stopping it")
             await stopAndCancelWork(with: error)
 
-        case .running:
+        case .running(let child):
             debug("Restarting compiler from running")
             await stopAndCancelWork(with: error)
+            setState(.quiescing(child))
 
         case .broken:
             // Reinit attempt

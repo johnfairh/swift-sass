@@ -5,101 +5,101 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-//import XCTest
-//import NIO
-//@testable import DartSass
-//import SourceMapper
-//
-/////
-///// Tests for importers.
-/////
-//class TestImporters: DartSassTestCase {
-//
-//    // MARK: Load Paths
-//
-//    let importingSass = """
-//    @import secondary
-//    """
-//    let usingSass = """
-//    @use 'secondary'
-//    """
-//
-//    let secondaryCssBlue = """
-//    a{color:blue}
-//    """
-//    let secondaryCssRed = """
-//    a{color:red}
-//    """
-//    let secondaryCssFilename = "secondary.css"
-//
-//    private func createFileInNewDir(_ content: String, filename: String) throws -> URL {
-//        let tmpDir = try FileManager.default.createTemporaryDirectory()
-//        let url = tmpDir.appendingPathComponent(filename)
-//        try content.write(to: url)
-//        return tmpDir
-//    }
-//
-//    // compiler loadpath works
-//    func testCompilerLoadPath() throws {
-//        let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
-//        let compiler = try newCompiler(importers: [.loadPath(tmpDir)])
-//        let results = try compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
-//        XCTAssertEqual(secondaryCssBlue, results.css)
-//    }
-//
-//    // job loadpath works
-//    func testJobLoadPath() throws {
-//        let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
-//        let compiler = try newCompiler()
-//        let results = try compiler.compile(string: usingSass, syntax: .sass,
-//                                           outputStyle: .compressed,
-//                                           importers: [.loadPath(tmpDir)])
-//        XCTAssertEqual(secondaryCssBlue, results.css)
-//        XCTAssertEqual(1, results.loadedURLs.count)
-//    }
-//
-//    // job loadpath searched after compiler loadpath
-//    func testLoadPathOrder() throws {
-//        let tmpDirBlue = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
-//        let tmpDirRed = try createFileInNewDir(secondaryCssRed, filename: secondaryCssFilename)
-//        let compiler = try newCompiler(importers: [.loadPath(tmpDirRed)])
-//        let results = try compiler.compile(string: usingSass, syntax: .sass,
-//                                           outputStyle: .compressed,
-//                                           importers: [.loadPath(tmpDirBlue)])
-//        XCTAssertEqual(secondaryCssRed, results.css)
-//    }
-//
-//    // nonsense in loadpath doesn't affect anyone (not even a warning!)
-//    func testNonsenseLoadPath() throws {
-//        let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
-//        let nonsenseDir = URL(fileURLWithPath: "/not/a/directory")
-//        let compiler = try newCompiler(importers: [.loadPath(nonsenseDir), .loadPath(tmpDir)])
-//        let results = try compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
-//        XCTAssertEqual(secondaryCssBlue, results.css)
-//    }
-//
-//    // no implicit loadpath - 1.50.1 spec clarification
-//    func testImplicitLoadPath() throws {
-//        let tmpDir = try FileManager.default.createTemporaryDirectory()
-//        let filename = "imported.scss"
-//        try "a { a: 'hello'; }".write(to: tmpDir.appendingPathComponent(filename))
-//
-//        try tmpDir.withCurrentDirectory {
-//            let compiler = try newCompiler()
-//            try checkCompilerWorking(compiler) // make sure child process is actually started...
-//            do {
-//                let results = try compiler.compile(string: "@import 'imported';", outputStyle: .compressed)
-//                XCTFail("Managed to resolve import: \(results)")
-//            } catch {
-//                print(error)
-//            }
-//
-//            let results = try compiler.compile(string: "@import 'imported';",
-//                                               outputStyle: .compressed,
-//                                               importers: [.loadPath(tmpDir.absoluteURL)])
-//            XCTAssertEqual(#"a{a:"hello"}"#, results.css)
-//        }
-//    }
+import XCTest
+import NIO
+@testable import DartSass
+import SourceMapper
+
+///
+/// Tests for importers.
+///
+class TestImporters: DartSassTestCase {
+
+    // MARK: Load Paths
+
+    let importingSass = """
+    @import secondary
+    """
+    let usingSass = """
+    @use 'secondary'
+    """
+
+    let secondaryCssBlue = """
+    a{color:blue}
+    """
+    let secondaryCssRed = """
+    a{color:red}
+    """
+    let secondaryCssFilename = "secondary.css"
+
+    private func createFileInNewDir(_ content: String, filename: String) throws -> URL {
+        let tmpDir = try FileManager.default.createTemporaryDirectory()
+        let url = tmpDir.appendingPathComponent(filename)
+        try content.write(to: url)
+        return tmpDir
+    }
+
+    // compiler loadpath works
+    func testCompilerLoadPath() async throws {
+        let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
+        let compiler = try newCompiler(importers: [.loadPath(tmpDir)])
+        let results = try await compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
+        XCTAssertEqual(secondaryCssBlue, results.css)
+    }
+
+    // job loadpath works
+    func testJobLoadPath() async throws {
+        let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
+        let compiler = try newCompiler()
+        let results = try await compiler.compile(string: usingSass, syntax: .sass,
+                                                 outputStyle: .compressed,
+                                                 importers: [.loadPath(tmpDir)])
+        XCTAssertEqual(secondaryCssBlue, results.css)
+        XCTAssertEqual(1, results.loadedURLs.count)
+    }
+
+    // job loadpath searched after compiler loadpath
+    func testLoadPathOrder() async throws {
+        let tmpDirBlue = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
+        let tmpDirRed = try createFileInNewDir(secondaryCssRed, filename: secondaryCssFilename)
+        let compiler = try newCompiler(importers: [.loadPath(tmpDirRed)])
+        let results = try await compiler.compile(string: usingSass, syntax: .sass,
+                                                 outputStyle: .compressed,
+                                                 importers: [.loadPath(tmpDirBlue)])
+        XCTAssertEqual(secondaryCssRed, results.css)
+    }
+
+    // nonsense in loadpath doesn't affect anyone (not even a warning!)
+    func testNonsenseLoadPath() async throws {
+        let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
+        let nonsenseDir = URL(fileURLWithPath: "/not/a/directory")
+        let compiler = try newCompiler(importers: [.loadPath(nonsenseDir), .loadPath(tmpDir)])
+        let results = try await compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
+        XCTAssertEqual(secondaryCssBlue, results.css)
+    }
+
+    // no implicit loadpath - 1.50.1 spec clarification
+    func testImplicitLoadPath() async throws {
+        let tmpDir = try FileManager.default.createTemporaryDirectory()
+        let filename = "imported.scss"
+        try "a { a: 'hello'; }".write(to: tmpDir.appendingPathComponent(filename))
+
+        try await tmpDir.withCurrentDirectory {
+            let compiler = try newCompiler()
+            await compiler.waitForRunning()
+            do {
+                let results = try await compiler.compile(string: "@import 'imported';", outputStyle: .compressed)
+                XCTFail("Managed to resolve import: \(results)")
+            } catch {
+                print(error)
+            }
+
+            let results = try await compiler.compile(string: "@import 'imported';",
+                                                     outputStyle: .compressed,
+                                                     importers: [.loadPath(tmpDir.absoluteURL)])
+            XCTAssertEqual(#"a{a:"hello"}"#, results.css)
+        }
+    }
 //
 //    // MARK: Custom Importers
 //
@@ -404,4 +404,4 @@
 //        XCTAssertEqual(importFileURL, results.loadedURLs[0])
 //        XCTAssertEqual("a{b:false}", results.css)
 //    }
-//}
+}
