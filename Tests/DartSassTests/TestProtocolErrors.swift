@@ -9,123 +9,110 @@ import XCTest
 import NIO
 @testable import DartSass
 
-/////
-///// Tests around duff message content to & from the compiler
-/////
-//class TestProtocolErrors: DartSassTestCase {
-//
-//    // Deal with in-band reported protocol error, compiler reports it to us.
-//    func testOutboundProtocolError() throws {
-//        try asyncTest(asyncTestOutboundProtocolError)
-//    }
-//
-//    func asyncTestOutboundProtocolError() async throws {
-//        let compiler = try newCompiler()
-//        let msg = Sass_EmbeddedProtocol_InboundMessage.with { msg in
-//            msg.importResponse = .with { rsp in
-//                rsp.id = 108
-//            }
-//        }
-//        XCTAssertNil(compiler.state.child)
-//        await compiler.sync()
-//        let f = compiler.eventLoop.flatSubmit {
-//            try! compiler.child().send(message: msg)
-//        }
-//
-//        checkProtocolError(compiler, "108")
-//        _ = try? await f.get()
-//
-//        try checkCompilerWorking(compiler)
-//        XCTAssertEqual(2, compiler.startCount)
-//    }
-//
-//    // Misc general bad inbound messages
-//    func testGeneralInboundProtocol() throws {
-//        try asyncTest(asyncTestGeneralInboundProtocol)
-//    }
-//
-//    func asyncTestGeneralInboundProtocol() async throws {
-//        let compiler = try newCompiler()
-//
-//        // no message at all
-//        let badMsg = Sass_EmbeddedProtocol_OutboundMessage()
-//        await compiler.receive(message: badMsg)
-//
-//        try checkCompilerWorking(compiler)
-//        XCTAssertEqual(2, compiler.startCount)
-//
-//        // reponse to a job we don't have active
-//        let badMsg1 = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
-//            msg.compileResponse = .with { rsp in
-//                rsp.id = 42
-//            }
-//        }
-//        await compiler.receive(message: badMsg1)
-//
-//        try checkCompilerWorking(compiler)
-//        XCTAssertEqual(3, compiler.startCount)
-//
-//        // response to a job when we're not interested [legacy, refactored away!]
-//        try compiler.syncShutdownGracefully()
-//        let pid = await compiler.compilerProcessIdentifier
-//        XCTAssertNil(pid)
-//        XCTAssertEqual(3, compiler.startCount) // no more resets
-//    }
-//
-//    // Bad response to compile-req
-//    func testBadCompileRsp() throws {
-//        try asyncTest(asyncTestBadCompileRsp)
-//    }
-//
-//    func asyncTestBadCompileRsp() async throws {
-//        let compiler = try newBadCompiler()
-//
-//        // Expected message, bad content
-//
-//        let msg = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
-//            msg.compileResponse = .with { rsp in
-//                rsp.id = RequestID.peekNext
-//                rsp.result = nil // missing 'result'
-//            }
-//        }
-//
-//        let compileResult = Task { try await compiler.compile(string: "") }
-//        try? await Task.sleep(nanoseconds: 1000 * 1000 * 500)
-//
-//        await compiler.receive(message: msg)
-//
-//        do {
-//            let results = try await compileResult.value
-//            XCTFail("Managed to compile: \(results)")
-//        } catch let error as ProtocolError {
-//            print(error)
-//            XCTAssertTrue(error.description.contains("missing `result`"))
-//        } catch {
-//            XCTFail("Unexpected error: \(error)")
-//        }
-//
-//        await XCTAssertNoThrowA(try await compiler.reinit()) // sync with event loop
-//        XCTAssertEqual(2, compiler.startCount)
-//
-//        // Peculiar error
-//        let compileResult2 = Task { try await compiler.compile(string: "") }
-//        try? await Task.sleep(nanoseconds: 1000 * 1000 * 500)
-//        compiler.eventLoop.execute {
-//            try! compiler.child().channel.pipeline.fireErrorCaught(ProtocolError("Injected channel error"))
-//        }
-//        do {
-//            let results = try await compileResult2.value
-//            XCTFail("Managed to compile: \(results)")
-//        } catch let error as ProtocolError {
-//            print(error)
-//            XCTAssertTrue(error.description.contains("Injected channel error"))
-//        } catch {
-//            XCTFail("Unexpected error: \(error)")
-//        }
-//
-//        await XCTAssertNoThrowA(try await compiler.reinit()) // sync with event loop
-//        XCTAssertEqual(3, compiler.startCount)
-//    }
+///
+/// Tests around duff message content to & from the compiler
+///
+class TestProtocolErrors: DartSassTestCase {
+
+    // Deal with in-band reported protocol error, compiler reports it to us.
+    func testOutboundProtocolError() async throws {
+        let compiler = try newCompiler()
+        let msg = Sass_EmbeddedProtocol_InboundMessage.with { msg in
+            msg.importResponse = .with { rsp in
+                rsp.id = 108
+            }
+        }
+        await compiler.waitForRunning()
+
+        await compiler.state.child!.send(message: msg)
+
+        await checkProtocolError(compiler, "108") // this is racy...
+
+        try await checkCompilerWorking(compiler)
+        await compiler.assertStartCount(2)
+    }
+
+    // Misc general bad inbound messages
+    func testGeneralInboundProtocol() async throws {
+        let compiler = try newCompiler()
+
+        // no message at all
+        let badMsg = Sass_EmbeddedProtocol_OutboundMessage()
+        await compiler.waitForRunning()
+        await compiler.state.child!.receive(message: badMsg)
+
+        try await checkCompilerWorking(compiler)
+        await compiler.assertStartCount(2)
+
+        // reponse to a job we don't have active
+        let badMsg1 = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
+            msg.compileResponse = .with { rsp in
+                rsp.id = 42
+            }
+        }
+        await compiler.state.child!.receive(message: badMsg1)
+
+        try await checkCompilerWorking(compiler)
+        await compiler.assertStartCount(3)
+
+        // response to a job when we're not interested [legacy, refactored away!]
+        await compiler.shutdownGracefully()
+        let pid = await compiler.compilerProcessIdentifier
+        XCTAssertNil(pid)
+        await compiler.assertStartCount(3) // no more resets
+    }
+
+    // Bad response to compile-req
+    func testBadCompileRsp() async throws {
+        let compiler = try await newBadCompiler()
+
+        await compiler.waitForRunning()
+
+        // Expected message, bad content
+        let msg = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
+            msg.compileResponse = .with { rsp in
+                rsp.id = RequestID.peekNext
+                rsp.result = nil // missing 'result'
+            }
+        }
+
+        async let compileResult = compiler.compile(string: "")
+        try? await Task.sleep(for: .milliseconds(500))
+
+        await compiler.state.child!.receive(message: msg)
+
+        do {
+            let results = try await compileResult
+            XCTFail("Managed to compile: \(results)")
+        } catch let error as ProtocolError {
+            print(error)
+            XCTAssertTrue(error.description.contains("missing `result`"))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+
+        try await compiler.reinit()
+        await compiler.assertStartCount(2)
+
+        // Peculiar error
+        async let compileResult2 = compiler.compile(string: "")
+        try? await Task.sleep(for: .milliseconds(500))
+
+        await compiler.state.child!.channel.pipeline.fireErrorCaught(ProtocolError("Injected channel error"))
+
+        do {
+            let results = try await compileResult2
+            XCTFail("Managed to compile: \(results)")
+        } catch let error as ProtocolError {
+            print(error)
+            XCTAssertTrue(error.description.contains("Injected channel error"))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+
+        try await compiler.reinit()
+        await compiler.assertStartCount(3)
+    }
 //
 //    // Importer request tests.  A bit grim:
 //    // Get us into the state of allowing one by starting up and hanging a custom importer.
@@ -333,10 +320,13 @@ import NIO
 //
 //        XCTAssertThrowsError(try decodeVarint(buffer: &buffer))
 //    }
-//}
-//
+}
+
 extension Compiler {
-//    func child() throws -> CompilerChild {
+    func assertStartCount(_ count: Int) {
+        XCTAssertEqual(count, startCount)
+    }
+//    func child() throws -> CompilerChild { // XXX bring this stuff back
 //        guard let child = state.child else {
 //            throw ProtocolError("Wrong state for child")
 //        }

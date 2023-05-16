@@ -35,7 +35,7 @@ enum RequestID {
 
 // MARK: CompilerRequest
 
-typealias ReplyFn = (Sass_EmbeddedProtocol_InboundMessage) async -> Void
+typealias ReplyFn = (Sass_EmbeddedProtocol_InboundMessage) async -> Void // XXX name
 
 protocol CompilerRequest: AnyObject {
     /// Notify that the initial request has been sent.  Return any timeout handler.
