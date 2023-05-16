@@ -396,16 +396,24 @@ final class CompilationRequest: ManagedCompilerRequest {
 
     // MARK: Functions
 
+    /// Trust me I'm a doctor.
+    private final class AccessedArgList: @unchecked Sendable {
+        var IDs: Set<UInt32>
+        init() {
+            self.IDs = []
+        }
+    }
+
     /// Inbound 'FunctionCallRequest' handler
     private func receive(functionCallRequest req: OBM.FunctionCallRequest, reply: @escaping ReplyFn) throws {
         /// Helper to run the callback after we locate it
         func doSassFunction(_ fn: @escaping SassAsyncFunction) throws {
 
             // Set up to monitor accesses to any `SassArgumentList`s
-            var accessedArgLists = Set<UInt32>()
+            let accessedArgList = AccessedArgList()
             func accessArgList(id: UInt32) {
                 guard id != 0 else { return }
-                accessedArgLists.insert(id)
+                accessedArgList.IDs.insert(id)
             }
 
             let args = try SassValueMonitor.with(accessArgList) {
@@ -426,7 +434,7 @@ final class CompilationRequest: ManagedCompilerRequest {
                     self.debug("Tx FnCall-Rsp-Success ReqID=\(req.id)")
                 }
 
-                rsp.accessedArgumentLists = [] // XXX TODO WTF Array(accessedArgLists)
+                rsp.accessedArgumentLists = Array(accessedArgList.IDs)
                 await reply(.with { $0.message = .functionCallResponse(rsp) })
                 self.clientStopped()
             }
