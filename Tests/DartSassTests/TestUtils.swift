@@ -124,7 +124,6 @@ extension URL {
 /// An async importer that can be stopped in `load`.
 /// Accepts all `import` URLs and returns empty documents.
 final class HangingAsyncImporter: Importer {
-
     final class State: @unchecked Sendable {
         var onLoadHang: (() async -> Void)?
         init() { onLoadHang = nil }
@@ -221,3 +220,25 @@ extension XCTest {
 }
 
 struct AsyncUnwrapError: Error {}
+
+/// Helpers for low-level error-injection
+///
+/// Nothing here to do with syncing or waiting for the compiler to be in a suitable state,
+/// caller's responsibility.
+extension Compiler {
+    func assertStartCount(_ count: Int) {
+        XCTAssertEqual(count, startCount)
+    }
+
+    var child: CompilerChild {
+        state.child!
+    }
+
+    func tstReceive(message: Sass_EmbeddedProtocol_OutboundMessage) async {
+        await child.receive(message: message)
+    }
+
+    func tstSend(message: Sass_EmbeddedProtocol_InboundMessage) async {
+        await child.send(message: message)
+    }
+}

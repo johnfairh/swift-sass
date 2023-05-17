@@ -23,23 +23,6 @@ actor ContinuationQueue2 {
     }
 }
 
-// MARK: Sync - a dumb semaphore for testcase injection
-
-actor Sync {
-    private var waiting: CheckedContinuation<Void, Never>?
-
-    func wait() async {
-        precondition(waiting == nil)
-        await withCheckedContinuation { waiting = $0 }
-    }
-
-    func resume() {
-        precondition(waiting != nil)
-        waiting?.resume()
-        waiting = nil
-    }
-}
-
 // MARK: weird things probably meaning I don't understand something
 
 func preconditionFailure(_ msg: String) -> Never {

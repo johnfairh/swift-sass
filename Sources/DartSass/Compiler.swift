@@ -771,7 +771,7 @@ actor CompilerChild: ChannelInboundHandler {
         }
     }
 
-    /// Split out for test access (XXX rly?)
+    /// Split out for test access
     func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async {
         guard !stopping else {
             // I don't really understand how this happens but have test proof on Linux
