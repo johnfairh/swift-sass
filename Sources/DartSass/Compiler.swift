@@ -203,7 +203,8 @@ public actor Compiler {
         }
     }
 
-    private func initThunk() {
+    private func initThunk() async {
+        await TestSuspend?.suspend(for: .initThunk)
         runTask = Task { await run() }
     }
 
@@ -237,6 +238,7 @@ public actor Compiler {
                 }.get()
 
                 try await child.addChannelHandlers()
+                await TestSuspend?.suspend(for: .endOfInitializing)
 
                 debug("Compiler is started, starting healthcheck")
                 setState(.checking(child))
@@ -614,8 +616,8 @@ public actor Compiler {
 
         case .running(let child):
             debug("Restarting compiler from running")
-            await stopAndCancelWork(with: error)
             setState(.quiescing(child))
+            await stopAndCancelWork(with: error)
 
         case .broken:
             // Reinit attempt
@@ -691,6 +693,7 @@ actor CompilerChild: ChannelInboundHandler {
     }
 
     private func childTerminationHandler() async {
+        await TestSuspend?.suspend(for: .childTermination)
         if !stopping {
             await errorHandler(ProtocolError("Compiler process exitted unexpectedly"))
         }
@@ -737,7 +740,8 @@ actor CompilerChild: ChannelInboundHandler {
         } catch {
             // tough to reliably hit this error.  if we kill the process while trying to write to
             // it we get this on Darwin maybe 20% of the time vs. the write working, leaving the
-            // sigchld handler to clean up.
+            // sigchld handler to clean up.  The test suite forces us down here by calling the
+            // mysterious 'finish' method on the async writer.
             await errorHandler(ProtocolError("Write to Sass compiler failed: \(error)"))
         }
     }

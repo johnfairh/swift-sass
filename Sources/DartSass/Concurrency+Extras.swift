@@ -47,7 +47,10 @@ actor ContinuationQueue {
 // MARK: TestSuspend
 
 enum TestSuspendPoint {
+    case initThunk
+    case endOfInitializing
     case sendVersionRequest
+    case childTermination
 }
 
 protocol TestSuspendHook {

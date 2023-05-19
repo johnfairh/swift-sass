@@ -14,8 +14,6 @@ class DartSassTestCase: XCTestCase {
 
     var eventLoopGroup: EventLoopGroup! = nil
 
-    typealias CompilerTask = Task<Void, any Error>
-
     var compilersToShutdown: [Compiler] = []
 
     var testSuspend: TestSuspend?
@@ -242,6 +240,8 @@ extension XCTest {
 
 struct AsyncUnwrapError: Error {}
 
+struct TestCaseError: Error {}
+
 /// Helpers for low-level error-injection
 ///
 /// Nothing here to do with syncing or waiting for the compiler to be in a suitable state,
@@ -301,5 +301,11 @@ actor TestSuspend: TestSuspendHook {
             preconditionFailure("Not suspended: \(point)")
         }
         cont.resume()
+    }
+
+    func resumeIf(from point: Point) {
+        if let cont = suspendedPoints.removeValue(forKey: point) {
+            cont.resume()
+        }
     }
 }

@@ -7,6 +7,7 @@
 
 import XCTest
 import NIO
+@_spi(AsyncChannel) import NIOCore
 @testable import DartSass
 
 ///
@@ -21,6 +22,15 @@ class TestResetShutdown: DartSassTestCase {
 
         try await compiler.reinit()
         await XCTAssertEqualA(2, await compiler.startCount)
+    }
+
+    // Early reset
+    func testEarlyReset() async throws {
+        await setSuspend(at: .initThunk)
+        let compiler = try newCompiler()
+        await testSuspend?.waitUntilSuspended(at: .initThunk)
+        async let _ = compiler.shutdownGracefully()
+        await testSuspend?.resume(from: .initThunk)
     }
 
     // Deal with missing child & SIGPIPE-avoidance measures
@@ -74,6 +84,24 @@ class TestResetShutdown: DartSassTestCase {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+    }
+
+    // Can't get the thing to acknowledge a write fail without injecting
+    // a software thing here.  Furthermore if I run this test standalone
+    // then the child dies - but it doesn't in a suite??  Try to bluster
+    // through...
+    func testWriteFailure() async throws {
+        let badCompiler = try await newBadCompiler(timeout: -1)
+        await badCompiler.waitForRunning()
+        await setSuspend(at: .childTermination)
+        await badCompiler.child.asyncChannel.outboundWriter.finish()
+        do {
+            let results = try await badCompiler.compile(string: "")
+            XCTFail("Managed to compile: \(results)")
+        } catch let error as ProtocolError {
+            XCTAssertTrue(error.description.contains("alreadyFinished"))
+        }
+        await testSuspend?.resumeIf(from: .childTermination)
     }
 
     // Test the 'compiler will not restart' corner

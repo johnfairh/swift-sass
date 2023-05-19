@@ -78,6 +78,7 @@ class TestVersions: DartSassTestCase {
         let pid = await compiler.compilerProcessIdentifier!
         stopProcess(pid: pid)
         await compiler.waitForQuiescing()
+        await compiler.handleError(TestCaseError())
         await testSuspend?.resume(from: .sendVersionRequest)
         await compiler.waitForRunning()
         await compiler.assertStartCount(2)

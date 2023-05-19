@@ -13,7 +13,6 @@ import NIO
 /// Tests around duff message content to & from the compiler
 ///
 class TestProtocolErrors: DartSassTestCase {
-
     // Deal with in-band reported protocol error, compiler reports it to us.
     func testOutboundProtocolError() async throws {
         let compiler = try newCompiler()
@@ -112,6 +111,20 @@ class TestProtocolErrors: DartSassTestCase {
 
         try await compiler.reinit()
         await compiler.assertStartCount(3)
+    }
+
+    // Errors during .initializing & .shutdown
+    func testOddlyTimedErrors() async throws {
+        await setSuspend(at: .endOfInitializing)
+        let compiler = try newCompiler()
+        await testSuspend?.waitUntilSuspended(at: .endOfInitializing)
+        await compiler.handleError(TestCaseError())
+        await testSuspend?.resume(from: .endOfInitializing)
+        try await checkCompilerWorking(compiler)
+
+        await compiler.shutdownGracefully()
+        await compiler.handleError(TestCaseError())
+        await compiler.shutdownGracefully() // I guess?  Nothing bad happened?
     }
 
     // Importer request tests.  A bit grim:
