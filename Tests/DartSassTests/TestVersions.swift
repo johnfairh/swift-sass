@@ -47,11 +47,7 @@ class TestVersions: DartSassTestCase {
         return try String(contentsOf: url).trimmingCharacters(in: .newlines)
     }
 
-    func testVersionReport() throws {
-        try asyncTest(asyncTestVersionReport)
-    }
-
-    func asyncTestVersionReport() async throws {
+    func testVersionReport() async throws {
         let expectedVersion = try readSassVersion()
         let compiler = try newCompiler()
         let version = try await XCTUnwrapA(await compiler.compilerVersion)
@@ -62,55 +58,53 @@ class TestVersions: DartSassTestCase {
         XCTAssertEqual(expectedVersion, package)
     }
 
-    func testBadVersionReport() throws {
-        try asyncTest(asyncTestBadVersionReport)
-    }
-
-    func asyncTestBadVersionReport() async throws {
+    func testBadVersionReport() async throws {
         let compiler = try newCompiler()
-        compiler.versionsResponder = TestVersionsResponder(Versions(protocolVersionString: "huh"))
+        await compiler.setVersionsResponder(TestVersionsResponder(Versions(protocolVersionString: "huh")))
         let version = await compiler.compilerVersion
         XCTAssertNil(version)
     }
 
     struct HangingVersionsResponder: VersionsResponder {
-        func provideVersions(eventLoop: EventLoop, msg: Sass_EmbeddedProtocol_InboundMessage, callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) {
-            // drop it
+        func provideVersions(msg: DartSass.Sass_EmbeddedProtocol_InboundMessage) async -> DartSass.Sass_EmbeddedProtocol_OutboundMessage? {
+            nil // drop it
         }
     }
 
-    func testStuckVersionReport() throws {
-        try asyncTest(asyncTestStuckVersionReport)
+    func testInterruptedVersionRequest() async throws {
+        await setSuspend(at: .sendVersionRequest)
+        let compiler = try newCompiler()
+        await testSuspend?.waitUntilSuspended(at: .sendVersionRequest)
+        let pid = await compiler.compilerProcessIdentifier!
+        stopProcess(pid: pid)
+        await compiler.waitForQuiescing()
+        await compiler.handleError(TestCaseError())
+        await testSuspend?.resume(from: .sendVersionRequest)
+        await compiler.waitForRunning()
+        await compiler.assertStartCount(2)
+        try await checkCompilerWorking(compiler)
     }
 
-    func asyncTestStuckVersionReport() async throws {
-        let compiler = try newBadCompiler(timeout: 1)
-        compiler.versionsResponder = HangingVersionsResponder()
+    func testStuckVersionReport() async throws {
+        let compiler = try await newBadCompiler(timeout: 1)
+        await compiler.setVersionsResponder(HangingVersionsResponder())
         let version = await compiler.compilerVersion
         XCTAssertNil(version)
     }
 
     struct CorruptVersionsResponder: VersionsResponder {
-        func provideVersions(eventLoop: EventLoop,
-                             msg: Sass_EmbeddedProtocol_InboundMessage,
-                             callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) {
-            eventLoop.scheduleTask(in: .milliseconds(100)) {
-                callback(.with {
+        func provideVersions(msg: DartSass.Sass_EmbeddedProtocol_InboundMessage) async -> DartSass.Sass_EmbeddedProtocol_OutboundMessage? {
+            .with {
                     $0.importRequest = .with {
                         $0.compilationID = msg.versionRequest.id
                     }
-                })
-            }
+                }
         }
     }
 
-    func testCorruptVersionReport() throws {
-        try asyncTest(asyncTestCorruptVersionReport)
-    }
-
-    func asyncTestCorruptVersionReport() async throws {
+    func testCorruptVersionReport() async throws {
         let compiler = try newCompiler()
-        compiler.versionsResponder = CorruptVersionsResponder()
+        await compiler.setVersionsResponder(CorruptVersionsResponder())
         let version = await compiler.compilerVersion
         XCTAssertNil(version)
     }

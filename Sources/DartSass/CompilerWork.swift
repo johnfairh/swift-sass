@@ -5,30 +5,16 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import NIOCore
 @_spi(SassCompilerProvider) import Sass
-import struct Foundation.URL
 
-/// The part of the compiler that deals with actual Sass things rather than process management.
-/// It understands the contents of the Sass protocol messages.
-///
-/// Looks after global Sass state, a queue of pending work and a set of active work.
-/// It can quiesce active work.  It manages compiler timeouts.
-/// It has an API back to CompilerControl to call for a reset if things get too much.
-final class CompilerWork {
-    /// Event loop we're all running on
-    private let eventLoop: EventLoop
-    /// Async callback to request the system be reset
-    private let resetRequest: (Error) -> Void
-    /// Configured max timeout, seconds
-    private let timeout: Int
-    /// Configured global importer rules, for all compilations
-    private let globalImporters: [ImportResolver]
-    /// Configured functions, for all compilations
-    private let globalFunctions: SassAsyncFunctionMap
-
-    /// Global settings passed through to Sass
+extension Compiler {
     struct Settings {
+        /// Configured max timeout, seconds
+        let timeout: Int
+        /// Configured global importer rules, for all compilations
+        let globalImporters: [ImportResolver]
+        /// Configured functions, for all compilations
+        let globalFunctions: SassAsyncFunctionMap
         /// Message formatting style,
         let messageStyle: CompilerMessageStyle
         /// Deprecation warning verbosity
@@ -36,110 +22,73 @@ final class CompilerWork {
         /// Warning scope
         let suppressDependencyWarnings: Bool
     }
-    private let settings: Settings
+}
 
-    // These vars are protected by the event-loop thread, currently
-    // unsafe to let async-await happen in this layer.
+/// The part of the compiler that deals with actual Sass things rather than process management.
+/// It understands the contents of the Sass protocol messages.
+///
+/// Looks after global Sass state, a queue of pending work and a set of active work.
+/// It can quiesce active work.  It manages compiler timeouts.
+///
+/// This used to be a separate class but in concurrency-land it got messed up
+extension Compiler {
+    // MARK: Work Starting
 
-    /// Unstarted compilation work
-    private var pendingCompilations: [CompilationRequest]
-    /// Active compilation work indexed by CompilationID
-    private var activeRequests: [UInt32 : CompilerRequest]
-    /// Promise tracking active work quiesce
-    private var quiescePromise: EventLoopPromise<Void>?
-
-    init(eventLoop: EventLoop,
-         resetRequest: @escaping (Error) -> Void,
-         timeout: Int,
-         settings: Settings,
-         importers: [ImportResolver],
-         functions: SassAsyncFunctionMap) {
-        self.eventLoop = eventLoop
-        self.resetRequest = resetRequest
-        self.timeout = timeout
-        self.settings = settings
-        globalImporters = importers
-        globalFunctions = functions
-        pendingCompilations = []
-        activeRequests = [:]
-        quiescePromise = nil
-    }
-
-    deinit {
-        precondition(pendingCompilations.isEmpty)
-        precondition(!hasActiveRequests)
-    }
-
-    var hasActiveRequests: Bool {
-        !activeRequests.isEmpty
-    }
-
-    /// Add a new compilation request to the pending queue.
-    /// Return the future for the job.
-    func addPendingCompilation(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
-                               outputStyle: CssStyle,
-                               sourceMapStyle: SourceMapStyle,
-                               includeCharset: Bool,
-                               importers: [ImportResolver],
-                               stringImporter: ImportResolver? = nil,
-                               functions: SassAsyncFunctionMap) -> EventLoopFuture<CompilerResults> {
-        eventLoop.preconditionInEventLoop()
-
-        let promise = eventLoop.makePromise(of: CompilerResults.self)
-
-        let compilation = CompilationRequest(
-            promise: promise,
+    /// Create and start tracking  a compilation request
+    func startCompilation(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
+                          outputStyle: CssStyle,
+                          sourceMapStyle: SourceMapStyle,
+                          includeCharset: Bool,
+                          importers: [ImportResolver],
+                          stringImporter: ImportResolver? = nil,
+                          functions: SassAsyncFunctionMap,
+                          continuation: Continuation<CompilerResults>) -> Sass_EmbeddedProtocol_InboundMessage {
+        let compilationRequest = CompilationRequest(
             input: input,
             outputStyle: outputStyle,
             sourceMapStyle: sourceMapStyle,
             includeCharset: includeCharset,
             settings: settings,
-            importers: globalImporters + importers,
+            importers: settings.globalImporters + importers,
             stringImporter: stringImporter,
-            functionsMap: globalFunctions.overridden(with: functions))
+            functionsMap: settings.globalFunctions.overridden(with: functions),
+            done: makeDone(continuation))
 
-        pendingCompilations.append(compilation)
+        start(request: compilationRequest)
 
-        return promise.futureResult
+        return .with { $0.compileRequest = compilationRequest.compileReq }
     }
 
-    /// Cancel any pending (unstarted) jobs.
-    func cancelAllPending(with error: Error) {
-        let copy = pendingCompilations
-        pendingCompilations = []
-        copy.forEach {
-            $0.cancel(with: error)
-        }
-    }
-
-    /// Start all pending (unstarted) jobs.
-    /// Actually just return the messages to send, we don't do the actual I/O here.
-    /// But do tasks assuming they've been sent.
-    func startAllPending() -> [Sass_EmbeddedProtocol_InboundMessage] {
-        pendingCompilations.forEach { self.start(request: $0) }
-        defer { pendingCompilations = [] }
-        return pendingCompilations.map { job in .with { $0.compileRequest = job.compileReq } }
-    }
-
-    private func start<R: TypedCompilerRequest>(request: R) {
-        activeRequests[request.requestID] = request
-        request.start(timeout: timeout)?.whenSuccess { [self] in
-            resetRequest(
-                ProtocolError("Timeout: \(request.debugPrefix) timed out after \(timeout)s"))
-        }
-        request.futureResult.whenComplete { result in
-            self.activeRequests[request.requestID] = nil
-            self.kickQuiesce()
-        }
-    }
-
-    /// Start a version request.  Bypass any pending queue.
-    func startVersionRequest() -> (EventLoopFuture<Versions>, Sass_EmbeddedProtocol_InboundMessage) {
-        eventLoop.preconditionInEventLoop()
-        let promise = eventLoop.makePromise(of: Versions.self)
-        let request = VersionRequest(promise: promise)
+    /// Create and start tracking  version request
+    func startVersionRequest(continuation: Continuation<Versions>) -> Sass_EmbeddedProtocol_InboundMessage {
+        let request = VersionRequest(done: makeDone(continuation))
         start(request: request)
-        return (promise.futureResult, .with { $0.versionRequest = request.versionReq })
+        return .with { $0.versionRequest = request.versionReq }
+    }
+
+    private func makeDone<R>(_ continuation: Continuation<R>) ->
+        (any CompilerRequest, Result<R, any Error>) -> Void {
+            { req, res in
+                Task {
+                    if self.activeRequests.removeValue(forKey: req.requestID) != nil {
+                        continuation.resume(with: res)
+                        self.kickQuiesce()
+                    }
+                }
+            }
+    }
+
+    private func start<R: CompilerRequest>(request: R) {
+        activeRequests[request.requestID] = request
+        request.start(timeoutSeconds: settings.timeout) {
+            await self.handleError(ProtocolError("Timeout: \(request.debugPrefix) timed out after \(self.settings.timeout)s"))
+        }
+    }
+
+    // MARK: Active work management
+
+    var hasActiveRequests: Bool {
+        !activeRequests.isEmpty
     }
 
     /// Try to cancel any active jobs.  This means stop waiting for the Sass compiler to respond,
@@ -152,12 +101,12 @@ final class CompilerWork {
     }
 
     /// Start a process that notifies when all active jobs are complete.
-    func quiesce() -> EventLoopFuture<Void> {
-        precondition(quiescePromise == nil, "Overlapping quiesce requests")
-        let promise = eventLoop.makePromise(of: Void.self)
-        quiescePromise = promise
-        kickQuiesce()
-        return promise.futureResult
+    func quiesce() async {
+        precondition(quiesceContinuation == nil, "Overlapping quiesce requests")
+        await withCheckedContinuation {
+            quiesceContinuation = $0
+            kickQuiesce()
+        }
     }
 
     /// Test hook
@@ -165,39 +114,39 @@ final class CompilerWork {
 
     /// Nudge the quiesce process.
     private func kickQuiesce() {
-        if let quiescePromise = quiescePromise {
+        if let quiesceContinuation {
             if activeRequests.isEmpty {
-                self.quiescePromise = nil
-                quiescePromise.succeed(())
+                self.quiesceContinuation = nil
+                quiesceContinuation.resume()
             } else {
-                Compiler.logger.debug("Waiting for outstanding requests: \(activeRequests.count)")
-                CompilerWork.onStuckQuiesce?()
+                debug("Waiting for outstanding requests: \(activeRequests.count)")
+                Compiler.onStuckQuiesce?()
             }
         }
     }
 
+    // MARK: Message Dispatch
+
     /// Handle an inbound message from the Sass compiler.
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage, reply: @escaping ReplyFn) throws {
         if let requestID = message.requestID {
             guard let compilation = activeRequests[requestID] else {
-                return eventLoop.makeProtocolError("Received message for unknown ReqID=\(requestID): \(message)")
+                throw ProtocolError("Received message for unknown ReqID=\(requestID): \(message)")
             }
-            return compilation.receive(message: message)
+            try compilation.receive(message: message, reply: reply)
+        } else {
+            try receiveGlobal(message: message)
         }
-
-        return receiveGlobal(message: message)
     }
 
     /// Global message handler
     /// ie. messages not associated with a compilation ID.
-    private func receiveGlobal(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
-        eventLoop.preconditionInEventLoop()
-
+    private func receiveGlobal(message: Sass_EmbeddedProtocol_OutboundMessage) throws {
         switch message.message {
         case .error(let error):
-            return eventLoop.makeProtocolError("Sass compiler signalled a protocol error, type=\(error.type), ID=\(error.id): \(error.message)")
+            throw ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), ID=\(error.id): \(error.message)")
         default:
-            return eventLoop.makeProtocolError("Sass compiler sent something uninterpretable: \(message)")
+            throw ProtocolError("Sass compiler sent something uninterpretable: \(message)")
         }
     }
 }

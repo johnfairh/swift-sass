@@ -16,19 +16,23 @@ class DartSassTestCase: XCTestCase {
 
     var compilersToShutdown: [Compiler] = []
 
+    var testSuspend: TestSuspend?
+
     override func setUpWithError() throws {
         XCTAssertNil(eventLoopGroup)
         eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
         Compiler.logger.logLevel = .debug
     }
 
-    override func tearDownWithError() throws {
-        try compilersToShutdown.forEach {
-            try $0.syncShutdownGracefully()
+    override func tearDown() async throws {
+        for compiler in compilersToShutdown {
+            await compiler.shutdownGracefully()
         }
         compilersToShutdown = []
-        try eventLoopGroup.syncShutdownGracefully()
+        try await eventLoopGroup.shutdownGracefully()
         eventLoopGroup = nil
+        DartSass.TestSuspend = nil
+        testSuspend = nil
     }
 
     func newCompiler(importers: [ImportResolver] = []) throws -> Compiler {
@@ -43,24 +47,33 @@ class DartSassTestCase: XCTestCase {
         return c
     }
 
-    func newBadCompiler(timeout: Int = 1) throws -> Compiler {
+    func newBadCompiler(timeout: Int = 1) async throws -> Compiler {
         let c = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
                          embeddedCompilerFileURL: URL(fileURLWithPath: "/usr/bin/tail"),
                          timeout: timeout)
-        c.versionsResponder = TestVersionsResponder()
+        await c.setVersionsResponder(TestVersionsResponder())
         compilersToShutdown.append(c)
         return c
     }
 
+    // Helper to stop a process
+    func stopProcess(pid: Int32) {
+        // This seems super flakey on Linux in particular, have upgraded from SIGTERM to SIGKILL
+        // but still sometimes the process doesn't die and happily services the compilation...
+        let rc = kill(pid, SIGKILL)
+        XCTAssertEqual(0, rc)
+        print("XCKilled compiler process \(pid)")
+    }
+
     // Helper to trigger & validate a protocol error
-    func checkProtocolError(_ compiler: Compiler, _ text: String? = nil, protocolNotLifecycle: Bool = true) {
+    func checkProtocolError(_ compiler: Compiler, _ text: String? = nil, protocolNotLifecycle: Bool = true) async {
         do {
-            let results = try compiler.compile(string: "")
+            let results = try await compiler.compile(string: "")
             XCTFail("Managed to compile with compiler that should have failed: \(results)")
         } catch {
             if (error is ProtocolError && protocolNotLifecycle) ||
                 (error is LifecycleError && !protocolNotLifecycle) {
-                if let text = text {
+                if let text {
                     let errText = String(describing: error)
                     XCTAssertTrue(errText.contains(text))
                 }
@@ -71,9 +84,17 @@ class DartSassTestCase: XCTestCase {
     }
 
     // Helper to check a compiler is working normally
-    func checkCompilerWorking(_ compiler: Compiler) throws {
-        let results = try compiler.compile(string: "")
+    func checkCompilerWorking(_ compiler: Compiler) async throws {
+        let results = try await compiler.compile(string: "")
         XCTAssertEqual("", results.css)
+    }
+
+    func setSuspend(at point: TestSuspendPoint) async {
+        if testSuspend == nil {
+            testSuspend = TestSuspend()
+            DartSass.TestSuspend = testSuspend
+        }
+        await testSuspend?.setSuspend(at: point)
     }
 }
 
@@ -99,22 +120,22 @@ extension FileManager {
         return directoryURL
     }
 
-    public static func preservingCurrentDirectory<T>(_ code: () throws -> T) rethrows -> T {
+    public static func preservingCurrentDirectory<T>(_ code: () async throws -> T) async rethrows -> T {
         let fileManager = FileManager.default
         let cwd = fileManager.currentDirectoryPath
         defer {
             let rc = fileManager.changeCurrentDirectoryPath(cwd)
             precondition(rc)
         }
-        return try code()
+        return try await code()
     }
 }
 
 extension URL {
-    public func withCurrentDirectory<T>(code: () throws -> T) throws -> T {
-        try FileManager.preservingCurrentDirectory {
+    public func withCurrentDirectory<T>(code: () async throws -> T) async throws -> T {
+        try await FileManager.preservingCurrentDirectory {
             FileManager.default.changeCurrentDirectoryPath(path)
-            return try code()
+            return try await code()
         }
     }
 }
@@ -122,7 +143,6 @@ extension URL {
 /// An async importer that can be stopped in `load`.
 /// Accepts all `import` URLs and returns empty documents.
 final class HangingAsyncImporter: Importer {
-
     final class State: @unchecked Sendable {
         var onLoadHang: (() async -> Void)?
         init() { onLoadHang = nil }
@@ -158,12 +178,9 @@ struct TestVersionsResponder: VersionsResponder {
         self.versions = versions
     }
 
-    func provideVersions(eventLoop: EventLoop,
-                         msg: Sass_EmbeddedProtocol_InboundMessage,
-                         callback: @escaping (Sass_EmbeddedProtocol_OutboundMessage) -> Void) {
-        eventLoop.scheduleTask(in: .milliseconds(100)) {
-            callback(.with {$0.versionResponse = .init(versions, id: msg.versionRequest.id) })
-        }
+    func provideVersions(msg: Sass_EmbeddedProtocol_InboundMessage) async -> Sass_EmbeddedProtocol_OutboundMessage? {
+        try? await Task.sleep(for: .milliseconds(100))
+        return .with { $0.versionResponse = .init(versions, id: msg.versionRequest.id) }
     }
 }
 
@@ -208,94 +225,87 @@ extension XCTest {
         }
         return t
     }
+
+    func XCTAssertEqualA<T>(
+        _ expression1: @autoclosure () throws -> T,
+        _ expression2: @autoclosure () async throws -> T,
+        _ message: @autoclosure () -> String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) async rethrows where T : Equatable {
+        let e2 = try await expression2()
+        XCTAssertEqual(try expression1(), e2, message(), file: file, line: line)
+    }
 }
 
 struct AsyncUnwrapError: Error {}
 
-// An incredible hack adapted from @kirilltitov to work around the lack of async
-// xctest support in Swift PM and corelibs-xctest.
+struct TestCaseError: Error {}
 
-final class ErrBox<T>: @unchecked Sendable {
-    var err: Error?
-    var result: T?
-    init() {
-        err = nil
-        result = nil
-    }
-}
-
-func asyncTest(_ method: @escaping () async throws -> Void) throws -> Void {
-    let expectation = XCTestExpectation(description: "async test completion")
-    let errorBox = ErrBox<Void>()
-
-    Task {
-        defer { expectation.fulfill() }
-
-        do {
-            try await method()
-        } catch {
-            errorBox.err = error
-        }
-    }
-
-    _ = XCTWaiter.wait(for: [expectation], timeout: 60 * 60 * 24 * 30)
-
-    try errorBox.err.map { throw $0 }
-}
-
-// More hax to work around lack of async swift test stuff
-
+/// Helpers for low-level error-injection
+///
+/// Nothing here to do with syncing or waiting for the compiler to be in a suitable state,
+/// caller's responsibility.
 extension Compiler {
-    func compile(string: String,
-                 syntax: Syntax = .scss,
-                 url: URL? = nil,
-                 importer: ImportResolver? = nil,
-                 outputStyle: CssStyle = .expanded,
-                 sourceMapStyle: SourceMapStyle = .separateSources,
-                 includeCharset: Bool = false,
-                 importers: [ImportResolver] = [],
-                 functions: SassAsyncFunctionMap = [:]) throws -> CompilerResults {
-        let expectation = XCTestExpectation(description: "async compile completion")
-        let errorBox = ErrBox<CompilerResults>()
-
-        Task {
-            defer { expectation.fulfill() }
-
-            do {
-                errorBox.result = try await compile(string: string, syntax: syntax, url: url, importer: importer, outputStyle: outputStyle, sourceMapStyle: sourceMapStyle, includeCharset: includeCharset, importers: importers, functions: functions)
-            } catch {
-                errorBox.err = error
-            }
-        }
-
-        _ = XCTWaiter.wait(for: [expectation], timeout: 60 * 60 * 24 * 30)
-
-        try errorBox.err.map { throw $0 }
-        return errorBox.result!
+    func assertStartCount(_ count: Int) {
+        XCTAssertEqual(count, startCount)
     }
 
-    public func compile(fileURL: URL,
-                        outputStyle: CssStyle = .expanded,
-                        sourceMapStyle: SourceMapStyle = .separateSources,
-                        importers: [ImportResolver] = [],
-                        functions: SassAsyncFunctionMap = [:]) throws -> CompilerResults {
-        let expectation = XCTestExpectation(description: "async compile completion2")
-        let errorBox = ErrBox<CompilerResults>()
+    var child: CompilerChild {
+        state.child!
+    }
 
-        Task {
-            defer { expectation.fulfill() }
+    func tstReceive(message: Sass_EmbeddedProtocol_OutboundMessage) async {
+        await child.receive(message: message)
+    }
 
-            do {
-                errorBox.result = try await compile(fileURL: fileURL, outputStyle: outputStyle, sourceMapStyle: sourceMapStyle, importers: importers, functions: functions)
-            } catch {
-                errorBox.err = error
+    func tstSend(message: Sass_EmbeddedProtocol_InboundMessage) async {
+        await child.send(message: message)
+    }
+}
+
+// MARK: TestSuspend
+
+/// Support hooks to extend timing windows to reliably hit edge cases
+actor TestSuspend: TestSuspendHook {
+    typealias Point = TestSuspendPoint
+
+    private var enabledPoints: Set<Point> = []
+    private var suspendedPoints: [Point : CheckedContinuation<Void, Never>] = [:]
+    private var waitForSuspend: CheckedContinuation<Void, Never>? = nil
+
+    fileprivate func setSuspend(at point: Point) {
+        enabledPoints.insert(point)
+    }
+
+    func suspend(for point: Point) async {
+        if enabledPoints.remove(point) != nil {
+            await withCheckedContinuation { continuation in
+                suspendedPoints.updateValue(continuation, forKey: point)
+                if let waitForSuspend {
+                    self.waitForSuspend = nil
+                    waitForSuspend.resume()
+                }
             }
         }
+    }
 
-        _ = XCTWaiter.wait(for: [expectation], timeout: 60 * 60 * 24 * 30)
+    func waitUntilSuspended(at point: Point) async {
+        while suspendedPoints[point] == nil {
+            await withCheckedContinuation { waitForSuspend = $0 }
+        }
+    }
 
-        try errorBox.err.map { throw $0 }
-        return errorBox.result!
+    func resume(from point: Point) {
+        guard let cont = suspendedPoints.removeValue(forKey: point) else {
+            preconditionFailure("Not suspended: \(point)")
+        }
+        cont.resume()
+    }
 
+    func resumeIf(from point: Point) {
+        if let cont = suspendedPoints.removeValue(forKey: point) {
+            cont.resume()
+        }
     }
 }

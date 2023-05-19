@@ -40,69 +40,69 @@ class TestImporters: DartSassTestCase {
     }
 
     // compiler loadpath works
-    func testCompilerLoadPath() throws {
+    func testCompilerLoadPath() async throws {
         let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
         let compiler = try newCompiler(importers: [.loadPath(tmpDir)])
-        let results = try compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
+        let results = try await compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssBlue, results.css)
     }
 
     // job loadpath works
-    func testJobLoadPath() throws {
+    func testJobLoadPath() async throws {
         let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
         let compiler = try newCompiler()
-        let results = try compiler.compile(string: usingSass, syntax: .sass,
-                                           outputStyle: .compressed,
-                                           importers: [.loadPath(tmpDir)])
+        let results = try await compiler.compile(string: usingSass, syntax: .sass,
+                                                 outputStyle: .compressed,
+                                                 importers: [.loadPath(tmpDir)])
         XCTAssertEqual(secondaryCssBlue, results.css)
         XCTAssertEqual(1, results.loadedURLs.count)
     }
 
     // job loadpath searched after compiler loadpath
-    func testLoadPathOrder() throws {
+    func testLoadPathOrder() async throws {
         let tmpDirBlue = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
         let tmpDirRed = try createFileInNewDir(secondaryCssRed, filename: secondaryCssFilename)
         let compiler = try newCompiler(importers: [.loadPath(tmpDirRed)])
-        let results = try compiler.compile(string: usingSass, syntax: .sass,
-                                           outputStyle: .compressed,
-                                           importers: [.loadPath(tmpDirBlue)])
+        let results = try await compiler.compile(string: usingSass, syntax: .sass,
+                                                 outputStyle: .compressed,
+                                                 importers: [.loadPath(tmpDirBlue)])
         XCTAssertEqual(secondaryCssRed, results.css)
     }
 
     // nonsense in loadpath doesn't affect anyone (not even a warning!)
-    func testNonsenseLoadPath() throws {
+    func testNonsenseLoadPath() async throws {
         let tmpDir = try createFileInNewDir(secondaryCssBlue, filename: secondaryCssFilename)
         let nonsenseDir = URL(fileURLWithPath: "/not/a/directory")
         let compiler = try newCompiler(importers: [.loadPath(nonsenseDir), .loadPath(tmpDir)])
-        let results = try compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
+        let results = try await compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssBlue, results.css)
     }
 
     // no implicit loadpath - 1.50.1 spec clarification
-    func testImplicitLoadPath() throws {
+    func testImplicitLoadPath() async throws {
         let tmpDir = try FileManager.default.createTemporaryDirectory()
         let filename = "imported.scss"
         try "a { a: 'hello'; }".write(to: tmpDir.appendingPathComponent(filename))
 
-        try tmpDir.withCurrentDirectory {
+        try await tmpDir.withCurrentDirectory {
             let compiler = try newCompiler()
-            try checkCompilerWorking(compiler) // make sure child process is actually started...
+            await compiler.waitForRunning()
             do {
-                let results = try compiler.compile(string: "@import 'imported';", outputStyle: .compressed)
+                let results = try await compiler.compile(string: "@import 'imported';", outputStyle: .compressed)
                 XCTFail("Managed to resolve import: \(results)")
             } catch {
                 print(error)
             }
 
-            let results = try compiler.compile(string: "@import 'imported';",
-                                               outputStyle: .compressed,
-                                               importers: [.loadPath(tmpDir.absoluteURL)])
+            let results = try await compiler.compile(string: "@import 'imported';",
+                                                     outputStyle: .compressed,
+                                                     importers: [.loadPath(tmpDir.absoluteURL)])
             XCTAssertEqual(#"a{a:"hello"}"#, results.css)
         }
     }
-
-    // MARK: Custom Importers
-
+//
+//    // MARK: Custom Importers
+//
     // A custom importer
     final class TestImporter: Importer, @unchecked Sendable {
         let css: String
@@ -158,21 +158,21 @@ class TestImporters: DartSassTestCase {
     }
 
     // Goodpath.
-    func testCustomImporter() throws {
+    func testCustomImporter() async throws {
         let importer = TestImporter(css: secondaryCssRed)
         let compiler = try newCompiler(importers: [.importer(importer)])
-        let results = try compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
+        let results = try await compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssRed, results.css)
         XCTAssertEqual("test://secondary", results.loadedURLs.first!.absoluteString)
     }
 
     // Bad path harness
-    func checkFaultyImporter(customize: (TestImporter) -> Void, check: (TestImporter, CompilerError) -> Void) throws {
+    func checkFaultyImporter(customize: (TestImporter) -> Void, check: (TestImporter, CompilerError) -> Void) async throws {
         let importer = TestImporter(css: secondaryCssRed)
         customize(importer)
         let compiler = try newCompiler(importers: [.importer(importer)])
         do {
-            let results = try compiler.compile(string: usingSass, syntax: .sass)
+            let results = try await compiler.compile(string: usingSass, syntax: .sass)
             XCTFail("Compiled something: \(results)")
         } catch let error as CompilerError {
             check(importer, error)
@@ -182,53 +182,53 @@ class TestImporters: DartSassTestCase {
     }
 
     // Canon says nil (not recognized)
-    func testImportNotFound() throws {
-        try checkFaultyImporter(customize: { $0.claimRequest = false }) { i, e in
+    func testImportNotFound() async throws {
+        try await checkFaultyImporter(customize: { $0.claimRequest = false }) { i, e in
             XCTAssertEqual(1, i.unclaimedRequestCount)
             XCTAssertTrue(e.message.contains("Can't find stylesheet"))
         }
     }
 
     // Canon fails (ambiguous)
-    func testImportCanonFails() throws {
-        try checkFaultyImporter(customize: { $0.failNextCanon = "Objection" }) { i, e in
+    func testImportCanonFails() async throws {
+        try await checkFaultyImporter(customize: { $0.failNextCanon = "Objection" }) { i, e in
             XCTAssertEqual(i.failNextCanon, e.message)
             XCTAssertEqual(1, i.failedCanonCount)
         }
     }
 
     // load fails
-    func testImportFails() throws {
-        try checkFaultyImporter(customize: { $0.failNextImport = "Objection" }) { i, e in
+    func testImportFails() async throws {
+        try await checkFaultyImporter(customize: { $0.failNextImport = "Objection" }) { i, e in
             XCTAssertEqual(i.failNextImport, e.message)
             XCTAssertEqual(1, i.failedImportCount)
         }
     }
 
     // load not-found (still don't really understand why this is here, canon works but then this fails?)
-    func testImportNil() throws {
-        try checkFaultyImporter(customize: { $0.nilNextImport = true }) { i, e in
+    func testImportNil() async throws {
+        try await checkFaultyImporter(customize: { $0.nilNextImport = true }) { i, e in
             XCTAssertTrue(e.message.contains("Can't find stylesheet"))
             XCTAssertEqual(1, i.nilImportCount)
         }
     }
 
     // Async importer
-    func testAsyncImporter() throws {
+    func testAsyncImporter() async throws {
         let importer = HangingAsyncImporter()
         let compiler = try newCompiler(importers: [.importer(importer)])
-        let results = try compiler.compile(string: "@import 'something';")
+        let results = try await compiler.compile(string: "@import 'something';")
         XCTAssertEqual("", results.css)
     }
 
     // Importer for string source doc
-    func testStringImporter() throws {
+    func testStringImporter() async throws {
         let importer = TestImporter(css: secondaryCssRed)
         let compiler = try newCompiler()
-        let results = try compiler.compile(string: "@import 'something';",
-                                           url: URL(string: "test://vfs"),
-                                           importer: .importer(importer),
-                                           outputStyle: .compressed)
+        let results = try await compiler.compile(string: "@import 'something';",
+                                                 url: URL(string: "test://vfs"),
+                                                 importer: .importer(importer),
+                                                 outputStyle: .compressed)
         XCTAssertEqual("a{color:red}", results.css)
         XCTAssertEqual(2, results.loadedURLs.count)
         let srcmap = try SourceMap(XCTUnwrap(results.sourceMap))
@@ -237,7 +237,7 @@ class TestImporters: DartSassTestCase {
     }
 
     // fromImport flag
-    func testFromImport() throws {
+    func testFromImport() async throws {
         final class FromImportTester: Importer, @unchecked Sendable {
             var expectFromImport = false
             var wasInvoked = false
@@ -266,16 +266,16 @@ class TestImporters: DartSassTestCase {
         let compiler = try newCompiler(importers: [.importer(importer)])
 
         importer.expectNext(true)
-        _ = try compiler.compile(string: "@import 'something'")
+        _ = try await compiler.compile(string: "@import 'something'")
         importer.check()
 
         importer.expectNext(false)
-        _ = try compiler.compile(string: "@use 'something'")
+        _ = try await compiler.compile(string: "@use 'something'")
         importer.check()
     }
 
     // multiple imports, loaded
-    func testMultipleLoadedURLs() throws {
+    func testMultipleLoadedURLs() async throws {
         let importer = TestImporter(css: "a { b: 'c' }")
         let compiler = try newCompiler(importers: [.importer(importer)])
         let rootURL = URL(string: "original://file")!
@@ -284,7 +284,7 @@ class TestImporters: DartSassTestCase {
                    @import 'second';
                    div { b: 'c' }
                    """
-        let results = try compiler.compile(string: scss, syntax: .scss, url: rootURL)
+        let results = try await compiler.compile(string: scss, syntax: .scss, url: rootURL)
         let map = try SourceMap(XCTUnwrap(results.sourceMap))
         XCTAssertEqual(3, map.sources.count)
         XCTAssertEqual(3, results.loadedURLs.count)
@@ -335,7 +335,7 @@ class TestImporters: DartSassTestCase {
         }
     }
 
-    func testFilesystem() throws {
+    func testFilesystem() async throws {
         let dir = try FileManager.default.createTemporaryDirectory()
         defer { try? FileManager.default.removeItem(at: dir) }
         let imp = FilesysImporter(dir)
@@ -347,21 +347,21 @@ class TestImporters: DartSassTestCase {
 
         // Goodpath, import
         imp.expectImport = true
-        let results = try compiler.compile(string: "@import 'test';", outputStyle: .compressed)
+        let results = try await compiler.compile(string: "@import 'test';", outputStyle: .compressed)
         XCTAssertEqual(1, imp.resolveCount)
         XCTAssertEqual(fileURL, results.loadedURLs[0])
         XCTAssertEqual("a{b:true}", results.css)
 
         // Goodpath, use
         imp.expectImport = false
-        let results2 = try compiler.compile(string: "@use 'test';", outputStyle: .compressed)
+        let results2 = try await compiler.compile(string: "@use 'test';", outputStyle: .compressed)
         XCTAssertEqual(2, imp.resolveCount)
         XCTAssertEqual("a{b:true}", results2.css)
 
         // Notfound
         imp.nextUnknown = true
         do {
-            let res = try compiler.compile(string: "@use 'test';", outputStyle: .compressed)
+            let res = try await compiler.compile(string: "@use 'test';", outputStyle: .compressed)
             XCTFail("Managed to resolve @use 'test': \(res)")
         } catch let error as CompilerError {
             XCTAssertTrue(error.message.contains("Can't find stylesheet"))
@@ -374,7 +374,7 @@ class TestImporters: DartSassTestCase {
         imp.nextUnknown = false
         imp.nextFail = true
         do {
-            let res = try compiler.compile(string: "@use 'test';", outputStyle: .compressed)
+            let res = try await compiler.compile(string: "@use 'test';", outputStyle: .compressed)
             XCTFail("Managed to resolve @use 'test': \(res)")
         } catch let error as CompilerError {
             XCTAssertTrue(error.message.contains("Programmed fail"))
@@ -385,7 +385,7 @@ class TestImporters: DartSassTestCase {
     }
 
     /// Prove that the dart backend understands import-only
-    func testFilesystemImportOnly() throws {
+    func testFilesystemImportOnly() async throws {
         let dir = try FileManager.default.createTemporaryDirectory()
         defer { try? FileManager.default.removeItem(at: dir) }
         let imp = FilesysImporter(dir)
@@ -399,7 +399,7 @@ class TestImporters: DartSassTestCase {
 
         // Goodpath, import
         imp.expectImport = true
-        let results = try compiler.compile(string: "@import 'test';", outputStyle: .compressed)
+        let results = try await compiler.compile(string: "@import 'test';", outputStyle: .compressed)
         XCTAssertEqual(1, imp.resolveCount)
         XCTAssertEqual(importFileURL, results.loadedURLs[0])
         XCTAssertEqual("a{b:false}", results.css)

@@ -13,46 +13,35 @@ import NIO
 /// Tests around duff message content to & from the compiler
 ///
 class TestProtocolErrors: DartSassTestCase {
-
     // Deal with in-band reported protocol error, compiler reports it to us.
-    func testOutboundProtocolError() throws {
-        try asyncTest(asyncTestOutboundProtocolError)
-    }
-
-    func asyncTestOutboundProtocolError() async throws {
+    func testOutboundProtocolError() async throws {
         let compiler = try newCompiler()
         let msg = Sass_EmbeddedProtocol_InboundMessage.with { msg in
             msg.importResponse = .with { rsp in
                 rsp.id = 108
             }
         }
-        XCTAssertNil(compiler.state.child)
-        await compiler.sync()
-        let f = compiler.eventLoop.flatSubmit {
-            try! compiler.child().send(message: msg)
-        }
+        await compiler.waitForRunning()
 
-        checkProtocolError(compiler, "108")
-        _ = try? await f.get()
+        await compiler.tstSend(message: msg)
 
-        try checkCompilerWorking(compiler)
-        XCTAssertEqual(2, compiler.startCount)
+        await checkProtocolError(compiler, "108") // this is racy...
+
+        try await checkCompilerWorking(compiler)
+        await compiler.assertStartCount(2)
     }
 
     // Misc general bad inbound messages
-    func testGeneralInboundProtocol() throws {
-        try asyncTest(asyncTestGeneralInboundProtocol)
-    }
-
-    func asyncTestGeneralInboundProtocol() async throws {
+    func testGeneralInboundProtocol() async throws {
         let compiler = try newCompiler()
 
         // no message at all
         let badMsg = Sass_EmbeddedProtocol_OutboundMessage()
-        await compiler.receive(message: badMsg)
+        await compiler.waitForRunning()
+        await compiler.tstReceive(message: badMsg)
 
-        try checkCompilerWorking(compiler)
-        XCTAssertEqual(2, compiler.startCount)
+        try await checkCompilerWorking(compiler)
+        await compiler.assertStartCount(2)
 
         // reponse to a job we don't have active
         let badMsg1 = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
@@ -60,28 +49,25 @@ class TestProtocolErrors: DartSassTestCase {
                 rsp.id = 42
             }
         }
-        await compiler.receive(message: badMsg1)
+        await compiler.tstReceive(message: badMsg1)
 
-        try checkCompilerWorking(compiler)
-        XCTAssertEqual(3, compiler.startCount)
+        try await checkCompilerWorking(compiler)
+        await compiler.assertStartCount(3)
 
         // response to a job when we're not interested [legacy, refactored away!]
-        try compiler.syncShutdownGracefully()
+        await compiler.shutdownGracefully()
         let pid = await compiler.compilerProcessIdentifier
         XCTAssertNil(pid)
-        XCTAssertEqual(3, compiler.startCount) // no more resets
+        await compiler.assertStartCount(3) // no more resets
     }
 
     // Bad response to compile-req
-    func testBadCompileRsp() throws {
-        try asyncTest(asyncTestBadCompileRsp)
-    }
+    func testBadCompileRsp() async throws {
+        let compiler = try await newBadCompiler()
 
-    func asyncTestBadCompileRsp() async throws {
-        let compiler = try newBadCompiler()
+        await compiler.waitForRunning()
 
         // Expected message, bad content
-
         let msg = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
             msg.compileResponse = .with { rsp in
                 rsp.id = RequestID.peekNext
@@ -89,13 +75,13 @@ class TestProtocolErrors: DartSassTestCase {
             }
         }
 
-        let compileResult = Task { try await compiler.compile(string: "") }
-        try? await Task.sleep(nanoseconds: 1000 * 1000 * 500)
+        async let compileResult = compiler.compile(string: "")
+        try? await Task.sleep(for: .milliseconds(500))
 
-        await compiler.receive(message: msg)
+        await compiler.tstReceive(message: msg)
 
         do {
-            let results = try await compileResult.value
+            let results = try await compileResult
             XCTFail("Managed to compile: \(results)")
         } catch let error as ProtocolError {
             print(error)
@@ -104,17 +90,17 @@ class TestProtocolErrors: DartSassTestCase {
             XCTFail("Unexpected error: \(error)")
         }
 
-        await XCTAssertNoThrowA(try await compiler.reinit()) // sync with event loop
-        XCTAssertEqual(2, compiler.startCount)
+        try await compiler.reinit()
+        await compiler.assertStartCount(2)
 
         // Peculiar error
-        let compileResult2 = Task { try await compiler.compile(string: "") }
-        try? await Task.sleep(nanoseconds: 1000 * 1000 * 500)
-        compiler.eventLoop.execute {
-            try! compiler.child().channel.pipeline.fireErrorCaught(ProtocolError("Injected channel error"))
-        }
+        async let compileResult2 = compiler.compile(string: "")
+        try? await Task.sleep(for: .milliseconds(500))
+
+        await compiler.child.channel.pipeline.fireErrorCaught(ProtocolError("Injected channel error"))
+
         do {
-            let results = try await compileResult2.value
+            let results = try await compileResult2
             XCTFail("Managed to compile: \(results)")
         } catch let error as ProtocolError {
             print(error)
@@ -123,8 +109,22 @@ class TestProtocolErrors: DartSassTestCase {
             XCTFail("Unexpected error: \(error)")
         }
 
-        await XCTAssertNoThrowA(try await compiler.reinit()) // sync with event loop
-        XCTAssertEqual(3, compiler.startCount)
+        try await compiler.reinit()
+        await compiler.assertStartCount(3)
+    }
+
+    // Errors during .initializing & .shutdown
+    func testOddlyTimedErrors() async throws {
+        await setSuspend(at: .endOfInitializing)
+        let compiler = try newCompiler()
+        await testSuspend?.waitUntilSuspended(at: .endOfInitializing)
+        await compiler.handleError(TestCaseError())
+        await testSuspend?.resume(from: .endOfInitializing)
+        try await checkCompilerWorking(compiler)
+
+        await compiler.shutdownGracefully()
+        await compiler.handleError(TestCaseError())
+        await compiler.shutdownGracefully() // I guess?  Nothing bad happened?
     }
 
     // Importer request tests.  A bit grim:
@@ -161,7 +161,7 @@ class TestProtocolErrors: DartSassTestCase {
         ])
 
         importer.state.onLoadHang = {
-            await compiler.receive(message: msg)
+            await compiler.tstReceive(message: msg)
         }
 
         do {
@@ -176,65 +176,45 @@ class TestProtocolErrors: DartSassTestCase {
     }
 
     /// importer ID is completely wrong
-    func testImporterBadID() throws {
-        try asyncTest(asyncTestImporterBadID)
-    }
-
-    func asyncTestImporterBadID() async throws {
+    func testImporterBadID() async throws {
         try await checkBadImportMessage(.with {
-            $0.compilationID = RequestID.peekNext
+            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.importerID = 12
         }, "Bad importer ID")
     }
 
     /// Importer ID picks out a loadpath not an importer
-    func testImporterBadImporterType1() throws {
-        try asyncTest(asyncTestImporterBadImporterType1)
-    }
-
-    func asyncTestImporterBadImporterType1() async throws {
+    func testImporterBadImporterType1() async throws {
         try await checkBadImportMessage(.with {
-            $0.compilationID = RequestID.peekNext
+            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.importerID = 4001
         }, "not an importer")
     }
 
     /// Importer ID picks out a fileimporter not an importer
-    func testImporterBadImporterType2() throws {
-        try asyncTest(asyncTestImporterBadImporterType2)
-    }
-
-    func asyncTestImporterBadImporterType2() async throws {
+    func testImporterBadImporterType2() async throws {
         try await checkBadImportMessage(.with {
-            $0.compilationID = RequestID.peekNext
+            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.importerID = 4002
         }, "not an importer")
     }
 
     /// URL has gotten messed up
-    func testImporterBadURL() throws {
-        try asyncTest(asyncTestImporterBadURL)
-    }
-
-    func asyncTestImporterBadURL() async throws {
+    func testImporterBadURL() async throws {
         try await checkBadImportMessage(.with {
-            $0.compilationID = RequestID.peekNext
+            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.importerID = 4000
         }, "Malformed import URL")
     }
 
     /// FileImporter
-    func testFileImporterBadID() throws {
-        try asyncTest(asyncTestFileImporterBadID)
-    }
-
-    func asyncTestFileImporterBadID() async throws {
+    func testFileImporterBadID() async throws {
         try await checkBadFileImport(.with {
-            $0.compilationID = RequestID.peekNext
+            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.importerID = 4000
         }, "Bad importer ID 4000")
@@ -244,38 +224,26 @@ class TestProtocolErrors: DartSassTestCase {
     // Reuse the importer stuff, same scenario really just different error.
 
     /// Missing fn identifier
-    func testImporterNoIdentifier() throws {
-        try asyncTest(asyncTestImporterNoIdentifier)
-    }
-
-    func asyncTestImporterNoIdentifier() async throws {
+    func testFunctionNoIdentifier() async throws {
         try await checkBadFnCallMessage(.with {
-            $0.compilationID = RequestID.peekNext
+            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
         }, "Missing 'identifier'")
     }
 
     /// Bad ID
-    func testImporterBadNumericID() throws {
-        try asyncTest(asyncTestImporterBadNumericID)
-    }
-
-    func asyncTestImporterBadNumericID() async throws {
+    func testImporterBadNumericID() async throws {
         try await checkBadFnCallMessage(.with {
-            $0.compilationID = RequestID.peekNext
+            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.functionID = 108
         }, "Host function ID")
     }
 
     /// Bad name
-    func testImporterBadName() throws {
-        try asyncTest(asyncTestImporterBadName)
-    }
-
-    func asyncTestImporterBadName() async throws {
+    func testImporterBadName() async throws {
         try await checkBadFnCallMessage(.with {
-            $0.compilationID = RequestID.peekNext
+            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.name = "mysterious"
         }, "Host function name")
@@ -332,30 +300,5 @@ class TestProtocolErrors: DartSassTestCase {
         buffer.writeInteger(UInt32(0xffffffff))
 
         XCTAssertThrowsError(try decodeVarint(buffer: &buffer))
-    }
-}
-
-extension Compiler {
-    func child() throws -> CompilerChild {
-        guard let child = state.child else {
-            throw ProtocolError("Wrong state for child")
-        }
-        return child
-    }
-
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async {
-        await sync()
-        eventLoop.execute {
-            try! self.child().receive(message: message)
-        }
-        await sync()
-        try? await Task.sleep(nanoseconds: 10000) // i'm sorry this whole thing needs a redesign
-                                                  // for async-await, can't get my head around how
-                                                  // to inject errors in a controlled way.
-    }
-
-    func sync() async {
-        let _ = await compilerProcessIdentifier
-        XCTAssertNil(state.future)
     }
 }

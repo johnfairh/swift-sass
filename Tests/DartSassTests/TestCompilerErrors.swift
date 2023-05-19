@@ -43,10 +43,10 @@ class TestCompilerErrors: DartSassTestCase {
     badfile.sass 6:3  root stylesheet
     """
 
-    func testCompilerErrorInline() throws {
+    func testCompilerErrorInline() async throws {
         let compiler = try newCompiler()
         do {
-            let results = try compiler.compile(string: badSass, syntax: .sass)
+            let results = try await compiler.compile(string: badSass, syntax: .sass)
             XCTFail("Managed to compile, got: \(results.css)")
         } catch let error as CompilerError {
             XCTAssertEqual(badSassInlineError, error.description)
@@ -55,11 +55,11 @@ class TestCompilerErrors: DartSassTestCase {
         }
     }
 
-    func testCompilerErrorFile() throws {
+    func testCompilerErrorFile() async throws {
         let compiler = try newCompiler()
         let url = try FileManager.default.createTempFile(filename: "badfile.sass", contents: badSass)
         do {
-            let results = try compiler.compile(fileURL: url)
+            let results = try await compiler.compile(fileURL: url)
             XCTFail("Managed to compile, got: \(results.css)")
         } catch let error as CompilerError {
             let d = error.description
@@ -79,12 +79,12 @@ class TestCompilerErrors: DartSassTestCase {
     \u{001b}[34m6 │\u{001b}[0m   \u{001b}[31m@include reflexive-position(top, 12px)\u{001b}[0m
     """
 
-    func testColorCompilerError() throws {
+    func testColorCompilerError() async throws {
         let compiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
                                     messageStyle: .terminalColored)
         compilersToShutdown.append(compiler)
         do {
-            let results = try compiler.compile(string: badSass, syntax: .sass)
+            let results = try await compiler.compile(string: badSass, syntax: .sass)
             XCTFail("Managed to compile, got: \(results.css)")
         } catch let error as CompilerError {
             XCTAssertTrue(error.description.hasPrefix(badSassInlineColorError))
@@ -94,11 +94,11 @@ class TestCompilerErrors: DartSassTestCase {
     }
 
     // Compiler error without rich description, missing file
-    func testMissingFile() throws {
+    func testMissingFile() async throws {
         let compiler = try newCompiler()
 
         do {
-            let results = try compiler.compile(fileURL: URL(fileURLWithPath: "/tmp/no"))
+            let results = try await compiler.compile(fileURL: URL(fileURLWithPath: "/tmp/no"))
             XCTFail("Managed to compile non-existant file: \(results)")
         } catch let error as CompilerError {
             XCTAssertEqual("Cannot open file: /tmp/no", String(describing: error))
@@ -131,9 +131,9 @@ class TestCompilerErrors: DartSassTestCase {
 
     """
 
-    func testCompilerWarning() throws {
+    func testCompilerWarning() async throws {
         let compiler = try newCompiler()
-        let results = try compiler.compile(string: warnsomeSass, syntax: .sass)
+        let results = try await compiler.compile(string: warnsomeSass, syntax: .sass)
         XCTAssertEqual(1, results.messages.count)
         XCTAssertTrue(results.messages[0].kind == .warning)
         XCTAssertTrue(results.messages[0].message.contains("Unknown prefix"))
@@ -148,9 +148,9 @@ class TestCompilerErrors: DartSassTestCase {
     """
 
     // Multiple warnings
-    func testCompilerWarningMultiple() throws {
+    func testCompilerWarningMultiple() async throws {
         let compiler = try newCompiler()
-        let results = try compiler.compile(string: multiWarningSass, syntax: .sass)
+        let results = try await compiler.compile(string: multiWarningSass, syntax: .sass)
         XCTAssertEqual(3, results.messages.count)
         print(results.messages)
         results.messages[0...1].forEach { w in
@@ -168,9 +168,9 @@ class TestCompilerErrors: DartSassTestCase {
     """
 
     // Deprecation warning
-    func testDeprecationWarning() throws {
+    func testDeprecationWarning() async throws {
         let compiler = try newCompiler()
-        let results = try compiler.compile(string: deprecatedScss, syntax: .scss)
+        let results = try await compiler.compile(string: deprecatedScss, syntax: .scss)
         XCTAssertEqual("", results.css)
         XCTAssertEqual(1, results.messages.count)
         XCTAssertEqual(.deprecation, results.messages[0].kind)
@@ -183,9 +183,9 @@ class TestCompilerErrors: DartSassTestCase {
     """
 
     // Warning with a span
-    func testWarningSpan() throws {
+    func testWarningSpan() async throws {
         let compiler = try newCompiler()
-        let results = try compiler.compile(string: warningScssWithLocation, syntax: .scss)
+        let results = try await compiler.compile(string: warningScssWithLocation, syntax: .scss)
         XCTAssertEqual(1, results.messages.count)
         XCTAssertEqual(.warning, results.messages[0].kind)
         XCTAssertNotNil(results.messages[0].span)
@@ -199,10 +199,10 @@ class TestCompilerErrors: DartSassTestCase {
     """
 
     // Compiler error and a warning
-    func testErrorAndWarning() throws {
+    func testErrorAndWarning() async throws {
         let compiler = try newCompiler()
         do {
-            let results = try compiler.compile(string: badWarningScss, syntax: .scss)
+            let results = try await compiler.compile(string: badWarningScss, syntax: .scss)
             XCTFail("Managed to compile nonsense: \(results)")
         } catch let error as CompilerError {
             print(error)
@@ -212,11 +212,11 @@ class TestCompilerErrors: DartSassTestCase {
     }
 
     // Dependency warning control
-    func testDependencyWarning() throws {
+    func testDependencyWarning() async throws {
         // warnings normally reported
         let importer = StaticImporter(scss: "$_: 1/2")
         let loudCompiler = try newCompiler(importers: [.importer(importer)])
-        let results1 = try loudCompiler.compile(string: "@import 'foo';")
+        let results1 = try await loudCompiler.compile(string: "@import 'foo';")
         XCTAssertEqual(1, results1.messages.count)
 
         // warnings can be suppressed - from a file
@@ -226,19 +226,19 @@ class TestCompilerErrors: DartSassTestCase {
 
         let rootFile = try FileManager.default.createTempFile(filename: "root.scss", contents: "@import 'foo';")
 
-        let results2 = try quietCompiler.compile(fileURL: rootFile,
-                                                 importers: [.importer(importer)])
+        let results2 = try await quietCompiler.compile(fileURL: rootFile,
+                                                       importers: [.importer(importer)])
         XCTAssertEqual(0, results2.messages.count)
 
         // warnings can be suppressed - from a string
-        let results3 = try quietCompiler.compile(string: "@import 'imported';",
-                                                 url: URL(string: "custom://main.scss")!,
-                                                 importers: [.importer(importer)])
+        let results3 = try await quietCompiler.compile(string: "@import 'imported';",
+                                                       url: URL(string: "custom://main.scss")!,
+                                                       importers: [.importer(importer)])
         XCTAssertEqual(0, results3.messages.count)
     }
 
     // Deprecation warnings normally throttled
-    func testVerboseDeprecationWarnings() throws {
+    func testVerboseDeprecationWarnings() async throws {
         let importer = StaticImporter(scss: """
                                             $_: 1/2;
                                             $_: 1/3;
@@ -249,7 +249,7 @@ class TestCompilerErrors: DartSassTestCase {
                                             $_: 1/8;
                                             """)
         let normalCompiler = try newCompiler(importers: [.importer(importer)])
-        let results1 = try normalCompiler.compile(string: "@import 'foo';")
+        let results1 = try await normalCompiler.compile(string: "@import 'foo';")
         XCTAssertEqual(6, results1.messages.count)
 
         let verboseCompiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
@@ -257,7 +257,7 @@ class TestCompilerErrors: DartSassTestCase {
                                            importers: [.importer(importer)])
         compilersToShutdown.append(verboseCompiler)
 
-        let results2 = try verboseCompiler.compile(string: "@import 'foo';")
+        let results2 = try await verboseCompiler.compile(string: "@import 'foo';")
         XCTAssertEqual(7, results2.messages.count)
     }
 }

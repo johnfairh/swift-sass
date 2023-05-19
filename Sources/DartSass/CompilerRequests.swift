@@ -5,9 +5,7 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import NIOCore
 import struct Foundation.URL
-import class Dispatch.DispatchSemaphore
 import Atomics
 @_spi(SassCompilerProvider) import Sass
 
@@ -15,8 +13,7 @@ import Atomics
 // Debug logging, multi-message exchanges, client activity
 // Cancelling, timeout.
 //
-// CompilerRequest/TypedCompilerRequest --- interface protocol to CompilerWork.
-//     Split in two because of Swift associated-type limitations
+// CompilerRequest --- interface protocol to CompilerWork.
 // ManagedCompilerRequest -- protocol to share timeout/cancelling behaviour
 // CompilationRequest -- class modelling a compilation request
 // VersionRequest -- class modelling a version request
@@ -36,38 +33,28 @@ enum RequestID {
 
 // MARK: CompilerRequest
 
+typealias ReplyFn = (Sass_EmbeddedProtocol_InboundMessage) async -> Void // XXX name
+
 protocol CompilerRequest: AnyObject {
     /// Notify that the initial request has been sent.  Return any timeout handler.
-    func start(timeout: Int) -> EventLoopFuture<Void>?
+    func start(timeoutSeconds: Int, onTimeout: @escaping () async -> Void)
     /// Handle a compiler response for `requestID`
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?>
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage, reply: @escaping ReplyFn) throws
     /// Abandon the request
-    func cancel(with error: Error)
+    func cancel(with error: any Error)
 
     var requestID: UInt32 { get }
     var debugPrefix: String { get }
     var requestName: String { get }
+
+    associatedtype ResultType
+    var clientDone: (Self, Result<ResultType, any Error>) -> Void { get }
 }
 
 extension CompilerRequest {
     /// Log helper
     func debug(_ message: String) {
         Compiler.logger.debug("\(debugPrefix): \(message)")
-    }
-}
-
-protocol TypedCompilerRequest: CompilerRequest {
-    associatedtype ResultType
-    var promise: EventLoopPromise<ResultType> { get }
-}
-
-extension TypedCompilerRequest {
-    var futureResult: EventLoopFuture<ResultType> {
-        promise.futureResult
-    }
-
-    var eventLoop: EventLoop {
-        futureResult.eventLoop
     }
 }
 
@@ -89,63 +76,55 @@ private enum CompilerRequestState {
     }
 }
 
-struct Lock {
-    private let dsem: DispatchSemaphore
-
-    init() {
-        dsem = DispatchSemaphore(value: 1)
-    }
-
-    func locked<T>(_ call: () throws -> T) rethrows -> T {
-        dsem.wait()
-        defer { dsem.signal() }
-        return try call()
-    }
-}
-
-private protocol ManagedCompilerRequest: TypedCompilerRequest {
-    var timer: Scheduled<Void>? { get set }
+private protocol ManagedCompilerRequest: CompilerRequest {
+    var timer: Task<Void, Never>? { get set }
     var state: CompilerRequestState { get set }
     var stateLock: Lock { get }
 }
 
 extension ManagedCompilerRequest {
-    /// Initialization - adopters must call during init
-    func initCompilerRequest() {
-        futureResult.whenComplete { [self] in
-            precondition(!state.isInClient)
-            timer?.cancel()
-            switch $0 {
-            case .success(_):
-                debug("complete: success")
-            case .failure(let error):
-                if error is CompilerError {
-                    debug("complete: compiler error")
-                } else {
-                    debug("complete: protocol error")
-                }
+    func sendDone(_ result: Result<ResultType, any Error>) {
+        precondition(!state.isInClient)
+        timer?.cancel()
+        switch result {
+        case .success(_):
+            debug("complete: success")
+        case .failure(let error):
+            if error is CompilerError {
+                debug("complete: compiler error")
+            } else if error is CancellationError {
+                debug("complete: cancellation error")
+            } else {
+                debug("complete: protocol error")
+            }
+        }
+        clientDone(self, result)
+    }
+
+    /// Notify that the initial compile-req has been sent.  Return any timeout handler.
+    func start(timeoutSeconds: Int, onTimeout: @escaping () async -> Void ) {
+        guard timeoutSeconds >= 0 else {
+            debug("send \(requestName), no timeout")
+            return
+        }
+
+        debug("send \(requestName), starting \(timeoutSeconds)s timer")
+        timer = Task {
+            do {
+                try await Task.sleep(for: .seconds(timeoutSeconds))
+                await onTimeout()
+            } catch {
             }
         }
     }
 
-    /// Notify that the initial compile-req has been sent.  Return any timeout handler.
-    func start(timeout: Int) -> EventLoopFuture<Void>? {
-        if timeout >= 0 {
-            debug("send \(requestName), starting \(timeout)s timer")
-            timer = eventLoop.scheduleTask(in: .seconds(Int64(timeout))) { }
-            return timer?.futureResult
-        }
-        debug("send \(requestName), no timeout")
-        return nil
-    }
-
     /// Abandon the job with a given error - because it never gets a chance to start or as a result
     /// of a timeout -> reset, or because of a protocol error on another job.
-    func cancel(with error: Error) {
+    func cancel(with error: any Error) {
         timer?.cancel()
         stateLock.locked {
             if !state.isInClient {
-                promise.fail(error)
+                sendDone(.failure(error))
             } else {
                 debug("waiting to cancel while hostfn/importer runs")
                 state = .client_error(error)
@@ -170,7 +149,7 @@ extension ManagedCompilerRequest {
             precondition(oldState.isInClient)
             if case let .client_error(error) = oldState {
                 debug("hostfn/importer done, cancelling")
-                promise.fail(error)
+                sendDone(.failure(error))
             }
         }
     }
@@ -180,10 +159,10 @@ extension ManagedCompilerRequest {
 
 final class CompilationRequest: ManagedCompilerRequest {
     // Protocol reqs
-    private(set) var promise: EventLoopPromise<CompilerResults>
-    fileprivate var timer: Scheduled<Void>?
+    fileprivate var timer: Task<Void, Never>?
     fileprivate var state: CompilerRequestState
     fileprivate let stateLock: Lock
+    let clientDone: (CompilationRequest, Result<CompilerResults, any Error>) -> Void
 
     // Debug
     var debugPrefix: String { "CompID=\(requestID)" }
@@ -200,15 +179,15 @@ final class CompilationRequest: ManagedCompilerRequest {
     }
 
     /// Format and remember all the gorpy stuff we need to run a job.
-    init(promise: EventLoopPromise<CompilerResults>,
-         input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
+    init(input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input,
          outputStyle: CssStyle,
          sourceMapStyle: SourceMapStyle,
          includeCharset: Bool,
-         settings: CompilerWork.Settings,
+         settings: Compiler.Settings,
          importers: [ImportResolver],
          stringImporter: ImportResolver?,
-         functionsMap: [SassFunctionSignature : (String, SassAsyncFunction)]) {
+         functionsMap: [SassFunctionSignature : (String, SassAsyncFunction)],
+         done: @escaping (CompilationRequest, Result<CompilerResults, any Error>) -> Void) {
         var firstFreeImporterID = CompilationRequest.baseImporterID
         if let stringImporter = stringImporter {
             self.importers = [stringImporter] + importers
@@ -232,11 +211,10 @@ final class CompilationRequest: ManagedCompilerRequest {
             msg.charset = includeCharset
         }
         self.messages = []
-        self.promise = promise
         self.state = .normal
         self.timer = nil
         self.stateLock = Lock()
-        initCompilerRequest()
+        self.clientDone = done
     }
 
     // Receive empire.
@@ -249,42 +227,25 @@ final class CompilationRequest: ManagedCompilerRequest {
     private typealias IBM = Sass_EmbeddedProtocol_InboundMessage
 
     /// Inbound messages.
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
-        let promise = eventLoop.makePromise(of: Optional<IBM>.self)
-
-        // Handle log-events synchronously because they can be sent back-to-back with compile-done and
-        // are un-acked.  So if left to run async, can race with the compile-done and happen *after*
-        // the client has received their done....
-        switch message.message {
-        case .logEvent(let rsp):
-            promise.completeWith(.init(catching: { try self.receive(log: rsp) }))
-        default:
-            promise.completeWithTask { try await self.receiveAsync(message: message) }
-            break
-        }
-
-        return promise.futureResult
-    }
-
-    func receiveAsync(message: Sass_EmbeddedProtocol_OutboundMessage) async throws -> Sass_EmbeddedProtocol_InboundMessage? {
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage, reply: @escaping ReplyFn) throws {
         switch message.message {
         case .compileResponse(let rsp):
-            return try receive(compileResponse: rsp)
+            try receive(compileResponse: rsp)
 
         case .canonicalizeRequest(let req):
-            return try await receive(canonicalizeRequest: req)
+            try receive(canonicalizeRequest: req, reply: reply)
 
         case .importRequest(let req):
-            return try await receive(importRequest: req)
+            try receive(importRequest: req, reply: reply)
 
         case .functionCallRequest(let req):
-            return try await receive(functionCallRequest: req)
+            try receive(functionCallRequest: req, reply: reply)
 
         case .fileImportRequest(let req):
-            return try await receive(fileImportRequest: req)
+            try receive(fileImportRequest: req, reply: reply)
 
-        case .logEvent:
-            preconditionFailure("Unreachable, should be handled synchronously")
+        case .logEvent(let rsp):
+            try receive(log: rsp)
 
         case nil, .error, .versionResponse:
             preconditionFailure("Unreachable: message type not associated with CompID: \(message)")
@@ -292,22 +253,20 @@ final class CompilationRequest: ManagedCompilerRequest {
     }
 
     /// Inbound `CompileResponse` handler
-    private func receive(compileResponse: OBM.CompileResponse) throws -> IBM? {
+    private func receive(compileResponse: OBM.CompileResponse) throws {
         switch compileResponse.result {
         case .success(let s):
-            promise.succeed(.init(s, messages: messages))
+            sendDone(.success(CompilerResults(s, messages: messages)))
         case .failure(let f):
-            promise.fail(CompilerError(f, messages: messages))
+            sendDone(.failure(CompilerError(f, messages: messages)))
         case nil:
             throw ProtocolError("Malformed Compile-Rsp, missing `result`: \(compileResponse)")
         }
-        return nil
     }
 
     /// Inbound `LogEvent` handler
-    private func receive(log: OBM.LogEvent) throws -> IBM? {
+    private func receive(log: OBM.LogEvent) throws {
         try messages.append(.init(log))
-        return nil
     }
 
     // MARK: Importers
@@ -328,99 +287,113 @@ final class CompilationRequest: ManagedCompilerRequest {
     }
 
     /// Inbound `CanonicalizeRequest` handler
-    private func receive(canonicalizeRequest req: OBM.CanonicalizeRequest) async throws -> IBM? {
+    private func receive(canonicalizeRequest req: OBM.CanonicalizeRequest, reply: @escaping ReplyFn) throws {
         let importer = try getImporter(importerID: req.importerID, keyPath: \.importer)
-        var rsp = IBM.CanonicalizeResponse.with { $0.id = req.id }
 
         clientStarting()
 
-        do {
-            let canonURL = try await importer.canonicalize(ruleURL: req.url,
-                                                           fromImport: req.fromImport)
-            if let canonURL = canonURL {
-                rsp.url = canonURL.absoluteString
-                self.debug("Tx Canon-Rsp-Success ReqID=\(req.id)")
-            } else {
-                // leave result nil -> can't deal with this request
-                self.debug("Tx Canon-Rsp-Nil ReqID=\(req.id)")
+        Task.detached {
+            var rsp = IBM.CanonicalizeResponse.with { $0.id = req.id }
+            do {
+                let canonURL = try await importer.canonicalize(ruleURL: req.url,
+                                                               fromImport: req.fromImport)
+                if let canonURL = canonURL {
+                    rsp.url = canonURL.absoluteString
+                    self.debug("Tx Canon-Rsp-Success ReqID=\(req.id)")
+                } else {
+                    // leave result nil -> can't deal with this request
+                    self.debug("Tx Canon-Rsp-Nil ReqID=\(req.id)")
+                }
+            } catch {
+                rsp.error = String(describing: error)
+                self.debug("Tx Canon-Rsp-Error ReqID=\(req.id)")
             }
-        } catch {
-            rsp.error = String(describing: error)
-            self.debug("Tx Canon-Rsp-Error ReqID=\(req.id)")
-        }
 
-        self.clientStopped()
-        return .with { $0.message = .canonicalizeResponse(rsp) }
+            await reply(.with { $0.message = .canonicalizeResponse(rsp) })
+            self.clientStopped()
+        }
     }
 
     /// Inbound `ImportRequest` handler
-    private func receive(importRequest req: OBM.ImportRequest) async throws -> IBM? {
+    private func receive(importRequest req: OBM.ImportRequest, reply: @escaping ReplyFn) throws {
         let importer = try getImporter(importerID: req.importerID, keyPath: \.importer)
         guard let url = URL(string: req.url) else {
             throw ProtocolError("Malformed import URL: \(req.url)")
         }
-        var rsp = IBM.ImportResponse.with { $0.id = req.id }
 
         clientStarting()
 
-        do {
-            if let results = try await importer.load(canonicalURL: url) {
-                rsp.success = .with { msg in
-                    msg.contents = results.contents
-                    msg.syntax = .init(results.syntax)
-                    results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
-                }
-                self.debug("Tx Import-Rsp-Success ReqID=\(req.id)")
-            } else {
-                rsp.result = nil
-                self.debug("Tx Import-Rsp-Null ReqID=\(req.id)")
-            }
-        } catch {
-            rsp.error = String(describing: error)
-            self.debug("Tx Import-Rsp-Error ReqID=\(req.id)")
-        }
+        Task.detached {
+            var rsp = IBM.ImportResponse.with { $0.id = req.id }
 
-        self.clientStopped()
-        return .with { $0.message = .importResponse(rsp) }
+            do {
+                if let results = try await importer.load(canonicalURL: url) {
+                    rsp.success = .with { msg in
+                        msg.contents = results.contents
+                        msg.syntax = .init(results.syntax)
+                        results.sourceMapURL.flatMap { msg.sourceMapURL = $0.absoluteString }
+                    }
+                    self.debug("Tx Import-Rsp-Success ReqID=\(req.id)")
+                } else {
+                    rsp.result = nil
+                    self.debug("Tx Import-Rsp-Null ReqID=\(req.id)")
+                }
+            } catch {
+                rsp.error = String(describing: error)
+                self.debug("Tx Import-Rsp-Error ReqID=\(req.id)")
+            }
+
+            await reply(.with { $0.message = .importResponse(rsp) })
+            self.clientStopped()
+        }
     }
 
     /// Inbound `FileImportRequest` handler
-    private func receive(fileImportRequest req: OBM.FileImportRequest) async throws -> IBM? {
+    private func receive(fileImportRequest req: OBM.FileImportRequest, reply: @escaping ReplyFn) throws {
         let importer = try getImporter(importerID: req.importerID, keyPath: \.filesystemImporter)
-        var rsp = IBM.FileImportResponse.with { $0.id = req.id }
 
         clientStarting()
 
-        do {
-            if let urlPath = try await importer.resolve(ruleURL: req.url, fromImport: req.fromImport) {
-                rsp.fileURL = urlPath.absoluteString
-                self.debug("Tx FileImport-Rsp-Success ReqID=\(req.id)")
-            } else {
-                // leave fileURL as nil
-                self.debug("Tx FileImport-Rsp-Nil ReqID=\(req.id)")
+        Task.detached {
+            var rsp = IBM.FileImportResponse.with { $0.id = req.id }
+            do {
+                if let urlPath = try await importer.resolve(ruleURL: req.url, fromImport: req.fromImport) {
+                    rsp.fileURL = urlPath.absoluteString
+                    self.debug("Tx FileImport-Rsp-Success ReqID=\(req.id)")
+                } else {
+                    // leave fileURL as nil
+                    self.debug("Tx FileImport-Rsp-Nil ReqID=\(req.id)")
+                }
+            } catch {
+                rsp.error = String(describing: error)
+                self.debug("Tx FileImport-Rsp-Error ReqID=\(req.id)")
             }
-        } catch {
-            rsp.error = String(describing: error)
-            self.debug("Tx FileImport-Rsp-Error ReqID=\(req.id)")
-        }
 
-        self.clientStopped()
-        return .with { $0.message = .fileImportResponse(rsp) }
+            await reply(.with { $0.message = .fileImportResponse(rsp) })
+            self.clientStopped()
+        }
     }
 
     // MARK: Functions
 
+    /// Trust me I'm a doctor.
+    private final class AccessedArgList: @unchecked Sendable {
+        var IDs: Set<UInt32>
+        init() {
+            self.IDs = []
+        }
+    }
+
     /// Inbound 'FunctionCallRequest' handler
-    private func receive(functionCallRequest req: OBM.FunctionCallRequest) async throws -> IBM? {
+    private func receive(functionCallRequest req: OBM.FunctionCallRequest, reply: @escaping ReplyFn) throws {
         /// Helper to run the callback after we locate it
-        func doSassFunction(_ fn: @escaping SassAsyncFunction) async throws -> IBM? {
-            var rsp = IBM.FunctionCallResponse.with { $0.id = req.id }
+        func doSassFunction(_ fn: @escaping SassAsyncFunction) throws {
 
             // Set up to monitor accesses to any `SassArgumentList`s
-            var accessedArgLists = Set<UInt32>()
+            let accessedArgList = AccessedArgList()
             func accessArgList(id: UInt32) {
                 guard id != 0 else { return }
-                accessedArgLists.insert(id)
+                accessedArgList.IDs.insert(id)
             }
 
             let args = try SassValueMonitor.with(accessArgList) {
@@ -429,18 +402,22 @@ final class CompilationRequest: ManagedCompilerRequest {
 
             clientStarting()
 
-            do {
-                let resultValue = try await fn(args)
-                rsp.success = .init(resultValue)
-                self.debug("Tx FnCall-Rsp-Success ReqID=\(req.id)")
-            } catch {
-                rsp.error = String(describing: error)
-                self.debug("Tx FnCall-Rsp-Success ReqID=\(req.id)")
-            }
+            Task.detached {
+                var rsp = IBM.FunctionCallResponse.with { $0.id = req.id }
 
-            rsp.accessedArgumentLists = Array(accessedArgLists)
-            self.clientStopped()
-            return .with { $0.message = .functionCallResponse(rsp) }
+                do {
+                    let resultValue = try await fn(args)
+                    rsp.success = .init(resultValue)
+                    self.debug("Tx FnCall-Rsp-Success ReqID=\(req.id)")
+                } catch {
+                    rsp.error = String(describing: error)
+                    self.debug("Tx FnCall-Rsp-Success ReqID=\(req.id)")
+                }
+
+                rsp.accessedArgumentLists = Array(accessedArgList.IDs)
+                await reply(.with { $0.message = .functionCallResponse(rsp) })
+                self.clientStopped()
+            }
         }
 
         switch req.identifier {
@@ -449,15 +426,16 @@ final class CompilationRequest: ManagedCompilerRequest {
                 throw ProtocolError("Host function ID=\(id) not registered.")
             }
             if let asyncFunc = sassDynamicFunc as? SassAsyncDynamicFunction {
-                return try await doSassFunction(asyncFunc.asyncFunction)
+                try doSassFunction(asyncFunc.asyncFunction)
+            } else {
+                try doSassFunction(SyncFunctionAdapter(sassDynamicFunc.function))
             }
-            return try await doSassFunction(SyncFunctionAdapter(sassDynamicFunc.function))
 
         case .name(let name):
             guard let sassFunc = functions[name] else {
                 throw ProtocolError("Host function name '\(name)' not registered.")
             }
-            return try await doSassFunction(sassFunc)
+            try doSassFunction(sassFunc)
 
         case nil:
             throw ProtocolError("Missing 'identifier' field in FunctionCallRequest")
@@ -485,10 +463,10 @@ private extension ImportResolver {
 
 final class VersionRequest: ManagedCompilerRequest {
     // Protocol reqs
-    private(set) var promise: EventLoopPromise<Versions>
-    fileprivate var timer: Scheduled<Void>?
+    fileprivate var timer: Task<Void, Never>?
     fileprivate var state: CompilerRequestState
     fileprivate var stateLock: Lock
+    let clientDone: (VersionRequest, Result<Versions, any Error>) -> Void
 
     // Version-specific
     let versionReq: Sass_EmbeddedProtocol_InboundMessage.VersionRequest
@@ -501,21 +479,19 @@ final class VersionRequest: ManagedCompilerRequest {
         versionReq.id
     }
 
-    init(promise: EventLoopPromise<Versions>) {
-        self.promise = promise
+    init(done: @escaping (VersionRequest, Result<Versions, any Error>) -> Void) {
         self.state = .normal
         self.timer = nil
         self.stateLock = Lock()
         self.versionReq = .with { $0.id = RequestID.next }
-        initCompilerRequest()
+        self.clientDone = done
     }
 
     /// Inbound messages.
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) -> EventLoopFuture<Sass_EmbeddedProtocol_InboundMessage?> {
+    func receive(message: Sass_EmbeddedProtocol_OutboundMessage, reply: @escaping ReplyFn) throws {
         guard case .versionResponse(let vers) = message.message else {
-            return eventLoop.makeProtocolError("Unexpected response to Version-Req: \(message)")
+            throw ProtocolError("Unexpected response to Version-Req: \(message)")
         }
-        promise.succeed(.init(vers))
-        return eventLoop.makeSucceededFuture(nil)
+        sendDone(.success(Versions(vers)))
     }
 }

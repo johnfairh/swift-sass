@@ -24,11 +24,11 @@ class TestFunctions: DartSassTestCase {
         }
     ]
 
-    func testEcho() throws {
+    func testEcho() async throws {
         let compiler = try newCompiler(functions: quoteStringFunction)
 
-        try [#"fish"#, #""fish""#].forEach {
-            let results = try compiler.compile(string: "a { a: myQuoteString(\($0)) }", outputStyle: .compressed)
+        for str in [#"fish"#, #""fish""#] {
+            let results = try await compiler.compile(string: "a { a: myQuoteString(\(str)) }", outputStyle: .compressed)
             XCTAssertEqual(#"a{a:"fish"}"#, results.css)
         }
     }
@@ -43,11 +43,11 @@ class TestFunctions: DartSassTestCase {
         }
     ]
 
-    func testError() throws {
+    func testError() async throws {
         let compiler = try newCompiler(functions: errorFunction)
 
         do {
-            let results = try compiler.compile(string: "$data: badFunction('22');")
+            let results = try await compiler.compile(string: "$data: badFunction('22');")
             XCTFail("Managed to compile nonsense: \(results)")
         } catch let error as CompilerError {
             print(error)
@@ -58,7 +58,7 @@ class TestFunctions: DartSassTestCase {
 
     // Function syntax fails compile not compiler
 
-    func testBadFunctionDecl() throws {
+    func testBadFunctionDecl() async throws {
         let badFunction: SassAsyncFunctionMap = [
             "" : { _ in SassConstants.null }
         ]
@@ -67,7 +67,7 @@ class TestFunctions: DartSassTestCase {
         // hmm should we do a nul compile to check these function defs?
 
         do {
-            let results = try compiler.compile(string: "")
+            let results = try await compiler.compile(string: "")
             XCTFail("Managed to compile with bad function nonsense: \(results)")
         } catch let error as CompilerError {
             print(error)
@@ -90,10 +90,10 @@ class TestFunctions: DartSassTestCase {
         }
     ]
 
-    func testOverride() throws {
+    func testOverride() async throws {
         let compiler = try newCompiler(functions: globalOverrideFunction)
 
-        let results = try compiler.compile(string: "a { a: ofunc() }", outputStyle: .compressed, functions: localOverrideFunction)
+        let results = try await compiler.compile(string: "a { a: ofunc() }", outputStyle: .compressed, functions: localOverrideFunction)
         XCTAssertEqual(#"a{a:"goat"}"#, results.css)
     }
 
@@ -227,7 +227,7 @@ class TestFunctions: DartSassTestCase {
         XCTAssertEqual(f1, backF)
     }
 
-    func testSassCompilerFunction() throws {
+    func testSassCompilerFunction() async throws {
 
         let echoFunc: SassFunction = { args in
             XCTAssertEqual(1, args.count)
@@ -256,7 +256,7 @@ class TestFunctions: DartSassTestCase {
         let compiler = try newCompiler(functions: [
             "hostEcho($param)" : echoFunc
         ])
-        let results = try compiler.compile(string: scss, outputStyle: .compressed)
+        let results = try await compiler.compile(string: scss, outputStyle: .compressed)
         XCTAssertEqual(#"a{b:"something"}"#, results.css)
     }
 
@@ -270,7 +270,7 @@ class TestFunctions: DartSassTestCase {
         XCTAssertEqual(f1.id, hFunc.id)
     }
 
-    func testSassDynamicFunction() throws {
+    func testSassDynamicFunction() async throws {
         // A curried addition function!
         let adderMaker: SassFunction = { args in
             let lhsOp = try args[0].asNumber()
@@ -296,7 +296,7 @@ class TestFunctions: DartSassTestCase {
         let compiler = try newCompiler(functions: [
             "makeAdder($op1)" : adderMaker
         ])
-        let results = try compiler.compile(string: scss, outputStyle: .compressed)
+        let results = try await compiler.compile(string: scss, outputStyle: .compressed)
         XCTAssertEqual(#"a{b:9}"#, results.css)
 
         // what a monstrosity
@@ -309,13 +309,13 @@ class TestFunctions: DartSassTestCase {
         }
     ]
 
-    func testAsyncHostFunction() throws {
+    func testAsyncHostFunction() async throws {
         let compiler = try newCompiler(functions: slowEchoFunction)
-        let results = try compiler.compile(string: "a { a: slowEcho('fish') }", outputStyle: .compressed)
+        let results = try await compiler.compile(string: "a { a: slowEcho('fish') }", outputStyle: .compressed)
         XCTAssertEqual(#"a{a:"fish"}"#, results.css)
     }
 
-    func testAsyncDynamicFunction() throws {
+    func testAsyncDynamicFunction() async throws {
         let fishMakerMaker: SassFunction = { args in
             SassAsyncDynamicFunction(signature: "myFish()") { args in
                 SassString("plaice")
@@ -333,12 +333,12 @@ class TestFunctions: DartSassTestCase {
         let compiler = try newCompiler(functions: [
             "getFishMaker()" : fishMakerMaker
         ])
-        let results = try compiler.compile(string: scss, outputStyle: .compressed)
+        let results = try await compiler.compile(string: scss, outputStyle: .compressed)
         XCTAssertEqual(#"a{b:"plaice"}"#, results.css)
     }
 
     /// ArgumentList
-    func testVarargs() throws {
+    func testVarargs() async throws {
         let varArgsFunction: SassAsyncFunctionMap = [
             "varFn($first, $args...)" : { args in
                 XCTAssertEqual(2, args.count)
@@ -356,11 +356,11 @@ class TestFunctions: DartSassTestCase {
         """
 
         let compiler = try newCompiler(functions: varArgsFunction)
-        let results = try compiler.compile(string: scss, outputStyle: .compressed)
+        let results = try await compiler.compile(string: scss, outputStyle: .compressed)
         XCTAssertEqual("a{b:1}", results.css)
     }
 
-    func testVarArgsKwArgs() throws {
+    func testVarArgsKwArgs() async throws {
         let varArgsFunctions: SassAsyncFunctionMap = [
             "kwReadingFn($args...)" : { args in
                 XCTAssertEqual(1, args.count)
@@ -383,11 +383,11 @@ class TestFunctions: DartSassTestCase {
         }
 
         let compiler = try newCompiler(functions: varArgsFunctions)
-        let results = try compiler.compile(string: scss("kwReadingFn"), outputStyle: .compressed)
+        let results = try await compiler.compile(string: scss("kwReadingFn"), outputStyle: .compressed)
         XCTAssertEqual("a{b:1}", results.css)
 
         do {
-            let r = try compiler.compile(string: scss("kwIgnoringFn"))
+            let r = try await compiler.compile(string: scss("kwIgnoringFn"))
             XCTFail("Managed to compile: \(r)")
         } catch let error as CompilerError {
             XCTAssertTrue(error.description.contains("No arguments named"))
@@ -397,7 +397,7 @@ class TestFunctions: DartSassTestCase {
     }
 
     // Test host-created arg lists, that the ID of 0 isn't reported back to the compiler.
-    func testHostCreatedArgList() throws {
+    func testHostCreatedArgList() async throws {
         let functions: SassAsyncFunctionMap = [
             "createAL()" : { _ in
                 SassArgumentList([SassNumber(23)], keywords: ["first": SassConstants.true])
@@ -418,7 +418,7 @@ class TestFunctions: DartSassTestCase {
         """
 
         let compiler = try newCompiler(functions: functions)
-        let results = try compiler.compile(string: scss, outputStyle: .compressed)
+        let results = try await compiler.compile(string: scss, outputStyle: .compressed)
         XCTAssertEqual("a{b:1}", results.css)
     }
 

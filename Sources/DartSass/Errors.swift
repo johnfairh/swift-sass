@@ -32,14 +32,3 @@ public struct LifecycleError: Error, CustomStringConvertible {
         Compiler.logger.debug("lifecycle_error: \(text)")
     }
 }
-
-import NIO
-extension EventLoop {
-    func makeProtocolError<T>(_ text: String) -> EventLoopFuture<T> {
-        makeFailedFuture(ProtocolError(text))
-    }
-
-    func makeLifecycleError<T>(_ text: String) -> EventLoopFuture<T> {
-        makeFailedFuture(ProtocolError(text))
-    }
-}
