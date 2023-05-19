@@ -119,13 +119,17 @@ class TestNumber: XCTestCase {
         let o = SassNumber(13.4)
         XCTAssertEqual(12, try n.asInt())
         XCTAssertEqual(12, try m.asInt())
-        XCTAssertThrowsError(try o.asInt())
+        XCTAssertThrowsError(try o.asInt()) {
+            print($0)
+        }
     }
 
     func testRange() throws {
         XCTAssertEqual(12.0, try SassNumber(12).asIn(range: 10...20))
         XCTAssertEqual(20.0, try SassNumber(20).asIn(range: 10...20))
-        XCTAssertThrowsError(try SassNumber(8).asIn(range: 10...20))
+        XCTAssertThrowsError(try SassNumber(8).asIn(range: 10...20)) {
+            print($0)
+        }
 
         XCTAssertEqual(12.0, try SassNumber(12).asIn(range: 10..<20))
         XCTAssertThrowsError(try SassNumber(20).asIn(range: 10..<20))
@@ -223,6 +227,7 @@ class TestNumber: XCTestCase {
         } catch {
             print(error)
         }
+        
     }
 
     // Unit-quotient
