@@ -5,9 +5,7 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import NIOCore
 @_spi(SassCompilerProvider) import Sass
-import struct Foundation.URL
 
 extension Compiler {
     struct Settings {

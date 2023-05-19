@@ -7,9 +7,8 @@
 
 import struct Foundation.URL
 import class Foundation.FileManager // cwd
-import Dispatch
 @_spi(AsyncChannel) import NIOCore
-import NIOPosix
+import NIOPosix // NIOThreadPool
 import Logging
 @_exported import Sass
 

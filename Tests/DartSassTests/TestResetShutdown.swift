@@ -26,8 +26,8 @@ class TestResetShutdown: DartSassTestCase {
     // Deal with missing child & SIGPIPE-avoidance measures
     func testChildTermination() async throws {
         let compiler = try newCompiler()
-        await compiler.waitForRunning()
         let pid = await compiler.compilerProcessIdentifier!
+        await compiler.waitForRunning()
 
         // This seems super flakey on Linux in particular, have upgraded from SIGTERM to SIGKILL
         // but still sometimes the process doesn't die and happily services the compilation...

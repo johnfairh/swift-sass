@@ -5,7 +5,6 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import NIOCore
 import struct Foundation.URL
 import class Dispatch.DispatchSemaphore
 import Atomics
@@ -127,11 +126,7 @@ extension ManagedCompilerRequest {
         debug("send \(requestName), starting \(timeoutSeconds)s timer")
         timer = Task {
             do {
-                if #available(macOS 13.0, *) {
-                    try await Task.sleep(for: .seconds(timeoutSeconds))
-                } else {
-                    try await Task.sleep(nanoseconds: UInt64(timeoutSeconds * 1000 * 1000 * 1000))
-                }
+                try await Task.sleep(for: .seconds(timeoutSeconds))
                 await onTimeout()
             } catch {
             }
