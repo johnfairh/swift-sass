@@ -128,6 +128,25 @@ class TestInterface: DartSassTestCase {
         }
     }
 
+    // Check it can actually do stuff if we throw it parallel work
+    func testParallel() async throws {
+        let compiler = try newCompiler()
+
+        let results = try await withThrowingTaskGroup(of: CompilerResults.self) { group in
+            for _ in 1...8 {
+                group.addTask { try await compiler.compile(string: self.scssIn) }
+            }
+
+            var collected = [CompilerResults]()
+            for try await value in group {
+                collected.append(value)
+            }
+
+            return collected
+        }
+        XCTAssertEqual(8, results.count)
+    }
+
     /// Bad explicitly given compiler
     func testNotACompiler() async throws {
         let notACompiler = URL(fileURLWithPath: "/tmp/fred")
