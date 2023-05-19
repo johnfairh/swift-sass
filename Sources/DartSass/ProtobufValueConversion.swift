@@ -8,7 +8,6 @@
 // Helpers to shuffle data between the protobuf and SassValue types.
 
 @_spi(SassCompilerProvider) import Sass
-import NIO
 
 // MARK: SassValueMonitor
 
@@ -23,15 +22,10 @@ final class SassValueMonitor {
     }
 
     static func with<T>(_ accessFn: @escaping ArgListAccessFn, work: () throws -> T) rethrows -> T {
-        _current.currentValue = SassValueMonitor(accessFn)
-        defer { _current.currentValue = nil }
-        return try work()
+        try $current.withValue(SassValueMonitor(accessFn), operation: work)
     }
 
-    fileprivate static var _current = ThreadSpecificVariable(value: SassValueMonitor())
-    fileprivate static var current: SassValueMonitor {
-        _current.currentValue ?? SassValueMonitor()
-    }
+    @TaskLocal static var current = SassValueMonitor()
 }
 
 extension Sass_EmbeddedProtocol_Value {
