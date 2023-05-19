@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../../css/fw2020.css">
     
     
-   <title>Compiler - Swift Sass v1.7.0</title>
+   <title>Compiler - Swift Sass v2.0.0-pre1</title>
     
   </head>
   <body class="j2-swift " data-root-path="./../../" data-doc-path="dartsass/types/compiler.html" data-assets-path="../../">
@@ -31,7 +31,7 @@
     
     <a href="../../index.html">
     
-    Swift Sass v1.7.0</a>
+    Swift Sass v2.0.0-pre1</a>
   </div>
   
   <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
@@ -336,15 +336,6 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../custom-functions.html?swift#sassasyncfunction">SassAsyncFunction</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
   <a class="j2-nav-item" href="../../custom-functions.html?swift#sassfunctionsignature">SassFunctionSignature</a>
 
 
@@ -355,15 +346,6 @@
     
 
   <a class="j2-nav-item" href="../../custom-functions.html?swift#sassfunctionmap">SassFunctionMap</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
-  <a class="j2-nav-item" href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a>
 
 
 
@@ -531,15 +513,6 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../dartsass/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
   <a class="j2-nav-item" href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor</a>
 
 
@@ -636,7 +609,7 @@
             
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class Compiler: @unchecked <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
+    <pre><code class="language-swift">public actor Compiler</code></pre>
   </div>
 
 
@@ -656,8 +629,8 @@
 For other platforms you need to supply this separately, see
 <a href="../../index.html">the readme</a>.</p>
 <p>Some debug logging is available via <a href="../../dartsass/types/compiler.html?swift#logger"><code>Compiler.logger</code></a>.</p>
-<p>You must shut down the compiler using <a href="../../dartsass/types/compiler.html?swift#shutdowngracefully"><code>shutdownGracefully(...)</code></a>
-or <a href="../../dartsass/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> otherwise the program will exit.</p>
+<p>You must shut down the compiler using <a href="../../dartsass/types/compiler.html?swift#shutdowngracefully"><code>shutdownGracefully(...)</code></a> before the last reference
+to the object is released otherwise the program will exit.</p>
 <h2 class="j2-anchor j2-heading heading" id="custom-importer-resolution">
 <span data-anchor-id="custom-importer-resolution">
 Custom importer resolution
@@ -681,7 +654,7 @@ per-compilation list, in order within each list.</li>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L40-L587">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L38-L642">Show on GitHub</a>
           </nav>
           
           
@@ -705,12 +678,12 @@ per-compilation list, in order within each list.</li>
   
   
     <section id="initeventloopgroupprovidertimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Constructor/init(eventLoopGroupProvider%3A%20NIOEventLoopGroupProvider,%20timeout%3A%20Int,%20messageStyle%3A%20CompilerMessageStyle,%20verboseDeprecations%3A%20Bool,%20suppressDependencyWarnings%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassAsyncFunctionMap)" class="dashAnchor j2-item-dash-anchor" data-item-id="initeventloopgroupprovidertimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions"></a>
-    <h4 class="visually-hidden">init(eventLoopGroupProvider: NIOEventLoopGroupProvider, timeout: Int, messageStyle: CompilerMessageStyle, verboseDeprecations: Bool, suppressDependencyWarnings: Bool, importers: [ImportResolver], functions: SassAsyncFunctionMap)</h4>
+    <a name="//apple_ref/cpp/Constructor/init(eventLoopGroupProvider%3A%20NIOEventLoopGroupProvider,%20timeout%3A%20Int,%20messageStyle%3A%20CompilerMessageStyle,%20verboseDeprecations%3A%20Bool,%20suppressDependencyWarnings%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassFunctionMap)" class="dashAnchor j2-item-dash-anchor" data-item-id="initeventloopgroupprovidertimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions"></a>
+    <h4 class="visually-hidden">init(eventLoopGroupProvider: NIOEventLoopGroupProvider, timeout: Int, messageStyle: CompilerMessageStyle, verboseDeprecations: Bool, suppressDependencyWarnings: Bool, importers: [ImportResolver], functions: SassFunctionMap)</h4>
     
     
     <a class="j2-item-title" href="#_initeventloopgroupprovidertimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_initeventloopgroupprovidertimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions"><code>
-        <span class="j2-swift">init<span class="j2-item-secondary">(</span>eventLoopGroupProvider<span class="j2-item-secondary">: NIOEventLoopGroupProvider, </span>timeout<span class="j2-item-secondary">: Int, </span>messageStyle<span class="j2-item-secondary">: CompilerMessageStyle, </span>verboseDeprecations<span class="j2-item-secondary">: Bool, </span>suppressDependencyWarnings<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassAsyncFunctionMap)</span></span>
+        <span class="j2-swift">init<span class="j2-item-secondary">(</span>eventLoopGroupProvider<span class="j2-item-secondary">: NIOEventLoopGroupProvider, </span>timeout<span class="j2-item-secondary">: Int, </span>messageStyle<span class="j2-item-secondary">: CompilerMessageStyle, </span>verboseDeprecations<span class="j2-item-secondary">: Bool, </span>suppressDependencyWarnings<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassFunctionMap)</span></span>
         
       </code></a>
     <div class="collapse  j2-item-popopen-wrapper" id="_initeventloopgroupprovidertimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions">
@@ -732,8 +705,8 @@ If you are running on another operating system then use <a href="../../dartsass/
 supplying the path of the correct Dart Sass compiler.</p>
 <p>Initialization continues asynchronously after the initializer completes; failures are reported
 when the compiler is next used.</p>
-<p>You must shut down the compiler with <a href="../../dartsass/types/compiler.html?swift#shutdowngracefully"><code>shutdownGracefully()</code></a> or
-<a href="../../dartsass/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> before letting it go out of scope.</p>
+<p>You must shut down the compiler with <a href="../../dartsass/types/compiler.html?swift#shutdowngracefully"><code>shutdownGracefully()</code></a> before letting it
+go out of scope.</p>
 
 
 
@@ -743,14 +716,14 @@ when the compiler is next used.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public convenience init(
+    <pre><code class="language-swift">public init(
     eventLoopGroupProvider: <a href="https://swiftpackageindex.com/apple/swift-nio/main/documentation/niocore/nioeventloopgroupprovider">NIOEventLoopGroupProvider</a> = .createNew,
     timeout: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> = 60,
     messageStyle: <a href="../../sass/types/compilermessagestyle.html?swift">CompilerMessageStyle</a> = .plain,
     verboseDeprecations: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
     suppressDependencyWarnings: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
     importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
-    functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:]) throws</code></pre>
+    functions: <a href="../../custom-functions.html?swift#sassfunctionmap">SassFunctionMap</a> = [:]) throws</code></pre>
   </div>
 
 
@@ -818,7 +791,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L141-L157">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L133-L149">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -831,12 +804,12 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   
   
     <section id="initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Constructor/init(eventLoopGroupProvider%3A%20NIOEventLoopGroupProvider,%20embeddedCompilerFileURL%3A%20URL,%20timeout%3A%20Int,%20messageStyle%3A%20CompilerMessageStyle,%20verboseDeprecations%3A%20Bool,%20suppressDependencyWarnings%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassAsyncFunctionMap)" class="dashAnchor j2-item-dash-anchor" data-item-id="initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions"></a>
-    <h4 class="visually-hidden">init(eventLoopGroupProvider: NIOEventLoopGroupProvider, embeddedCompilerFileURL: URL, timeout: Int, messageStyle: CompilerMessageStyle, verboseDeprecations: Bool, suppressDependencyWarnings: Bool, importers: [ImportResolver], functions: SassAsyncFunctionMap)</h4>
+    <a name="//apple_ref/cpp/Constructor/init(eventLoopGroupProvider%3A%20NIOEventLoopGroupProvider,%20embeddedCompilerFileURL%3A%20URL,%20timeout%3A%20Int,%20messageStyle%3A%20CompilerMessageStyle,%20verboseDeprecations%3A%20Bool,%20suppressDependencyWarnings%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassFunctionMap)" class="dashAnchor j2-item-dash-anchor" data-item-id="initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions"></a>
+    <h4 class="visually-hidden">init(eventLoopGroupProvider: NIOEventLoopGroupProvider, embeddedCompilerFileURL: URL, timeout: Int, messageStyle: CompilerMessageStyle, verboseDeprecations: Bool, suppressDependencyWarnings: Bool, importers: [ImportResolver], functions: SassFunctionMap)</h4>
     
     
     <a class="j2-item-title" href="#_initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions"><code>
-        <span class="j2-swift">init<span class="j2-item-secondary">(</span>eventLoopGroupProvider<span class="j2-item-secondary">: NIOEventLoopGroupProvider, </span>embeddedCompilerFileURL<span class="j2-item-secondary">: URL, </span>timeout<span class="j2-item-secondary">: Int, </span>messageStyle<span class="j2-item-secondary">: CompilerMessageStyle, </span>verboseDeprecations<span class="j2-item-secondary">: Bool, </span>suppressDependencyWarnings<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassAsyncFunctionMap)</span></span>
+        <span class="j2-swift">init<span class="j2-item-secondary">(</span>eventLoopGroupProvider<span class="j2-item-secondary">: NIOEventLoopGroupProvider, </span>embeddedCompilerFileURL<span class="j2-item-secondary">: URL, </span>timeout<span class="j2-item-secondary">: Int, </span>messageStyle<span class="j2-item-secondary">: CompilerMessageStyle, </span>verboseDeprecations<span class="j2-item-secondary">: Bool, </span>suppressDependencyWarnings<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassFunctionMap)</span></span>
         
       </code></a>
     <div class="collapse  j2-item-popopen-wrapper" id="_initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions">
@@ -855,8 +828,8 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
 <p>Use a program as the Sass embedded compiler.</p>
 <p>Initialization continues asynchronously after the initializer returns; failures are reported
 when the compiler is next used.</p>
-<p>You must shut down the compiler with <a href="../../dartsass/types/compiler.html?swift#shutdowngracefully"><code>shutdownGracefully()</code></a> or
-<a href="../../dartsass/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> before letting it go out of scope.</p>
+<p>You must shut down the compiler with <a href="../../dartsass/types/compiler.html?swift#shutdowngracefully"><code>shutdownGracefully()</code></a> before letting it
+go out of scope.</p>
 
 
 
@@ -874,7 +847,7 @@ when the compiler is next used.</p>
     verboseDeprecations: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
     suppressDependencyWarnings: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
     importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
-    functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:])</code></pre>
+    functions: <a href="../../custom-functions.html?swift#sassfunctionmap">SassFunctionMap</a> = [:])</code></pre>
   </div>
 
 
@@ -946,7 +919,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L185-L212">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L177-L204">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -971,12 +944,12 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   
   
     <section id="compilestringsyntaxurlimporteroutputstylesourcemapstyleincludecharsetimportersfunctions" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20compile(string%3A%20String,%20syntax%3A%20Syntax,%20url%3A%20URL%3F,%20importer%3A%20ImportResolver%3F,%20outputStyle%3A%20CssStyle,%20sourceMapStyle%3A%20SourceMapStyle,%20includeCharset%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassAsyncFunctionMap)%20async%20-%3E%20CompilerResults" class="dashAnchor j2-item-dash-anchor" data-item-id="compilestringsyntaxurlimporteroutputstylesourcemapstyleincludecharsetimportersfunctions"></a>
-    <h4 class="visually-hidden">func compile(string: String, syntax: Syntax, url: URL?, importer: ImportResolver?, outputStyle: CssStyle, sourceMapStyle: SourceMapStyle, includeCharset: Bool, importers: [ImportResolver], functions: SassAsyncFunctionMap) async -&gt; CompilerResults</h4>
+    <a name="//apple_ref/cpp/Method/func%20compile(string%3A%20String,%20syntax%3A%20Syntax,%20url%3A%20URL%3F,%20importer%3A%20ImportResolver%3F,%20outputStyle%3A%20CssStyle,%20sourceMapStyle%3A%20SourceMapStyle,%20includeCharset%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassFunctionMap)%20async%20-%3E%20CompilerResults" class="dashAnchor j2-item-dash-anchor" data-item-id="compilestringsyntaxurlimporteroutputstylesourcemapstyleincludecharsetimportersfunctions"></a>
+    <h4 class="visually-hidden">func compile(string: String, syntax: Syntax, url: URL?, importer: ImportResolver?, outputStyle: CssStyle, sourceMapStyle: SourceMapStyle, includeCharset: Bool, importers: [ImportResolver], functions: SassFunctionMap) async -&gt; CompilerResults</h4>
     
     
     <a class="j2-item-title" href="#_compilestringsyntaxurlimporteroutputstylesourcemapstyleincludecharsetimportersfunctions" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_compilestringsyntaxurlimporteroutputstylesourcemapstyleincludecharsetimportersfunctions"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>compile<span class="j2-item-secondary">(</span>string<span class="j2-item-secondary">: String, </span>syntax<span class="j2-item-secondary">: Syntax, </span>url<span class="j2-item-secondary">: URL?, </span>importer<span class="j2-item-secondary">: ImportResolver?, </span>outputStyle<span class="j2-item-secondary">: CssStyle, </span>sourceMapStyle<span class="j2-item-secondary">: SourceMapStyle, </span>includeCharset<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassAsyncFunctionMap) async -&gt; CompilerResults</span></span>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>compile<span class="j2-item-secondary">(</span>string<span class="j2-item-secondary">: String, </span>syntax<span class="j2-item-secondary">: Syntax, </span>url<span class="j2-item-secondary">: URL?, </span>importer<span class="j2-item-secondary">: ImportResolver?, </span>outputStyle<span class="j2-item-secondary">: CssStyle, </span>sourceMapStyle<span class="j2-item-secondary">: SourceMapStyle, </span>includeCharset<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassFunctionMap) async -&gt; CompilerResults</span></span>
         
       </code></a>
     <div class="collapse  j2-item-popopen-wrapper" id="_compilestringsyntaxurlimporteroutputstylesourcemapstyleincludecharsetimportersfunctions">
@@ -1012,7 +985,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
     sourceMapStyle: <a href="../../sass/types/sourcemapstyle.html?swift">SourceMapStyle</a> = .separateSources,
     includeCharset: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
     importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
-    functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:]
+    functions: <a href="../../custom-functions.html?swift#sassfunctionmap">SassFunctionMap</a> = [:]
 ) async throws -&gt; <a href="../../sass/types/compilerresults.html?swift">CompilerResults</a></code></pre>
   </div>
 
@@ -1092,7 +1065,7 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L395-L424">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L501-L534">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1105,12 +1078,12 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
   
   
     <section id="compilefileurloutputstylesourcemapstyleincludecharsetimportersfunctions" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20compile(fileURL%3A%20URL,%20outputStyle%3A%20CssStyle,%20sourceMapStyle%3A%20SourceMapStyle,%20includeCharset%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassAsyncFunctionMap)%20async%20-%3E%20CompilerResults" class="dashAnchor j2-item-dash-anchor" data-item-id="compilefileurloutputstylesourcemapstyleincludecharsetimportersfunctions"></a>
-    <h4 class="visually-hidden">func compile(fileURL: URL, outputStyle: CssStyle, sourceMapStyle: SourceMapStyle, includeCharset: Bool, importers: [ImportResolver], functions: SassAsyncFunctionMap) async -&gt; CompilerResults</h4>
+    <a name="//apple_ref/cpp/Method/func%20compile(fileURL%3A%20URL,%20outputStyle%3A%20CssStyle,%20sourceMapStyle%3A%20SourceMapStyle,%20includeCharset%3A%20Bool,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassFunctionMap)%20async%20-%3E%20CompilerResults" class="dashAnchor j2-item-dash-anchor" data-item-id="compilefileurloutputstylesourcemapstyleincludecharsetimportersfunctions"></a>
+    <h4 class="visually-hidden">func compile(fileURL: URL, outputStyle: CssStyle, sourceMapStyle: SourceMapStyle, includeCharset: Bool, importers: [ImportResolver], functions: SassFunctionMap) async -&gt; CompilerResults</h4>
     
     
     <a class="j2-item-title" href="#_compilefileurloutputstylesourcemapstyleincludecharsetimportersfunctions" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_compilefileurloutputstylesourcemapstyleincludecharsetimportersfunctions"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>compile<span class="j2-item-secondary">(</span>fileURL<span class="j2-item-secondary">: URL, </span>outputStyle<span class="j2-item-secondary">: CssStyle, </span>sourceMapStyle<span class="j2-item-secondary">: SourceMapStyle, </span>includeCharset<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassAsyncFunctionMap) async -&gt; CompilerResults</span></span>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>compile<span class="j2-item-secondary">(</span>fileURL<span class="j2-item-secondary">: URL, </span>outputStyle<span class="j2-item-secondary">: CssStyle, </span>sourceMapStyle<span class="j2-item-secondary">: SourceMapStyle, </span>includeCharset<span class="j2-item-secondary">: Bool, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassFunctionMap) async -&gt; CompilerResults</span></span>
         
       </code></a>
     <div class="collapse  j2-item-popopen-wrapper" id="_compilefileurloutputstylesourcemapstyleincludecharsetimportersfunctions">
@@ -1143,7 +1116,7 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
     sourceMapStyle: <a href="../../sass/types/sourcemapstyle.html?swift">SourceMapStyle</a> = .separateSources,
     includeCharset: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
     importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
-    functions: <a href="../../custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a> = [:]
+    functions: <a href="../../custom-functions.html?swift#sassfunctionmap">SassFunctionMap</a> = [:]
 ) async throws -&gt; <a href="../../sass/types/compilerresults.html?swift">CompilerResults</a></code></pre>
   </div>
 
@@ -1206,7 +1179,7 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L357-L373">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L460-L479">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1280,7 +1253,7 @@ means that the compiler is broken or shutdown.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L266-L270">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L374-L387">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1340,7 +1313,7 @@ means that the compiler is broken or shutdown.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L289-L293">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L390-L394">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1401,7 +1374,7 @@ means that the compiler is broken or shutdown.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L297-L301">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L398-L402">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1463,7 +1436,7 @@ Probably in <a href="https://semver.org/spec/v2.0.0.html">semver</a> format.
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L306-L310">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L407-L411">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1504,6 +1477,8 @@ compiler process and starts a new one: the intended use is for compilers whose
 resource usage escalates over time and need calming down.  You probably don’t need to
 call it.</p>
 <p>Any outstanding compilations are failed.</p>
+<p>Throws an error if the compiler cannot be restarted due to error or because <a href="../../dartsass/types/compiler.html?swift#shutdowngracefully"><code>shutdownGracefully()</code></a>
+has already been called.</p>
 
 
 
@@ -1528,7 +1503,7 @@ call it.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L229-L233">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L310-L334">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1562,11 +1537,10 @@ call it.</p>
               
 
 
-<p>Shut down the compiler asynchronously.</p>
-<p>You must call this (or <a href="../../dartsass/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> before the last reference to the
-<a href="../../dartsass/types/compiler.html?swift"><code>Compiler</code></a> is released.</p>
-<p>Waits for work to wind down naturally and shuts down internal threads.  There’s no way back
-from this state: to do more compilation you will need a new object.</p>
+<p>Shut down the compiler.</p>
+<p>You must call this before the last reference to the <a href="../../dartsass/types/compiler.html?swift"><code>Compiler</code></a> is released.</p>
+<p>Cancels any outstanding work and shuts down internal threads. There’s no way back
+from this state: to do more compilation you will need a new instance.</p>
 
 
 
@@ -1576,7 +1550,7 @@ from this state: to do more compilation you will need a new object.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public func shutdownGracefully() async throws</code></pre>
+    <pre><code class="language-swift">public func shutdownGracefully() async</code></pre>
   </div>
 
 
@@ -1591,68 +1565,7 @@ from this state: to do more compilation you will need a new object.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L243-L246">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="syncshutdowngracefully" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20syncShutdownGracefully()" class="dashAnchor j2-item-dash-anchor" data-item-id="syncshutdowngracefully"></a>
-    <h4 class="visually-hidden">func syncShutdownGracefully()</h4>
-    
-    
-    <a class="j2-item-title" href="#_syncshutdowngracefully" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_syncshutdowngracefully"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>syncShutdownGracefully<span class="j2-item-secondary">()</span></span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_syncshutdowngracefully">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>Shut down the compiler synchronously.</p>
-<p>See <a href="../../dartsass/types/compiler.html?swift#shutdowngracefully"><code>shutdownGracefully()</code></a>.</p>
-<p>Do not call this from an event loop thread.</p>
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public func syncShutdownGracefully() throws</code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L253-L259">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L342-L356">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1728,7 +1641,7 @@ that are also reported through errors thrown from some API.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L336">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L435">Show on GitHub</a></span>
             
           </nav>
         </div>

@@ -11,9 +11,6 @@
 //
 // Give the concrete type names a `Sass` prefix to avoid tedious collisions
 // with stdlib types.
-//
-// Declared open so that DynamicFunction can be open which enables NIO-compatible
-// specializations (for example) in compiler adapters.
 
 // This conforms to `Sequence` to enable list-like processing without having
 // to downcast etc.
@@ -37,7 +34,7 @@
 ///
 /// All the `SassValue` types have value semantics and are almost all entirely immutable: the
 /// only mutability is to do with caching of derived properties.
-open class SassValue: Hashable, Sequence, CustomStringConvertible, @unchecked Sendable {
+public class SassValue: Hashable, Sequence, CustomStringConvertible, @unchecked Sendable {
     /// stop anyone else actually subclassing this
     init() {}
 
@@ -168,7 +165,7 @@ public protocol SassValueVisitor {
     func visit(null: SassNull) throws -> ReturnType
     /// The operation for `SassCompilerFunction`.
     func visit(compilerFunction: SassCompilerFunction) throws -> ReturnType
-    /// The operation for `SassDynamicFunction` (or `SassAsyncDynamicFunction`).
+    /// The operation for `SassDynamicFunction`.
     func visit(dynamicFunction: SassDynamicFunction) throws -> ReturnType
     /// The operation for `SassArgumentList`.
     func visit(argumentList: SassArgumentList) throws -> ReturnType

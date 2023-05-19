@@ -1,6 +1,6 @@
 Define Swift implementations of
 [Sass `@function`s](https://sass-lang.com/documentation/at-rules/function) by
-declaring one of the `SassFunctionMap` types and passing it to the compiler.
+declaring a `SassFunctionMap` and passing it to the compiler.
 
 Use the `SassValue` family of types within the function to exchange data with
 the Sass compiler.

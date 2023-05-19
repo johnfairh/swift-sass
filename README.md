@@ -57,7 +57,7 @@ struct ExtrasImporter: Importer {
   }
 }
 
-let customFunctions: SassAsyncFunctionMap = [
+let customFunctions: SassFunctionMap = [
   "userColorForScore($score)" : { args in
     let score = try args[0].asInt()
     return SassColor(...)
@@ -95,7 +95,7 @@ interface is entirely Swift 5.5 async-await.
 ## Requirements
 
 * Swift 5.7
-* macOS 12+ (tested on macOS 13.2 x64)
+* macOS 13+ (tested on macOS 13.2 x64)
 * Linux (tested on Ubuntu 22.04 x64)
 * Embedded Sass Protocol version 1.2.0
 
@@ -107,7 +107,7 @@ Package dependency:
 ```swift
 .package(name: "swift-sass",
          url: "https://github.com/johnfairh/swift-sass.git",
-         from: "1.7.0")
+         from: "2.0.0-pre1")
 ```
 
 Target dependency:

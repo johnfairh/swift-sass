@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/fw2020.css">
     
     
-   <title>Custom Functions - Swift Sass v1.7.0</title>
+   <title>Custom Functions - Swift Sass v2.0.0-pre1</title>
     
   </head>
   <body class="j2-swift " data-root-path="./" data-doc-path="custom-functions.html" data-assets-path="">
@@ -31,7 +31,7 @@
     
     <a href="index.html">
     
-    Swift Sass v1.7.0</a>
+    Swift Sass v2.0.0-pre1</a>
   </div>
   
   <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
@@ -331,15 +331,6 @@
   <li>
     
 
-  <a class="j2-nav-item" href="#sassasyncfunction">SassAsyncFunction</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
   <a class="j2-nav-item" href="#sassfunctionsignature">SassFunctionSignature</a>
 
 
@@ -350,15 +341,6 @@
     
 
   <a class="j2-nav-item" href="#sassfunctionmap">SassFunctionMap</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
-  <a class="j2-nav-item" href="#sassasyncfunctionmap">SassAsyncFunctionMap</a>
 
 
 
@@ -526,15 +508,6 @@
   <li>
     
 
-  <a class="j2-nav-item" href="dartsass/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
   <a class="j2-nav-item" href="sass/types/sassvaluevisitor.html?swift">SassValueVisitor</a>
 
 
@@ -630,7 +603,7 @@
           
           <p>Define Swift implementations of
 <a href="https://sass-lang.com/documentation/at-rules/function">Sass <code>@function</code>s</a> by
-declaring one of the <a href="custom-functions.html?swift#sassfunctionmap"><code>SassFunctionMap</code></a> types and passing it to the compiler.</p>
+declaring a <a href="custom-functions.html?swift#sassfunctionmap"><code>SassFunctionMap</code></a> and passing it to the compiler.</p>
 <p>Use the <a href="sass/types/sassvalue9.html?swift"><code>SassValue</code></a> family of types within the function to exchange data with
 the Sass compiler.</p>
 <p>A set of functions can be scoped either to an individual compilation or to all
@@ -694,7 +667,7 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public typealias SassFunction = ([<a href="sass/types/sassvalue9.html?swift">SassValue</a>]) throws -&gt; <a href="sass/types/sassvalue9.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public typealias SassFunction = ([<a href="sass/types/sassvalue9.html?swift">SassValue</a>]) async throws -&gt; <a href="sass/types/sassvalue9.html?swift">SassValue</a></code></pre>
   </div>
 
 
@@ -710,66 +683,6 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
             
             
             <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/FunctionTypes.swift#L27">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="sassasyncfunction" class="j2-item j2-swift j2-always">
-    <a name="//apple_ref/cpp/Alias/typealias%20SassAsyncFunction" class="dashAnchor j2-item-dash-anchor" data-item-id="sassasyncfunction"></a>
-    <h4 class="visually-hidden">typealias SassAsyncFunction</h4>
-    
-    
-    <a class="j2-item-title" href="#_sassasyncfunction" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassasyncfunction"><code>
-        <span class="j2-swift j2-always"><span class="j2-item-secondary">typealias </span>SassAsyncFunction</span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_sassasyncfunction">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>A version of the <a href="custom-functions.html?swift#sassfunction"><code>SassFunction</code></a> type that allows async behavior.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift j2-always">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public typealias SassAsyncFunction = ([<a href="sass/types/sassvalue9.html?swift">SassValue</a>]) async throws -&gt; <a href="sass/types/sassvalue9.html?swift">SassValue</a></code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/AsyncFunctionTypes.swift#L11">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -892,67 +805,6 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
             
             
             <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/FunctionTypes.swift#L39">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="sassasyncfunctionmap" class="j2-item j2-swift j2-always">
-    <a name="//apple_ref/cpp/Alias/typealias%20SassAsyncFunctionMap" class="dashAnchor j2-item-dash-anchor" data-item-id="sassasyncfunctionmap"></a>
-    <h4 class="visually-hidden">typealias SassAsyncFunctionMap</h4>
-    
-    
-    <a class="j2-item-title" href="#_sassasyncfunctionmap" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassasyncfunctionmap"><code>
-        <span class="j2-swift j2-always"><span class="j2-item-secondary">typealias </span>SassAsyncFunctionMap</span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_sassasyncfunctionmap">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>A set of <a href="custom-functions.html?swift#sassasyncfunction"><code>SassAsyncFunction</code></a>s and their signatures.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift j2-always">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public typealias SassAsyncFunctionMap = [<a href="custom-functions.html?swift#sassfunctionsignature">SassFunctionSignature</a>:
-    <a href="custom-functions.html?swift#sassasyncfunction">SassAsyncFunction</a>]</code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/AsyncFunctionTypes.swift#L14">Show on GitHub</a></span>
             
           </nav>
         </div>

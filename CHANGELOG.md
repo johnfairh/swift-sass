@@ -1,3 +1,20 @@
+# 2.0.0-pre1
+
+* Rewrite `Compiler` to be an actor and use `NIOAsyncChannel` to communicate
+  with the compiler.  Interface is approximately the same; `syncShutdownGracefully()`
+  is gone though to match NIO's approach.
+
+* Shutdown behaviour has changed slightly: if you have compiler jobs running
+  concurrently to a shutdown request then they are likely to be cancelled rather
+  than left to run before actioning the shutdown.
+
+* Make all Sass functions `async`: delete `SassFunction` types and then rename
+  `SassAsyncFunction` types.
+
+I expect to end the 'pre' series when `NIOAsyncChannel` is officially blessed;
+there is also activity on the Sass side to do with reworking the protocol for
+higher performance that may get rolled in here depending on timing and impact.
+
 # 1.7.0
 
 * Bundle the 1.60.0 `dart_sass_embedded` binaries

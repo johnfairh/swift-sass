@@ -1,12 +1,4 @@
 {
-  "custom-functions.html?swift#sassasyncfunction" : {
-    "abstract" : "A version of the SassFunction type that allows async behavior.",
-    "name" : "SassAsyncFunction"
-  },
-  "custom-functions.html?swift#sassasyncfunctionmap" : {
-    "abstract" : "A set of SassAsyncFunctions and their signatures.",
-    "name" : "SassAsyncFunctionMap"
-  },
   "custom-functions.html?swift#sassfunction" : {
     "abstract" : "The Swift type of a Sass function.",
     "name" : "SassFunction"
@@ -74,13 +66,8 @@
     "parent_name" : "Compiler"
   },
   "dartsass\/types\/compiler.html?swift#shutdowngracefully" : {
-    "abstract" : "Shut down the compiler asynchronously.",
+    "abstract" : "Shut down the compiler.",
     "name" : "shutdownGracefully()",
-    "parent_name" : "Compiler"
-  },
-  "dartsass\/types\/compiler.html?swift#syncshutdowngracefully" : {
-    "abstract" : "Shut down the compiler synchronously.",
-    "name" : "syncShutdownGracefully()",
     "parent_name" : "Compiler"
   },
   "dartsass\/types\/filesystemimporter1.html?swift" : {
@@ -166,20 +153,6 @@
     "abstract" : "Text explaining the protocol error.",
     "name" : "description",
     "parent_name" : "ProtocolError"
-  },
-  "dartsass\/types\/sassasyncdynamicfunction.html?swift" : {
-    "abstract" : "A  dynamic Sass function that can run asynchronously.",
-    "name" : "SassAsyncDynamicFunction"
-  },
-  "dartsass\/types\/sassasyncdynamicfunction.html?swift#asyncfunction" : {
-    "abstract" : "The actual function.",
-    "name" : "asyncFunction",
-    "parent_name" : "SassAsyncDynamicFunction"
-  },
-  "dartsass\/types\/sassasyncdynamicfunction.html?swift#initsignaturefunction1" : {
-    "abstract" : "Create a new asynchronous dynamic function.",
-    "name" : "init(signature:function:)",
-    "parent_name" : "SassAsyncDynamicFunction"
   },
   "sass\/types\/compilererror.html?swift" : {
     "abstract" : "Thrown as an error after a failed compilation.",
@@ -1261,7 +1234,7 @@
     "parent_name" : "SassValueVisitor"
   },
   "sass\/types\/sassvaluevisitor.html?swift#visitdynamicfunction" : {
-    "abstract" : "The operation for SassDynamicFunction (or SassAsyncDynamicFunction).",
+    "abstract" : "The operation for SassDynamicFunction.",
     "name" : "visit(dynamicFunction:)",
     "parent_name" : "SassValueVisitor"
   },
