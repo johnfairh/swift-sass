@@ -7,7 +7,6 @@
 
 import NIOCore
 import NIOPosix
-import Dispatch
 
 /// This eventloopgroupprovide thing is like, a hint at a reasonable API ... why does it have NIO in the name ...
 /// Try to wrap it up into something less unwieldy.

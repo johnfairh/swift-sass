@@ -6,7 +6,6 @@
 //
 
 import struct Foundation.URL
-//import NIOCore
 
 /// The results of loading a stylesheet through an importer.
 public struct ImporterResults: Sendable {

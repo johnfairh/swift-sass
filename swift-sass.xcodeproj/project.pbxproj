@@ -58,7 +58,6 @@
 		02A1A9A125B99C650045E28F /* TestVersions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A99525B99C560045E28F /* TestVersions.swift */; };
 		02A346E9257AAE3D00A14905 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 02A346E8257AAE3D00A14905 /* Logging */; };
 		02A3BC0125800D0600BBF99E /* CompilerWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0025800D0600BBF99E /* CompilerWork.swift */; };
-		02A3BC052581600700BBF99E /* AsyncFunctionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC042581600700BBF99E /* AsyncFunctionTypes.swift */; };
 		02A3BC0F2585314200BBF99E /* ssassc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0E2585314200BBF99E /* ssassc.swift */; };
 		02A3BC172585329C00BBF99E /* DartSass.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sass::DartSass::Product" /* DartSass.framework */; };
 		02CEF36F270F569A007DBDB7 /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEF36E270F569A007DBDB7 /* Calculation.swift */; };
@@ -174,7 +173,6 @@
 		02A1A97925B70A8B0045E28F /* Versions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Versions.swift; sourceTree = "<group>"; };
 		02A1A99525B99C560045E28F /* TestVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestVersions.swift; sourceTree = "<group>"; };
 		02A3BC0025800D0600BBF99E /* CompilerWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerWork.swift; sourceTree = "<group>"; };
-		02A3BC042581600700BBF99E /* AsyncFunctionTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncFunctionTypes.swift; sourceTree = "<group>"; };
 		02A3BC0C2585314200BBF99E /* Cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Cli; sourceTree = BUILT_PRODUCTS_DIR; };
 		02A3BC0E2585314200BBF99E /* ssassc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ssassc.swift; path = ../SassCli/ssassc.swift; sourceTree = "<group>"; };
 		02CEF36E270F569A007DBDB7 /* Calculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculation.swift; sourceTree = "<group>"; };
@@ -380,7 +378,6 @@
 		OBJ_8 /* DartSass */ = {
 			isa = PBXGroup;
 			children = (
-				02A3BC042581600700BBF99E /* AsyncFunctionTypes.swift */,
 				026E4D38260E103E00E916BF /* Importers.swift */,
 				OBJ_10 /* Compiler.swift */,
 				02A3BC0025800D0600BBF99E /* CompilerWork.swift */,
@@ -642,7 +639,6 @@
 				OBJ_120 /* embedded_sass.pb.swift in Sources */,
 				02A1A97A25B70A8B0045E28F /* Versions.swift in Sources */,
 				02819BDE2A03CB2E00A46005 /* Concurrency+Extras.swift in Sources */,
-				02A3BC052581600700BBF99E /* AsyncFunctionTypes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

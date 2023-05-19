@@ -14,7 +14,7 @@ extension Compiler {
         /// Configured global importer rules, for all compilations
         let globalImporters: [ImportResolver]
         /// Configured functions, for all compilations
-        let globalFunctions: SassAsyncFunctionMap
+        let globalFunctions: SassFunctionMap
         /// Message formatting style,
         let messageStyle: CompilerMessageStyle
         /// Deprecation warning verbosity
@@ -41,7 +41,7 @@ extension Compiler {
                           includeCharset: Bool,
                           importers: [ImportResolver],
                           stringImporter: ImportResolver? = nil,
-                          functions: SassAsyncFunctionMap,
+                          functions: SassFunctionMap,
                           continuation: Continuation<CompilerResults>) -> Sass_EmbeddedProtocol_InboundMessage {
         let compilationRequest = CompilationRequest(
             input: input,

@@ -17,7 +17,7 @@ class TestFunctions: DartSassTestCase {
 
     // (String) values go back and forth
 
-    let quoteStringFunction: SassAsyncFunctionMap = [
+    let quoteStringFunction: SassFunctionMap = [
         "myQuoteString($param)" : { args in
             let str = try args[0].asString()
             return SassString(str.string, isQuoted: true)
@@ -35,7 +35,7 @@ class TestFunctions: DartSassTestCase {
 
     // Errors reported
 
-    let errorFunction: SassAsyncFunctionMap = [
+    let errorFunction: SassFunctionMap = [
         "badFunction($param)" : { args in
             let bool = try args[0].asBool()
             XCTFail("Managed to get a bool")
@@ -59,7 +59,7 @@ class TestFunctions: DartSassTestCase {
     // Function syntax fails compile not compiler
 
     func testBadFunctionDecl() async throws {
-        let badFunction: SassAsyncFunctionMap = [
+        let badFunction: SassFunctionMap = [
             "" : { _ in SassConstants.null }
         ]
 
@@ -78,13 +78,13 @@ class TestFunctions: DartSassTestCase {
 
     // Local func overrides global
 
-    let globalOverrideFunction: SassAsyncFunctionMap = [
+    let globalOverrideFunction: SassFunctionMap = [
         "ofunc($param)" : { _ in
             SassString("bucket")
         }
     ]
 
-    let localOverrideFunction: SassAsyncFunctionMap = [
+    let localOverrideFunction: SassFunctionMap = [
         "ofunc()" : { _ in
             SassString("goat")
         }
@@ -302,7 +302,7 @@ class TestFunctions: DartSassTestCase {
         // what a monstrosity
     }
 
-    let slowEchoFunction: SassAsyncFunctionMap = [
+    let slowEchoFunction: SassFunctionMap = [
         "slowEcho($param)" : { args in
             try? await Task.sleep(nanoseconds: 1 * 1000 * 1000 * 1000)
             return try args[0].asString()
@@ -317,7 +317,7 @@ class TestFunctions: DartSassTestCase {
 
     func testAsyncDynamicFunction() async throws {
         let fishMakerMaker: SassFunction = { args in
-            SassAsyncDynamicFunction(signature: "myFish()") { args in
+            SassDynamicFunction(signature: "myFish()") { args in
                 SassString("plaice")
             }
         }
@@ -339,7 +339,7 @@ class TestFunctions: DartSassTestCase {
 
     /// ArgumentList
     func testVarargs() async throws {
-        let varArgsFunction: SassAsyncFunctionMap = [
+        let varArgsFunction: SassFunctionMap = [
             "varFn($first, $args...)" : { args in
                 XCTAssertEqual(2, args.count)
                 try XCTAssertNoThrow(args[0].asNumber().asInt())
@@ -361,7 +361,7 @@ class TestFunctions: DartSassTestCase {
     }
 
     func testVarArgsKwArgs() async throws {
-        let varArgsFunctions: SassAsyncFunctionMap = [
+        let varArgsFunctions: SassFunctionMap = [
             "kwReadingFn($args...)" : { args in
                 XCTAssertEqual(1, args.count)
                 let argList = try args[0].asArgumentList()
@@ -398,7 +398,7 @@ class TestFunctions: DartSassTestCase {
 
     // Test host-created arg lists, that the ID of 0 isn't reported back to the compiler.
     func testHostCreatedArgList() async throws {
-        let functions: SassAsyncFunctionMap = [
+        let functions: SassFunctionMap = [
             "createAL()" : { _ in
                 SassArgumentList([SassNumber(23)], keywords: ["first": SassConstants.true])
             },

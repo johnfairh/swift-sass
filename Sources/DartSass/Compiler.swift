@@ -136,7 +136,7 @@ public actor Compiler {
                 verboseDeprecations: Bool = false,
                 suppressDependencyWarnings: Bool = false,
                 importers: [ImportResolver] = [],
-                functions: SassAsyncFunctionMap = [:]) throws {
+                functions: SassFunctionMap = [:]) throws {
         let url = try DartSassEmbedded.getURL()
         self.init(eventLoopGroupProvider: eventLoopGroupProvider,
                   embeddedCompilerFileURL: url,
@@ -181,7 +181,7 @@ public actor Compiler {
                 verboseDeprecations: Bool = false,
                 suppressDependencyWarnings: Bool = false,
                 importers: [ImportResolver] = [],
-                functions: SassAsyncFunctionMap = [:]) {
+                functions: SassFunctionMap = [:]) {
         precondition(embeddedCompilerFileURL.isFileURL, "Not a file URL: \(embeddedCompilerFileURL)")
         eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider)
         eventLoop = self.eventLoopGroup.any()
@@ -462,7 +462,7 @@ public actor Compiler {
                         sourceMapStyle: SourceMapStyle = .separateSources,
                         includeCharset: Bool = false,
                         importers: [ImportResolver] = [],
-                        functions: SassAsyncFunctionMap = [:]) async throws -> CompilerResults {
+                        functions: SassFunctionMap = [:]) async throws -> CompilerResults {
         try await withCheckedThrowingContinuation { continuation in
             Task {
                 let child = try await waitUntilReadyToCompile(continuation: continuation)
@@ -506,7 +506,7 @@ public actor Compiler {
                         sourceMapStyle: SourceMapStyle = .separateSources,
                         includeCharset: Bool = false,
                         importers: [ImportResolver] = [],
-                        functions: SassAsyncFunctionMap = [:]) async throws -> CompilerResults {
+                        functions: SassFunctionMap = [:]) async throws -> CompilerResults {
         try await withCheckedThrowingContinuation { continuation in
             Task {
                 let child = try await waitUntilReadyToCompile(continuation: continuation)

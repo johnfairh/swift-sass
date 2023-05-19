@@ -24,7 +24,7 @@
 ///
 /// All Sass functions return a value -- there is no `void` return type.  Create new `SassValue`
 /// objects using a subclass initializer such as `SassString.init(_:isQuoted:)`.
-public typealias SassFunction = @Sendable ([SassValue]) throws -> SassValue
+public typealias SassFunction = @Sendable ([SassValue]) async throws -> SassValue
 
 /// A Sass function signature.
 ///

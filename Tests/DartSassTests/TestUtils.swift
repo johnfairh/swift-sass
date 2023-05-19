@@ -39,7 +39,7 @@ class DartSassTestCase: XCTestCase {
         try newCompiler(importers: importers, functions: [:])
     }
 
-    func newCompiler(importers: [ImportResolver] = [], functions: SassAsyncFunctionMap) throws -> Compiler {
+    func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap) throws -> Compiler {
         let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
                              importers: importers,
                              functions: functions)

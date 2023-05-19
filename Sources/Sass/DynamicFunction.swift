@@ -60,9 +60,6 @@ private var runtime = DynamicFunctionRuntime()
 /// These are Sass functions, written in Swift, that are not declared up-front to the compiler when
 /// starting compilation.  Instead they are returned as `SassValue`s from other `SassFunction`s
 /// (that _were_ declared up-front) so the compiler can call them later on.
-///
-/// Use `SassAsyncDynamicFunction` instead if your function is blocking and you want to use it with
-/// `DartSass.Compiler`.
 open class SassDynamicFunction: SassValue {
     // MARK: Initializers
 

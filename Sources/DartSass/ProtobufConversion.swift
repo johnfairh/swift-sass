@@ -9,7 +9,6 @@
 
 import struct Foundation.URL
 import Sass
-import NIOPosix
 
 // MARK: PB -> Native
 

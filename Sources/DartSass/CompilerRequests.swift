@@ -171,7 +171,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     // Compilation-specific
     let compileReq: Sass_EmbeddedProtocol_InboundMessage.CompileRequest
     private let importers: [ImportResolver]
-    private let functions: SassAsyncFunctionMap
+    private let functions: SassFunctionMap
     private var messages: [CompilerMessage]
 
     var requestID: UInt32 {
@@ -186,7 +186,7 @@ final class CompilationRequest: ManagedCompilerRequest {
          settings: Compiler.Settings,
          importers: [ImportResolver],
          stringImporter: ImportResolver?,
-         functionsMap: [SassFunctionSignature : (String, SassAsyncFunction)],
+         functionsMap: [SassFunctionSignature : (String, SassFunction)],
          done: @escaping (CompilationRequest, Result<CompilerResults, any Error>) -> Void) {
         var firstFreeImporterID = CompilationRequest.baseImporterID
         if let stringImporter = stringImporter {
@@ -387,7 +387,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     /// Inbound 'FunctionCallRequest' handler
     private func receive(functionCallRequest req: OBM.FunctionCallRequest, reply: @escaping ReplyFn) throws {
         /// Helper to run the callback after we locate it
-        func doSassFunction(_ fn: @escaping SassAsyncFunction) throws {
+        func doSassFunction(_ fn: @escaping SassFunction) throws {
 
             // Set up to monitor accesses to any `SassArgumentList`s
             let accessedArgList = AccessedArgList()
@@ -425,11 +425,7 @@ final class CompilationRequest: ManagedCompilerRequest {
             guard let sassDynamicFunc = SassDynamicFunction.lookUp(id: id) else {
                 throw ProtocolError("Host function ID=\(id) not registered.")
             }
-            if let asyncFunc = sassDynamicFunc as? SassAsyncDynamicFunction {
-                try doSassFunction(asyncFunc.asyncFunction)
-            } else {
-                try doSassFunction(SyncFunctionAdapter(sassDynamicFunc.function))
-            }
+            try doSassFunction(sassDynamicFunc.function)
 
         case .name(let name):
             guard let sassFunc = functions[name] else {
