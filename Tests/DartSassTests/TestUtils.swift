@@ -18,6 +18,8 @@ class DartSassTestCase: XCTestCase {
 
     var compilersToShutdown: [Compiler] = []
 
+    var testSuspend: TestSuspend?
+
     override func setUpWithError() throws {
         XCTAssertNil(eventLoopGroup)
         eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
@@ -31,6 +33,8 @@ class DartSassTestCase: XCTestCase {
         compilersToShutdown = []
         try await eventLoopGroup.shutdownGracefully()
         eventLoopGroup = nil
+        DartSass.TestSuspend = nil
+        testSuspend = nil
     }
 
     func newCompiler(importers: [ImportResolver] = []) throws -> Compiler {
@@ -52,6 +56,15 @@ class DartSassTestCase: XCTestCase {
         await c.setVersionsResponder(TestVersionsResponder())
         compilersToShutdown.append(c)
         return c
+    }
+
+    // Helper to stop a process
+    func stopProcess(pid: Int32) {
+        // This seems super flakey on Linux in particular, have upgraded from SIGTERM to SIGKILL
+        // but still sometimes the process doesn't die and happily services the compilation...
+        let rc = kill(pid, SIGKILL)
+        XCTAssertEqual(0, rc)
+        print("XCKilled compiler process \(pid)")
     }
 
     // Helper to trigger & validate a protocol error
@@ -76,6 +89,14 @@ class DartSassTestCase: XCTestCase {
     func checkCompilerWorking(_ compiler: Compiler) async throws {
         let results = try await compiler.compile(string: "")
         XCTAssertEqual("", results.css)
+    }
+
+    func setSuspend(at point: TestSuspendPoint) async {
+        if testSuspend == nil {
+            testSuspend = TestSuspend()
+            DartSass.TestSuspend = testSuspend
+        }
+        await testSuspend?.setSuspend(at: point)
     }
 }
 
@@ -240,5 +261,45 @@ extension Compiler {
 
     func tstSend(message: Sass_EmbeddedProtocol_InboundMessage) async {
         await child.send(message: message)
+    }
+}
+
+// MARK: TestSuspend
+
+/// Support hooks to extend timing windows to reliably hit edge cases
+actor TestSuspend: TestSuspendHook {
+    typealias Point = TestSuspendPoint
+
+    private var enabledPoints: Set<Point> = []
+    private var suspendedPoints: [Point : CheckedContinuation<Void, Never>] = [:]
+    private var waitForSuspend: CheckedContinuation<Void, Never>? = nil
+
+    fileprivate func setSuspend(at point: Point) {
+        enabledPoints.insert(point)
+    }
+
+    func suspend(for point: Point) async {
+        if enabledPoints.remove(point) != nil {
+            await withCheckedContinuation { continuation in
+                suspendedPoints.updateValue(continuation, forKey: point)
+                if let waitForSuspend {
+                    self.waitForSuspend = nil
+                    waitForSuspend.resume()
+                }
+            }
+        }
+    }
+
+    func waitUntilSuspended(at point: Point) async {
+        while suspendedPoints[point] == nil {
+            await withCheckedContinuation { waitForSuspend = $0 }
+        }
+    }
+
+    func resume(from point: Point) {
+        guard let cont = suspendedPoints.removeValue(forKey: point) else {
+            preconditionFailure("Not suspended: \(point)")
+        }
+        cont.resume()
     }
 }

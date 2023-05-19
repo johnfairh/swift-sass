@@ -6,7 +6,6 @@
 //
 
 import struct Foundation.URL
-import class Dispatch.DispatchSemaphore
 import Atomics
 @_spi(SassCompilerProvider) import Sass
 
@@ -74,20 +73,6 @@ private enum CompilerRequestState {
         case .normal: return false
         case .client, .client_error: return true
         }
-    }
-}
-
-struct Lock {
-    private let dsem: DispatchSemaphore
-
-    init() {
-        dsem = DispatchSemaphore(value: 1)
-    }
-
-    func locked<T>(_ call: () throws -> T) rethrows -> T {
-        dsem.wait()
-        defer { dsem.signal() }
-        return try call()
     }
 }
 

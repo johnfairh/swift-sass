@@ -71,6 +71,19 @@ class TestVersions: DartSassTestCase {
         }
     }
 
+    func testInterruptedVersionRequest() async throws {
+        await setSuspend(at: .sendVersionRequest)
+        let compiler = try newCompiler()
+        await testSuspend?.waitUntilSuspended(at: .sendVersionRequest)
+        let pid = await compiler.compilerProcessIdentifier!
+        stopProcess(pid: pid)
+        await compiler.waitForQuiescing()
+        await testSuspend?.resume(from: .sendVersionRequest)
+        await compiler.waitForRunning()
+        await compiler.assertStartCount(2)
+        try await checkCompilerWorking(compiler)
+    }
+
     func testStuckVersionReport() async throws {
         let compiler = try await newBadCompiler(timeout: 1)
         await compiler.setVersionsResponder(HangingVersionsResponder())
@@ -80,8 +93,7 @@ class TestVersions: DartSassTestCase {
 
     struct CorruptVersionsResponder: VersionsResponder {
         func provideVersions(msg: DartSass.Sass_EmbeddedProtocol_InboundMessage) async -> DartSass.Sass_EmbeddedProtocol_OutboundMessage? {
-//            try? await Task.sleep(for: .milliseconds(100)) // not sure why this was here
-            return .with {
+            .with {
                     $0.importRequest = .with {
                         $0.compilationID = msg.versionRequest.id
                     }

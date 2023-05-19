@@ -68,7 +68,7 @@ public actor Compiler {
     private(set) var state: State
 
     /// Jobs waiting on compiler state change.
-    private var stateWaitingQueue: ContinuationQueue2
+    private var stateWaitingQueue: ContinuationQueue
 
     /// Change the compiler state and resume anyone waiting.
     private func setState(_ state: State, fn: String = #function) {
@@ -194,7 +194,7 @@ public actor Compiler {
                             messageStyle: messageStyle,
                             verboseDeprecations: verboseDeprecations,
                             suppressDependencyWarnings: suppressDependencyWarnings)
-        stateWaitingQueue = ContinuationQueue2()
+        stateWaitingQueue = ContinuationQueue()
         activeRequests = [:]
         quiesceContinuation = nil
         runTask = nil
@@ -356,6 +356,7 @@ public actor Compiler {
     /// Test hook
     func waitForRunning() async { await waitFor(\.isRunning) }
     func waitForBroken() async { await waitFor(\.isBroken) }
+    func waitForQuiescing() async { await waitFor(\.isQuiescing) }
 
     func waitFor(_ statekp: KeyPath<State, Bool>) async {
         while !state[keyPath: statekp] {
@@ -569,6 +570,7 @@ public actor Compiler {
     private func sendVersionRequest(to child: CompilerChild) async throws -> Versions {
         try await withCheckedThrowingContinuation { continuation in
             Task {
+                await TestSuspend?.suspend(for: .sendVersionRequest)
                 guard state.isChecking else {
                     debug("Cancelling versions query, state moved on to \(state)")
                     continuation.resume(throwing: CancellationError())
@@ -702,9 +704,9 @@ actor CompilerChild: ChannelInboundHandler {
             child.process.terminationHandler = nil
             child.terminate()
             // Linux weirdness - `terminate` doesn't cause the AsyncChannel to finish even though
-            //
             // it definitely stops the process - so we have to poke it:
-            // 1) asyncChannel?.outboundWriter.finish() --- worked once then never again
+            //
+            // 1) asyncChannel?.outboundWriter.finish() --- worked once then never again, maybe I imagined it
             // 2) kill(processIdentifier, -9) --- no effect
             // 3) horrendous multi-layered Task version of msgLoopTask enabling Swift concurrency
             //    cancel -- which NIO is far more interested in than the pipe going broken -- seems

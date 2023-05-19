@@ -29,11 +29,8 @@ class TestResetShutdown: DartSassTestCase {
         let pid = await compiler.compilerProcessIdentifier!
         await compiler.waitForRunning()
 
-        // This seems super flakey on Linux in particular, have upgraded from SIGTERM to SIGKILL
-        // but still sometimes the process doesn't die and happily services the compilation...
-        let rc = kill(pid, SIGKILL)
-        XCTAssertEqual(0, rc)
-        print("XCKilled compiler process \(pid)")
+        stopProcess(pid: pid)
+
         await checkProtocolError(compiler)
 
         // check recovered
