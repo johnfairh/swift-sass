@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/fw2020.css">
     
     
-   <title>Swift Sass v1.7.0</title>
+   <title>Swift Sass v2.0.0-pre1</title>
     
   </head>
   <body class="j2-swift " data-root-path="./" data-doc-path="index.html" data-assets-path="">
@@ -31,7 +31,7 @@
     
     <a href="index.html">
     
-    Swift Sass v1.7.0</a>
+    Swift Sass v2.0.0-pre1</a>
   </div>
   
   <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
@@ -325,15 +325,6 @@
   <li>
     
 
-  <a class="j2-nav-item" href="custom-functions.html?swift#sassasyncfunction">SassAsyncFunction</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
   <a class="j2-nav-item" href="custom-functions.html?swift#sassfunctionsignature">SassFunctionSignature</a>
 
 
@@ -344,15 +335,6 @@
     
 
   <a class="j2-nav-item" href="custom-functions.html?swift#sassfunctionmap">SassFunctionMap</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
-  <a class="j2-nav-item" href="custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a>
 
 
 
@@ -520,15 +502,6 @@
   <li>
     
 
-  <a class="j2-nav-item" href="dartsass/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
   <a class="j2-nav-item" href="sass/types/sassvaluevisitor.html?swift">SassValueVisitor</a>
 
 
@@ -669,7 +642,7 @@ struct ExtrasImporter: Importer {
   }
 }
 
-let customFunctions: SassAsyncFunctionMap = [
+let customFunctions: SassFunctionMap = [
   &quot;userColorForScore($score)&quot; : { args in
     let score = try args[0].asInt()
     return SassColor(...)
@@ -708,10 +681,10 @@ Documentation
 Requirements
 </span></h2>
 <ul>
-<li>Swift 5.5</li>
-<li>macOS 11+ (tested on macOS 13.2 x64)</li>
-<li>Linux (tested on Ubuntu 20.04.3 x64)</li>
-<li>Embedded Sass Protocol version 1.1.0</li>
+<li>Swift 5.7</li>
+<li>macOS 13+ (tested on macOS 13.2 x64)</li>
+<li>Linux (tested on Ubuntu 22.04 x64)</li>
+<li>Embedded Sass Protocol version 1.2.0</li>
 </ul>
 <h2 class="j2-anchor j2-heading heading" id="installation">
 <span data-anchor-id="installation">
@@ -721,7 +694,7 @@ Installation
 <p>Package dependency:</p>
 <pre><code class="language-swift">.package(name: &quot;swift-sass&quot;,
          url: &quot;https://github.com/johnfairh/swift-sass.git&quot;,
-         from: &quot;1.7.0&quot;)
+         from: &quot;2.0.0&quot;)
 </code></pre>
 <p>Target dependency:</p>
 <pre><code class="language-swift">.product(name: &quot;DartSass&quot;, package: &quot;swift-sass&quot;),

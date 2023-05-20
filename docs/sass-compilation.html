@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/fw2020.css">
     
     
-   <title>Sass Compilation - Swift Sass v1.7.0</title>
+   <title>Sass Compilation - Swift Sass v2.0.0-pre1</title>
     
   </head>
   <body class="j2-swift " data-root-path="./" data-doc-path="sass-compilation.html" data-assets-path="">
@@ -31,7 +31,7 @@
     
     <a href="index.html">
     
-    Swift Sass v1.7.0</a>
+    Swift Sass v2.0.0-pre1</a>
   </div>
   
   <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
@@ -331,15 +331,6 @@
   <li>
     
 
-  <a class="j2-nav-item" href="custom-functions.html?swift#sassasyncfunction">SassAsyncFunction</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
   <a class="j2-nav-item" href="custom-functions.html?swift#sassfunctionsignature">SassFunctionSignature</a>
 
 
@@ -350,15 +341,6 @@
     
 
   <a class="j2-nav-item" href="custom-functions.html?swift#sassfunctionmap">SassFunctionMap</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
-  <a class="j2-nav-item" href="custom-functions.html?swift#sassasyncfunctionmap">SassAsyncFunctionMap</a>
 
 
 
@@ -526,15 +508,6 @@
   <li>
     
 
-  <a class="j2-nav-item" href="dartsass/types/sassasyncdynamicfunction.html?swift">SassAsyncDynamicFunction</a>
-
-
-
-  </li>
-  
-  <li>
-    
-
   <a class="j2-nav-item" href="sass/types/sassvaluevisitor.html?swift">SassValueVisitor</a>
 
 
@@ -649,12 +622,12 @@
   
   
     <section id="compiler" class="j2-item j2-swift j2-always">
-    <a name="//apple_ref/cpp/Class/class%20Compiler" class="dashAnchor j2-item-dash-anchor" data-item-id="compiler"></a>
-    <h4 class="visually-hidden">class Compiler</h4>
+    <a name="//apple_ref/cpp/Actor/actor%20Compiler" class="dashAnchor j2-item-dash-anchor" data-item-id="compiler"></a>
+    <h4 class="visually-hidden">actor Compiler</h4>
     
     
     <a class="j2-item-title" href="#_compiler" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_compiler"><code>
-        <span class="j2-swift j2-always"><span class="j2-item-secondary">class </span>Compiler</span>
+        <span class="j2-swift j2-always"><span class="j2-item-secondary">actor </span>Compiler</span>
         
       </code></a>
     <div class="collapse  j2-item-popopen-wrapper" id="_compiler">
@@ -675,8 +648,8 @@
 For other platforms you need to supply this separately, see
 <a href="index.html">the readme</a>.</p>
 <p>Some debug logging is available via <a href="dartsass/types/compiler.html?swift#logger"><code>Compiler.logger</code></a>.</p>
-<p>You must shut down the compiler using <a href="dartsass/types/compiler.html?swift#shutdowngracefully"><code>shutdownGracefully(...)</code></a>
-or <a href="dartsass/types/compiler.html?swift#syncshutdowngracefully"><code>syncShutdownGracefully()</code></a> otherwise the program will exit.</p>
+<p>You must shut down the compiler using <a href="dartsass/types/compiler.html?swift#shutdowngracefully"><code>shutdownGracefully(...)</code></a> before the last reference
+to the object is released otherwise the program will exit.</p>
 <h2 class="j2-anchor j2-heading heading" id="custom-importer-resolution">
 <span data-anchor-id="custom-importer-resolution">
 Custom importer resolution
@@ -698,7 +671,7 @@ per-compilation list, in order within each list.</li>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class Compiler: @unchecked <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
+    <pre><code class="language-swift">public actor Compiler</code></pre>
   </div>
 
 
@@ -720,7 +693,7 @@ per-compilation list, in order within each list.</li>
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L40-L587">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L38-L642">Show on GitHub</a></span>
             
           </nav>
         </div>

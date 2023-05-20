@@ -24,8 +24,8 @@ import Logging
 ///
 /// Some debug logging is available via `Compiler.logger`.
 ///
-/// You must shut down the compiler using `shutdownGracefully(...)`
-/// or `syncShutdownGracefully()` otherwise the program will exit.
+/// You must shut down the compiler using `shutdownGracefully(...)` before the last reference
+/// to the object is released otherwise the program will exit.
 ///
 /// ## Custom importer resolution
 ///
@@ -333,12 +333,12 @@ public actor Compiler {
         }
     }
 
-    /// Shut down the compiler asynchronously.
+    /// Shut down the compiler.
     ///
     /// You must call this before the last reference to the `Compiler` is released.
     ///
     /// Cancels any outstanding work and shuts down internal threads. There’s no way back
-    /// from this state: to do more compilation you will need a new object.
+    /// from this state: to do more compilation you will need a new instance.
     public func shutdownGracefully() async {
         while runTask == nil { // dumb window during init thunk
             await waitForStateChange()

@@ -19,8 +19,8 @@ modules:
   - Sass
   - DartSass
 docset_module_name: swift-sass
-title: Swift Sass v1.7.0
-module_version: 1.7.0
+title: Swift Sass v2.0.0-pre1
+module_version: 2.0.0-pre1
 merge_modules: true
 custom_abstracts: SourceDocs/*md
 topic_style: source-order-defs
@@ -62,10 +62,8 @@ custom_groups:
   - name: Custom Functions
     children:
       - SassFunction
-      - SassAsyncFunction
       - SassFunctionSignature
       - SassFunctionMap
-      - SassAsyncFunctionMap
 
   - name: SassScript
     topics:
@@ -84,7 +82,6 @@ custom_groups:
         children:
           - SassCompilerFunction
           - SassDynamicFunction
-          - SassAsyncDynamicFunction
       - name: Less-commonly used types
         children:
           - SassValueVisitor
@@ -117,7 +114,6 @@ custom_defs:
            - compilerPackageVersion
            - reinit()
            - shutdownGracefully()
-           - syncShutdownGracefully()
       - name: Logging
         children:
           - logger
