@@ -515,7 +515,7 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
 
-    /// This version request's id. Mandatory.
+    /// This version request's id.
     var id: UInt32 = 0
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -528,10 +528,6 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
-
-    /// This compilation's request id. This is included in messages sent from the
-    /// compiler to the host. Mandatory.
-    var id: UInt32 = 0
 
     /// The input stylesheet to parse. Mandatory.
     var input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input? = nil
@@ -779,9 +775,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
 
     var id: UInt32 = 0
 
-    /// The result of canonicalization. Optional. If this is `null`, it indicates
-    /// that the importer either did not recognize the URL, or could not find a
-    /// stylesheet at the location it referred to.
+    /// The result of canonicalization. If this is unset, it indicates that the
+    /// importer either did not recognize the URL, or could not find a stylesheet
+    /// at the location it referred to. Optional.
     var result: Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse.OneOf_Result? = nil
 
     /// The successfully canonicalized URL.
@@ -811,9 +807,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    /// The result of canonicalization. Optional. If this is `null`, it indicates
-    /// that the importer either did not recognize the URL, or could not find a
-    /// stylesheet at the location it referred to.
+    /// The result of canonicalization. If this is unset, it indicates that the
+    /// importer either did not recognize the URL, or could not find a stylesheet
+    /// at the location it referred to. Optional.
     enum OneOf_Result: Equatable {
       /// The successfully canonicalized URL.
       ///
@@ -858,9 +854,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
 
     var id: UInt32 = 0
 
-    /// The result of loading the URL. Optional. If this is `null`, it indicates
-    /// that the importer either did not recognize the URL, or could not find a
-    /// stylesheet at the location it referred to.
+    /// The result of loading the URL. If this is unset, it indicates that the
+    /// importer either did not recognize the URL, or could not find a stylesheet
+    /// at the location it referred to. Optional.
     var result: Sass_EmbeddedProtocol_InboundMessage.ImportResponse.OneOf_Result? = nil
 
     /// The contents of the loaded stylesheet.
@@ -883,9 +879,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    /// The result of loading the URL. Optional. If this is `null`, it indicates
-    /// that the importer either did not recognize the URL, or could not find a
-    /// stylesheet at the location it referred to.
+    /// The result of loading the URL. If this is unset, it indicates that the
+    /// importer either did not recognize the URL, or could not find a stylesheet
+    /// at the location it referred to. Optional.
     enum OneOf_Result: Equatable {
       /// The contents of the loaded stylesheet.
       case success(Sass_EmbeddedProtocol_InboundMessage.ImportResponse.ImportSuccess)
@@ -918,14 +914,14 @@ struct Sass_EmbeddedProtocol_InboundMessage {
       // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
       // methods supported on all messages.
 
-      /// The text of the stylesheet. Mandatory.
+      /// The text of the stylesheet.
       var contents: String = String()
 
-      /// The syntax of `contents`. Mandatory.
+      /// The syntax of `contents`.
       var syntax: Sass_EmbeddedProtocol_Syntax = .scss
 
       /// An absolute, browser-accessible URL indicating the resolved location of
-      /// the imported stylesheet. Optional.
+      /// the imported stylesheet.
       ///
       /// This should be a `file:` URL if one is available, but an `http:` URL is
       /// acceptable as well. If no URL is supplied, a `data:` URL is generated
@@ -933,11 +929,20 @@ struct Sass_EmbeddedProtocol_InboundMessage {
       ///
       /// If this is provided and is not an absolute URL (including scheme) the
       /// compiler must treat that as an error thrown by the importer.
-      var sourceMapURL: String = String()
+      var sourceMapURL: String {
+        get {return _sourceMapURL ?? String()}
+        set {_sourceMapURL = newValue}
+      }
+      /// Returns true if `sourceMapURL` has been explicitly set.
+      var hasSourceMapURL: Bool {return self._sourceMapURL != nil}
+      /// Clears the value of `sourceMapURL`. Subsequent reads from it will return its default value.
+      mutating func clearSourceMapURL() {self._sourceMapURL = nil}
 
       var unknownFields = SwiftProtobuf.UnknownStorage()
 
       init() {}
+
+      fileprivate var _sourceMapURL: String? = nil
     }
 
     init() {}
@@ -951,9 +956,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
 
     var id: UInt32 = 0
 
-    /// The result of loading the URL. Optional. A null result indicates that the
+    /// The result of loading the URL. An unset result indicates that the
     /// importer did not recognize the URL and other importers or load paths
-    /// should be tried.
+    /// should be tried. Optional.
     var result: Sass_EmbeddedProtocol_InboundMessage.FileImportResponse.OneOf_Result? = nil
 
     /// The absolute `file:` URL to look for the file on the physical
@@ -989,9 +994,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    /// The result of loading the URL. Optional. A null result indicates that the
+    /// The result of loading the URL. An unset result indicates that the
     /// importer did not recognize the URL and other importers or load paths
-    /// should be tried.
+    /// should be tried. Optional.
     enum OneOf_Result: Equatable {
       /// The absolute `file:` URL to look for the file on the physical
       /// filesystem.
@@ -1065,9 +1070,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     }
 
     /// The IDs of all `Value.ArgumentList`s in `FunctionCallRequest.arguments`
-    /// whose keywords were accessed. See `Value.ArgumentList` for details.
-    /// Mandatory if `result.success` is set. This may not include the special
-    /// value `0` and it may not include multiple instances of the same ID.
+    /// whose keywords were accessed. See `Value.ArgumentList` for details. This
+    /// may not include the special value `0` and it may not include multiple
+    /// instances of the same ID.
     var accessedArgumentLists: [UInt32] = []
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -1243,7 +1248,7 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
 
-    /// This version request's id. Mandatory.
+    /// This version request's id.
     var id: UInt32 = 0
 
     /// The version of the embedded protocol, in semver format.
@@ -1272,9 +1277,6 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
 
-    /// The compilation's request id. Mandatory.
-    var id: UInt32 = 0
-
     /// The success or failure result of the compilation. Mandatory.
     var result: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.OneOf_Result? = nil
 
@@ -1295,6 +1297,14 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
       }
       set {result = .failure(newValue)}
     }
+
+    /// The canonical URLs of all source files loaded during the compilation.
+    ///
+    /// The compiler must ensure that each canonical URL appears only once in
+    /// this list. This must include the entrypoint file's URL if either
+    /// `CompileRequest.input.path` or `CompileRequest.StringInput.url` was
+    /// passed.
+    var loadedUrls: [String] = []
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -1342,14 +1352,6 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
       /// generated CSS can be reached from the source map.
       var sourceMap: String = String()
 
-      /// The canonical URLs of all source files loaded during the compilation.
-      ///
-      /// The compiler must ensure that each canonical URL appears only once in
-      /// this list. This must include the entrypoint file's URL if either
-      /// `CompileRequest.input.path` or `CompileRequest.StringInput.url` was
-      /// passed.
-      var loadedUrls: [String] = []
-
       var unknownFields = SwiftProtobuf.UnknownStorage()
 
       init() {}
@@ -1365,7 +1367,7 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
       /// A message describing the reason for the failure.
       var message: String = String()
 
-      /// The span associated with the failure. Mandatory.
+      /// The span associated with the failure.
       var span: Sass_EmbeddedProtocol_SourceSpan {
         get {return _span ?? Sass_EmbeddedProtocol_SourceSpan()}
         set {_span = newValue}
@@ -1403,15 +1405,12 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
 
-    /// The request id for the compilation that triggered the message. Mandatory.
-    var compilationID: UInt32 = 0
-
     var type: Sass_EmbeddedProtocol_LogEventType = .warning
 
     /// The text of the message.
     var message: String = String()
 
-    /// The span associated with this message. Optional.
+    /// The span associated with this message.
     var span: Sass_EmbeddedProtocol_SourceSpan {
       get {return _span ?? Sass_EmbeddedProtocol_SourceSpan()}
       set {_span = newValue}
@@ -1502,12 +1501,9 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
 
     var id: UInt32 = 0
 
-    /// The request id for the compilation that triggered the message. Mandatory.
-    var compilationID: UInt32 = 0
-
     /// The unique ID of the importer being invoked. This must match an importer
     /// ID passed to this compilation in `CompileRequest.importers` or
-    /// `CompileRequest.input.string.importer`. Mandatory.
+    /// `CompileRequest.input.string.importer`.
     var importerID: UInt32 = 0
 
     /// The URL of the import to be canonicalized. This may be either absolute or
@@ -1544,13 +1540,9 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
 
     var id: UInt32 = 0
 
-    /// The request id for the compilation that triggered the message. Mandatory.
-    var compilationID: UInt32 = 0
-
     /// The unique ID of the importer being invoked. This must match an
     /// `Importer.importer_id` passed to this compilation in
     /// `CompileRequest.importers` or `CompileRequest.input.string.importer`.
-    /// Mandatory.
     var importerID: UInt32 = 0
 
     /// The canonical URL of the import. This is guaranteed to be a URL returned
@@ -1612,13 +1604,9 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
 
     var id: UInt32 = 0
 
-    /// The request id for the compilation that triggered the message. Mandatory.
-    var compilationID: UInt32 = 0
-
     /// The unique ID of the importer being invoked. This must match an
     /// `Importer.file_importer_id` passed to this compilation in
     /// `CompileRequest.importers` or `CompileRequest.input.string.importer`.
-    /// Mandatory.
     var importerID: UInt32 = 0
 
     /// The (non-canonicalized) URL of the import.
@@ -1646,9 +1634,6 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     // methods supported on all messages.
 
     var id: UInt32 = 0
-
-    /// The request id for the compilation that triggered the message. Mandatory.
-    var compilationID: UInt32 = 0
 
     /// An identifier that indicates which function to invoke. Mandatory.
     var identifier: Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest.OneOf_Identifier? = nil
@@ -1679,7 +1664,7 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     }
 
     /// The arguments passed to the function, in the order they appear in the
-    /// function signature passed to `CompileRequest.global_functions`. Mandatory.
+    /// function signature passed to `CompileRequest.global_functions`.
     ///
     /// The compiler must ensure that a valid number of arguments are passed for
     /// the given signature, that default argument values are instantiated
@@ -1761,7 +1746,7 @@ struct Sass_EmbeddedProtocol_SourceSpan {
   /// referred to by `url`.
   var text: String = String()
 
-  /// The location of the first character in this span. Mandatory.
+  /// The location of the first character in this span.
   var start: Sass_EmbeddedProtocol_SourceSpan.SourceLocation {
     get {return _start ?? Sass_EmbeddedProtocol_SourceSpan.SourceLocation()}
     set {_start = newValue}
@@ -1771,7 +1756,7 @@ struct Sass_EmbeddedProtocol_SourceSpan {
   /// Clears the value of `start`. Subsequent reads from it will return its default value.
   mutating func clearStart() {self._start = nil}
 
-  /// The location of the first character after this span. Optional.
+  /// The location of the first character after this span.
   ///
   /// If this is omitted, it indicates that the span is empty and points
   /// immediately before `start`. In that case, `text` must be empty.
@@ -1809,14 +1794,13 @@ struct Sass_EmbeddedProtocol_SourceSpan {
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
 
-    /// The 0-based offset of this location within the source file. Mandatory.
+    /// The 0-based offset of this location within the source file.
     var offset: UInt32 = 0
 
     /// The 0-based line number of this location within the source file.
-    /// Mandatory.
     var line: UInt32 = 0
 
-    /// The 0-based column number of this location within its line. Mandatory.
+    /// The 0-based column number of this location within its line.
     var column: UInt32 = 0
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -2024,10 +2008,10 @@ struct Sass_EmbeddedProtocol_Value {
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
 
-    /// The contents of the string. Mandatory.
+    /// The contents of the string.
     var text: String = String()
 
-    /// Whether the string is quoted or unquoted. Mandatory.
+    /// Whether the string is quoted or unquoted.
     var quoted: Bool = false
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -2041,7 +2025,7 @@ struct Sass_EmbeddedProtocol_Value {
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
 
-    /// The number's numeric value. Mandatory.
+    /// The number's numeric value.
     var value: Double = 0
 
     /// The number's numerator units.
@@ -2073,16 +2057,16 @@ struct Sass_EmbeddedProtocol_Value {
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
 
-    /// The color's red channel. Mandatory. May not be above 255.
+    /// The color's red channel. May not be above 255.
     var red: UInt32 = 0
 
-    /// The color's green channel. Mandatory. May not be above 255.
+    /// The color's green channel. May not be above 255.
     var green: UInt32 = 0
 
-    /// The color's blue channel. Mandatory. May not be above 255.
+    /// The color's blue channel. May not be above 255.
     var blue: UInt32 = 0
 
-    /// The color's alpha channel. Mandatory. Must be between 0 and 1,
+    /// The color's alpha channel. Must be between 0 and 1,
     /// inclusive.
     var alpha: Double = 0
 
@@ -2097,18 +2081,18 @@ struct Sass_EmbeddedProtocol_Value {
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
 
-    /// The color's hue. Mandatory.
+    /// The color's hue.
     var hue: Double = 0
 
-    /// The color's percent saturation. Mandatory. Must be between 0 and 100,
+    /// The color's percent saturation. Must be between 0 and 100,
     /// inclusive.
     var saturation: Double = 0
 
-    /// The color's percent lightness. Mandatory. Must be between 0 and 100,
+    /// The color's percent lightness. Must be between 0 and 100,
     /// inclusive.
     var lightness: Double = 0
 
-    /// The color's alpha channel. Mandatory. Must be between 0 and 1,
+    /// The color's alpha channel. Must be between 0 and 1,
     /// inclusive.
     var alpha: Double = 0
 
@@ -2124,14 +2108,14 @@ struct Sass_EmbeddedProtocol_Value {
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
 
-    /// The color's hue. Mandatory.
+    /// The color's hue.
     var hue: Double = 0
 
-    /// The color's percent whiteness. Mandatory. Must be between 0 and 100,
+    /// The color's percent whiteness. Must be between 0 and 100,
     /// inclusive. The sum of `whiteness` and `blackness` must not exceed 100.
     var whiteness: Double = 0
 
-    /// The color's percent blackness. Mandatory. Must be between 0 and 100,
+    /// The color's percent blackness. Must be between 0 and 100,
     /// inclusive. The sum of `whiteness` and `blackness` must not exceed 100.
     var blackness: Double = 0
 
@@ -2491,6 +2475,66 @@ struct Sass_EmbeddedProtocol_Value {
   init() {}
 }
 
+#if swift(>=5.5) && canImport(_Concurrency)
+extension Sass_EmbeddedProtocol_OutputStyle: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Syntax: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_LogEventType: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_ProtocolErrorType: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_ListSeparator: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_SingletonValue: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_CalculationOperator: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.OneOf_Message: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.VersionRequest: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.StringInput: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer.OneOf_Importer: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse.OneOf_Result: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.ImportResponse: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.ImportResponse.OneOf_Result: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.ImportResponse.ImportSuccess: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.FileImportResponse: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.FileImportResponse.OneOf_Result: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse.OneOf_Result: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_OutboundMessage: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.OneOf_Result: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest.OneOf_Identifier: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_ProtocolError: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_SourceSpan: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_SourceSpan.SourceLocation: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.OneOf_Value: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.StringMessage: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.Number: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.RgbColor: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.HslColor: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.HwbColor: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.List: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.Map: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.Map.Entry: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.CompilerFunction: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.HostFunction: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.ArgumentList: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.Calculation: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.Calculation.CalculationValue: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.Calculation.CalculationValue.OneOf_Value: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation: @unchecked Sendable {}
+#endif  // swift(>=5.5) && canImport(_Concurrency)
+
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
 fileprivate let _protobuf_package = "sass.embedded_protocol"
@@ -2729,7 +2773,6 @@ extension Sass_EmbeddedProtocol_InboundMessage.VersionRequest: SwiftProtobuf.Mes
 extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_InboundMessage.protoMessageName + ".CompileRequest"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
     2: .same(proto: "string"),
     3: .same(proto: "path"),
     4: .same(proto: "style"),
@@ -2750,7 +2793,6 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
       case 2: try {
         var v: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.StringInput?
         var hadOneofValue = false
@@ -2792,9 +2834,6 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     // allocates stack space for every if/case branch local when no optimizations
     // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
     // https://github.com/apple/swift-protobuf/issues/1182
-    if self.id != 0 {
-      try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
-    }
     switch self.input {
     case .string?: try {
       guard case .string(let v)? = self.input else { preconditionFailure() }
@@ -2840,7 +2879,6 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_InboundMessage.CompileRequest, rhs: Sass_EmbeddedProtocol_InboundMessage.CompileRequest) -> Bool {
-    if lhs.id != rhs.id {return false}
     if lhs.input != rhs.input {return false}
     if lhs.style != rhs.style {return false}
     if lhs.sourceMap != rhs.sourceMap {return false}
@@ -3137,29 +3175,33 @@ extension Sass_EmbeddedProtocol_InboundMessage.ImportResponse.ImportSuccess: Swi
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularStringField(value: &self.contents) }()
       case 2: try { try decoder.decodeSingularEnumField(value: &self.syntax) }()
-      case 3: try { try decoder.decodeSingularStringField(value: &self.sourceMapURL) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self._sourceMapURL) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if !self.contents.isEmpty {
       try visitor.visitSingularStringField(value: self.contents, fieldNumber: 1)
     }
     if self.syntax != .scss {
       try visitor.visitSingularEnumField(value: self.syntax, fieldNumber: 2)
     }
-    if !self.sourceMapURL.isEmpty {
-      try visitor.visitSingularStringField(value: self.sourceMapURL, fieldNumber: 3)
-    }
+    try { if let v = self._sourceMapURL {
+      try visitor.visitSingularStringField(value: v, fieldNumber: 3)
+    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_InboundMessage.ImportResponse.ImportSuccess, rhs: Sass_EmbeddedProtocol_InboundMessage.ImportResponse.ImportSuccess) -> Bool {
     if lhs.contents != rhs.contents {return false}
     if lhs.syntax != rhs.syntax {return false}
-    if lhs.sourceMapURL != rhs.sourceMapURL {return false}
+    if lhs._sourceMapURL != rhs._sourceMapURL {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -3545,9 +3587,9 @@ extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse: SwiftProtobuf.M
 extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".CompileResponse"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
     2: .same(proto: "success"),
     3: .same(proto: "failure"),
+    4: .standard(proto: "loaded_urls"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3556,7 +3598,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse: SwiftProtobuf.M
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
       case 2: try {
         var v: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess?
         var hadOneofValue = false
@@ -3583,6 +3624,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse: SwiftProtobuf.M
           self.result = .failure(v)
         }
       }()
+      case 4: try { try decoder.decodeRepeatedStringField(value: &self.loadedUrls) }()
       default: break
       }
     }
@@ -3593,9 +3635,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse: SwiftProtobuf.M
     // allocates stack space for every if/case branch local when no optimizations
     // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
     // https://github.com/apple/swift-protobuf/issues/1182
-    if self.id != 0 {
-      try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
-    }
     switch self.result {
     case .success?: try {
       guard case .success(let v)? = self.result else { preconditionFailure() }
@@ -3607,12 +3646,15 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse: SwiftProtobuf.M
     }()
     case nil: break
     }
+    if !self.loadedUrls.isEmpty {
+      try visitor.visitRepeatedStringField(value: self.loadedUrls, fieldNumber: 4)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse, rhs: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse) -> Bool {
-    if lhs.id != rhs.id {return false}
     if lhs.result != rhs.result {return false}
+    if lhs.loadedUrls != rhs.loadedUrls {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -3623,7 +3665,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess: 
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "css"),
     2: .standard(proto: "source_map"),
-    3: .standard(proto: "loaded_urls"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3634,7 +3675,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess: 
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularStringField(value: &self.css) }()
       case 2: try { try decoder.decodeSingularStringField(value: &self.sourceMap) }()
-      case 3: try { try decoder.decodeRepeatedStringField(value: &self.loadedUrls) }()
       default: break
       }
     }
@@ -3647,16 +3687,12 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess: 
     if !self.sourceMap.isEmpty {
       try visitor.visitSingularStringField(value: self.sourceMap, fieldNumber: 2)
     }
-    if !self.loadedUrls.isEmpty {
-      try visitor.visitRepeatedStringField(value: self.loadedUrls, fieldNumber: 3)
-    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess, rhs: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess) -> Bool {
     if lhs.css != rhs.css {return false}
     if lhs.sourceMap != rhs.sourceMap {return false}
-    if lhs.loadedUrls != rhs.loadedUrls {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -3719,7 +3755,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure: 
 extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".LogEvent"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "compilation_id"),
     2: .same(proto: "type"),
     3: .same(proto: "message"),
     4: .same(proto: "span"),
@@ -3733,7 +3768,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularUInt32Field(value: &self.compilationID) }()
       case 2: try { try decoder.decodeSingularEnumField(value: &self.type) }()
       case 3: try { try decoder.decodeSingularStringField(value: &self.message) }()
       case 4: try { try decoder.decodeSingularMessageField(value: &self._span) }()
@@ -3749,9 +3783,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
     // allocates stack space for every if/case branch local when no optimizations
     // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
     // https://github.com/apple/swift-protobuf/issues/1182
-    if self.compilationID != 0 {
-      try visitor.visitSingularUInt32Field(value: self.compilationID, fieldNumber: 1)
-    }
     if self.type != .warning {
       try visitor.visitSingularEnumField(value: self.type, fieldNumber: 2)
     }
@@ -3771,7 +3802,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_OutboundMessage.LogEvent, rhs: Sass_EmbeddedProtocol_OutboundMessage.LogEvent) -> Bool {
-    if lhs.compilationID != rhs.compilationID {return false}
     if lhs.type != rhs.type {return false}
     if lhs.message != rhs.message {return false}
     if lhs._span != rhs._span {return false}
@@ -3786,7 +3816,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtob
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".CanonicalizeRequest"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "id"),
-    2: .standard(proto: "compilation_id"),
     3: .standard(proto: "importer_id"),
     4: .same(proto: "url"),
     5: .standard(proto: "from_import"),
@@ -3799,7 +3828,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtob
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
-      case 2: try { try decoder.decodeSingularUInt32Field(value: &self.compilationID) }()
       case 3: try { try decoder.decodeSingularUInt32Field(value: &self.importerID) }()
       case 4: try { try decoder.decodeSingularStringField(value: &self.url) }()
       case 5: try { try decoder.decodeSingularBoolField(value: &self.fromImport) }()
@@ -3811,9 +3839,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtob
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if self.id != 0 {
       try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
-    }
-    if self.compilationID != 0 {
-      try visitor.visitSingularUInt32Field(value: self.compilationID, fieldNumber: 2)
     }
     if self.importerID != 0 {
       try visitor.visitSingularUInt32Field(value: self.importerID, fieldNumber: 3)
@@ -3829,7 +3854,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtob
 
   static func ==(lhs: Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest, rhs: Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest) -> Bool {
     if lhs.id != rhs.id {return false}
-    if lhs.compilationID != rhs.compilationID {return false}
     if lhs.importerID != rhs.importerID {return false}
     if lhs.url != rhs.url {return false}
     if lhs.fromImport != rhs.fromImport {return false}
@@ -3842,7 +3866,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest: SwiftProtobuf.Mes
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".ImportRequest"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "id"),
-    2: .standard(proto: "compilation_id"),
     3: .standard(proto: "importer_id"),
     4: .same(proto: "url"),
   ]
@@ -3854,7 +3877,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest: SwiftProtobuf.Mes
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
-      case 2: try { try decoder.decodeSingularUInt32Field(value: &self.compilationID) }()
       case 3: try { try decoder.decodeSingularUInt32Field(value: &self.importerID) }()
       case 4: try { try decoder.decodeSingularStringField(value: &self.url) }()
       default: break
@@ -3865,9 +3887,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest: SwiftProtobuf.Mes
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if self.id != 0 {
       try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
-    }
-    if self.compilationID != 0 {
-      try visitor.visitSingularUInt32Field(value: self.compilationID, fieldNumber: 2)
     }
     if self.importerID != 0 {
       try visitor.visitSingularUInt32Field(value: self.importerID, fieldNumber: 3)
@@ -3880,7 +3899,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest: SwiftProtobuf.Mes
 
   static func ==(lhs: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest, rhs: Sass_EmbeddedProtocol_OutboundMessage.ImportRequest) -> Bool {
     if lhs.id != rhs.id {return false}
-    if lhs.compilationID != rhs.compilationID {return false}
     if lhs.importerID != rhs.importerID {return false}
     if lhs.url != rhs.url {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
@@ -3892,7 +3910,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".FileImportRequest"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "id"),
-    2: .standard(proto: "compilation_id"),
     3: .standard(proto: "importer_id"),
     4: .same(proto: "url"),
     5: .standard(proto: "from_import"),
@@ -3905,7 +3922,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
-      case 2: try { try decoder.decodeSingularUInt32Field(value: &self.compilationID) }()
       case 3: try { try decoder.decodeSingularUInt32Field(value: &self.importerID) }()
       case 4: try { try decoder.decodeSingularStringField(value: &self.url) }()
       case 5: try { try decoder.decodeSingularBoolField(value: &self.fromImport) }()
@@ -3917,9 +3933,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if self.id != 0 {
       try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
-    }
-    if self.compilationID != 0 {
-      try visitor.visitSingularUInt32Field(value: self.compilationID, fieldNumber: 2)
     }
     if self.importerID != 0 {
       try visitor.visitSingularUInt32Field(value: self.importerID, fieldNumber: 3)
@@ -3935,7 +3948,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf
 
   static func ==(lhs: Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest, rhs: Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest) -> Bool {
     if lhs.id != rhs.id {return false}
-    if lhs.compilationID != rhs.compilationID {return false}
     if lhs.importerID != rhs.importerID {return false}
     if lhs.url != rhs.url {return false}
     if lhs.fromImport != rhs.fromImport {return false}
@@ -3948,7 +3960,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest: SwiftProtob
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".FunctionCallRequest"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "id"),
-    2: .standard(proto: "compilation_id"),
     3: .same(proto: "name"),
     4: .standard(proto: "function_id"),
     5: .same(proto: "arguments"),
@@ -3961,7 +3972,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest: SwiftProtob
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
-      case 2: try { try decoder.decodeSingularUInt32Field(value: &self.compilationID) }()
       case 3: try {
         var v: String?
         try decoder.decodeSingularStringField(value: &v)
@@ -3992,9 +4002,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest: SwiftProtob
     if self.id != 0 {
       try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
     }
-    if self.compilationID != 0 {
-      try visitor.visitSingularUInt32Field(value: self.compilationID, fieldNumber: 2)
-    }
     switch self.identifier {
     case .name?: try {
       guard case .name(let v)? = self.identifier else { preconditionFailure() }
@@ -4014,7 +4021,6 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest: SwiftProtob
 
   static func ==(lhs: Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest, rhs: Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest) -> Bool {
     if lhs.id != rhs.id {return false}
-    if lhs.compilationID != rhs.compilationID {return false}
     if lhs.identifier != rhs.identifier {return false}
     if lhs.arguments != rhs.arguments {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}

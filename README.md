@@ -97,7 +97,7 @@ interface is entirely Swift 5.5 async-await.
 * Swift 5.7
 * macOS 13+ (tested on macOS 13.2 x64)
 * Linux (tested on Ubuntu 22.04 x64)
-* Embedded Sass Protocol version 1.2.0
+* Embedded Sass Protocol version 2.1.0
 
 ## Installation
 
