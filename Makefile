@@ -1,4 +1,4 @@
-.PHONY: all build test test_linux shell_linux protobuf dart_sass_embedded
+.PHONY: all build test test_linux shell_linux protobuf dart_sass
 
 all: build
 
@@ -21,14 +21,14 @@ protobuf:
 	protoc --version
 	protoc --swift_out=Sources/DartSass --proto_path embedded-protocol embedded_sass.proto
 
-# Update the local copies of dart-sass-embedded 
+# Update the local copies of dart-sass
 # Only needed when there's a new release of the compiler to pick up
-sass_embedded_version := $(shell cat VERSION_DART_SASS)
+dart_sass_version := $(shell cat VERSION_DART_SASS)
 
-sass_embedded_release_url := https://github.com/sass/dart-sass-embedded/releases/download/${sass_embedded_version}/sass_embedded-${sass_embedded_version}
+dart_sass_release_url := https://github.com/sass/dart-sass/releases/download/${dart_sass_version}/dart-sass-${dart_sass_version}
 
-dart_sass_embedded:
-	curl -L ${sass_embedded_release_url}-macos-x64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedMacOS/x64
-	curl -L ${sass_embedded_release_url}-macos-arm64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedMacOS/arm64
-	curl -L ${sass_embedded_release_url}-linux-x64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedLinux/x64
-	curl -L ${sass_embedded_release_url}-linux-arm64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedLinux/arm64
+dart_sass:
+	curl -L ${dart_sass_release_url}-macos-x64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedMacOS/x64
+	curl -L ${dart_sass_release_url}-macos-arm64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedMacOS/arm64
+	curl -L ${dart_sass_release_url}-linux-x64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedLinux/x64
+	curl -L ${dart_sass_release_url}-linux-arm64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedLinux/arm64

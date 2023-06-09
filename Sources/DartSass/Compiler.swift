@@ -677,7 +677,7 @@ actor CompilerChild: ChannelInboundHandler {
     ///
     /// Must not be called in an event loop!  But I don't know how to check that.
     init(eventLoop: EventLoop, fileURL: URL, workHandler: @escaping WorkHandler, errorHandler: @escaping ErrorHandler) throws {
-        self.child = try Exec.spawn(fileURL, group: eventLoop)
+        self.child = try Exec.spawn(fileURL, ["--embedded"], group: eventLoop)
         self.processIdentifier = child.process.processIdentifier
         self.eventLoop = eventLoop
         self.workHandler = workHandler
