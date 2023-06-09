@@ -20,14 +20,14 @@ final class DartSassEmbeddedBundle {
 enum DartSassEmbedded {
     /// Decode the platform and locate the platform-specific binary.
     static func getURL() throws -> URL {
-        let programName = getenv("DART_SASS_EMBEDDED_NAME").flatMap { String(cString: $0) } ?? "dart-sass-embedded"
+        let programName = getenv("DART_SASS_EMBEDDED_NAME").flatMap { String(cString: $0) } ?? "sass"
         guard let bundle = DartSassEmbeddedBundle.bundle,
               let topDir = bundle.resourceURL?.resolvingSymlinksInPath(),
               case let contents = try FileManager.default.contentsOfDirectory(at: topDir, includingPropertiesForKeys: nil),
               let arch = contents.first?.lastPathComponent,
               let url = bundle.url(forResource: programName,
                                     withExtension: nil,
-                                    subdirectory: "\(arch)/sass_embedded") else {
+                                    subdirectory: "\(arch)/dart-sass") else {
             throw LifecycleError("No `\(programName)` is available for the current platform.")
 
             // This archdir stuff is a mess - struggling with SPM not being able to rename stuff, or something

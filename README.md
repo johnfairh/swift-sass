@@ -7,7 +7,7 @@ Distributed under the MIT license, see LICENSE.
 ![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg)
 [![codecov](https://codecov.io/gh/johnfairh/swift-sass/branch/main/graph/badge.svg?token=0NAP6IA9EB)](https://codecov.io/gh/johnfairh/swift-sass)
 ![Tests](https://github.com/johnfairh/swift-sass/workflows/Tests/badge.svg)
-![Sass](https://img.shields.io/badge/sass-1.60.0-purple)
+![Sass](https://img.shields.io/badge/sass-1.63.2-purple)
 
 # Swift Sass
 
@@ -20,7 +20,7 @@ implementation.  The `DartSass` module lets you access
 the most up to date implementation of the Sass language.  It runs the
 [Dart Sass compiler](https://github.com/sass/dart-sass) as a separate process
 and communicates with it using the
-[Sass embedded protocol](https://github.com/sass/embedded-protocol).  If you
+[Sass embedded protocol](https://github.com/sass/sass/blob/main/spec/embedded-protocol.md).  If you
 come across another implementation of the 'compiler' side of the protocol then
 that should work fine too.
 
@@ -115,14 +115,14 @@ Target dependency:
 .product(name: "DartSass", package: "swift-sass"),
 ```
 
-The Swift package bundles the embedded Dart Sass compiler for macOS and Linux
+The Swift package bundles the Dart Sass compiler for macOS and Linux
 (specifically Ubuntu Focal/20.04 64-bit) both x86_64 and arm64.  The correct
 binary is selected at build time.  The selection is made based on the host
 architecture though, so if you want to cross-compile you'll need to assemble
 the results manually.
 
 For other platforms you will need to either download the correct version from
-[the release page](https://github.com/sass/dart-sass-embedded/release) or build
+[the release page](https://github.com/sass/dart-sass/release) or build
 it manually, ship it as part of your program's distribution, and use
 [this initializer](https://johnfairh.github.io/swift-sass/sassembedded/types/compiler.html?swift#initeventloopgroupprovidertimeoutimportersfunctions).
 
