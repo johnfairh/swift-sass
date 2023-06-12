@@ -18,8 +18,8 @@ final class DartSassEmbeddedBundle {
 #endif
 
 enum DartSassEmbedded {
-    /// Decode the platform and locate the platform-specific binary.
-    static func getURL() throws -> URL {
+    /// Decode the platform and locate the platform-specific binary and any arguments
+    static func getURLAndArgs() throws -> (URL, [String]) {
         let programName = getenv("DART_SASS_EMBEDDED_NAME").flatMap { String(cString: $0) } ?? "sass"
         guard let bundle = DartSassEmbeddedBundle.bundle,
               let topDir = bundle.resourceURL?.resolvingSymlinksInPath(),
@@ -33,6 +33,6 @@ enum DartSassEmbedded {
             // This archdir stuff is a mess - struggling with SPM not being able to rename stuff, or something
             // to let us collapse the file structure.
         }
-        return url
+        return (url, ["--embedded"])
     }
 }

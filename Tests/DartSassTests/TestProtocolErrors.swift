@@ -16,11 +16,11 @@ class TestProtocolErrors: DartSassTestCase {
     // Deal with in-band reported protocol error, compiler reports it to us.
     func testOutboundProtocolError() async throws {
         let compiler = try newCompiler()
-        let msg = Sass_EmbeddedProtocol_InboundMessage.with { msg in
+        let msg = OutboundMessage(id: 0, msg: .with { msg in
             msg.importResponse = .with { rsp in
                 rsp.id = 108
             }
-        }
+        })
         await compiler.waitForRunning()
 
         await compiler.tstSend(message: msg)
@@ -36,7 +36,7 @@ class TestProtocolErrors: DartSassTestCase {
         let compiler = try newCompiler()
 
         // no message at all
-        let badMsg = Sass_EmbeddedProtocol_OutboundMessage()
+        let badMsg = InboundMessage()
         await compiler.waitForRunning()
         await compiler.tstReceive(message: badMsg)
 
@@ -44,11 +44,9 @@ class TestProtocolErrors: DartSassTestCase {
         await compiler.assertStartCount(2)
 
         // reponse to a job we don't have active
-        let badMsg1 = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
-            msg.compileResponse = .with { rsp in
-                rsp.id = 42
-            }
-        }
+        let badMsg1 = InboundMessage(id: 42, msg: .with {
+            $0.compileResponse = .init()
+        })
         await compiler.tstReceive(message: badMsg1)
 
         try await checkCompilerWorking(compiler)
@@ -68,12 +66,11 @@ class TestProtocolErrors: DartSassTestCase {
         await compiler.waitForRunning()
 
         // Expected message, bad content
-        let msg = Sass_EmbeddedProtocol_OutboundMessage.with { msg in
+        let msg = InboundMessage(id: RequestID.peekNext, msg: .with { msg in
             msg.compileResponse = .with { rsp in
-                rsp.id = RequestID.peekNext
                 rsp.result = nil // missing 'result'
             }
-        }
+        })
 
         async let compileResult = compiler.compile(string: "")
         try? await Task.sleep(for: .milliseconds(500))
@@ -159,9 +156,13 @@ class TestProtocolErrors: DartSassTestCase {
             .loadPath(URL(fileURLWithPath: "/tmp")),
             .filesystemImporter(DummyFilesystemImporter())
         ])
+        await compiler.waitForRunning()
+
+        let nextRequestID = RequestID.peekNext
 
         importer.state.onLoadHang = {
-            await compiler.tstReceive(message: msg)
+            let inMsg = InboundMessage(id: nextRequestID, msg: msg)
+            await compiler.tstReceive(message: inMsg)
         }
 
         do {
@@ -178,7 +179,6 @@ class TestProtocolErrors: DartSassTestCase {
     /// importer ID is completely wrong
     func testImporterBadID() async throws {
         try await checkBadImportMessage(.with {
-            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.importerID = 12
         }, "Bad importer ID")
@@ -187,7 +187,6 @@ class TestProtocolErrors: DartSassTestCase {
     /// Importer ID picks out a loadpath not an importer
     func testImporterBadImporterType1() async throws {
         try await checkBadImportMessage(.with {
-            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.importerID = 4001
         }, "not an importer")
@@ -196,7 +195,6 @@ class TestProtocolErrors: DartSassTestCase {
     /// Importer ID picks out a fileimporter not an importer
     func testImporterBadImporterType2() async throws {
         try await checkBadImportMessage(.with {
-            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.importerID = 4002
         }, "not an importer")
@@ -205,7 +203,6 @@ class TestProtocolErrors: DartSassTestCase {
     /// URL has gotten messed up
     func testImporterBadURL() async throws {
         try await checkBadImportMessage(.with {
-            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.importerID = 4000
         }, "Malformed import URL")
@@ -214,7 +211,6 @@ class TestProtocolErrors: DartSassTestCase {
     /// FileImporter
     func testFileImporterBadID() async throws {
         try await checkBadFileImport(.with {
-            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.importerID = 4000
         }, "Bad importer ID 4000")
@@ -226,7 +222,6 @@ class TestProtocolErrors: DartSassTestCase {
     /// Missing fn identifier
     func testFunctionNoIdentifier() async throws {
         try await checkBadFnCallMessage(.with {
-            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
         }, "Missing 'identifier'")
     }
@@ -234,7 +229,6 @@ class TestProtocolErrors: DartSassTestCase {
     /// Bad ID
     func testImporterBadNumericID() async throws {
         try await checkBadFnCallMessage(.with {
-            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.functionID = 108
         }, "Host function ID")
@@ -243,7 +237,6 @@ class TestProtocolErrors: DartSassTestCase {
     /// Bad name
     func testImporterBadName() async throws {
         try await checkBadFnCallMessage(.with {
-            $0.compilationID = RequestID.peekNext + 1
             $0.id = 42
             $0.name = "mysterious"
         }, "Host function name")

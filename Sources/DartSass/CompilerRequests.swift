@@ -33,13 +33,13 @@ enum RequestID {
 
 // MARK: CompilerRequest
 
-typealias ReplyFn = (Sass_EmbeddedProtocol_InboundMessage) async -> Void // XXX name
+typealias ReplyFn = (OutboundMessage) async -> Void // XXX name
 
 protocol CompilerRequest: AnyObject {
     /// Notify that the initial request has been sent.  Return any timeout handler.
     func start(timeoutSeconds: Int, onTimeout: @escaping () async -> Void)
     /// Handle a compiler response for `requestID`
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage, reply: @escaping ReplyFn) throws
+    func receive(message: InboundMessage, reply: @escaping ReplyFn) throws
     /// Abandon the request
     func cancel(with error: any Error)
 
@@ -169,7 +169,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     var requestName: String { "Compile-Req" }
 
     // Compilation-specific
-    let compileReq: Sass_EmbeddedProtocol_InboundMessage.CompileRequest
+    let compileReq: OutboundMessage
     private let importers: [ImportResolver]
     private let functions: SassFunctionMap
     private var messages: [CompilerMessage]
@@ -196,19 +196,21 @@ final class CompilationRequest: ManagedCompilerRequest {
             self.importers = importers
         }
         self.functions = functionsMap.mapValues { $0.1 }
-        self.compileReq = .with { msg in
-            msg.id = RequestID.next
-            msg.input = input
-            msg.style = .init(outputStyle)
-            msg.sourceMap = sourceMapStyle.createSourceMap
-            msg.importers = .init(importers, startingID: firstFreeImporterID)
-            msg.globalFunctions = functionsMap.values.map { $0.0 }
-            msg.alertAscii = false
-            msg.alertColor = settings.messageStyle.isColored
-            msg.verbose = settings.verboseDeprecations
-            msg.quietDeps = settings.suppressDependencyWarnings
-            msg.sourceMapIncludeSources = sourceMapStyle.embedSourceMap
-            msg.charset = includeCharset
+        self.compileReq = .with { wrp in
+            wrp.compileRequest = .with { msg in
+                msg.input = input
+                msg.style = .init(outputStyle)
+                msg.sourceMap = sourceMapStyle.createSourceMap
+                msg.importers = .init(importers, startingID: firstFreeImporterID)
+                msg.globalFunctions = functionsMap.values.map { $0.0 }
+                msg.alertAscii = false
+                msg.alertColor = settings.messageStyle.isColored
+                msg.verbose = settings.verboseDeprecations
+                msg.quietDeps = settings.suppressDependencyWarnings
+                msg.sourceMapIncludeSources = sourceMapStyle.embedSourceMap
+                msg.charset = includeCharset
+            }
+            return RequestID.next
         }
         self.messages = []
         self.state = .normal
@@ -226,23 +228,29 @@ final class CompilationRequest: ManagedCompilerRequest {
     private typealias OBM = Sass_EmbeddedProtocol_OutboundMessage
     private typealias IBM = Sass_EmbeddedProtocol_InboundMessage
 
+    private typealias CompilationReplyFn = (Sass_EmbeddedProtocol_InboundMessage) async -> Void
+
     /// Inbound messages.
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage, reply: @escaping ReplyFn) throws {
-        switch message.message {
+    func receive(message: InboundMessage, reply: @escaping ReplyFn) throws {
+        let compilationReply: CompilationReplyFn = { msg in
+            let outboundMsg = OutboundMessage(id: message.id, msg: msg)
+            await reply(outboundMsg)
+        }
+        switch message.msg.message {
         case .compileResponse(let rsp):
             try receive(compileResponse: rsp)
 
         case .canonicalizeRequest(let req):
-            try receive(canonicalizeRequest: req, reply: reply)
+            try receive(canonicalizeRequest: req, reply: compilationReply)
 
         case .importRequest(let req):
-            try receive(importRequest: req, reply: reply)
+            try receive(importRequest: req, reply: compilationReply)
 
         case .functionCallRequest(let req):
-            try receive(functionCallRequest: req, reply: reply)
+            try receive(functionCallRequest: req, reply: compilationReply)
 
         case .fileImportRequest(let req):
-            try receive(fileImportRequest: req, reply: reply)
+            try receive(fileImportRequest: req, reply: compilationReply)
 
         case .logEvent(let rsp):
             try receive(log: rsp)
@@ -287,7 +295,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     }
 
     /// Inbound `CanonicalizeRequest` handler
-    private func receive(canonicalizeRequest req: OBM.CanonicalizeRequest, reply: @escaping ReplyFn) throws {
+    private func receive(canonicalizeRequest req: OBM.CanonicalizeRequest, reply: @escaping CompilationReplyFn) throws {
         let importer = try getImporter(importerID: req.importerID, keyPath: \.importer)
 
         clientStarting()
@@ -315,7 +323,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     }
 
     /// Inbound `ImportRequest` handler
-    private func receive(importRequest req: OBM.ImportRequest, reply: @escaping ReplyFn) throws {
+    private func receive(importRequest req: OBM.ImportRequest, reply: @escaping CompilationReplyFn) throws {
         let importer = try getImporter(importerID: req.importerID, keyPath: \.importer)
         guard let url = URL(string: req.url) else {
             throw ProtocolError("Malformed import URL: \(req.url)")
@@ -349,7 +357,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     }
 
     /// Inbound `FileImportRequest` handler
-    private func receive(fileImportRequest req: OBM.FileImportRequest, reply: @escaping ReplyFn) throws {
+    private func receive(fileImportRequest req: OBM.FileImportRequest, reply: @escaping CompilationReplyFn) throws {
         let importer = try getImporter(importerID: req.importerID, keyPath: \.filesystemImporter)
 
         clientStarting()
@@ -385,7 +393,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     }
 
     /// Inbound 'FunctionCallRequest' handler
-    private func receive(functionCallRequest req: OBM.FunctionCallRequest, reply: @escaping ReplyFn) throws {
+    private func receive(functionCallRequest req: OBM.FunctionCallRequest, reply: @escaping CompilationReplyFn) throws {
         /// Helper to run the callback after we locate it
         func doSassFunction(_ fn: @escaping SassFunction) throws {
 
@@ -465,27 +473,31 @@ final class VersionRequest: ManagedCompilerRequest {
     let clientDone: (VersionRequest, Result<Versions, any Error>) -> Void
 
     // Version-specific
-    let versionReq: Sass_EmbeddedProtocol_InboundMessage.VersionRequest
+    let versionReq: OutboundMessage
 
     // Debug
     var debugPrefix: String { "VerID=\(requestID)" }
     var requestName: String { "Version-Req" }
 
     var requestID: UInt32 {
-        versionReq.id
+        versionReq.msg.versionRequest.id
     }
 
     init(done: @escaping (VersionRequest, Result<Versions, any Error>) -> Void) {
         self.state = .normal
         self.timer = nil
         self.stateLock = Lock()
-        self.versionReq = .with { $0.id = RequestID.next }
+
+        self.versionReq = .with { wrp in
+            wrp.versionRequest = .with { $0.id = RequestID.next }
+            return 0//wrp.versionRequest.id
+        }
         self.clientDone = done
     }
 
     /// Inbound messages.
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage, reply: @escaping ReplyFn) throws {
-        guard case .versionResponse(let vers) = message.message else {
+    func receive(message: InboundMessage, reply: @escaping ReplyFn) throws {
+        guard case .versionResponse(let vers) = message.msg.message else {
             throw ProtocolError("Unexpected response to Version-Req: \(message)")
         }
         sendDone(.success(Versions(vers)))

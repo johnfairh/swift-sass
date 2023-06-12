@@ -21,8 +21,8 @@ extension Versions {
 /// Tests for version checking
 class TestVersions: DartSassTestCase {
     func testCreation() {
-        let vers = Versions(protocolVersionString: "1.1.3")
-        XCTAssertEqual("1", vers.protocolVersion.major)
+        let vers = Versions(protocolVersionString: "2.1.3")
+        XCTAssertEqual("2", vers.protocolVersion.major)
         XCTAssertEqual("3", vers.protocolVersion.patch)
         XCTAssertNoThrow(try vers.check())
     }
@@ -34,7 +34,7 @@ class TestVersions: DartSassTestCase {
         let tooLow = Versions(protocolVersionString: "1.0.0-beta.1")
         XCTAssertThrowsError(try tooLow.check())
 
-        let tooHigh = Versions(protocolVersionString: "2.1")
+        let tooHigh = Versions(protocolVersionString: "3.1")
         XCTAssertThrowsError(try tooHigh.check())
     }
 
@@ -66,7 +66,7 @@ class TestVersions: DartSassTestCase {
     }
 
     struct HangingVersionsResponder: VersionsResponder {
-        func provideVersions(msg: DartSass.Sass_EmbeddedProtocol_InboundMessage) async -> DartSass.Sass_EmbeddedProtocol_OutboundMessage? {
+        func provideVersions(msg: OutboundMessage) async -> InboundMessage? {
             nil // drop it
         }
     }
@@ -93,12 +93,10 @@ class TestVersions: DartSassTestCase {
     }
 
     struct CorruptVersionsResponder: VersionsResponder {
-        func provideVersions(msg: DartSass.Sass_EmbeddedProtocol_InboundMessage) async -> DartSass.Sass_EmbeddedProtocol_OutboundMessage? {
-            .with {
-                    $0.importRequest = .with {
-                        $0.compilationID = msg.versionRequest.id
-                    }
-                }
+        func provideVersions(msg: OutboundMessage) async -> InboundMessage? {
+            .init(id: msg.msg.versionRequest.id, msg: .with {
+                $0.importRequest = .init()
+            })
         }
     }
 
