@@ -89,6 +89,8 @@ public actor Compiler {
 
     /// The path of the compiler program
     private let embeddedCompilerFileURL: URL
+    /// Its arguments
+    private let embeddedCompilerFileArgs: [String]
 
     /// Fixed settings for the compiler
     let settings: Settings
@@ -137,9 +139,10 @@ public actor Compiler {
                 suppressDependencyWarnings: Bool = false,
                 importers: [ImportResolver] = [],
                 functions: SassFunctionMap = [:]) throws {
-        let url = try DartSassEmbedded.getURL()
+        let (url, args) = try DartSassEmbedded.getURLAndArgs()
         self.init(eventLoopGroupProvider: eventLoopGroupProvider,
                   embeddedCompilerFileURL: url,
+                  embeddedCompilerFileArguments: args,
                   timeout: timeout,
                   messageStyle: messageStyle,
                   verboseDeprecations: verboseDeprecations,
@@ -158,9 +161,11 @@ public actor Compiler {
     ///
     /// - parameter eventLoopGroupProvider: NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.  Default is `.createNew`.
-    /// - parameter embeddedCompilerFileURL: Path of `dart-sass-embedded`
+    /// - parameter embeddedCompilerFileURL: Path of `sass`
     ///   or something else that speaks the Sass embedded protocol.  Check [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md)
     ///   for the supported protocol versions.
+    /// - parameter embeddedCompilerFileArguments: Any arguments to be passed to the
+    ///   `embeddedCompilerFileURL` program.  Default none.
     /// - parameter timeout: Maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
@@ -176,6 +181,7 @@ public actor Compiler {
     /// - parameter functions: Sass functions available to all this compiler's compilations.
     public init(eventLoopGroupProvider: NIOEventLoopGroupProvider = .createNew,
                 embeddedCompilerFileURL: URL,
+                embeddedCompilerFileArguments: [String] = [],
                 timeout: Int = 60,
                 messageStyle: CompilerMessageStyle = .plain,
                 verboseDeprecations: Bool = false,
@@ -186,6 +192,7 @@ public actor Compiler {
         eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider)
         eventLoop = self.eventLoopGroup.any()
         self.embeddedCompilerFileURL = embeddedCompilerFileURL
+        self.embeddedCompilerFileArgs = embeddedCompilerFileArguments
         state = .initializing
         startCount = 0
         settings = Settings(timeout: timeout,
@@ -233,6 +240,7 @@ public actor Compiler {
                 let child = try await initThread.runIfActive(eventLoop: eventLoop) {
                     try CompilerChild(eventLoop: self.eventLoop,
                                       fileURL: self.embeddedCompilerFileURL,
+                                      arguments: self.embeddedCompilerFileArgs,
                                       workHandler: { [unowned self] in try await receive(message: $0, reply: $1) },
                                       errorHandler: { [unowned self] in await handleError($0) })
                 }.get()
@@ -647,14 +655,14 @@ public actor Compiler {
 /// Knows how to set up the channel pipeline.
 /// Routes inbound messages to CompilerWork.
 actor CompilerChild: ChannelInboundHandler {
-    typealias InboundIn = Sass_EmbeddedProtocol_OutboundMessage
+    typealias InboundIn = InboundMessage
 
     /// Our event loop
     private let eventLoop: EventLoop
     /// The child process
     private let child: Exec.Child
     /// Message handling (ex. the work manager)
-    typealias WorkHandler = (Sass_EmbeddedProtocol_OutboundMessage, @escaping ReplyFn) async throws -> Void
+    typealias WorkHandler = (InboundMessage, @escaping ReplyFn) async throws -> Void
     private let workHandler: WorkHandler
     /// Error handling
     typealias ErrorHandler = (any Error) async -> Void
@@ -670,14 +678,13 @@ actor CompilerChild: ChannelInboundHandler {
         child.channel
     }
 
-    /// The compiler's "Inbound" messages are our "Outbound" and vice-versa.
-    private(set) var asyncChannel: NIOAsyncChannel<Sass_EmbeddedProtocol_OutboundMessage, Sass_EmbeddedProtocol_InboundMessage>!
+    private(set) var asyncChannel: NIOAsyncChannel<InboundMessage, OutboundMessage>!
 
     /// Create a new Sass compiler process.
     ///
     /// Must not be called in an event loop!  But I don't know how to check that.
-    init(eventLoop: EventLoop, fileURL: URL, workHandler: @escaping WorkHandler, errorHandler: @escaping ErrorHandler) throws {
-        self.child = try Exec.spawn(fileURL, ["--embedded"], group: eventLoop)
+    init(eventLoop: EventLoop, fileURL: URL, arguments: [String], workHandler: @escaping WorkHandler, errorHandler: @escaping ErrorHandler) throws {
+        self.child = try Exec.spawn(fileURL, arguments, group: eventLoop)
         self.processIdentifier = child.process.processIdentifier
         self.eventLoop = eventLoop
         self.workHandler = workHandler
@@ -728,7 +735,7 @@ actor CompilerChild: ChannelInboundHandler {
     }
 
     /// Send a message to the Sass compiler with error detection.
-    func send(message: Sass_EmbeddedProtocol_InboundMessage) async {
+    func send(message: OutboundMessage) async {
         precondition(asyncChannel != nil)
         guard !stopping else {
             // Race condition of compiler reset vs. async host function
@@ -777,7 +784,7 @@ actor CompilerChild: ChannelInboundHandler {
     }
 
     /// Split out for test access
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage) async {
+    func receive(message: InboundMessage) async {
         guard !stopping else {
             // I don't really understand how this happens but have test proof on Linux
             // on Github Actions env, seems to be an inbound buffer where something can
@@ -799,7 +806,7 @@ actor CompilerChild: ChannelInboundHandler {
 
 /// Version response injection for testing
 protocol VersionsResponder {
-    func provideVersions(msg: Sass_EmbeddedProtocol_InboundMessage) async -> Sass_EmbeddedProtocol_OutboundMessage?
+    func provideVersions(msg: OutboundMessage) async -> InboundMessage?
 }
 
 /// Dumb enum helpers

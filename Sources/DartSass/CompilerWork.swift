@@ -42,7 +42,7 @@ extension Compiler {
                           importers: [ImportResolver],
                           stringImporter: ImportResolver? = nil,
                           functions: SassFunctionMap,
-                          continuation: Continuation<CompilerResults>) -> Sass_EmbeddedProtocol_InboundMessage {
+                          continuation: Continuation<CompilerResults>) -> OutboundMessage {
         let compilationRequest = CompilationRequest(
             input: input,
             outputStyle: outputStyle,
@@ -56,14 +56,14 @@ extension Compiler {
 
         start(request: compilationRequest)
 
-        return .with { $0.compileRequest = compilationRequest.compileReq }
+        return compilationRequest.compileReq
     }
 
     /// Create and start tracking  version request
-    func startVersionRequest(continuation: Continuation<Versions>) -> Sass_EmbeddedProtocol_InboundMessage {
+    func startVersionRequest(continuation: Continuation<Versions>) -> OutboundMessage {
         let request = VersionRequest(done: makeDone(continuation))
         start(request: request)
-        return .with { $0.versionRequest = request.versionReq }
+        return request.versionReq
     }
 
     private func makeDone<R>(_ continuation: Continuation<R>) ->
@@ -128,7 +128,7 @@ extension Compiler {
     // MARK: Message Dispatch
 
     /// Handle an inbound message from the Sass compiler.
-    func receive(message: Sass_EmbeddedProtocol_OutboundMessage, reply: @escaping ReplyFn) throws {
+    func receive(message: InboundMessage, reply: @escaping ReplyFn) throws {
         if let requestID = message.requestID {
             guard let compilation = activeRequests[requestID] else {
                 throw ProtocolError("Received message for unknown ReqID=\(requestID): \(message)")
@@ -141,8 +141,8 @@ extension Compiler {
 
     /// Global message handler
     /// ie. messages not associated with a compilation ID.
-    private func receiveGlobal(message: Sass_EmbeddedProtocol_OutboundMessage) throws {
-        switch message.message {
+    private func receiveGlobal(message: InboundMessage) throws {
+        switch message.msg.message {
         case .error(let error):
             throw ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), ID=\(error.id): \(error.message)")
         default:

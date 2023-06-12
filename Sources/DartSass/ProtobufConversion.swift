@@ -42,7 +42,7 @@ extension CompilerResults {
         self = .init(css: protobuf.css,
                      sourceMap: protobuf.sourceMap.nonEmptyString,
                      messages: messages,
-                     loadedURLs: protobuf.loadedUrls.compactMap { URL(string: $0) })
+                     loadedURLs: []/* XXXprotobuf.loadedUrls.compactMap { URL(string: $0) } */)
     }
 }
 
@@ -164,83 +164,78 @@ extension SourceMapStyle {
 
 // MARK: Inbound message polymorphism
 
-extension Sass_EmbeddedProtocol_OutboundMessage {
-    var logMessage: String {
-        message?.logMessage ?? "unknown-1"
+extension InboundMessage {
+    var requestID: UInt32? {
+        switch msg.message {
+        case .error, nil:
+            return nil
+        case .compileResponse, .canonicalizeRequest, .importRequest, .fileImportRequest, .functionCallRequest, .logEvent:
+            return id
+        case .versionResponse(let m):
+            return m.id
+        }
     }
 
-    var requestID: UInt32? {
-        message?.requestID
+    var logMessage: String {
+        let compID = "CompID=\(id)"
+        return msg.message?.logMessage(compID: compID) ?? "\(compID) missing message"
     }
 }
 
 extension Sass_EmbeddedProtocol_OutboundMessage.OneOf_Message {
-    var logMessage: String {
+    func logMessage(compID: String) -> String {
         switch self {
-        case .canonicalizeRequest(let m): return m.logMessage
-        case .compileResponse(let m): return m.logMessage
-        case .error(let m): return m.logMessage
-        case .fileImportRequest(let m): return m.logMessage
-        case .functionCallRequest(let m): return m.logMessage
-        case .importRequest(let m): return m.logMessage
-        case .logEvent(let m): return m.logMessage
-        case .versionResponse(let m): return m.logMessage
-        }
-    }
-
-    var requestID: UInt32? {
-        switch self {
-        case .canonicalizeRequest(let m): return m.compilationID
-        case .compileResponse(let m): return m.id
-        case .error: return nil
-        case .fileImportRequest(let m): return m.compilationID
-        case .functionCallRequest(let m): return m.compilationID
-        case .importRequest(let m): return m.compilationID
-        case .logEvent(let m): return m.compilationID
-        case .versionResponse(let m): return m.id
+        case .canonicalizeRequest(let m): return m.logMessage(compID: compID)
+        case .compileResponse(let m): return m.logMessage(compID: compID)
+        case .error(let m): return m.logMessage(compID: compID)
+        case .fileImportRequest(let m): return m.logMessage(compID: compID)
+        case .functionCallRequest(let m): return m.logMessage(compID: compID)
+        case .importRequest(let m): return m.logMessage(compID: compID)
+        case .logEvent(let m): return m.logMessage(compID: compID)
+        case .versionResponse(let m): return m.logMessage(compID: compID)
         }
     }
 }
 
 extension Sass_EmbeddedProtocol_ProtocolError {
-    var logMessage: String {
-        "Protocol-Error CompID=\(id)"
+    func logMessage(compID: String) -> String {
+        "Protocol-Error \(compID)"
     }
 }
 
 extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse {
-    var logMessage: String {
-        "Compile-Rsp CompID=\(id)"
+    func logMessage(compID: String) -> String {
+        "Compile-Rsp \(compID)"
     }
 }
 
 extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent {
-    var logMessage: String {
-        "LogEvent CompID=\(compilationID)"
+    func logMessage(compID: String) -> String {
+        "LogEvent \(compID)"
     }
 }
 
 extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest {
-    var logMessage: String {
-        "Canon-Req CompID=\(compilationID) ReqID=\(id) ImpID=\(importerID)"
+    func logMessage(compID: String) -> String {
+        "Canon-Req \(compID) ReqID=\(id) ImpID=\(importerID)"
     }
 }
 
 extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest {
-    var logMessage: String {
-        "Import-Req CompID=\(compilationID) ReqID=\(id) ImpID=\(importerID)"
+    func logMessage(compID: String) -> String {
+        "Import-Req \(compID) ReqID=\(id) ImpID=\(importerID)"
     }
 }
 
 extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest {
-    var logMessage: String {
-        "FileImport-Req CompID=\(compilationID) ReqID=\(id) ImpID=\(importerID)"
+    func logMessage(compID: String) -> String {
+        "FileImport-Req \(compID) ReqID=\(id) ImpID=\(importerID)"
     }
 }
 
 extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest {
-    var logMessage: String {
-        "FnCall-Req CompID=\(compilationID) ReqID=\(id) FnID=\(identifier?.logMessage ?? "[nil]")"
+    func logMessage(compID: String) -> String {
+        "FnCall-Req \(compID) ReqID=\(id) FnID=\(identifier?.logMessage ?? "[nil]")"
     }
 }
 
@@ -254,7 +249,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest.OneOf_Identi
 }
 
 extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse {
-    var logMessage: String {
+    func logMessage(compID: String) -> String {
         "Version-Rsp VerID=\(id) Proto=\(protocolVersion) Pkg=\(compilerVersion) Compiler=\(implementationVersion) Name=\(implementationName)"
     }
 }

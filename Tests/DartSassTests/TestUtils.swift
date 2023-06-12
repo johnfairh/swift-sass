@@ -178,9 +178,11 @@ struct TestVersionsResponder: VersionsResponder {
         self.versions = versions
     }
 
-    func provideVersions(msg: Sass_EmbeddedProtocol_InboundMessage) async -> Sass_EmbeddedProtocol_OutboundMessage? {
+    func provideVersions(msg: OutboundMessage) async -> InboundMessage? {
         try? await Task.sleep(for: .milliseconds(100))
-        return .with { $0.versionResponse = .init(versions, id: msg.versionRequest.id) }
+        return .init(id: 0, msg: .with {
+            $0.versionResponse = .init(versions, id: msg.msg.versionRequest.id)
+        })
     }
 }
 
@@ -255,11 +257,11 @@ extension Compiler {
         state.child!
     }
 
-    func tstReceive(message: Sass_EmbeddedProtocol_OutboundMessage) async {
+    func tstReceive(message: InboundMessage) async {
         await child.receive(message: message)
     }
 
-    func tstSend(message: Sass_EmbeddedProtocol_InboundMessage) async {
+    func tstSend(message: OutboundMessage) async {
         await child.send(message: message)
     }
 }
