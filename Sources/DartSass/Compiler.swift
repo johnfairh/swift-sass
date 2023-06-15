@@ -107,7 +107,7 @@ public actor Compiler {
     /// Use the bundled Dart Sass compiler as the Sass compiler.
     ///
     /// The bundled Dart Sass compiler is built on macOS (11.6) or Ubuntu (20.04) Intel 64-bit.
-    /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)`
+    /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)`
     /// supplying the path of the correct Dart Sass compiler.
     ///
     /// Initialization continues asynchronously after the initializer completes; failures are reported
@@ -161,7 +161,7 @@ public actor Compiler {
     ///
     /// - parameter eventLoopGroupProvider: NIO `EventLoopGroup` to use: either `.shared` to use
     ///   an existing group or `.createNew` to create and manage a new event loop.  Default is `.createNew`.
-    /// - parameter embeddedCompilerFileURL: Path of `sass`
+    /// - parameter embeddedCompilerFileURL: Path of the `sass` program
     ///   or something else that speaks the Sass embedded protocol.  Check [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md)
     ///   for the supported protocol versions.
     /// - parameter embeddedCompilerFileArguments: Any arguments to be passed to the

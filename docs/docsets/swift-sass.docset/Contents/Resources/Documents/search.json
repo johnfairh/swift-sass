@@ -45,9 +45,9 @@
     "name" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:includeCharset:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#initeventloopgroupproviderembeddedcompilerfileurltimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" : {
+  "dartsass\/types\/compiler.html?swift#initeventloopgroupproviderembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" : {
     "abstract" : "Use a program as the Sass embedded compiler.",
-    "name" : "init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
+    "name" : "init(eventLoopGroupProvider:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
     "parent_name" : "Compiler"
   },
   "dartsass\/types\/compiler.html?swift#initeventloopgroupprovidertimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" : {
@@ -161,6 +161,11 @@
   "sass\/types\/compilererror.html?swift#description9" : {
     "abstract" : "A rich multi-line user-readable description of this error, containing  message, span,\nand stackTrace, but not messages.  This is provided by the underlying Sass compiler,\nformat controlled using CompilerMessageStyle.",
     "name" : "description",
+    "parent_name" : "CompilerError"
+  },
+  "sass\/types\/compilererror.html?swift#loadedurls1" : {
+    "abstract" : "The canonical URLs of all source files used before the compilation failed.",
+    "name" : "loadedURLs",
     "parent_name" : "CompilerError"
   },
   "sass\/types\/compilererror.html?swift#message" : {

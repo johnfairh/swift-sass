@@ -101,7 +101,7 @@ custom_defs:
       - name: Initializers
         children:
           - init(eventLoopGroupProvider:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)
-          - init(eventLoopGroupProvider:embeddedCompilerFileURL:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)
+          - init(eventLoopGroupProvider:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)
       - name: Compilation
         children:
           - compile(string:syntax:url:importer:outputStyle:sourceMapStyle:includeCharset:importers:functions:)

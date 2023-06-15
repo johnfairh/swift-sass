@@ -594,7 +594,7 @@ Distributed under the MIT license, see LICENSE.
 <p><img src="https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg" alt="Platforms" />
 <a href="https://codecov.io/gh/johnfairh/swift-sass"><img src="https://codecov.io/gh/johnfairh/swift-sass/branch/main/graph/badge.svg?token=0NAP6IA9EB" alt="codecov" /></a>
 <img src="https://github.com/johnfairh/swift-sass/workflows/Tests/badge.svg" alt="Tests" />
-<img src="https://img.shields.io/badge/sass-1.60.0-purple" alt="Sass" /></p>
+<img src="https://img.shields.io/badge/sass-1.63.2-purple" alt="Sass" /></p>
 <h1 class="j2-anchor j2-heading heading" id="swift-sass">
 <span data-anchor-id="swift-sass">
 Swift Sass
@@ -607,7 +607,7 @@ implementation.  The <code>DartSass</code> module lets you access
 the most up to date implementation of the Sass language.  It runs the
 <a href="https://github.com/sass/dart-sass">Dart Sass compiler</a> as a separate process
 and communicates with it using the
-<a href="https://github.com/sass/embedded-protocol">Sass embedded protocol</a>.  If you
+<a href="https://github.com/sass/sass/blob/main/spec/embedded-protocol.md">Sass embedded protocol</a>.  If you
 come across another implementation of the ‘compiler’ side of the protocol then
 that should work fine too.</p>
 <p>This package doesn’t support LibSass right now.  <a href="#on-libsass">More info</a>.</p>
@@ -684,7 +684,7 @@ Requirements
 <li>Swift 5.7</li>
 <li>macOS 13+ (tested on macOS 13.2 x64)</li>
 <li>Linux (tested on Ubuntu 22.04 x64)</li>
-<li>Embedded Sass Protocol version 1.2.0</li>
+<li>Embedded Sass Protocol version 2.1.0</li>
 </ul>
 <h2 class="j2-anchor j2-heading heading" id="installation">
 <span data-anchor-id="installation">
@@ -694,18 +694,18 @@ Installation
 <p>Package dependency:</p>
 <pre><code class="language-swift">.package(name: &quot;swift-sass&quot;,
          url: &quot;https://github.com/johnfairh/swift-sass.git&quot;,
-         from: &quot;2.0.0&quot;)
+         from: &quot;2.0.0-pre1&quot;)
 </code></pre>
 <p>Target dependency:</p>
 <pre><code class="language-swift">.product(name: &quot;DartSass&quot;, package: &quot;swift-sass&quot;),
 </code></pre>
-<p>The Swift package bundles the embedded Dart Sass compiler for macOS and Linux
+<p>The Swift package bundles the Dart Sass compiler for macOS and Linux
 (specifically Ubuntu Focal/20.04 64-bit) both x86_64 and arm64.  The correct
 binary is selected at build time.  The selection is made based on the host
 architecture though, so if you want to cross-compile you’ll need to assemble
 the results manually.</p>
 <p>For other platforms you will need to either download the correct version from
-<a href="https://github.com/sass/dart-sass-embedded/release">the release page</a> or build
+<a href="https://github.com/sass/dart-sass/release">the release page</a> or build
 it manually, ship it as part of your program’s distribution, and use
 <a href="https://johnfairh.github.io/swift-sass/sassembedded/types/compiler.html?swift#initeventloopgroupprovidertimeoutimportersfunctions">this initializer</a>.</p>
 <p>There is no need to install a Dart runtime or SDK as part of this, the
@@ -725,13 +725,13 @@ support as Dart Sass.  As of spring 2023 this revival effort is on hold: I’m
 not holding my breath.</p>
 <p>See the experimental <a href="https://github.com/johnfairh/swift-sass/tree/libsass4">libsass4 branch</a>
 for the current state of development: if LibSass itself manages to get to a
-relased V4 then this <code>swift-sass</code> package will support it as an alternative
+relased V4 then this <a href="https://swiftpackageindex.com/apple/swift-nio/main/documentation/niocore/swift-concurrency">swift</a> package will support it as an alternative
 integration.</p>
 <h2 class="j2-anchor j2-heading heading" id="contributions">
 <span data-anchor-id="contributions">
 Contributions
 </span></h2>
-<p>Welcome: open an issue / <a href="mailto:johnfairh@gmail.com">johnfairh@gmail.com</a> / @johnfairh</p>
+<p>Welcome: open an issue / <a href="mailto:johnfairh@gmail.com">johnfairh@gmail.com</a> / @<a href="mailto:johnfairh@mastodon.social">johnfairh@mastodon.social</a></p>
 <h2 class="j2-anchor j2-heading heading" id="license">
 <span data-anchor-id="license">
 License
