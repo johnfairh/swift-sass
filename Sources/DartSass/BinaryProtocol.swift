@@ -115,8 +115,7 @@ final class ProtocolReader: ByteToMessageDecoder {
 
             // wire-level rule that the compilationID varint must be uint32...
             guard let compilationID32 = UInt32(exactly: compilationID) else {
-                // throw something i guess XXX
-                preconditionFailure("Overflowing wire ID")
+                throw ProtocolError("Malformed byte stream from Sass compiler.  Got length \(length), then read compilation ID of \(compilationID) which does not fit into 32 bits.")
             }
 
             let bodyLength = length - UInt64(compilationIDVarint.byteLength)
