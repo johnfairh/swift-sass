@@ -120,6 +120,10 @@
     "name" : "deinit"
   },
   {
+    "context" : "init(eventLoopGroupProvider:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
+    "name" : "embeddedCompilerFileURL"
+  },
+  {
     "context" : "resolve(ruleURL:fromImport:)",
     "name" : "file:\/\/your\/custom\/path\/test"
   },
@@ -224,6 +228,10 @@
     "name" : "sassIndex"
   },
   {
+    "context" : "init(eventLoopGroupProvider:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
+    "name" : "sass"
+  },
+  {
     "context" : "init(_:keywords:keywordsObserver:separator:)",
     "name" : "sequence"
   },
@@ -242,10 +250,6 @@
   {
     "context" : "valueAt(sassIndex:)",
     "name" : "subscript"
-  },
-  {
-    "context" : "index",
-    "name" : "swift-sass"
   },
   {
     "context" : "resolve(ruleURL:fromImport:)",
