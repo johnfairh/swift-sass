@@ -142,7 +142,7 @@ extension Compiler {
     /// Global message handler
     /// ie. messages not associated with a compilation ID.
     private func receiveGlobal(message: InboundMessage) throws {
-        switch message.msg.message {
+        switch message.sassOutboundMessage.message {
         case .error(let error):
             throw ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), ID=\(error.id): \(error.message)")
         default:

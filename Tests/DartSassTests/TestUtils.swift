@@ -180,8 +180,8 @@ struct TestVersionsResponder: VersionsResponder {
 
     func provideVersions(msg: OutboundMessage) async -> InboundMessage? {
         try? await Task.sleep(for: .milliseconds(100))
-        return .init(id: 0, msg: .with {
-            $0.versionResponse = .init(versions, id: msg.msg.versionRequest.id)
+        return .init(0, .with {
+            $0.versionResponse = .init(versions, id: msg.versionRequest.id)
         })
     }
 }

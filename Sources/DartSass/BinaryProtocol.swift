@@ -16,25 +16,40 @@ import NIOFoundationCompat
 /// A message we want to send to the Sass compiler.
 /// It has two parts: an ID and a protobuf object.
 struct OutboundMessage {
-    let id: UInt32
-    let msg: Sass_EmbeddedProtocol_InboundMessage // inbound from compiler's POV
+    let compilationID: UInt32
+    let sassInboundMessage: Sass_EmbeddedProtocol_InboundMessage // inbound from compiler's POV
 
-    static func with(_ builder: (inout Sass_EmbeddedProtocol_InboundMessage) -> UInt32) -> OutboundMessage {
-        var msg = Sass_EmbeddedProtocol_InboundMessage()
-        let id = builder(&msg)
-        return .init(id: id, msg: msg)
+    init(_ compilationID: UInt32 = 0, _ sassInboundMessage: Sass_EmbeddedProtocol_InboundMessage = .init()) {
+        self.compilationID = compilationID
+        self.sassInboundMessage = sassInboundMessage
+    }
+
+    // Factories
+
+    static func compileRequest(_ id: UInt32, builder: (inout Sass_EmbeddedProtocol_InboundMessage.CompileRequest) -> Void) -> OutboundMessage {
+        .init(id, .with { builder(&$0.compileRequest) })
+    }
+
+    static func versionRequest(builder: (inout Sass_EmbeddedProtocol_InboundMessage.VersionRequest) -> Void) -> OutboundMessage {
+        .init(0, .with { builder(&$0.versionRequest) })
+    }
+
+    // Accessors
+
+    var versionRequest: Sass_EmbeddedProtocol_InboundMessage.VersionRequest {
+        sassInboundMessage.versionRequest
     }
 }
 
 /// A message we've decoded from the Sass compiler.
 /// It has two parts: an ID and a protobuf object.
 struct InboundMessage {
-    let id: UInt32
-    let msg: Sass_EmbeddedProtocol_OutboundMessage // outbound from compiler's POV
+    let compilationID: UInt32
+    let sassOutboundMessage: Sass_EmbeddedProtocol_OutboundMessage // outbound from compiler's POV
 
-    init(id: UInt32 = 0, msg: Sass_EmbeddedProtocol_OutboundMessage = .init()) {
-        self.id = id
-        self.msg = msg
+    init(_ compilationID: UInt32 = 0, _ sassOutboundMessage: Sass_EmbeddedProtocol_OutboundMessage = .init()) {
+        self.compilationID = compilationID
+        self.sassOutboundMessage = sassOutboundMessage
     }
 }
 
@@ -44,13 +59,13 @@ final class ProtocolWriter: MessageToByteEncoder {
 
     /// Send a message to the embedded Sass compiler.
     ///
-    /// - parameter message: The message to send to the compiler ('inbound' from their perspective...).
+    /// - parameter message: The message to send to the compiler.
     /// - throws: Something from protobuf if it can't understand its own types.
     func encode(data: OutboundMessage, out: inout ByteBuffer) throws {
-        let buffer = try data.msg.serializedData()
-        let idLength = Varint.encodedLength(of: data.id)
+        let buffer = try data.sassInboundMessage.serializedData()
+        let idLength = Varint.encodedLength(of: data.compilationID)
         out.writeVarint(UInt64(buffer.count + idLength))
-        out.writeVarint(UInt64(data.id))
+        out.writeVarint(UInt64(data.compilationID))
         out.writeData(buffer)
     }
 
@@ -68,10 +83,10 @@ final class ProtocolReader: ByteToMessageDecoder {
         /// Waiting for a new message
         case waitHeader
         /// Reading the length header
-        case header(Varint)
-        /// Reading the ID
-        case compilationID(UInt64, Varint)
-        /// Read the length header, read the compilationID, waiting for the body
+        case readingLength(Varint)
+        /// Reading the compilation ID header
+        case readingCompilationID(UInt64, Varint)
+        /// Read the length header, read the compilationID, waiting for the body to all arrive
         case waitBody(compilationID: UInt32, bodyLength: UInt64)
     }
     var state = State.waitHeader
@@ -82,17 +97,17 @@ final class ProtocolReader: ByteToMessageDecoder {
     func decode(context: ChannelHandlerContext, buffer: inout ByteBuffer) throws -> DecodingState {
         switch state {
         case .waitHeader:
-            state = .header(Varint())
+            state = .readingLength(Varint())
             return .continue
 
-        case .header(let lenVarint):
+        case .readingLength(let lengthVarint):
             let byte = buffer.readInteger(as: UInt8.self)!
-            if let length = try lenVarint.decode(byte: byte) {
-                state = .compilationID(length, Varint())
+            if let length = try lengthVarint.decode(byte: byte) {
+                state = .readingCompilationID(length, Varint())
             }
             return .continue
 
-        case .compilationID(let lenBuffer, let compilationIDVarint):
+        case .readingCompilationID(let length, let compilationIDVarint):
             let byte = buffer.readInteger(as: UInt8.self)!
             guard let compilationID = try compilationIDVarint.decode(byte: byte) else {
                 return .continue
@@ -100,26 +115,25 @@ final class ProtocolReader: ByteToMessageDecoder {
 
             // wire-level rule that the compilationID varint must be uint32...
             guard let compilationID32 = UInt32(exactly: compilationID) else {
-                // throw something i guess
+                // throw something i guess XXX
                 preconditionFailure("Overflowing wire ID")
             }
 
-            let lenProtobuf = lenBuffer - UInt64(compilationIDVarint.byteLength)
-            state = .waitBody(compilationID: compilationID32, bodyLength: lenProtobuf)
+            let bodyLength = length - UInt64(compilationIDVarint.byteLength)
+            state = .waitBody(compilationID: compilationID32, bodyLength: bodyLength)
 
             return .continue
 
-        case .waitBody(let compilationID, let bodyLen):
-            guard buffer.readableBytes >= bodyLen else {
+        case .waitBody(let compilationID, let bodyLength):
+            guard buffer.readableBytes >= bodyLength else {
                 return .needMoreData
             }
 
-            var payload = Sass_EmbeddedProtocol_OutboundMessage()
-            try payload.merge(serializedData: buffer.readData(length: Int(bodyLen))!)
+            var sassOutboundMessage = Sass_EmbeddedProtocol_OutboundMessage()
+            try sassOutboundMessage.merge(serializedData: buffer.readData(length: Int(bodyLength))!)
             state = .waitHeader
+            context.fireChannelRead(wrapInboundOut(InboundMessage(compilationID, sassOutboundMessage)))
 
-            let message = InboundMessage(id: compilationID, msg: payload)
-            context.fireChannelRead(wrapInboundOut(message))
             return .continue
         }
     }

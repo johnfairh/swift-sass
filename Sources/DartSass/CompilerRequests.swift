@@ -175,7 +175,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     private var messages: [CompilerMessage]
 
     var requestID: UInt32 {
-        compileReq.id
+        compileReq.compilationID
     }
 
     /// Format and remember all the gorpy stuff we need to run a job.
@@ -196,21 +196,18 @@ final class CompilationRequest: ManagedCompilerRequest {
             self.importers = importers
         }
         self.functions = functionsMap.mapValues { $0.1 }
-        self.compileReq = .with { wrp in
-            wrp.compileRequest = .with { msg in
-                msg.input = input
-                msg.style = .init(outputStyle)
-                msg.sourceMap = sourceMapStyle.createSourceMap
-                msg.importers = .init(importers, startingID: firstFreeImporterID)
-                msg.globalFunctions = functionsMap.values.map { $0.0 }
-                msg.alertAscii = false
-                msg.alertColor = settings.messageStyle.isColored
-                msg.verbose = settings.verboseDeprecations
-                msg.quietDeps = settings.suppressDependencyWarnings
-                msg.sourceMapIncludeSources = sourceMapStyle.embedSourceMap
-                msg.charset = includeCharset
-            }
-            return RequestID.next
+        self.compileReq = .compileRequest(RequestID.next) { msg in
+            msg.input = input
+            msg.style = .init(outputStyle)
+            msg.sourceMap = sourceMapStyle.createSourceMap
+            msg.importers = .init(importers, startingID: firstFreeImporterID)
+            msg.globalFunctions = functionsMap.values.map { $0.0 }
+            msg.alertAscii = false
+            msg.alertColor = settings.messageStyle.isColored
+            msg.verbose = settings.verboseDeprecations
+            msg.quietDeps = settings.suppressDependencyWarnings
+            msg.sourceMapIncludeSources = sourceMapStyle.embedSourceMap
+            msg.charset = includeCharset
         }
         self.messages = []
         self.state = .normal
@@ -228,15 +225,15 @@ final class CompilationRequest: ManagedCompilerRequest {
     private typealias OBM = Sass_EmbeddedProtocol_OutboundMessage
     private typealias IBM = Sass_EmbeddedProtocol_InboundMessage
 
-    private typealias CompilationReplyFn = (Sass_EmbeddedProtocol_InboundMessage) async -> Void
+    private typealias CompilationReplyFn = (IBM) async -> Void
 
     /// Inbound messages.
     func receive(message: InboundMessage, reply: @escaping ReplyFn) throws {
-        let compilationReply: CompilationReplyFn = { msg in
-            let outboundMsg = OutboundMessage(id: message.id, msg: msg)
+        let compilationReply: CompilationReplyFn = {
+            let outboundMsg = OutboundMessage(message.compilationID, $0)
             await reply(outboundMsg)
         }
-        switch message.msg.message {
+        switch message.sassOutboundMessage.message {
         case .compileResponse(let rsp):
             try receive(compileResponse: rsp)
 
@@ -480,24 +477,20 @@ final class VersionRequest: ManagedCompilerRequest {
     var requestName: String { "Version-Req" }
 
     var requestID: UInt32 {
-        versionReq.msg.versionRequest.id
+        versionReq.versionRequest.id
     }
 
     init(done: @escaping (VersionRequest, Result<Versions, any Error>) -> Void) {
         self.state = .normal
         self.timer = nil
         self.stateLock = Lock()
-
-        self.versionReq = .with { wrp in
-            wrp.versionRequest = .with { $0.id = RequestID.next }
-            return 0//wrp.versionRequest.id
-        }
+        self.versionReq = .versionRequest() { $0.id = RequestID.next }
         self.clientDone = done
     }
 
     /// Inbound messages.
     func receive(message: InboundMessage, reply: @escaping ReplyFn) throws {
-        guard case .versionResponse(let vers) = message.msg.message else {
+        guard case .versionResponse(let vers) = message.sassOutboundMessage.message else {
             throw ProtocolError("Unexpected response to Version-Req: \(message)")
         }
         sendDone(.success(Versions(vers)))

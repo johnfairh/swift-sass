@@ -94,7 +94,7 @@ class TestVersions: DartSassTestCase {
 
     struct CorruptVersionsResponder: VersionsResponder {
         func provideVersions(msg: OutboundMessage) async -> InboundMessage? {
-            .init(id: msg.msg.versionRequest.id, msg: .with {
+            .init(msg.versionRequest.id, .with {
                 $0.importRequest = .init()
             })
         }
