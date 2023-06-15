@@ -1,3 +1,10 @@
+# 2.0.0-pre2
+
+* Update to latest version of upstream dependencies, Dart Sass 1.63.2 now
+  includes the embedded version
+
+* Add `loaded_urls` to `CompilerError`
+
 # 2.0.0-pre1
 
 * Rewrite `Compiler` to be an actor and use `NIOAsyncChannel` to communicate
