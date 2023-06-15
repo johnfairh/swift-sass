@@ -166,19 +166,19 @@ extension SourceMapStyle {
 
 extension InboundMessage {
     var requestID: UInt32? {
-        switch msg.message {
+        switch sassOutboundMessage.message {
         case .error, nil:
             return nil
         case .compileResponse, .canonicalizeRequest, .importRequest, .fileImportRequest, .functionCallRequest, .logEvent:
-            return id
+            return compilationID
         case .versionResponse(let m):
             return m.id
         }
     }
 
     var logMessage: String {
-        let compID = "CompID=\(id)"
-        return msg.message?.logMessage(compID: compID) ?? "\(compID) missing message"
+        let compID = "CompID=\(compilationID)"
+        return sassOutboundMessage.message?.logMessage(compID: compID) ?? "\(compID) missing message"
     }
 }
 

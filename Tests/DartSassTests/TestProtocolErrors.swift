@@ -16,7 +16,7 @@ class TestProtocolErrors: DartSassTestCase {
     // Deal with in-band reported protocol error, compiler reports it to us.
     func testOutboundProtocolError() async throws {
         let compiler = try newCompiler()
-        let msg = OutboundMessage(id: 0, msg: .with { msg in
+        let msg = OutboundMessage(0, .with { msg in
             msg.importResponse = .with { rsp in
                 rsp.id = 108
             }
@@ -44,7 +44,7 @@ class TestProtocolErrors: DartSassTestCase {
         await compiler.assertStartCount(2)
 
         // reponse to a job we don't have active
-        let badMsg1 = InboundMessage(id: 42, msg: .with {
+        let badMsg1 = InboundMessage(42, .with {
             $0.compileResponse = .init()
         })
         await compiler.tstReceive(message: badMsg1)
@@ -66,7 +66,7 @@ class TestProtocolErrors: DartSassTestCase {
         await compiler.waitForRunning()
 
         // Expected message, bad content
-        let msg = InboundMessage(id: RequestID.peekNext, msg: .with { msg in
+        let msg = InboundMessage(RequestID.peekNext, .with { msg in
             msg.compileResponse = .with { rsp in
                 rsp.result = nil // missing 'result'
             }
@@ -161,7 +161,7 @@ class TestProtocolErrors: DartSassTestCase {
         let nextRequestID = RequestID.peekNext
 
         importer.state.onLoadHang = {
-            let inMsg = InboundMessage(id: nextRequestID, msg: msg)
+            let inMsg = InboundMessage(nextRequestID, msg)
             await compiler.tstReceive(message: inMsg)
         }
 
