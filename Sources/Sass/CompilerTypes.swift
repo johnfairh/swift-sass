@@ -70,17 +70,26 @@ public struct CompilerError: Swift.Error, CustomStringConvertible, Sendable {
     /// Any compiler diagnostics found before the error.
     public let messages: [CompilerMessage]
 
+    /// The canonical URLs of all source files used before the compilation failed.
+    ///
+    /// If the compilation fails while attempting to import a file after determining its canonical URL
+    /// then that file's URL is included in the list.
+    ///
+    /// This includes the URL of the initial Sass file if it is known.
+    public let loadedURLs: [URL]
+
     /// A rich multi-line user-readable description of this error, containing  `message`, `span`,
     /// and `stackTrace`, but not `messages`.  This is provided by the underlying Sass compiler,
     /// format controlled using `CompilerMessageStyle`.
     public let description: String
 
     /// :nodoc:
-    public init(message: String, span: Span?, stackTrace: String?, messages: [CompilerMessage], description: String) {
+    public init(message: String, span: Span?, stackTrace: String?, messages: [CompilerMessage], loadedURLs: [URL], description: String) {
         self.message = message
         self.span = span
         self.stackTrace = stackTrace
         self.messages = messages
+        self.loadedURLs = loadedURLs
         self.description = description
     }
 }

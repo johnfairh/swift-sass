@@ -55,7 +55,7 @@ class TestImporters: DartSassTestCase {
                                                  outputStyle: .compressed,
                                                  importers: [.loadPath(tmpDir)])
         XCTAssertEqual(secondaryCssBlue, results.css)
-// XXX        XCTAssertEqual(1, results.loadedURLs.count)
+        XCTAssertEqual(1, results.loadedURLs.count)
     }
 
     // job loadpath searched after compiler loadpath
@@ -100,9 +100,9 @@ class TestImporters: DartSassTestCase {
             XCTAssertEqual(#"a{a:"hello"}"#, results.css)
         }
     }
-//
-//    // MARK: Custom Importers
-//
+
+    // MARK: Custom Importers
+
     // A custom importer
     final class TestImporter: Importer, @unchecked Sendable {
         let css: String
@@ -163,7 +163,7 @@ class TestImporters: DartSassTestCase {
         let compiler = try newCompiler(importers: [.importer(importer)])
         let results = try await compiler.compile(string: importingSass, syntax: .sass, outputStyle: .compressed)
         XCTAssertEqual(secondaryCssRed, results.css)
-// XXX        XCTAssertEqual("test://secondary", results.loadedURLs.first!.absoluteString)
+        XCTAssertEqual("test://secondary", results.loadedURLs.first!.absoluteString)
     }
 
     // Bad path harness
@@ -202,6 +202,8 @@ class TestImporters: DartSassTestCase {
         try await checkFaultyImporter(customize: { $0.failNextImport = "Objection" }) { i, e in
             XCTAssertEqual(i.failNextImport, e.message)
             XCTAssertEqual(1, i.failedImportCount)
+            XCTAssertEqual(1, e.loadedURLs.count)
+            XCTAssertEqual("test://secondary", e.loadedURLs[0].absoluteString)
         }
     }
 
@@ -230,7 +232,7 @@ class TestImporters: DartSassTestCase {
                                                  importer: .importer(importer),
                                                  outputStyle: .compressed)
         XCTAssertEqual("a{color:red}", results.css)
-// XXX        XCTAssertEqual(2, results.loadedURLs.count)
+        XCTAssertEqual(2, results.loadedURLs.count)
         let srcmap = try SourceMap(XCTUnwrap(results.sourceMap))
         XCTAssertEqual(1, srcmap.sources.count)
         XCTAssertEqual("test://vfs/something", srcmap.sources[0].url)
@@ -287,13 +289,13 @@ class TestImporters: DartSassTestCase {
         let results = try await compiler.compile(string: scss, syntax: .scss, url: rootURL)
         let map = try SourceMap(XCTUnwrap(results.sourceMap))
         XCTAssertEqual(3, map.sources.count)
-// XXX        XCTAssertEqual(3, results.loadedURLs.count)
+        XCTAssertEqual(3, results.loadedURLs.count)
 
         func s(_ urls: [URL]) -> [URL] {
             urls.sorted(by: { $0.absoluteString < $1.absoluteString})
         }
         let expected = s([rootURL, URL(string: "test://first")!, URL(string: "test://second")!])
-// XXX        XCTAssertEqual(expected, s(results.loadedURLs))
+        XCTAssertEqual(expected, s(results.loadedURLs))
         XCTAssertEqual(expected, s(map.sources.map { URL(string: $0.url)! }))
     }
 
@@ -349,7 +351,7 @@ class TestImporters: DartSassTestCase {
         imp.expectImport = true
         let results = try await compiler.compile(string: "@import 'test';", outputStyle: .compressed)
         XCTAssertEqual(1, imp.resolveCount)
-// XXX        XCTAssertEqual(fileURL, results.loadedURLs[0])
+        XCTAssertEqual(fileURL, results.loadedURLs[0])
         XCTAssertEqual("a{b:true}", results.css)
 
         // Goodpath, use
@@ -401,7 +403,7 @@ class TestImporters: DartSassTestCase {
         imp.expectImport = true
         let results = try await compiler.compile(string: "@import 'test';", outputStyle: .compressed)
         XCTAssertEqual(1, imp.resolveCount)
-// XXX        XCTAssertEqual(importFileURL, results.loadedURLs[0])
+        XCTAssertEqual(importFileURL, results.loadedURLs[0])
         XCTAssertEqual("a{b:false}", results.css)
     }
 }
