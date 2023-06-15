@@ -38,21 +38,24 @@ extension Span.Location {
 
 extension CompilerResults {
     init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess,
-         messages: [CompilerMessage]) {
+         messages: [CompilerMessage],
+         loadedURLs: [URL]) {
         self = .init(css: protobuf.css,
                      sourceMap: protobuf.sourceMap.nonEmptyString,
                      messages: messages,
-                     loadedURLs: []/* XXXprotobuf.loadedUrls.compactMap { URL(string: $0) } */)
+                     loadedURLs: loadedURLs)
     }
 }
 
 extension CompilerError {
     init(_ protobuf: Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure,
-         messages: [CompilerMessage]) {
+         messages: [CompilerMessage],
+         loadedURLs: [URL]) {
         self = .init(message: protobuf.message,
                      span: protobuf.hasSpan ? .init(protobuf.span) : nil,
                      stackTrace: protobuf.stackTrace.nonEmptyString,
                      messages: messages,
+                     loadedURLs: loadedURLs,
                      description: protobuf.formatted.nonEmptyString ?? protobuf.message)
     }
 }

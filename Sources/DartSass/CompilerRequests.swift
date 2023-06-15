@@ -259,11 +259,12 @@ final class CompilationRequest: ManagedCompilerRequest {
 
     /// Inbound `CompileResponse` handler
     private func receive(compileResponse: OBM.CompileResponse) throws {
+        let loadedURLs = compileResponse.loadedUrls.compactMap { URL(string: $0) }
         switch compileResponse.result {
         case .success(let s):
-            sendDone(.success(CompilerResults(s, messages: messages)))
+            sendDone(.success(CompilerResults(s, messages: messages, loadedURLs: loadedURLs)))
         case .failure(let f):
-            sendDone(.failure(CompilerError(f, messages: messages)))
+            sendDone(.failure(CompilerError(f, messages: messages, loadedURLs: loadedURLs)))
         case nil:
             throw ProtocolError("Malformed Compile-Rsp, missing `result`: \(compileResponse)")
         }
