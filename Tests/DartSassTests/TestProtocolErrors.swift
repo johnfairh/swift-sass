@@ -52,11 +52,28 @@ class TestProtocolErrors: DartSassTestCase {
         try await checkCompilerWorking(compiler)
         await compiler.assertStartCount(3)
 
+
         // response to a job when we're not interested [legacy, refactored away!]
         await compiler.shutdownGracefully()
         let pid = await compiler.compilerProcessIdentifier
         XCTAssertNil(pid)
         await compiler.assertStartCount(3) // no more resets
+    }
+
+    // 'Length' field doesn't fit in 32 bits
+    func testBadLength() async throws {
+        let compiler = try newCompiler()
+        await compiler.waitForRunning()
+        await compiler.assertStartCount(1)
+
+        var bytes = ByteBuffer()
+        bytes.writeVarint(12)
+        bytes.writeVarint(UInt64(UInt32.max) + 8)
+        let pipeline = await compiler.child.channel.pipeline
+        pipeline.fireChannelRead(NIOAny(bytes))
+
+        try await Task.sleep(for: .seconds(0.1))
+        await compiler.assertStartCount(2)
     }
 
     // Bad response to compile-req

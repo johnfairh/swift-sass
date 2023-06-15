@@ -702,6 +702,8 @@ actor CompilerChild: ChannelInboundHandler {
     private func childTerminationHandler() async {
         await TestSuspend?.suspend(for: .childTermination)
         if !stopping {
+            // unfortunate race condition here while this & Compile are on separate actors - new work received
+            // before the compiler actually does this call will get smashed and failed rather than queued.
             await errorHandler(ProtocolError("Compiler process exitted unexpectedly"))
         }
     }
@@ -778,7 +780,7 @@ actor CompilerChild: ChannelInboundHandler {
             }
         } catch is CancellationError {
         } catch {
-            /// Called from NIO up the stack if something goes wrong with the inbound connection.... maybe ... XXX
+            // Called from NIO up the stack if our binary protocol reader has a problem
             await errorHandler(ProtocolError("Read from Sass compiler failed: \(error)"))
         }
     }
