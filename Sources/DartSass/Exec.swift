@@ -6,18 +6,18 @@
 //
 
 import Foundation
-import NIOCore
-import NIOPosix
+
+// Unix layer of running the child process
 
 /// Create a pair of connected sockets in PF_LOCAL.
 private struct SocketPipe {
-    let reader: Int32
-    let writer: Int32
+    let reader: CInt
+    let writer: CInt
 
     init() {
-        var fds: [Int32] = [0, 0]
+        var fds: [CInt] = [0, 0]
         #if os(Linux)
-        let sockStream = Int32(SOCK_STREAM.rawValue)
+        let sockStream = CInt(SOCK_STREAM.rawValue)
         #else
         let sockStream = SOCK_STREAM
         #endif // such anger
@@ -33,7 +33,7 @@ enum Exec {
     /// Start an asynchrous child process with NIO connections.
     ///
     /// Doesn't work on an event loop:
-    /// * Forking the child process probably blocks a bit
+    /// * Forking the child process is technically blocking and could do so seriously
     /// * Old version of NIO used to insist `NIOPipeBootstrap` wasn't done on an event loop,
     ///   and although this doesn't apply since 2.34.0, some pieces of state machine have ended
     ///   up leaning into the thread structure and unpicking them is work.
@@ -49,18 +49,9 @@ enum Exec {
     /// Stderr of the child process is discarded because I don't want it rn.
     static func spawn(_ command: URL,
                       _ arguments: [String] = [],
-                      currentDirectory: String = FileManager.default.currentDirectoryPath,
-                      group: EventLoopGroup) throws -> Child {
+                      currentDirectory: String = FileManager.default.currentDirectoryPath) throws -> Child {
         let process = Process()
         process.arguments = arguments
-
-        // Some pain in getting this working with NIO.
-        // Lesson 1: Don't let NIO anywhere near the 'child' ends of the
-        // non-pipe FDs, even when closed it messes up on Linux.
-        // Lesson 2: Avoid the version of PipeBootstrap that dup()s an FD,
-        // it's broken in case of failure.
-        // Lesson 3: Don't let CoreFoundation's FileHandle implementation
-        // anywhere important, it is mad keen on closing FDs.
 
         let stdoutPipe = SocketPipe()
         let stdinPipe = SocketPipe()
@@ -73,14 +64,10 @@ enum Exec {
         process.currentDirectoryURL = URL(fileURLWithPath: currentDirectory)
         try process.run()
 
-        let channel = try NIOPipeBootstrap(group: group)
-            .withPipes(inputDescriptor: stdoutPipe.reader, outputDescriptor: stdinPipe.writer)
-            .wait()
-
         // Close our copy of the FDs that the child is using.
         close(stdoutPipe.writer)
         close(stdinPipe.reader)
-        return Child(process: process, channel: channel)
+        return Child(process: process, stdoutFD: stdoutPipe.reader, stdinFD: stdinPipe.writer)
     }
 
     /// A running child process with NIO connections.
@@ -90,17 +77,20 @@ enum Exec {
     final class Child {
         /// The `Process` object for the child
         let process: Process
-        /// A NIO Channel representing both the child's stdin (write to it) and stdout (read from it)
-        let channel: Channel
+        /// The child's readable output FD
+        let stdoutFD: CInt
+        /// The child's writable input FD
+        let stdinFD: CInt
 
-        init(process: Process, channel: Channel) {
+        init(process: Process, stdoutFD: CInt, stdinFD: CInt) {
             self.process = process
-            self.channel = channel
+            self.stdoutFD = stdoutFD
+            self.stdinFD = stdinFD
         }
 
         func terminate() {
             process.terminate()
-            // this cascades closes to the channel
+            // this cascades closes to the FDs
         }
     }
 }

@@ -8,7 +8,7 @@
 import struct Foundation.URL
 import class Foundation.FileManager // cwd
 @_spi(AsyncChannel) import NIOCore
-import NIOPosix // NIOThreadPool
+@_spi(AsyncChannel) import NIOPosix // NIOThreadPool, NIOPipeBootstrap
 import Logging
 @_exported import Sass
 
@@ -236,16 +236,15 @@ public actor Compiler {
                 precondition(!hasActiveRequests)
                 startCount += 1
 
-                // Get onto the thread to start the child and bootstrap the NIO connections.
+                // Get onto the thread to start the child process
                 let child = try await initThread.runIfActive(eventLoop: eventLoop) {
-                    try CompilerChild(eventLoop: self.eventLoop,
-                                      fileURL: self.embeddedCompilerFileURL,
+                    try CompilerChild(fileURL: self.embeddedCompilerFileURL,
                                       arguments: self.embeddedCompilerFileArgs,
                                       workHandler: { [unowned self] in try await receive(message: $0, reply: $1) },
                                       errorHandler: { [unowned self] in await handleError($0) })
                 }.get()
 
-                try await child.addChannelHandlers()
+                try await child.setUpChannel(group: eventLoop)
                 await TestSuspend?.suspend(for: .endOfInitializing)
 
                 debug("Compiler is started, starting healthcheck")
@@ -657,8 +656,6 @@ public actor Compiler {
 actor CompilerChild: ChannelInboundHandler {
     typealias InboundIn = InboundMessage
 
-    /// Our event loop
-    private let eventLoop: EventLoop
     /// The child process
     private let child: Exec.Child
     /// Message handling (ex. the work manager)
@@ -675,7 +672,7 @@ actor CompilerChild: ChannelInboundHandler {
 
     /// Internal for test
     var channel: Channel {
-        child.channel
+        asyncChannel!.channel
     }
 
     private(set) var asyncChannel: NIOAsyncChannel<InboundMessage, OutboundMessage>!
@@ -683,10 +680,9 @@ actor CompilerChild: ChannelInboundHandler {
     /// Create a new Sass compiler process.
     ///
     /// Must not be called in an event loop!  But I don't know how to check that.
-    init(eventLoop: EventLoop, fileURL: URL, arguments: [String], workHandler: @escaping WorkHandler, errorHandler: @escaping ErrorHandler) throws {
-        self.child = try Exec.spawn(fileURL, arguments, group: eventLoop)
+    init(fileURL: URL, arguments: [String], workHandler: @escaping WorkHandler, errorHandler: @escaping ErrorHandler) throws {
+        self.child = try Exec.spawn(fileURL, arguments)
         self.processIdentifier = child.process.processIdentifier
-        self.eventLoop = eventLoop
         self.workHandler = workHandler
         self.errorHandler = errorHandler
         self.stopping = false
@@ -727,13 +723,16 @@ actor CompilerChild: ChannelInboundHandler {
         }
     }
 
-    /// Connect Sass protocol handlers.
-    func addChannelHandlers() async throws  {
-        try await ProtocolWriter.addHandler(to: channel).get()
-        try await ProtocolReader.addHandler(to: channel).get()
-        asyncChannel = try await eventLoop.submit { [channel] in
-            try NIOAsyncChannel(synchronouslyWrapping: channel)
-        }.get()
+    /// Connect the unix child process to NIO
+    func setUpChannel(group: EventLoopGroup) async throws {
+        asyncChannel = try await NIOPipeBootstrap(group: group)
+            .channelInitializer { ch in
+                ProtocolWriter.addHandler(to: ch)
+                    .flatMap {
+                        ProtocolReader.addHandler(to: ch)
+                    }
+            }
+            .takingOwnershipOfDescriptors(input: child.stdoutFD, output: child.stdinFD)
     }
 
     /// Send a message to the Sass compiler with error detection.
