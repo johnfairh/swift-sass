@@ -30,7 +30,7 @@ let package = Package(
         from: "1.14.0"),
       .package(
         url: "https://github.com/apple/swift-nio.git",
-        from: "2.36.0"),
+        from: "2.56.0"),
       .package(
         url: "https://github.com/apple/swift-log.git",
         from: "1.4.0"),
