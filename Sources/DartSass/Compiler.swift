@@ -726,13 +726,15 @@ actor CompilerChild: ChannelInboundHandler {
     /// Connect the unix child process to NIO
     func setUpChannel(group: EventLoopGroup) async throws {
         asyncChannel = try await NIOPipeBootstrap(group: group)
-            .channelInitializer { ch in
+            .takingOwnershipOfDescriptors(input: child.stdoutFD, output: child.stdinFD) { ch in
                 ProtocolWriter.addHandler(to: ch)
                     .flatMap {
                         ProtocolReader.addHandler(to: ch)
                     }
+                    .flatMapThrowing {
+                        try NIOAsyncChannel(synchronouslyWrapping: ch)
+                    }
             }
-            .takingOwnershipOfDescriptors(input: child.stdoutFD, output: child.stdinFD)
     }
 
     /// Send a message to the Sass compiler with error detection.
