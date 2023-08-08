@@ -40,7 +40,7 @@ class DartSassTestCase: XCTestCase {
     }
 
     func newCompiler(importers: [ImportResolver] = [], functions: SassFunctionMap) throws -> Compiler {
-        let c = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+        let c = try Compiler(eventLoopGroup: eventLoopGroup,
                              importers: importers,
                              functions: functions)
         compilersToShutdown.append(c)
@@ -48,7 +48,7 @@ class DartSassTestCase: XCTestCase {
     }
 
     func newBadCompiler(timeout: Int = 1) async throws -> Compiler {
-        let c = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
+        let c = Compiler(eventLoopGroup: eventLoopGroup,
                          embeddedCompilerFileURL: URL(fileURLWithPath: "/usr/bin/tail"),
                          timeout: timeout)
         await c.setVersionsResponder(TestVersionsResponder())

@@ -80,8 +80,7 @@ class TestCompilerErrors: DartSassTestCase {
     """
 
     func testColorCompilerError() async throws {
-        let compiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                                    messageStyle: .terminalColored)
+        let compiler = try Compiler(messageStyle: .terminalColored)
         compilersToShutdown.append(compiler)
         do {
             let results = try await compiler.compile(string: badSass, syntax: .sass)
@@ -220,8 +219,7 @@ class TestCompilerErrors: DartSassTestCase {
         XCTAssertEqual(1, results1.messages.count)
 
         // warnings can be suppressed - from a file
-        let quietCompiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                                         suppressDependencyWarnings: true)
+        let quietCompiler = try Compiler(suppressDependencyWarnings: true)
         compilersToShutdown.append(quietCompiler)
 
         let rootFile = try FileManager.default.createTempFile(filename: "root.scss", contents: "@import 'foo';")
@@ -252,8 +250,7 @@ class TestCompilerErrors: DartSassTestCase {
         let results1 = try await normalCompiler.compile(string: "@import 'foo';")
         XCTAssertEqual(6, results1.messages.count)
 
-        let verboseCompiler = try Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                                           verboseDeprecations: true,
+        let verboseCompiler = try Compiler(verboseDeprecations: true,
                                            importers: [.importer(importer)])
         compilersToShutdown.append(verboseCompiler)
 

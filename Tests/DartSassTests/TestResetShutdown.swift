@@ -111,8 +111,7 @@ class TestResetShutdown: DartSassTestCase {
         let tmpHeadURL = tmpDir.appendingPathComponent("tail")
         try FileManager.default.copyItem(at: realHeadURL, to: tmpHeadURL)
 
-        let badCompiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                                   embeddedCompilerFileURL: tmpHeadURL,
+        let badCompiler = Compiler(embeddedCompilerFileURL: tmpHeadURL,
                                    timeout: 1)
         await badCompiler.setVersionsResponder(TestVersionsResponder())
         compilersToShutdown.append(badCompiler)
@@ -213,7 +212,7 @@ class TestResetShutdown: DartSassTestCase {
 
     // Internal eventloopgroup
     func testInternalEventLoopGroup() async throws {
-        let compiler = try Compiler(eventLoopGroupProvider: .createNew)
+        let compiler = try Compiler()
         try await checkCompilerWorking(compiler)
         await compiler.shutdownGracefully()
     }

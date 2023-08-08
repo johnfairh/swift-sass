@@ -36,7 +36,7 @@ import Logging
 /// * Consult every `DartSass.ImportResolver` given to the compiler, first the global list then the
 ///   per-compilation list, in order within each list.
 public actor Compiler {
-    private let eventLoopGroup: ProvidedEventLoopGroup
+    private let eventLoopGroup: any EventLoopGroup
 
     /// NIO event loop we're bound to.  Internal for test.
     let eventLoop: EventLoop // XXX move to run() unless tests do need somehow
@@ -107,7 +107,7 @@ public actor Compiler {
     /// Use the bundled Dart Sass compiler as the Sass compiler.
     ///
     /// The bundled Dart Sass compiler is built on macOS (11.6) or Ubuntu (20.04) Intel 64-bit.
-    /// If you are running on another operating system then use `init(eventLoopGroupProvider:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)`
+    /// If you are running on another operating system then use `init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)`
     /// supplying the path of the correct Dart Sass compiler.
     ///
     /// Initialization continues asynchronously after the initializer completes; failures are reported
@@ -116,8 +116,8 @@ public actor Compiler {
     /// You must shut down the compiler with `shutdownGracefully()` before letting it
     /// go out of scope.
     ///
-    /// - parameter eventLoopGroupProvider: NIO `EventLoopGroup` to use: either `.shared` to use
-    ///   an existing group or `.createNew` to create and manage a new event loop.  Default is `.createNew`.
+    /// - parameter eventLoopGroup: NIO `EventLoopGroup` to use.  Default uses the NIO
+    ///   shared `EventLoopGroup`.
     /// - parameter timeout: Maximum time in seconds allowed for the embedded
     ///   compiler to compile a stylesheet.  Detects hung compilers.  Default is a minute; set
     ///   -1 to disable timeouts.
@@ -132,7 +132,7 @@ public actor Compiler {
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
     /// - throws: `LifecycleError` if the program can't be found.
-    public init(eventLoopGroupProvider: NIOEventLoopGroupProvider = .createNew,
+    public init(eventLoopGroup: any EventLoopGroup = MultiThreadedEventLoopGroup.singleton,
                 timeout: Int = 60,
                 messageStyle: CompilerMessageStyle = .plain,
                 verboseDeprecations: Bool = false,
@@ -140,7 +140,7 @@ public actor Compiler {
                 importers: [ImportResolver] = [],
                 functions: SassFunctionMap = [:]) throws {
         let (url, args) = try DartSassEmbedded.getURLAndArgs()
-        self.init(eventLoopGroupProvider: eventLoopGroupProvider,
+        self.init(eventLoopGroup: eventLoopGroup,
                   embeddedCompilerFileURL: url,
                   embeddedCompilerFileArguments: args,
                   timeout: timeout,
@@ -159,8 +159,8 @@ public actor Compiler {
     /// You must shut down the compiler with `shutdownGracefully()` before letting it
     /// go out of scope.
     ///
-    /// - parameter eventLoopGroupProvider: NIO `EventLoopGroup` to use: either `.shared` to use
-    ///   an existing group or `.createNew` to create and manage a new event loop.  Default is `.createNew`.
+    /// - parameter eventLoopGroup: NIO `EventLoopGroup` to use.  Default uses the NIO
+    ///   shared `EventLoopGroup`.
     /// - parameter embeddedCompilerFileURL: Path of the `sass` program
     ///   or something else that speaks the Sass embedded protocol.  Check [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md)
     ///   for the supported protocol versions.
@@ -179,7 +179,7 @@ public actor Compiler {
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
-    public init(eventLoopGroupProvider: NIOEventLoopGroupProvider = .createNew,
+    public init(eventLoopGroup: any EventLoopGroup = MultiThreadedEventLoopGroup.singleton,
                 embeddedCompilerFileURL: URL,
                 embeddedCompilerFileArguments: [String] = [],
                 timeout: Int = 60,
@@ -189,8 +189,8 @@ public actor Compiler {
                 importers: [ImportResolver] = [],
                 functions: SassFunctionMap = [:]) {
         precondition(embeddedCompilerFileURL.isFileURL, "Not a file URL: \(embeddedCompilerFileURL)")
-        eventLoopGroup = ProvidedEventLoopGroup(eventLoopGroupProvider)
-        eventLoop = self.eventLoopGroup.any()
+        self.eventLoopGroup = eventLoopGroup
+        eventLoop = eventLoopGroup.any()
         self.embeddedCompilerFileURL = embeddedCompilerFileURL
         self.embeddedCompilerFileArgs = embeddedCompilerFileArguments
         state = .initializing
@@ -226,8 +226,7 @@ public actor Compiler {
     private func run() async {
         precondition(state.isInitializing, "Unexpected state at run(): \(state)")
 
-        let initThread = NIOThreadPool(numberOfThreads: 1)
-        initThread.start()
+        let initThread = NIOSingletons.posixBlockingThreadPool
 
         while !Task.isCancelled {
             do {
@@ -280,10 +279,6 @@ public actor Compiler {
                 }
             }
         }
-
-        // Clean up 1-time resources
-        try? await initThread.shutdownGracefully()
-        try? await eventLoopGroup.shutdownGracefully()
 
         setState(.shutdown)
         debug("Compiler is shutdown")

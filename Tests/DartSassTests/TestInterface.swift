@@ -150,8 +150,7 @@ class TestInterface: DartSassTestCase {
     /// Bad explicitly given compiler
     func testNotACompiler() async throws {
         let notACompiler = URL(fileURLWithPath: "/tmp/fred")
-        let compiler = Compiler(eventLoopGroupProvider: .shared(eventLoopGroup),
-                                embeddedCompilerFileURL: notACompiler)
+        let compiler = Compiler(embeddedCompilerFileURL: notACompiler)
         compilersToShutdown.append(compiler)
         do {
             let results = try await compiler.compile(string: "")
@@ -169,7 +168,7 @@ class TestInterface: DartSassTestCase {
         defer { unsetenv("DART_SASS_EMBEDDED_NAME") }
 
         do {
-            let compiler = try Compiler(eventLoopGroupProvider: .createNew)
+            let compiler = try Compiler()
             XCTFail("Created compiler without dart: \(compiler)")
         } catch let error as LifecycleError {
             print(error)
