@@ -13,7 +13,7 @@ extension Versions {
     init(protocolVersionString: String) {
         self.init(protocolVersionString: protocolVersionString,
                   packageVersionString: "1.0.0",
-                  compilerVersionString: "2.0.0",
+                  compilerVersionString: "2.3.0",
                   compilerName: "test")
     }
 }
@@ -21,9 +21,9 @@ extension Versions {
 /// Tests for version checking
 class TestVersions: DartSassTestCase {
     func testCreation() {
-        let vers = Versions(protocolVersionString: "2.1.3")
+        let vers = Versions(protocolVersionString: "2.3.0")
         XCTAssertEqual("2", vers.protocolVersion.major)
-        XCTAssertEqual("3", vers.protocolVersion.patch)
+        XCTAssertEqual("0", vers.protocolVersion.patch)
         XCTAssertNoThrow(try vers.check())
     }
 

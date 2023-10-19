@@ -1,5 +1,5 @@
 New protocol release:
-* Update `embedded_protocol` to the new tag
+* Update `sass` to the new tag
 * `make protobuf`
 * Update `Versions.minProtocolVersion`
 * Update README 'Requirements'

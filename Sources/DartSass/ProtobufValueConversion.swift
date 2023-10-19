@@ -175,6 +175,9 @@ extension Sass_EmbeddedProtocol_Value {
             // not supposed to receive these in arguments
             throw ProtocolError("Don't know how to deserialize hostfunction \(h)")
 
+        case .compilerMixin:
+            preconditionFailure("Unsupported CompilerMixin") // XXX
+
         case nil:
             throw ProtocolError("Missing SassValue type.")
         }
