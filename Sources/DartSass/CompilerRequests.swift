@@ -302,7 +302,8 @@ final class CompilationRequest: ManagedCompilerRequest {
             var rsp = IBM.CanonicalizeResponse.with { $0.id = req.id }
             do {
                 let canonURL = try await importer.canonicalize(ruleURL: req.url,
-                                                               fromImport: req.fromImport)
+                                                               fromImport: req.fromImport,
+                                                               containingURL: URL(string: req.containingURL))
                 if let canonURL = canonURL {
                     rsp.url = canonURL.absoluteString
                     self.debug("Tx Canon-Rsp-Success ReqID=\(req.id)")
@@ -363,7 +364,9 @@ final class CompilationRequest: ManagedCompilerRequest {
         Task.detached {
             var rsp = IBM.FileImportResponse.with { $0.id = req.id }
             do {
-                if let urlPath = try await importer.resolve(ruleURL: req.url, fromImport: req.fromImport) {
+                if let urlPath = try await importer.resolve(ruleURL: req.url,
+                                                            fromImport: req.fromImport,
+                                                            containingURL: URL(string: req.containingURL)) {
                     rsp.fileURL = urlPath.absoluteString
                     self.debug("Tx FileImport-Rsp-Success ReqID=\(req.id)")
                 } else {

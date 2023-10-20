@@ -70,7 +70,7 @@ enum Sass_EmbeddedProtocol_OutputStyle: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_OutputStyle: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_OutputStyle] = [
+  static let allCases: [Sass_EmbeddedProtocol_OutputStyle] = [
     .expanded,
     .compressed,
   ]
@@ -120,7 +120,7 @@ enum Sass_EmbeddedProtocol_Syntax: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_Syntax: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_Syntax] = [
+  static let allCases: [Sass_EmbeddedProtocol_Syntax] = [
     .scss,
     .indented,
     .css,
@@ -175,7 +175,7 @@ enum Sass_EmbeddedProtocol_LogEventType: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_LogEventType: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_LogEventType] = [
+  static let allCases: [Sass_EmbeddedProtocol_LogEventType] = [
     .warning,
     .deprecationWarning,
     .debug,
@@ -228,7 +228,7 @@ enum Sass_EmbeddedProtocol_ProtocolErrorType: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_ProtocolErrorType: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_ProtocolErrorType] = [
+  static let allCases: [Sass_EmbeddedProtocol_ProtocolErrorType] = [
     .parse,
     .params,
     .internal,
@@ -288,7 +288,7 @@ enum Sass_EmbeddedProtocol_ListSeparator: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_ListSeparator: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_ListSeparator] = [
+  static let allCases: [Sass_EmbeddedProtocol_ListSeparator] = [
     .comma,
     .space,
     .slash,
@@ -340,7 +340,7 @@ enum Sass_EmbeddedProtocol_SingletonValue: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_SingletonValue: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_SingletonValue] = [
+  static let allCases: [Sass_EmbeddedProtocol_SingletonValue] = [
     .true,
     .false,
     .null,
@@ -396,7 +396,7 @@ enum Sass_EmbeddedProtocol_CalculationOperator: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_CalculationOperator: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_CalculationOperator] = [
+  static let allCases: [Sass_EmbeddedProtocol_CalculationOperator] = [
     .plus,
     .minus,
     .times,
