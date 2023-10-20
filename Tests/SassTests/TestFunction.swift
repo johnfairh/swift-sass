@@ -9,6 +9,7 @@ import XCTest
 @_spi(SassCompilerProvider) import Sass
 
 /// Compiler & dynamic functions, data-structure tests
+/// And mixins too because they are so silly
 class TestFunction: XCTestCase {
     func testCompilerFunction() throws {
         let f1 = SassCompilerFunction(id: 103)
@@ -41,5 +42,24 @@ class TestFunction: XCTestCase {
 
         let dict = [f1 as SassValue: true]
         XCTAssertTrue(dict[val]!)
+    }
+
+    func testMixin() throws {
+        let m1 = SassMixin(id: 204)
+        XCTAssertEqual(204, m1.id)
+        XCTAssertEqual("Mixin(204)", m1.description)
+
+        XCTAssertNoThrow(try m1.asMixin())
+        XCTAssertThrowsError(try SassConstants.true.asMixin())
+
+        let m2 = SassMixin(id: 205)
+        XCTAssertNotEqual(m1, m2)
+
+        let m3 = SassMixin(id: 204)
+        XCTAssertEqual(m1, m3)
+
+        let dict = [m1 as SassValue: true]
+        XCTAssertTrue(dict[m3]!)
+        XCTAssertNil(dict[m2])
     }
 }

@@ -129,8 +129,9 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer {
         case .loadPath(let url):
             precondition(url.isFileURL)
             path = url.path
-        case .importer:
+        case .importer(let i):
             importerID = id
+            nonCanonicalScheme = i.noncanonicalURLSchemes
         case .filesystemImporter:
             fileImporterID = id
         }

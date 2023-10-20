@@ -102,6 +102,9 @@ public protocol Importer: Sendable {
     ///   a stylesheet.
     /// - parameter fromImport: Whether this request comes from an `@import` rule.
     ///   See [import-only files](https://sass-lang.com/documentation/at-rules/import#import-only-files).
+    /// - parameter containingURL: The canonical URL of the source file that contains the load being resolved.
+    ///   Set when the source file has a URL and `ruleURL` is either relative or has a scheme returned by
+    ///   `noncanonicalURLSchemes`.
     /// - returns: The canonical absolute URL, or `nil` if the importer doesn't recognize the
     ///   import request to have the compiler try the next importer.
     /// - throws: Only when `ruleURL` cannot be canonicalized: it is definitely
@@ -110,7 +113,7 @@ public protocol Importer: Sendable {
     ///   anything then the importer should return `nil` instead.
     ///
     ///   Compilation will stop, quoting the description of the error thrown as the reason.
-    func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL?
+    func canonicalize(ruleURL: String, fromImport: Bool, containingURL: URL?) async throws -> URL?
 
     /// Load a stylesheet from a canonical URL
     ///
@@ -121,6 +124,22 @@ public protocol Importer: Sendable {
     /// - throws: If the stylesheet cannot be loaded.  Compilation will stop, quoting
     ///   the description of this error as the reason.
     func load(canonicalURL: URL) async throws -> ImporterResults?
+
+    /// The noncanonical URL schemes for this importer.
+    ///
+    /// If set, this promises that the results of `canonicalize(...)` will never use one of these
+    /// schemes.  Any absolute `ruleURLs` that use one of these schemes will have `containingURL`
+    /// set.
+    ///
+    /// By default there are no non-canonical URL schemes.
+    var noncanonicalURLSchemes: [String] { get }
+}
+
+public extension Importer {
+    /// An empty list.
+    var noncanonicalURLSchemes: [String] {
+        []
+    }
 }
 
 /// Methods required to implement a filesystem-redirecting stylesheet importer.
@@ -137,13 +156,15 @@ public protocol FilesystemImporter: Sendable {
     ///   You are free to ignore this flag: the Sass compiler understands it and will choose an import-only file when appropriate.
     ///   For example, if your custom directory contains `test.scss` and `test.import.scss` then you can return
     ///   `file://your/custom/path/test` and the compiler will pull in the right file.
+    /// - parameter containingURL: The canonical URL of the source file that contains the load being resolved.
+    ///   Can be `nil` if the source file does not have a canonical URL.
     /// - returns: A `file:` URL for the compiler to access,  or `nil` if the importer doesn't recognize the
     ///   import request: the compiler will try the next importer.
     /// - throws: Only when `ruleURL` cannot be resolved:  it is definitely
     ///   this importer's responsibility to do so, but it can't.
     ///
     ///   Compilation will stop, quoting the description of the error thrown as the reason.
-    func resolve(ruleURL: String, fromImport: Bool) async throws -> URL?
+    func resolve(ruleURL: String, fromImport: Bool, containingURL: URL?) async throws -> URL?
 }
 
 /// How the Sass compiler should resolve `@import`, `@use`, and `@forward` rules.

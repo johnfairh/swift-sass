@@ -11,6 +11,12 @@
 // MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+// This protocol buffer uses optional fields, which requires either [buf] or a
+// [protoc] version 3.15 or later.
+//
+// [buf]: https://buf.build/
+// [protoc]: https://github.com/protocolbuffers/protobuf#protobuf-compiler-installation
+
 import Foundation
 import SwiftProtobuf
 
@@ -64,7 +70,7 @@ enum Sass_EmbeddedProtocol_OutputStyle: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_OutputStyle: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_OutputStyle] = [
+  static let allCases: [Sass_EmbeddedProtocol_OutputStyle] = [
     .expanded,
     .compressed,
   ]
@@ -114,7 +120,7 @@ enum Sass_EmbeddedProtocol_Syntax: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_Syntax: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_Syntax] = [
+  static let allCases: [Sass_EmbeddedProtocol_Syntax] = [
     .scss,
     .indented,
     .css,
@@ -169,7 +175,7 @@ enum Sass_EmbeddedProtocol_LogEventType: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_LogEventType: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_LogEventType] = [
+  static let allCases: [Sass_EmbeddedProtocol_LogEventType] = [
     .warning,
     .deprecationWarning,
     .debug,
@@ -222,7 +228,7 @@ enum Sass_EmbeddedProtocol_ProtocolErrorType: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_ProtocolErrorType: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_ProtocolErrorType] = [
+  static let allCases: [Sass_EmbeddedProtocol_ProtocolErrorType] = [
     .parse,
     .params,
     .internal,
@@ -282,7 +288,7 @@ enum Sass_EmbeddedProtocol_ListSeparator: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_ListSeparator: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_ListSeparator] = [
+  static let allCases: [Sass_EmbeddedProtocol_ListSeparator] = [
     .comma,
     .space,
     .slash,
@@ -334,7 +340,7 @@ enum Sass_EmbeddedProtocol_SingletonValue: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_SingletonValue: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_SingletonValue] = [
+  static let allCases: [Sass_EmbeddedProtocol_SingletonValue] = [
     .true,
     .false,
     .null,
@@ -390,7 +396,7 @@ enum Sass_EmbeddedProtocol_CalculationOperator: SwiftProtobuf.Enum {
 
 extension Sass_EmbeddedProtocol_CalculationOperator: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Sass_EmbeddedProtocol_CalculationOperator] = [
+  static let allCases: [Sass_EmbeddedProtocol_CalculationOperator] = [
     .plus,
     .minus,
     .times,
@@ -713,6 +719,14 @@ struct Sass_EmbeddedProtocol_InboundMessage {
         set {importer = .fileImporterID(newValue)}
       }
 
+      /// The set of URL schemes that are considered *non-canonical* for this
+      /// importer. This must be empty unless `importer.importer_id` is set.
+      ///
+      /// If any element of this contains a character other than a lowercase
+      /// ASCII letter, an ASCII numeral, U+002B (`+`), U+002D (`-`), or U+002E
+      /// (`.`), the compiler must treat the compilation as failed.
+      var nonCanonicalScheme: [String] = []
+
       var unknownFields = SwiftProtobuf.UnknownStorage()
 
       /// The possible types of importer. Mandatory.
@@ -783,7 +797,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     /// The successfully canonicalized URL.
     ///
     /// If this is not an absolute URL (including scheme), the compiler must
-    /// treat that as an error thrown by the importer.
+    /// treat that as an error thrown by the importer. If this URL's scheme is
+    /// an `Importer.non_canonical_scheme` for the importer being invoked, the
+    /// compiler must treat that as an error thrown by the importer.
     var url: String {
       get {
         if case .url(let v)? = result {return v}
@@ -814,7 +830,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
       /// The successfully canonicalized URL.
       ///
       /// If this is not an absolute URL (including scheme), the compiler must
-      /// treat that as an error thrown by the importer.
+      /// treat that as an error thrown by the importer. If this URL's scheme is
+      /// an `Importer.non_canonical_scheme` for the importer being invoked, the
+      /// compiler must treat that as an error thrown by the importer.
       case url(String)
       /// An error message explaining why canonicalization failed.
       ///
@@ -1517,19 +1535,40 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     /// That is the result of the import.
     var url: String = String()
 
-    //// Whether this request comes from an `@import` rule.
-    ////
-    //// When evaluating `@import` rules, URLs should canonicalize to an
-    //// [import-only file] if one exists for the URL being canonicalized.
-    //// Otherwise, canonicalization should be identical for `@import` and `@use`
-    //// rules.
-    ////
-    //// [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
+    /// Whether this request comes from an `@import` rule.
+    ///
+    /// When evaluating `@import` rules, URLs should canonicalize to an
+    /// [import-only file] if one exists for the URL being canonicalized.
+    /// Otherwise, canonicalization should be identical for `@import` and `@use`
+    /// rules.
+    ///
+    /// [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
     var fromImport: Bool = false
+
+    /// The canonical URL of the [current source file] that contained the load
+    /// to be canonicalized.
+    ///
+    /// [current source file]: ../spec.md#current-source-file
+    ///
+    /// The compiler must set this if and only if `url` is relative or its
+    /// scheme is an `Importer.non_canonical_scheme` for the importer being
+    /// invoked, unless the current source file has no canonical URL.
+    ///
+    /// [non-canonical-proto]: #non_canonical_scheme
+    var containingURL: String {
+      get {return _containingURL ?? String()}
+      set {_containingURL = newValue}
+    }
+    /// Returns true if `containingURL` has been explicitly set.
+    var hasContainingURL: Bool {return self._containingURL != nil}
+    /// Clears the value of `containingURL`. Subsequent reads from it will return its default value.
+    mutating func clearContainingURL() {self._containingURL = nil}
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
     init() {}
+
+    fileprivate var _containingURL: String? = nil
   }
 
   /// A request for a custom importer to load the contents of a stylesheet.
@@ -1571,8 +1610,13 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
   ///   * Let `fromImport` be `true` if the importer is being run for an
   ///     `@import` and `false` otherwise.
   ///
+  ///   * Let `containingUrl` be the canonical URL of the [current source file]
+  ///     if it has one, or undefined otherwise.
+  ///
+  ///
   ///   * Let `response` be the result of sending a `FileImportRequest` with
-  ///     `string` as its `url` and `fromImport` as `from_import`.
+  ///     `string` as its `url`, `fromImport` as `from_import`, and
+  ///     `containingUrl` as `containing_url`.
   ///
   ///   * If `response.result` is null, return null.
   ///
@@ -1596,6 +1640,7 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
   ///
   /// * Return `text`, `syntax`, and `resolved`.
   ///
+  /// [current source file]: ../spec.md#current-source-file
   /// [resolving `url`]: https://github.com/sass/sass/tree/main/spec/modules.md#resolving-a-file-url
   struct FileImportRequest {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
@@ -1612,19 +1657,33 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     /// The (non-canonicalized) URL of the import.
     var url: String = String()
 
-    //// Whether this request comes from an `@import` rule.
-    ////
-    //// When evaluating `@import` rules, filesystem importers should load an
-    //// [import-only file] if one exists for the URL being canonicalized.
-    //// Otherwise, canonicalization should be identical for `@import` and `@use`
-    //// rules.
-    ////
-    //// [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
+    /// Whether this request comes from an `@import` rule.
+    ///
+    /// When evaluating `@import` rules, filesystem importers should load an
+    /// [import-only file] if one exists for the URL being canonicalized.
+    /// Otherwise, canonicalization should be identical for `@import` and `@use`
+    /// rules.
+    ///
+    /// [import-only file]: https://sass-lang.com/documentation/at-rules/import#import-only-files
     var fromImport: Bool = false
+
+    /// The canonical URL of the [current source file] that contained the load
+    /// being resolved. The compiler must set this unless the current source file
+    /// has no canonical URL.
+    var containingURL: String {
+      get {return _containingURL ?? String()}
+      set {_containingURL = newValue}
+    }
+    /// Returns true if `containingURL` has been explicitly set.
+    var hasContainingURL: Bool {return self._containingURL != nil}
+    /// Clears the value of `containingURL`. Subsequent reads from it will return its default value.
+    mutating func clearContainingURL() {self._containingURL = nil}
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
     init() {}
+
+    fileprivate var _containingURL: String? = nil
   }
 
   /// A request to invoke a custom Sass function and return its result.
@@ -1922,6 +1981,14 @@ struct Sass_EmbeddedProtocol_Value {
     set {value = .calculation(newValue)}
   }
 
+  var compilerMixin: Sass_EmbeddedProtocol_Value.CompilerMixin {
+    get {
+      if case .compilerMixin(let v)? = value {return v}
+      return Sass_EmbeddedProtocol_Value.CompilerMixin()
+    }
+    set {value = .compilerMixin(newValue)}
+  }
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   /// The value itself. Mandatory.
@@ -1941,6 +2008,7 @@ struct Sass_EmbeddedProtocol_Value {
     case argumentList(Sass_EmbeddedProtocol_Value.ArgumentList)
     case hwbColor(Sass_EmbeddedProtocol_Value.HwbColor)
     case calculation(Sass_EmbeddedProtocol_Value.Calculation)
+    case compilerMixin(Sass_EmbeddedProtocol_Value.CompilerMixin)
 
   #if !swift(>=4.1)
     static func ==(lhs: Sass_EmbeddedProtocol_Value.OneOf_Value, rhs: Sass_EmbeddedProtocol_Value.OneOf_Value) -> Bool {
@@ -1994,6 +2062,10 @@ struct Sass_EmbeddedProtocol_Value {
       }()
       case (.calculation, .calculation): return {
         guard case .calculation(let l) = lhs, case .calculation(let r) = rhs else { preconditionFailure() }
+        return l == r
+      }()
+      case (.compilerMixin, .compilerMixin): return {
+        guard case .compilerMixin(let l) = lhs, case .compilerMixin(let r) = rhs else { preconditionFailure() }
         return l == r
       }()
       default: return false
@@ -2251,6 +2323,25 @@ struct Sass_EmbeddedProtocol_Value {
     init() {}
   }
 
+  /// A first-class mixin defined in the compiler. New `CompilerMixin`s may
+  /// only be created by the compiler, but the host may pass `CompilerMixin`s
+  /// back to the compiler as long as their IDs match IDs of mixins received
+  /// by the host during that same compilation.
+  struct CompilerMixin {
+    // SwiftProtobuf.Message conformance is added in an extension below. See the
+    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+    // methods supported on all messages.
+
+    /// A unique ID for this mixin. The compiler is responsible for generating
+    /// this ID and ensuring it's unique across all mixins passed to the host
+    /// for this compilation. Mandatory.
+    var id: UInt32 = 0
+
+    var unknownFields = SwiftProtobuf.UnknownStorage()
+
+    init() {}
+  }
+
   /// A SassScript argument list value. This represents rest arguments passed to
   /// a function's `$arg...` parameter. Unlike a normal `List`, an argument list
   /// has an associated keywords map which tracks keyword arguments passed in
@@ -2356,6 +2447,11 @@ struct Sass_EmbeddedProtocol_Value {
 
       /// An unquoted string as created by interpolation for
       /// backwards-compatibility with older Sass syntax.
+      ///
+      /// The compiler must treat this as identical to a `string` option whose
+      /// value is `"(" + interpolation + ")"`.
+      ///
+      /// This field is deprecated and hosts should avoid using it.
       var interpolation: String {
         get {
           if case .interpolation(let v)? = _storage._value {return v}
@@ -2389,6 +2485,11 @@ struct Sass_EmbeddedProtocol_Value {
         case string(String)
         /// An unquoted string as created by interpolation for
         /// backwards-compatibility with older Sass syntax.
+        ///
+        /// The compiler must treat this as identical to a `string` option whose
+        /// value is `"(" + interpolation + ")"`.
+        ///
+        /// This field is deprecated and hosts should avoid using it.
         case interpolation(String)
         case operation(Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation)
         case calculation(Sass_EmbeddedProtocol_Value.Calculation)
@@ -2528,6 +2629,7 @@ extension Sass_EmbeddedProtocol_Value.Map: @unchecked Sendable {}
 extension Sass_EmbeddedProtocol_Value.Map.Entry: @unchecked Sendable {}
 extension Sass_EmbeddedProtocol_Value.CompilerFunction: @unchecked Sendable {}
 extension Sass_EmbeddedProtocol_Value.HostFunction: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_Value.CompilerMixin: @unchecked Sendable {}
 extension Sass_EmbeddedProtocol_Value.ArgumentList: @unchecked Sendable {}
 extension Sass_EmbeddedProtocol_Value.Calculation: @unchecked Sendable {}
 extension Sass_EmbeddedProtocol_Value.Calculation.CalculationValue: @unchecked Sendable {}
@@ -2955,6 +3057,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer: SwiftPro
     1: .same(proto: "path"),
     2: .standard(proto: "importer_id"),
     3: .standard(proto: "file_importer_id"),
+    4: .standard(proto: "non_canonical_scheme"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -2987,6 +3090,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer: SwiftPro
           self.importer = .fileImporterID(v)
         }
       }()
+      case 4: try { try decoder.decodeRepeatedStringField(value: &self.nonCanonicalScheme) }()
       default: break
       }
     }
@@ -3012,11 +3116,15 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer: SwiftPro
     }()
     case nil: break
     }
+    if !self.nonCanonicalScheme.isEmpty {
+      try visitor.visitRepeatedStringField(value: self.nonCanonicalScheme, fieldNumber: 4)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer, rhs: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer) -> Bool {
     if lhs.importer != rhs.importer {return false}
+    if lhs.nonCanonicalScheme != rhs.nonCanonicalScheme {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -3819,6 +3927,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtob
     3: .standard(proto: "importer_id"),
     4: .same(proto: "url"),
     5: .standard(proto: "from_import"),
+    6: .standard(proto: "containing_url"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3831,12 +3940,17 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtob
       case 3: try { try decoder.decodeSingularUInt32Field(value: &self.importerID) }()
       case 4: try { try decoder.decodeSingularStringField(value: &self.url) }()
       case 5: try { try decoder.decodeSingularBoolField(value: &self.fromImport) }()
+      case 6: try { try decoder.decodeSingularStringField(value: &self._containingURL) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if self.id != 0 {
       try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
     }
@@ -3849,6 +3963,9 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtob
     if self.fromImport != false {
       try visitor.visitSingularBoolField(value: self.fromImport, fieldNumber: 5)
     }
+    try { if let v = self._containingURL {
+      try visitor.visitSingularStringField(value: v, fieldNumber: 6)
+    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -3857,6 +3974,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtob
     if lhs.importerID != rhs.importerID {return false}
     if lhs.url != rhs.url {return false}
     if lhs.fromImport != rhs.fromImport {return false}
+    if lhs._containingURL != rhs._containingURL {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -3913,6 +4031,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf
     3: .standard(proto: "importer_id"),
     4: .same(proto: "url"),
     5: .standard(proto: "from_import"),
+    6: .standard(proto: "containing_url"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3925,12 +4044,17 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf
       case 3: try { try decoder.decodeSingularUInt32Field(value: &self.importerID) }()
       case 4: try { try decoder.decodeSingularStringField(value: &self.url) }()
       case 5: try { try decoder.decodeSingularBoolField(value: &self.fromImport) }()
+      case 6: try { try decoder.decodeSingularStringField(value: &self._containingURL) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if self.id != 0 {
       try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
     }
@@ -3943,6 +4067,9 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf
     if self.fromImport != false {
       try visitor.visitSingularBoolField(value: self.fromImport, fieldNumber: 5)
     }
+    try { if let v = self._containingURL {
+      try visitor.visitSingularStringField(value: v, fieldNumber: 6)
+    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -3951,6 +4078,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf
     if lhs.importerID != rhs.importerID {return false}
     if lhs.url != rhs.url {return false}
     if lhs.fromImport != rhs.fromImport {return false}
+    if lhs._containingURL != rhs._containingURL {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -4191,6 +4319,7 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
     10: .standard(proto: "argument_list"),
     11: .standard(proto: "hwb_color"),
     12: .same(proto: "calculation"),
+    13: .standard(proto: "compiler_mixin"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -4350,6 +4479,19 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
           self.value = .calculation(v)
         }
       }()
+      case 13: try {
+        var v: Sass_EmbeddedProtocol_Value.CompilerMixin?
+        var hadOneofValue = false
+        if let current = self.value {
+          hadOneofValue = true
+          if case .compilerMixin(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .compilerMixin(v)
+        }
+      }()
       default: break
       }
     }
@@ -4408,6 +4550,10 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
     case .calculation?: try {
       guard case .calculation(let v)? = self.value else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 12)
+    }()
+    case .compilerMixin?: try {
+      guard case .compilerMixin(let v)? = self.value else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 13)
     }()
     case nil: break
     }
@@ -4836,6 +4982,38 @@ extension Sass_EmbeddedProtocol_Value.HostFunction: SwiftProtobuf.Message, Swift
   static func ==(lhs: Sass_EmbeddedProtocol_Value.HostFunction, rhs: Sass_EmbeddedProtocol_Value.HostFunction) -> Bool {
     if lhs.id != rhs.id {return false}
     if lhs.signature != rhs.signature {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Sass_EmbeddedProtocol_Value.CompilerMixin: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".CompilerMixin"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "id"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.id != 0 {
+      try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sass_EmbeddedProtocol_Value.CompilerMixin, rhs: Sass_EmbeddedProtocol_Value.CompilerMixin) -> Bool {
+    if lhs.id != rhs.id {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

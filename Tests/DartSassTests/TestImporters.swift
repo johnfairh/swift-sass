@@ -123,7 +123,7 @@ class TestImporters: DartSassTestCase {
         var claimRequest: Bool = true
         var unclaimedRequestCount = 0
 
-        func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL? {
+        func canonicalize(ruleURL: String, fromImport: Bool, containingURL: URL?) async throws -> URL? {
             if let failNextCanon = failNextCanon {
                 failedCanonCount += 1
                 throw Error(message: failNextCanon)
@@ -253,7 +253,7 @@ class TestImporters: DartSassTestCase {
                 XCTAssertTrue(wasInvoked)
             }
 
-            func canonicalize(ruleURL: String, fromImport: Bool) async throws -> URL? {
+            func canonicalize(ruleURL: String, fromImport: Bool, containingURL: URL?) async throws -> URL? {
                 XCTAssertFalse(wasInvoked)
                 wasInvoked = true
                 XCTAssertEqual(expectFromImport, fromImport)
@@ -299,6 +299,47 @@ class TestImporters: DartSassTestCase {
         XCTAssertEqual(expected, s(map.sources.map { URL(string: $0.url)! }))
     }
 
+    // noncanonical + containingURL for regular importers
+    func testNonCanonical() async throws {
+        final class NonCanonImporter: Importer, @unchecked Sendable {
+            var expectContainingURL: URL? = nil
+            var wasInvoked: Bool = false
+
+            func expect(_ containingURL: URL?) {
+                wasInvoked = false
+                expectContainingURL = containingURL
+            }
+
+            func canonicalize(ruleURL: String, fromImport: Bool, containingURL: URL?) async throws -> URL? {
+                XCTAssertFalse(wasInvoked)
+                wasInvoked = true
+                XCTAssertEqual(expectContainingURL, containingURL)
+                return URL(string: "test://\(ruleURL)")
+            }
+
+            func load(canonicalURL: URL) async throws -> ImporterResults? {
+                ImporterResults("", syntax: .css, sourceMapURL: canonicalURL)
+            }
+
+            let noncanonicalURLSchemes: [String] = ["noncanon"]
+        }
+
+        let importer = NonCanonImporter()
+        let compiler = try newCompiler(importers: [.importer(importer)])
+
+        func doTest(rule: String, expectedContainingURL: Bool) async throws {
+            let rootURL = URL(string: "fake://url")!
+
+            importer.expect(expectedContainingURL ? rootURL : nil)
+            _ = try await compiler.compile(string: "@import '\(rule)';", url: rootURL)
+            XCTAssertTrue(importer.wasInvoked)
+        }
+
+        try await doTest(rule: "fred", expectedContainingURL: true)
+        try await doTest(rule: "noncanon://fred", expectedContainingURL: true)
+        try await doTest(rule: "canon://fred", expectedContainingURL: false)
+    }
+
     // MARK: Custom filesystem importers
 
     class FilesysImporter: FilesystemImporter, @unchecked Sendable {
@@ -307,6 +348,7 @@ class TestImporters: DartSassTestCase {
         var nextUnknown: Bool
         var nextFail: Bool
         var expectImport: Bool
+        var expectContainingURL: URL?
 
         struct Error: Swift.Error, CustomStringConvertible {
             let description: String
@@ -320,9 +362,10 @@ class TestImporters: DartSassTestCase {
             expectImport = false
         }
 
-        func resolve(ruleURL: String, fromImport: Bool) async throws -> URL? {
+        func resolve(ruleURL: String, fromImport: Bool, containingURL: URL?) async throws -> URL? {
             resolveCount += 1
             XCTAssertEqual(expectImport, fromImport, ruleURL)
+            XCTAssertEqual(expectContainingURL, containingURL, ruleURL)
             guard !nextUnknown else {
                 nextUnknown = false
                 return nil
@@ -405,5 +448,30 @@ class TestImporters: DartSassTestCase {
         XCTAssertEqual(1, imp.resolveCount)
         XCTAssertEqual(importFileURL, results.loadedURLs[0])
         XCTAssertEqual("a{b:false}", results.css)
+    }
+
+    func testFilesystemContainingURL() async throws {
+        let dir = try FileManager.default.createTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let imp = FilesysImporter(dir)
+
+        let fileURL = dir.appendingPathComponent("test.scss")
+
+        let baseDir = try FileManager.default.createTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: baseDir) }
+        let baseURL = baseDir.appendingPathComponent("main.scss")
+
+        try "a { b: true }".write(to: fileURL)
+        try "@import 'test';".write(to: baseURL)
+
+        let compiler = try newCompiler(importers: [.filesystemImporter(imp)])
+
+        imp.expectImport = true
+        imp.expectContainingURL = baseURL
+        let results = try await compiler.compile(fileURL: baseURL, outputStyle: .compressed)
+        XCTAssertEqual(1, imp.resolveCount)
+        XCTAssertEqual(baseURL, results.loadedURLs[0])
+        XCTAssertEqual(fileURL, results.loadedURLs[1])
+        XCTAssertEqual("a{b:true}", results.css)
     }
 }

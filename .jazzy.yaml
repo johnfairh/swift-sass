@@ -78,6 +78,7 @@ custom_groups:
           - SassArgumentList
           - SassMap
           - SassCalculation
+          - SassMixin
       - name: Function object types
         children:
           - SassCompilerFunction
@@ -100,8 +101,8 @@ custom_defs:
     topics:
       - name: Initializers
         children:
-          - init(eventLoopGroupProvider:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)
-          - init(eventLoopGroupProvider:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)
+          - init(eventLoopGroup:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)
+          - init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)
       - name: Compilation
         children:
           - compile(string:syntax:url:importer:outputStyle:sourceMapStyle:includeCharset:importers:functions:)

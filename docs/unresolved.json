@@ -104,6 +104,10 @@
     "name" : "clamp()"
   },
   {
+    "context" : "noncanonicalURLSchemes",
+    "name" : "containingURL"
+  },
+  {
     "context" : "SassString",
     "name" : "count"
   },
@@ -120,15 +124,15 @@
     "name" : "deinit"
   },
   {
-    "context" : "init(eventLoopGroupProvider:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
+    "context" : "init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
     "name" : "embeddedCompilerFileURL"
   },
   {
-    "context" : "resolve(ruleURL:fromImport:)",
+    "context" : "resolve(ruleURL:fromImport:containingURL:)",
     "name" : "file:\/\/your\/custom\/path\/test"
   },
   {
-    "context" : "resolve(ruleURL:fromImport:)",
+    "context" : "resolve(ruleURL:fromImport:containingURL:)",
     "name" : "file:"
   },
   {
@@ -136,11 +140,11 @@
     "name" : "fileURL"
   },
   {
-    "context" : "canonicalize(ruleURL:fromImport:)",
+    "context" : "canonicalize(ruleURL:fromImport:containingURL:)",
     "name" : "foo.css"
   },
   {
-    "context" : "canonicalize(ruleURL:fromImport:)",
+    "context" : "canonicalize(ruleURL:fromImport:containingURL:)",
     "name" : "foo.sass"
   },
   {
@@ -220,15 +224,19 @@
     "name" : "range"
   },
   {
-    "context" : "resolve(ruleURL:fromImport:)",
+    "context" : "resolve(ruleURL:fromImport:containingURL:)",
     "name" : "ruleURL"
+  },
+  {
+    "context" : "noncanonicalURLSchemes",
+    "name" : "ruleURLs"
   },
   {
     "context" : "valueAt(sassIndex:)",
     "name" : "sassIndex"
   },
   {
-    "context" : "init(eventLoopGroupProvider:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
+    "context" : "init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
     "name" : "sass"
   },
   {
@@ -252,11 +260,11 @@
     "name" : "subscript"
   },
   {
-    "context" : "resolve(ruleURL:fromImport:)",
+    "context" : "resolve(ruleURL:fromImport:containingURL:)",
     "name" : "test.import.scss"
   },
   {
-    "context" : "resolve(ruleURL:fromImport:)",
+    "context" : "resolve(ruleURL:fromImport:containingURL:)",
     "name" : "test.scss"
   },
   {

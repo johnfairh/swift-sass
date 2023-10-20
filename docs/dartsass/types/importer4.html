@@ -373,7 +373,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/sassvalue9.html?swift">SassValue</a>
+  <a class="j2-nav-item" href="../../sass/types/sassvalue10.html?swift">SassValue</a>
 
 
 
@@ -492,6 +492,15 @@
   </li>
   
 </ul>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../sass/types/sassmixin.html?swift">SassMixin</a>
 
 
 
@@ -636,7 +645,7 @@ don’t need this to include the contents of a filesystem directory: see instead
 <a href="../../dartsass/types/importresolver1.html?swift#loadpath_"><code>ImportResolver.loadPath(_:)</code></a>.</p>
 <p>You could use this to present network resources or dynamically constructed content.</p>
 <p>An import has two steps: canonicalization and loading.</p>
-<p><a href="../../dartsass/types/importer4.html?swift#canonicalizeruleurlfromimport"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
+<p><a href="../../dartsass/types/importer4.html?swift#canonicalizeruleurlfromimportcontainingurl"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
 text the user has written in their rule.  The routine interprets that and returns a <em>canonical</em>
 URL that is absolute with a scheme.</p>
 <p>The compiler most likely implements a cache based on canonical URLs.  If the compiler
@@ -689,7 +698,7 @@ throw an error indicating that the import is ambiguous.</p>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L94-L124">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L94-L136">Show on GitHub</a>
           </nav>
           
           
@@ -707,16 +716,16 @@ throw an error indicating that the import is ambiguous.</p>
   
   
   
-    <section id="canonicalizeruleurlfromimport" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20canonicalize(ruleURL%3A%20String,%20fromImport%3A%20Bool)%20async%20-%3E%20URL%3F" class="dashAnchor j2-item-dash-anchor" data-item-id="canonicalizeruleurlfromimport"></a>
-    <h4 class="visually-hidden">func canonicalize(ruleURL: String, fromImport: Bool) async -&gt; URL?</h4>
+    <section id="canonicalizeruleurlfromimportcontainingurl" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20canonicalize(ruleURL%3A%20String,%20fromImport%3A%20Bool,%20containingURL%3A%20URL%3F)%20async%20-%3E%20URL%3F" class="dashAnchor j2-item-dash-anchor" data-item-id="canonicalizeruleurlfromimportcontainingurl"></a>
+    <h4 class="visually-hidden">func canonicalize(ruleURL: String, fromImport: Bool, containingURL: URL?) async -&gt; URL?</h4>
     
     
-    <a class="j2-item-title" href="#_canonicalizeruleurlfromimport" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_canonicalizeruleurlfromimport"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>canonicalize<span class="j2-item-secondary">(</span>ruleURL<span class="j2-item-secondary">: String, </span>fromImport<span class="j2-item-secondary">: Bool) async -&gt; URL?</span></span>
+    <a class="j2-item-title" href="#_canonicalizeruleurlfromimportcontainingurl" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_canonicalizeruleurlfromimportcontainingurl"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>canonicalize<span class="j2-item-secondary">(</span>ruleURL<span class="j2-item-secondary">: String, </span>fromImport<span class="j2-item-secondary">: Bool, </span>containingURL<span class="j2-item-secondary">: URL?) async -&gt; URL?</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_canonicalizeruleurlfromimport">
+    <div class="collapse  j2-item-popopen-wrapper" id="_canonicalizeruleurlfromimportcontainingurl">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -742,7 +751,8 @@ the routine previously returned) then it must be returned unchanged.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">func canonicalize(ruleURL: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>, fromImport: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a>) async throws -&gt; <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?</code></pre>
+    <pre><code class="language-swift">func canonicalize(ruleURL: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>, fromImport: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a>, containingURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?)
+    async throws -&gt; <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?</code></pre>
   </div>
 
 
@@ -763,6 +773,13 @@ a stylesheet.</p></td>
         <td><code>fromImport</code></td>
         <td><p>Whether this request comes from an <code>@import</code> rule.
 See <a href="https://sass-lang.com/documentation/at-rules/import#import-only-files">import-only files</a>.</p></td>
+      </tr>
+      
+      <tr>
+        <td><code>containingURL</code></td>
+        <td><p>The canonical URL of the source file that contains the load being resolved.
+Set when the source file has a URL and <code>ruleURL</code> is either relative or has a scheme returned by
+<a href="../../dartsass/types/importer4.html?swift#noncanonicalurlschemes"><code>noncanonicalURLSchemes</code></a>.</p></td>
       </tr>
       
     </tbody>
@@ -787,7 +804,7 @@ import request to have the compiler try the next importer.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L113">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L116">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -846,7 +863,7 @@ import request to have the compiler try the next importer.</p>
       <tr>
         <td><code>canonicalURL</code></td>
         <td><p>A URL previously returned by
-<a href="../../dartsass/types/importer4.html?swift#canonicalizeruleurlfromimport"><code>canonicalize(...)</code></a> during this compilation.</p></td>
+<a href="../../dartsass/types/importer4.html?swift#canonicalizeruleurlfromimportcontainingurl"><code>canonicalize(...)</code></a> during this compilation.</p></td>
       </tr>
       
     </tbody>
@@ -868,7 +885,78 @@ resolve to a stylesheet.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L123">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L126">Show on GitHub</a></span>
+            
+          </nav>
+        </div>
+      </div>
+    </div>
+    
+  </section>
+  
+  
+  
+  
+    <section id="noncanonicalurlschemes" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20noncanonicalURLSchemes%3A%20%5BString%5D" class="dashAnchor j2-item-dash-anchor" data-item-id="noncanonicalurlschemes"></a>
+    <h4 class="visually-hidden">var noncanonicalURLSchemes: [String]</h4>
+    
+    
+    <a class="j2-item-title" href="#_noncanonicalurlschemes" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_noncanonicalurlschemes"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">var </span>noncanonicalURLSchemes<span class="j2-item-secondary">: [String]</span></span>
+        
+      </code></a>
+    <div class="collapse  j2-item-popopen-wrapper" id="_noncanonicalurlschemes">
+      <div class="j2-item-popopen">
+        <div class="j2-item-popopen-pointer" role="none presentation"></div>
+        <div class="j2-item-popopen-body">
+          
+            <div class="clearfix">
+              
+  
+
+
+              
+
+
+<div class="j2-callout j2-callout-note">
+  <div class="j2-callout-title" role=heading aria-level="6">Note</div>
+  <p>Has a default implementation.</p>
+</div>
+
+<p>The noncanonical URL schemes for this importer.</p>
+<p>If set, this promises that the results of <a href="../../dartsass/types/importer4.html?swift#canonicalizeruleurlfromimportcontainingurl"><code>canonicalize(...)</code></a> will never use one of these
+schemes.  Any absolute <code>ruleURLs</code> that use one of these schemes will have <code>containingURL</code>
+set.</p>
+<p>By default there are no non-canonical URL schemes.</p>
+
+  <h5>Default Implementation</h5>
+  <p>An empty list.</p>
+
+
+
+            </div>
+            <h5>Declaration</h5>
+            <div class="j2-item-declaration">
+              
+  <div class="j2-swift">
+    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
+    <pre><code class="language-swift">var noncanonicalURLSchemes: [<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>] { get }</code></pre>
+  </div>
+
+
+
+            </div>
+            
+
+
+
+          
+
+          <nav class="j2-item-nav" aria-label="item details">
+            
+            
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L135">Show on GitHub</a></span>
             
           </nav>
         </div>
