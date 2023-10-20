@@ -72,7 +72,7 @@ public actor Compiler {
 
     /// Change the compiler state and resume anyone waiting.
     private func setState(_ state: State, fn: String = #function) {
-//        debug("\(fn): \(self.state) -> \(state)")
+        debug("\(fn): \(self.state) -> \(state)")
         self.state = state
         Task.detached { await self.stateWaitingQueue.kick() }
     }

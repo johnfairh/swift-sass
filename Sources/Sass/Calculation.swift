@@ -5,8 +5,6 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import Foundation
-
 /// A Sass calculation value.
 ///
 /// These correspond to Sass `calc()`, `min()`, `max()`, or `clamp()` expressions.

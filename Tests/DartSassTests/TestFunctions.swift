@@ -451,7 +451,7 @@ class TestFunctions: DartSassTestCase {
         XCTAssertThrowsError(try S(weird))
     }
 
-    func testProtocolErrors() throws {
+    func testCalcProtocolErrors() throws {
         let unknownCalc: Sass_EmbeddedProtocol_Value.Calculation = .with {
             $0.name = "fred"
             $0.arguments = []
@@ -468,5 +468,42 @@ class TestFunctions: DartSassTestCase {
             ]
         }
         XCTAssertThrowsError(try SassCalculation(badOpCalc))
+    }
+
+    /// Mixin - conversion
+    func testMixins() throws {
+        let mixin = SassMixin(id: 894)
+
+        let protoMixin = Sass_EmbeddedProtocol_Value(mixin)
+        let backMixin = try protoMixin.asSassValue()
+
+        XCTAssertEqual(mixin, backMixin)
+    }
+
+    /// Mixin - does it actually work...
+    func testMixinFunction() async throws {
+        let functions: SassFunctionMap = [
+            "returnMixin($mixin)" : { args in
+                XCTAssertEqual(1, args.count)
+                let al = try args[0].asMixin()
+                return al
+            }
+        ]
+
+        let scss = """
+        @use "sass:meta";
+
+        @mixin example {
+          b: 1;
+        }
+
+        a {
+          @include meta.apply(returnMixin(meta.get-mixin("example")))
+        }
+        """
+
+        let compiler = try newCompiler(functions: functions)
+        let results = try await compiler.compile(string: scss, outputStyle: .compressed)
+        XCTAssertEqual("a{b:1}", results.css)
     }
 }

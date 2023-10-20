@@ -175,8 +175,8 @@ extension Sass_EmbeddedProtocol_Value {
             // not supposed to receive these in arguments
             throw ProtocolError("Don't know how to deserialize hostfunction \(h)")
 
-        case .compilerMixin:
-            preconditionFailure("Unsupported CompilerMixin") // XXX
+        case .compilerMixin(let c):
+            return SassMixin(id: Int(c.id))
 
         case nil:
             throw ProtocolError("Missing SassValue type.")
@@ -343,6 +343,12 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
 
     func visit(calculation: SassCalculation) throws -> OneOf_Value {
         .calculation(.init(calculation))
+    }
+
+    func visit(mixin: SassMixin) throws -> OneOf_Value {
+        .compilerMixin(.with {
+            $0.id = UInt32(mixin.id)
+        })
     }
 
     init(_ val: SassValue) {

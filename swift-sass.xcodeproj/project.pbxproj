@@ -19,6 +19,7 @@
 		02440A1F2576B24B008F0862 /* ValueConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1E2576B24B008F0862 /* ValueConvertible.swift */; };
 		02440A2A257957B5008F0862 /* NIOFoundationCompat in Frameworks */ = {isa = PBXBuildFile; productRef = 02440A29257957B5008F0862 /* NIOFoundationCompat */; };
 		02512B5E25A8755B00CB8833 /* DartSassEmbedded.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02512B5D25A8755B00CB8833 /* DartSassEmbedded.swift */; };
+		025A4A152AE28F8B002E84EB /* Mixin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025A4A142AE28F8B002E84EB /* Mixin.swift */; };
 		025C624F255D2C9300AEA420 /* BinaryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C624E255D2C9300AEA420 /* BinaryProtocol.swift */; };
 		025C6252255D54C000AEA420 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C6251255D54C000AEA420 /* Errors.swift */; };
 		026E4D39260E103E00E916BF /* Importers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 026E4D38260E103E00E916BF /* Importers.swift */; };
@@ -136,6 +137,7 @@
 		02440A1E2576B24B008F0862 /* ValueConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueConvertible.swift; sourceTree = "<group>"; };
 		02512B5925A7418B00CB8833 /* DartSassEmbeddedLinux.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DartSassEmbeddedLinux.swift; sourceTree = "<group>"; };
 		02512B5D25A8755B00CB8833 /* DartSassEmbedded.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DartSassEmbedded.swift; sourceTree = "<group>"; };
+		025A4A142AE28F8B002E84EB /* Mixin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mixin.swift; sourceTree = "<group>"; };
 		025C624E255D2C9300AEA420 /* BinaryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryProtocol.swift; sourceTree = "<group>"; };
 		025C6251255D54C000AEA420 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		026E4D38260E103E00E916BF /* Importers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Importers.swift; sourceTree = "<group>"; };
@@ -272,6 +274,7 @@
 				02440A1B2576679E008F0862 /* DynamicFunction.swift */,
 				02D1B24F26C7D377006B2CB1 /* ArgumentList.swift */,
 				02CEF36E270F569A007DBDB7 /* Calculation.swift */,
+				025A4A142AE28F8B002E84EB /* Mixin.swift */,
 			);
 			name = Sass;
 			path = Sources/Sass;
@@ -585,6 +588,7 @@
 			files = (
 				0289BB40256BDE460004544A /* String.swift in Sources */,
 				0289BB2F25666C940004544A /* CompilerTypes.swift in Sources */,
+				025A4A152AE28F8B002E84EB /* Mixin.swift in Sources */,
 				02440A1C2576679E008F0862 /* DynamicFunction.swift in Sources */,
 				0285E8532575109200956F18 /* Color.swift in Sources */,
 				0285E8492570363E00956F18 /* Number.swift in Sources */,

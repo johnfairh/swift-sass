@@ -78,6 +78,7 @@ custom_groups:
           - SassArgumentList
           - SassMap
           - SassCalculation
+          - SassMixin
       - name: Function object types
         children:
           - SassCompilerFunction
