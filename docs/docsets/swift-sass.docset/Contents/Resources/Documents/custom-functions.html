@@ -363,7 +363,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="sass/types/sassvalue9.html?swift">SassValue</a>
+  <a class="j2-nav-item" href="sass/types/sassvalue10.html?swift">SassValue</a>
 
 
 
@@ -490,6 +490,15 @@
   <li>
     
 
+  <a class="j2-nav-item" href="sass/types/sassmixin.html?swift">SassMixin</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
   <a class="j2-nav-item" href="sass/types/sasscompilerfunction.html?swift">SassCompilerFunction</a>
 
 
@@ -604,7 +613,7 @@
           <p>Define Swift implementations of
 <a href="https://sass-lang.com/documentation/at-rules/function">Sass <code>@function</code>s</a> by
 declaring a <a href="custom-functions.html?swift#sassfunctionmap"><code>SassFunctionMap</code></a> and passing it to the compiler.</p>
-<p>Use the <a href="sass/types/sassvalue9.html?swift"><code>SassValue</code></a> family of types within the function to exchange data with
+<p>Use the <a href="sass/types/sassvalue10.html?swift"><code>SassValue</code></a> family of types within the function to exchange data with
 the Sass compiler.</p>
 <p>A set of functions can be scoped either to an individual compilation or to all
 a compiler’s compilations.</p>
@@ -647,16 +656,16 @@ a compiler’s compilations.</p>
 <p>The Swift type of a Sass function.</p>
 <p>Use this to define Sass functions written in Swift that are available to stylesheets as they
 are compiled.</p>
-<p><a href="sass/types/sassvalue9.html?swift"><code>SassValue</code></a> is used to transmit function parameters and return values: any parameters with
+<p><a href="sass/types/sassvalue10.html?swift"><code>SassValue</code></a> is used to transmit function parameters and return values: any parameters with
 default values are instantiated before the function is called.  If your function signature includes an
 argument list such as <code>funcName($arg1, $others...)</code> then the args list is passed as a
 list value, so in the example the function receives two arguments: one for <code>$arg1</code> and one for
 whatever else is passed.</p>
 <p>Usually the first job of a function is to downcast each parameter to the expected type using
-throwing methods such as <a href="sass/types/sassvalue9.html?swift#asstring"><code>SassValue.asString()</code></a>.</p>
+throwing methods such as <a href="sass/types/sassvalue10.html?swift#asstring"><code>SassValue.asString()</code></a>.</p>
 <p>Any error thrown from the function ends up cancelling the compilation job and returning an
 error message back to the user that contains the text of the error thrown.</p>
-<p>All Sass functions return a value – there is no <code>void</code> return type.  Create new <a href="sass/types/sassvalue9.html?swift"><code>SassValue</code></a>
+<p>All Sass functions return a value – there is no <code>void</code> return type.  Create new <a href="sass/types/sassvalue10.html?swift"><code>SassValue</code></a>
 objects using a subclass initializer such as <a href="sass/types/sassstring.html?swift#init_isquoted"><code>SassString.init(_:isQuoted:)</code></a>.</p>
 
 
@@ -667,7 +676,7 @@ objects using a subclass initializer such as <a href="sass/types/sassstring.html
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public typealias SassFunction = ([<a href="sass/types/sassvalue9.html?swift">SassValue</a>]) async throws -&gt; <a href="sass/types/sassvalue9.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public typealias SassFunction = ([<a href="sass/types/sassvalue10.html?swift">SassValue</a>]) async throws -&gt; <a href="sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
   </div>
 
 

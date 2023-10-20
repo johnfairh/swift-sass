@@ -373,7 +373,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/sassvalue9.html?swift">SassValue</a>
+  <a class="j2-nav-item" href="../../sass/types/sassvalue10.html?swift">SassValue</a>
 
 
 
@@ -492,6 +492,15 @@
   </li>
   
 </ul>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../sass/types/sassmixin.html?swift">SassMixin</a>
 
 
 
@@ -643,7 +652,7 @@ with index directories, file extensions, and actually loading the stylesheet.</p
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L130-L147">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L149-L168">Show on GitHub</a>
           </nav>
           
           
@@ -661,16 +670,16 @@ with index directories, file extensions, and actually loading the stylesheet.</p
   
   
   
-    <section id="resolveruleurlfromimport" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20resolve(ruleURL%3A%20String,%20fromImport%3A%20Bool)%20async%20-%3E%20URL%3F" class="dashAnchor j2-item-dash-anchor" data-item-id="resolveruleurlfromimport"></a>
-    <h4 class="visually-hidden">func resolve(ruleURL: String, fromImport: Bool) async -&gt; URL?</h4>
+    <section id="resolveruleurlfromimportcontainingurl" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20resolve(ruleURL%3A%20String,%20fromImport%3A%20Bool,%20containingURL%3A%20URL%3F)%20async%20-%3E%20URL%3F" class="dashAnchor j2-item-dash-anchor" data-item-id="resolveruleurlfromimportcontainingurl"></a>
+    <h4 class="visually-hidden">func resolve(ruleURL: String, fromImport: Bool, containingURL: URL?) async -&gt; URL?</h4>
     
     
-    <a class="j2-item-title" href="#_resolveruleurlfromimport" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_resolveruleurlfromimport"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>resolve<span class="j2-item-secondary">(</span>ruleURL<span class="j2-item-secondary">: String, </span>fromImport<span class="j2-item-secondary">: Bool) async -&gt; URL?</span></span>
+    <a class="j2-item-title" href="#_resolveruleurlfromimportcontainingurl" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_resolveruleurlfromimportcontainingurl"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>resolve<span class="j2-item-secondary">(</span>ruleURL<span class="j2-item-secondary">: String, </span>fromImport<span class="j2-item-secondary">: Bool, </span>containingURL<span class="j2-item-secondary">: URL?) async -&gt; URL?</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_resolveruleurlfromimport">
+    <div class="collapse  j2-item-popopen-wrapper" id="_resolveruleurlfromimportcontainingurl">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -694,7 +703,8 @@ with index directories, file extensions, and actually loading the stylesheet.</p
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">func resolve(ruleURL: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>, fromImport: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a>) async throws -&gt; <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?</code></pre>
+    <pre><code class="language-swift">func resolve(ruleURL: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>, fromImport: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a>, containingURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?)
+    async throws -&gt; <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?</code></pre>
   </div>
 
 
@@ -720,6 +730,12 @@ For example, if your custom directory contains <code>test.scss</code> and <code>
 <code>file://your/custom/path/test</code> and the compiler will pull in the right file.</p></td>
       </tr>
       
+      <tr>
+        <td><code>containingURL</code></td>
+        <td><p>The canonical URL of the source file that contains the load being resolved.
+Can be <code>nil</code> if the source file does not have a canonical URL.</p></td>
+      </tr>
+      
     </tbody>
   </table>
 
@@ -740,7 +756,7 @@ import request: the compiler will try the next importer.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L146">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L167">Show on GitHub</a></span>
             
           </nav>
         </div>

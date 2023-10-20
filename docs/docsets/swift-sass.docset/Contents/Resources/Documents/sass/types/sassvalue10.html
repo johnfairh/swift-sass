@@ -10,7 +10,7 @@
    <title>SassValue - Swift Sass v2.0.0-pre2</title>
     
   </head>
-  <body class="j2-swift " data-root-path="./../../" data-doc-path="sass/types/sassvalue9.html" data-assets-path="../../">
+  <body class="j2-swift " data-root-path="./../../" data-doc-path="sass/types/sassvalue10.html" data-assets-path="../../">
 
   <!-- messages for search -->
   <div hidden>
@@ -495,6 +495,15 @@
   <li>
     
 
+  <a class="j2-nav-item" href="../../sass/types/sassmixin.html?swift">SassMixin</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
   <a class="j2-nav-item" href="../../sass/types/sasscompilerfunction.html?swift">SassCompilerFunction</a>
 
 
@@ -644,7 +653,7 @@ only mutability is to do with caching of derived properties.</p>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Value.swift#L37-L144">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Value.swift#L37-L146">Show on GitHub</a>
           </nav>
           
           
@@ -1012,7 +1021,7 @@ to downcast to <a href="../../sass/types/sassbool.html?swift"><code>SassBool</co
               
 
 
-<p>Reinterpret the value as a boolean.  But see <a href="../../sass/types/sassvalue9.html?swift#istruthy2"><code>isTruthy</code></a>: you almost always don’t
+<p>Reinterpret the value as a boolean.  But see <a href="../../sass/types/sassvalue10.html?swift#istruthy2"><code>isTruthy</code></a>: you almost always don’t
 want to be using this.</p>
 
 
@@ -1357,7 +1366,7 @@ want to be using this.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Calculation.swift#L164-L169">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Calculation.swift#L162-L167">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1474,7 +1483,7 @@ want to be using this.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public func arrayIndexFrom(sassIndex: <a href="../../sass/types/sassvalue9.html?swift">SassValue</a>) throws -&gt; <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a></code></pre>
+    <pre><code class="language-swift">public func arrayIndexFrom(sassIndex: <a href="../../sass/types/sassvalue10.html?swift">SassValue</a>) throws -&gt; <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a></code></pre>
   </div>
 
 
@@ -1555,7 +1564,7 @@ to be a valid subscript in the range [0..&lt;count]</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public func valueAt(sassIndex: <a href="../../sass/types/sassvalue9.html?swift">SassValue</a>) throws -&gt; <a href="../../sass/types/sassvalue9.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public func valueAt(sassIndex: <a href="../../sass/types/sassvalue10.html?swift">SassValue</a>) throws -&gt; <a href="../../sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
   </div>
 
 
@@ -1756,7 +1765,7 @@ number with similar magnitude to index back from the end.</p></td>
               
 
 
-<p>Two <a href="../../sass/types/sassvalue9.html?swift"><code>SassValue</code></a>s are generally equal if they have the same dynamic type and
+<p>Two <a href="../../sass/types/sassvalue10.html?swift"><code>SassValue</code></a>s are generally equal if they have the same dynamic type and
 compare equally as that type.  In addition, empty lists and maps compare as equal.</p>
 
 
@@ -1768,7 +1777,7 @@ compare equally as that type.  In addition, empty lists and maps compare as equa
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public static func == (lhs: <a href="../../sass/types/sassvalue9.html?swift">SassValue</a>, rhs: <a href="../../sass/types/sassvalue9.html?swift">SassValue</a>) -&gt; <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a></code></pre>
+    <pre><code class="language-swift">public static func == (lhs: <a href="../../sass/types/sassvalue10.html?swift">SassValue</a>, rhs: <a href="../../sass/types/sassvalue10.html?swift">SassValue</a>) -&gt; <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a></code></pre>
   </div>
 
 
@@ -1783,7 +1792,7 @@ compare equally as that type.  In addition, empty lists and maps compare as equa
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Value.swift#L104-L132">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Value.swift#L104-L134">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1795,16 +1804,16 @@ compare equally as that type.  In addition, empty lists and maps compare as equa
   
   
   
-    <section id="acceptvisitor11" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20accept%3CV,%20R%3E(visitor%3A%20V)%20-%3E%20R" class="dashAnchor j2-item-dash-anchor" data-item-id="acceptvisitor11"></a>
+    <section id="acceptvisitor12" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20accept%3CV,%20R%3E(visitor%3A%20V)%20-%3E%20R" class="dashAnchor j2-item-dash-anchor" data-item-id="acceptvisitor12"></a>
     <h4 class="visually-hidden">func accept&lt;V, R&gt;(visitor: V) -&gt; R</h4>
     
     
-    <a class="j2-item-title" href="#_acceptvisitor11" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_acceptvisitor11"><code>
+    <a class="j2-item-title" href="#_acceptvisitor12" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_acceptvisitor12"><code>
         <span class="j2-swift"><span class="j2-item-secondary">func </span>accept<span class="j2-item-secondary">&lt;V, R&gt;(</span>visitor<span class="j2-item-secondary">: V) -&gt; R</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_acceptvisitor11">
+    <div class="collapse  j2-item-popopen-wrapper" id="_acceptvisitor12">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -1856,16 +1865,16 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   
   
   
-    <section id="hashinto11" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20hash(into%3A%20inout%20Hasher)" class="dashAnchor j2-item-dash-anchor" data-item-id="hashinto11"></a>
+    <section id="hashinto12" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20hash(into%3A%20inout%20Hasher)" class="dashAnchor j2-item-dash-anchor" data-item-id="hashinto12"></a>
     <h4 class="visually-hidden">func hash(into: inout Hasher)</h4>
     
     
-    <a class="j2-item-title" href="#_hashinto11" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_hashinto11"><code>
+    <a class="j2-item-title" href="#_hashinto12" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_hashinto12"><code>
         <span class="j2-swift"><span class="j2-item-secondary">func </span>hash<span class="j2-item-secondary">(</span>into<span class="j2-item-secondary">: inout Hasher)</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_hashinto11">
+    <div class="collapse  j2-item-popopen-wrapper" id="_hashinto12">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -1878,7 +1887,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
               
 
 
-<p><a href="../../sass/types/sassvalue9.html?swift"><code>SassValue</code></a> can be used as a dictionary key.</p>
+<p><a href="../../sass/types/sassvalue10.html?swift"><code>SassValue</code></a> can be used as a dictionary key.</p>
 
 
 
@@ -1904,7 +1913,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Value.swift#L135-L136">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Value.swift#L137-L138">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1949,7 +1958,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public func makeIterator() -&gt; <a href="https://developer.apple.com/documentation/swift/anyiterator?language=swift">AnyIterator</a>&lt;<a href="../../sass/types/sassvalue9.html?swift">SassValue</a>&gt;</code></pre>
+    <pre><code class="language-swift">public func makeIterator() -&gt; <a href="https://developer.apple.com/documentation/swift/anyiterator?language=swift">AnyIterator</a>&lt;<a href="../../sass/types/sassvalue10.html?swift">SassValue</a>&gt;</code></pre>
   </div>
 
 
@@ -1976,16 +1985,16 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   
   
   
-    <section id="description23" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20description%3A%20String" class="dashAnchor j2-item-dash-anchor" data-item-id="description23"></a>
+    <section id="description24" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20description%3A%20String" class="dashAnchor j2-item-dash-anchor" data-item-id="description24"></a>
     <h4 class="visually-hidden">var description: String</h4>
     
     
-    <a class="j2-item-title" href="#_description23" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description23"><code>
+    <a class="j2-item-title" href="#_description24" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description24"><code>
         <span class="j2-swift"><span class="j2-item-secondary">var </span>description<span class="j2-item-secondary">: String</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_description23">
+    <div class="collapse  j2-item-popopen-wrapper" id="_description24">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -2024,7 +2033,82 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Value.swift#L141-L143">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Value.swift#L143-L145">Show on GitHub</a></span>
+            
+          </nav>
+        </div>
+      </div>
+    </div>
+    
+  </section>
+  
+  
+</section>
+
+  
+  <section class="j2-swift">
+  
+  <a name="//apple_ref/cpp/Section/Other%20Definitions" class="dashAnchor"></a>
+  <h3 class="j2-anchor" id="tpc-other-definitions">
+    <span data-anchor-id="tpc-other-definitions">Other Definitions</span>
+  </h3>
+  
+  
+  
+  
+  
+    <section id="asmixin" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20asMixin()%20-%3E%20SassMixin" class="dashAnchor j2-item-dash-anchor" data-item-id="asmixin"></a>
+    <h4 class="visually-hidden">func asMixin() -&gt; SassMixin</h4>
+    
+    
+    <a class="j2-item-title" href="#_asmixin" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_asmixin"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>asMixin<span class="j2-item-secondary">() -&gt; SassMixin</span></span>
+        
+      </code></a>
+    <div class="collapse  j2-item-popopen-wrapper" id="_asmixin">
+      <div class="j2-item-popopen">
+        <div class="j2-item-popopen-pointer" role="none presentation"></div>
+        <div class="j2-item-popopen-body">
+          
+            <div class="clearfix">
+              
+  
+
+
+              
+
+
+<p>Reinterpret the value as a mixin.</p>
+
+
+
+
+            </div>
+            <h5>Declaration</h5>
+            <div class="j2-item-declaration">
+              
+  <div class="j2-swift">
+    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
+    <pre><code class="language-swift">public func asMixin() throws -&gt; <a href="../../sass/types/sassmixin.html?swift">SassMixin</a></code></pre>
+  </div>
+
+
+
+            </div>
+            
+
+  <h5>Throws</h5>
+  <p><a href="../../sass/types/sassfunctionerror.html?swift#wrongtypeexpectedactual"><code>SassFunctionError.wrongType(...)</code></a> if it isn’t a mixin.</p>
+
+
+
+          
+
+          <nav class="j2-item-nav" aria-label="item details">
+            
+            
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Mixin.swift#L50-L55">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -2095,6 +2179,8 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
         <li><a href="#tpc-sass-listiness">Sass listiness</a></li>
         
         <li><a href="#tpc-misc">Misc</a></li>
+        
+        <li><a href="#tpc-other-definitions">Other Definitions</a></li>
         
       </ul>
     </nav>

@@ -45,14 +45,14 @@
     "name" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:includeCharset:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#initeventloopgroupproviderembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" : {
+  "dartsass\/types\/compiler.html?swift#initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" : {
     "abstract" : "Use a program as the Sass embedded compiler.",
-    "name" : "init(eventLoopGroupProvider:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
+    "name" : "init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#initeventloopgroupprovidertimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" : {
+  "dartsass\/types\/compiler.html?swift#initeventloopgrouptimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" : {
     "abstract" : "Use the bundled Dart Sass compiler as the Sass compiler.",
-    "name" : "init(eventLoopGroupProvider:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
+    "name" : "init(eventLoopGroup:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
     "parent_name" : "Compiler"
   },
   "dartsass\/types\/compiler.html?swift#logger" : {
@@ -74,23 +74,28 @@
     "abstract" : "Methods required to implement a filesystem-redirecting stylesheet importer.",
     "name" : "FilesystemImporter"
   },
-  "dartsass\/types\/filesystemimporter1.html?swift#resolveruleurlfromimport" : {
+  "dartsass\/types\/filesystemimporter1.html?swift#resolveruleurlfromimportcontainingurl" : {
     "abstract" : "Resolve an imported URL to a filesystem location.",
-    "name" : "resolve(ruleURL:fromImport:)",
+    "name" : "resolve(ruleURL:fromImport:containingURL:)",
     "parent_name" : "FilesystemImporter"
   },
   "dartsass\/types\/importer4.html?swift" : {
     "abstract" : "Methods required to implement a stylesheet importer.",
     "name" : "Importer"
   },
-  "dartsass\/types\/importer4.html?swift#canonicalizeruleurlfromimport" : {
+  "dartsass\/types\/importer4.html?swift#canonicalizeruleurlfromimportcontainingurl" : {
     "abstract" : "Convert an imported URL to its canonical format.",
-    "name" : "canonicalize(ruleURL:fromImport:)",
+    "name" : "canonicalize(ruleURL:fromImport:containingURL:)",
     "parent_name" : "Importer"
   },
   "dartsass\/types\/importer4.html?swift#loadcanonicalurl" : {
     "abstract" : "Load a stylesheet from a canonical URL",
     "name" : "load(canonicalURL:)",
+    "parent_name" : "Importer"
+  },
+  "dartsass\/types\/importer4.html?swift#noncanonicalurlschemes" : {
+    "abstract" : "The noncanonical URL schemes for this importer.",
+    "name" : "noncanonicalURLSchemes",
     "parent_name" : "Importer"
   },
   "dartsass\/types\/importerresults.html?swift" : {
@@ -140,7 +145,7 @@
     "abstract" : "Thrown on detecting a usage error of the Compiler API, for example trying to use it after shutdown.",
     "name" : "LifecycleError"
   },
-  "dartsass\/types\/lifecycleerror.html?swift#description25" : {
+  "dartsass\/types\/lifecycleerror.html?swift#description26" : {
     "abstract" : "Text explaining the lifecycle error.",
     "name" : "description",
     "parent_name" : "LifecycleError"
@@ -149,7 +154,7 @@
     "abstract" : "Thrown on detecting an error communicating with the Sass embedded compiler: for example a badly\nformed or out-of-sequence message.",
     "name" : "ProtocolError"
   },
-  "dartsass\/types\/protocolerror.html?swift#description24" : {
+  "dartsass\/types\/protocolerror.html?swift#description25" : {
     "abstract" : "Text explaining the protocol error.",
     "name" : "description",
     "parent_name" : "ProtocolError"
@@ -928,6 +933,35 @@
     "name" : "valueAt(sassIndex:)",
     "parent_name" : "SassMap"
   },
+  "sass\/types\/sassmixin.html?swift" : {
+    "abstract" : "A Sass mixin.",
+    "name" : "SassMixin"
+  },
+  "sass\/types\/sassmixin.html?swift#acceptvisitor9" : {
+    "abstract" : "Take part in the SassValueVisitor protocol.",
+    "name" : "accept(visitor:)",
+    "parent_name" : "SassMixin"
+  },
+  "sass\/types\/sassmixin.html?swift#description19" : {
+    "abstract" : "A short description of the value.",
+    "name" : "description",
+    "parent_name" : "SassMixin"
+  },
+  "sass\/types\/sassmixin.html?swift#hashinto7" : {
+    "abstract" : "Hash the mixin",
+    "name" : "hash(into:)",
+    "parent_name" : "SassMixin"
+  },
+  "sass\/types\/sassmixin.html?swift#id2" : {
+    "abstract" : "The mixin ID.  Opaque to users, meaningful to Sass implementations.",
+    "name" : "id",
+    "parent_name" : "SassMixin"
+  },
+  "sass\/types\/sassmixin.html?swift#sassmixin-sassmixin" : {
+    "abstract" : "Mixins are equal if they have the same ID and apply to the same compilation.\nWe only test the first part of that so watch out.",
+    "name" : "==(SassMixin, SassMixin)",
+    "parent_name" : "SassMixin"
+  },
   "sass\/types\/sassnull.html?swift" : {
     "abstract" : "The Sass null value.",
     "name" : "SassNull"
@@ -961,7 +995,7 @@
     "abstract" : "A Sass numeric value.",
     "name" : "SassNumber"
   },
-  "sass\/types\/sassnumber.html?swift#acceptvisitor9" : {
+  "sass\/types\/sassnumber.html?swift#acceptvisitor10" : {
     "abstract" : "Take part in the SassValueVisitor protocol.",
     "name" : "accept(visitor:)",
     "parent_name" : "SassNumber"
@@ -1001,7 +1035,7 @@
     "name" : "denominatorUnits",
     "parent_name" : "SassNumber"
   },
-  "sass\/types\/sassnumber.html?swift#description19" : {
+  "sass\/types\/sassnumber.html?swift#description20" : {
     "abstract" : "A short description of the value.",
     "name" : "description",
     "parent_name" : "SassNumber"
@@ -1011,7 +1045,7 @@
     "name" : "double",
     "parent_name" : "SassNumber"
   },
-  "sass\/types\/sassnumber.html?swift#hashinto8" : {
+  "sass\/types\/sassnumber.html?swift#hashinto9" : {
     "abstract" : "Hash the value.",
     "name" : "hash(into:)",
     "parent_name" : "SassNumber"
@@ -1050,17 +1084,17 @@
     "abstract" : "A Sass string value.",
     "name" : "SassString"
   },
-  "sass\/types\/sassstring.html?swift#acceptvisitor10" : {
+  "sass\/types\/sassstring.html?swift#acceptvisitor11" : {
     "abstract" : "Take part in the SassValueVisitor protocol.",
     "name" : "accept(visitor:)",
     "parent_name" : "SassString"
   },
-  "sass\/types\/sassstring.html?swift#description20" : {
+  "sass\/types\/sassstring.html?swift#description21" : {
     "abstract" : "A short description of the value.",
     "name" : "description",
     "parent_name" : "SassString"
   },
-  "sass\/types\/sassstring.html?swift#hashinto9" : {
+  "sass\/types\/sassstring.html?swift#hashinto10" : {
     "abstract" : "Hash the string’s text.",
     "name" : "hash(into:)",
     "parent_name" : "SassString"
@@ -1095,111 +1129,116 @@
     "name" : "string",
     "parent_name" : "SassString"
   },
-  "sass\/types\/sassvalue9.html?swift" : {
+  "sass\/types\/sassvalue10.html?swift" : {
     "abstract" : "Common behavior between values passed to or returned from Sass functions.",
     "name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#acceptvisitor11" : {
+  "sass\/types\/sassvalue10.html?swift#acceptvisitor12" : {
     "abstract" : "Call the corresponding method of visitor against this object.",
     "name" : "accept(visitor:)",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#arrayindexfromsassindex" : {
+  "sass\/types\/sassvalue10.html?swift#arrayindexfromsassindex" : {
     "abstract" : "Convert a Sass list index.",
     "name" : "arrayIndexFrom(sassIndex:)",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#asargumentlist" : {
+  "sass\/types\/sassvalue10.html?swift#asargumentlist" : {
     "abstract" : "Reinterpret the value as an argument list.",
     "name" : "asArgumentList()",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#asbool" : {
+  "sass\/types\/sassvalue10.html?swift#asbool" : {
     "abstract" : "Reinterpret the value as a boolean.  But see isTruthy: you almost always don’t\nwant to be using this.",
     "name" : "asBool()",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#ascalculation" : {
+  "sass\/types\/sassvalue10.html?swift#ascalculation" : {
     "abstract" : "Reinterpret the value as a calculation.",
     "name" : "asCalculation()",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#ascolor" : {
+  "sass\/types\/sassvalue10.html?swift#ascolor" : {
     "abstract" : "Reinterpret the value as a color.",
     "name" : "asColor()",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#ascompilerfunction" : {
+  "sass\/types\/sassvalue10.html?swift#ascompilerfunction" : {
     "abstract" : "Reinterpret the value as a compiler function.",
     "name" : "asCompilerFunction()",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#asdynamicfunction" : {
+  "sass\/types\/sassvalue10.html?swift#asdynamicfunction" : {
     "abstract" : "Reinterpret the value as a dynamic function.",
     "name" : "asDynamicFunction()",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#asmap" : {
+  "sass\/types\/sassvalue10.html?swift#asmap" : {
     "abstract" : "Reinterpret the value as a map.  Empty lists are reinterpreted as the empty map.",
     "name" : "asMap()",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#asnumber" : {
+  "sass\/types\/sassvalue10.html?swift#asmixin" : {
+    "abstract" : "Reinterpret the value as a mixin.",
+    "name" : "asMixin()",
+    "parent_name" : "SassValue"
+  },
+  "sass\/types\/sassvalue10.html?swift#asnumber" : {
     "abstract" : "Reinterpret the value as a number.",
     "name" : "asNumber()",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#asstring" : {
+  "sass\/types\/sassvalue10.html?swift#asstring" : {
     "abstract" : "Reinterpret the value as a string.",
     "name" : "asString()",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#description23" : {
+  "sass\/types\/sassvalue10.html?swift#description24" : {
     "abstract" : "A short description of the value.",
     "name" : "description",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#hasbrackets1" : {
+  "sass\/types\/sassvalue10.html?swift#hasbrackets1" : {
     "abstract" : "Is this value, viewed as a list, surrounded by brackets?",
     "name" : "hasBrackets",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#hashinto11" : {
+  "sass\/types\/sassvalue10.html?swift#hashinto12" : {
     "abstract" : "SassValue can be used as a dictionary key.",
     "name" : "hash(into:)",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#isnull1" : {
+  "sass\/types\/sassvalue10.html?swift#isnull1" : {
     "abstract" : "Does this value represent Sass’s null value?",
     "name" : "isNull",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#istruthy2" : {
+  "sass\/types\/sassvalue10.html?swift#istruthy2" : {
     "abstract" : "Sass considers all values except null and false to be “truthy”, meaning\nyour function should almost always be checking this property instead of trying\nto downcast to SassBool.",
     "name" : "isTruthy",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#listcount2" : {
+  "sass\/types\/sassvalue10.html?swift#listcount2" : {
     "abstract" : "The number of values in this value viewed as a list.",
     "name" : "listCount",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#makeiterator2" : {
+  "sass\/types\/sassvalue10.html?swift#makeiterator2" : {
     "abstract" : "An iterator for the values in the list, for Sequence conformance.",
     "name" : "makeIterator()",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#sassvalue-sassvalue" : {
+  "sass\/types\/sassvalue10.html?swift#sassvalue-sassvalue" : {
     "abstract" : "Two SassValues are generally equal if they have the same dynamic type and\ncompare equally as that type.  In addition, empty lists and maps compare as equal.",
     "name" : "==(SassValue, SassValue)",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#separator3" : {
+  "sass\/types\/sassvalue10.html?swift#separator3" : {
     "abstract" : "The list separator used by this value when viewed as a list.",
     "name" : "separator",
     "parent_name" : "SassValue"
   },
-  "sass\/types\/sassvalue9.html?swift#valueatsassindex2" : {
+  "sass\/types\/sassvalue10.html?swift#valueatsassindex2" : {
     "abstract" : "Subscript the value using a Sass list index.",
     "name" : "valueAt(sassIndex:)",
     "parent_name" : "SassValue"
@@ -1251,6 +1290,11 @@
   "sass\/types\/sassvaluevisitor.html?swift#visitmap" : {
     "abstract" : "The operation for SassMap.",
     "name" : "visit(map:)",
+    "parent_name" : "SassValueVisitor"
+  },
+  "sass\/types\/sassvaluevisitor.html?swift#visitmixin" : {
+    "abstract" : "The operation for SassMixin.",
+    "name" : "visit(mixin:)",
     "parent_name" : "SassValueVisitor"
   },
   "sass\/types\/sassvaluevisitor.html?swift#visitnull" : {
