@@ -14,7 +14,7 @@ public final class SassMixin: SassValue {
     /// The mixin ID.  Opaque to users, meaningful to Sass implementations.
     public let id: Int
 
-    /// Create a new compiler function.  Unless you're implementing or mocking an interface
+    /// Create a new mixin.  Unless you're implementing or mocking an interface
     /// from a Sass compiler you don't need this.
     @_spi(SassCompilerProvider)
     public init(id: Int) {
@@ -23,13 +23,13 @@ public final class SassMixin: SassValue {
 
     // MARK: Misc
 
-    /// Compiler functions are equal if they have the same ID and apply to the same compilation.
+    /// Mixins are equal if they have the same ID and apply to the same compilation.
     /// We only test the first part of that so watch out.
     public static func == (lhs: SassMixin, rhs: SassMixin) -> Bool {
         lhs.id == rhs.id
     }
 
-    /// Hash the compiler function
+    /// Hash the mixin
     public override func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }

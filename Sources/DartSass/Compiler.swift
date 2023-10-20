@@ -38,9 +38,6 @@ import Logging
 public actor Compiler {
     private let eventLoopGroup: any EventLoopGroup
 
-    /// NIO event loop we're bound to.  Internal for test.
-    let eventLoop: EventLoop // XXX move to run() unless tests do need somehow
-
     enum State {
         /// No child, new jobs wait for state change.
         case initializing
@@ -72,7 +69,7 @@ public actor Compiler {
 
     /// Change the compiler state and resume anyone waiting.
     private func setState(_ state: State, fn: String = #function) {
-        debug("\(fn): \(self.state) -> \(state)")
+//        debug("\(fn): \(self.state) -> \(state)")
         self.state = state
         Task.detached { await self.stateWaitingQueue.kick() }
     }
@@ -190,7 +187,6 @@ public actor Compiler {
                 functions: SassFunctionMap = [:]) {
         precondition(embeddedCompilerFileURL.isFileURL, "Not a file URL: \(embeddedCompilerFileURL)")
         self.eventLoopGroup = eventLoopGroup
-        eventLoop = eventLoopGroup.any()
         self.embeddedCompilerFileURL = embeddedCompilerFileURL
         self.embeddedCompilerFileArgs = embeddedCompilerFileArguments
         state = .initializing
@@ -227,6 +223,8 @@ public actor Compiler {
         precondition(state.isInitializing, "Unexpected state at run(): \(state)")
 
         let initThread = NIOSingletons.posixBlockingThreadPool
+
+        let eventLoop = eventLoopGroup.any()
 
         while !Task.isCancelled {
             do {
