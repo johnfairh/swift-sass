@@ -1,3 +1,9 @@
+# 2.0.0-pre3
+
+* Bundle the 1.69.4 `dart-sass` binaries
+* Add `SassMixin` SassScript type
+* Add `containingURL` and `noncanonicalURLSchemes` to importers
+
 # 2.0.0-pre2
 
 * Update to latest version of upstream dependencies, Dart Sass 1.63.2 now
