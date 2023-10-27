@@ -7,8 +7,8 @@
 
 import struct Foundation.URL
 import class Foundation.FileManager // cwd
-@_spi(AsyncChannel) import NIOCore
-@_spi(AsyncChannel) import NIOPosix // NIOThreadPool, NIOPipeBootstrap
+import NIOCore
+import NIOPosix // NIOThreadPool, NIOPipeBootstrap
 import Logging
 @_exported import Sass
 
@@ -739,7 +739,7 @@ actor CompilerChild: ChannelInboundHandler {
         }
 
         do {
-            try await asyncChannel.outboundWriter.write(message) // == writeAndFlush
+            try await asyncChannel.outbound.write(message) // == writeAndFlush
         } catch {
             // tough to reliably hit this error.  if we kill the process while trying to write to
             // it we get this on Darwin maybe 20% of the time vs. the write working, leaving the
@@ -768,7 +768,7 @@ actor CompilerChild: ChannelInboundHandler {
     private func processMessages2() async {
         precondition(asyncChannel != nil)
         do {
-            for try await message in asyncChannel.inboundStream {
+            for try await message in asyncChannel.inbound {
                 // only 'async' because of hop to Compiler actor - is non-blocking synchronous on client side
                 await receive(message: message)
             }
