@@ -7,7 +7,7 @@
 
 import XCTest
 import NIO
-@_spi(AsyncChannel) import NIOCore
+import NIOCore
 @testable import DartSass
 
 ///
@@ -94,7 +94,7 @@ class TestResetShutdown: DartSassTestCase {
         let badCompiler = try await newBadCompiler(timeout: -1)
         await badCompiler.waitForRunning()
         await setSuspend(at: .childTermination)
-        await badCompiler.child.asyncChannel.outboundWriter.finish()
+        await badCompiler.child.asyncChannel.outbound.finish()
         do {
             let results = try await badCompiler.compile(string: "")
             XCTFail("Managed to compile: \(results)")
