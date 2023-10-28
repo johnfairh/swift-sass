@@ -107,7 +107,7 @@ Package dependency:
 ```swift
 .package(name: "swift-sass",
          url: "https://github.com/johnfairh/swift-sass.git",
-         from: "2.0.0-pre3")
+         from: "2.0.0")
 ```
 
 Target dependency:

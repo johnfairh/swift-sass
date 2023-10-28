@@ -1,3 +1,26 @@
+# 2.0.0
+
+Changes relative to 1.7.0:
+
+* Rewrite `Compiler` to be an actor and use `NIOAsyncChannel` to communicate
+  with the compiler.  Interface is approximately the same; `syncShutdownGracefully()`
+  is gone though to match NIO's approach
+
+* Shutdown behaviour has changed slightly: if you have compiler jobs running
+  concurrently to a shutdown request then they are likely to be cancelled rather
+  than left to run before actioning the shutdown
+
+* Make all Sass functions `async`: delete `SassFunction` types and then rename
+  `SassAsyncFunction` types
+
+* Add `loadedURLs` to `CompilerError`
+
+* Add `SassMixin` SassScript type
+
+* Add `containingURL` and `noncanonicalURLSchemes` to importers
+
+* Bundle the 1.69.4 `dart-sass` binaries
+
 # 2.0.0-pre3
 
 * Bundle the 1.69.4 `dart-sass` binaries
