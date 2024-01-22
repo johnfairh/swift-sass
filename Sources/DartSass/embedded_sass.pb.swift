@@ -603,6 +603,9 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     /// Whether to emit a `@charset`/BOM for non-ASCII stylesheets.
     var charset: Bool = false
 
+    /// Whether to silently suppresses all `LogEvent`s.
+    var silent: Bool = false
+
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
     /// The input stylesheet to parse. Mandatory.
@@ -2887,6 +2890,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     11: .standard(proto: "quiet_deps"),
     12: .standard(proto: "source_map_include_sources"),
     13: .same(proto: "charset"),
+    14: .same(proto: "silent"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -2926,6 +2930,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
       case 11: try { try decoder.decodeSingularBoolField(value: &self.quietDeps) }()
       case 12: try { try decoder.decodeSingularBoolField(value: &self.sourceMapIncludeSources) }()
       case 13: try { try decoder.decodeSingularBoolField(value: &self.charset) }()
+      case 14: try { try decoder.decodeSingularBoolField(value: &self.silent) }()
       default: break
       }
     }
@@ -2977,6 +2982,9 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     if self.charset != false {
       try visitor.visitSingularBoolField(value: self.charset, fieldNumber: 13)
     }
+    if self.silent != false {
+      try visitor.visitSingularBoolField(value: self.silent, fieldNumber: 14)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -2992,6 +3000,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     if lhs.quietDeps != rhs.quietDeps {return false}
     if lhs.sourceMapIncludeSources != rhs.sourceMapIncludeSources {return false}
     if lhs.charset != rhs.charset {return false}
+    if lhs.silent != rhs.silent {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

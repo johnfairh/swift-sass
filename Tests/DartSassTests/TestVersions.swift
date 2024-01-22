@@ -21,7 +21,7 @@ extension Versions {
 /// Tests for version checking
 class TestVersions: DartSassTestCase {
     func testCreation() {
-        let vers = Versions(protocolVersionString: "2.3.0")
+        let vers = Versions(protocolVersionString: "2.4.0")
         XCTAssertEqual("2", vers.protocolVersion.major)
         XCTAssertEqual("0", vers.protocolVersion.patch)
         XCTAssertNoThrow(try vers.check())
@@ -53,7 +53,7 @@ class TestVersions: DartSassTestCase {
         let version = try await XCTUnwrapA(await compiler.compilerVersion)
         XCTAssertEqual(expectedVersion, version)
         let name = try await XCTUnwrapA(await compiler.compilerName)
-        XCTAssertEqual("Dart Sass", name)
+        XCTAssertEqual("dart-sass", name)
         let package = try await XCTUnwrapA(await compiler.compilerPackageVersion)
         XCTAssertEqual(expectedVersion, package)
     }
