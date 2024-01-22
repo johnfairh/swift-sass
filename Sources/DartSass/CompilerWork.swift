@@ -19,8 +19,8 @@ extension Compiler {
         let messageStyle: CompilerMessageStyle
         /// Deprecation warning verbosity
         let verboseDeprecations: Bool
-        /// Warning scope
-        let suppressDependencyWarnings: Bool
+        /// Warning/Debug message scope
+        let warningLevel: CompilerWarningLevel
     }
 }
 

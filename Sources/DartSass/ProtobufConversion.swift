@@ -100,6 +100,16 @@ extension CompilerMessageStyle {
     }
 }
 
+extension CompilerWarningLevel {
+    var isSilent: Bool {
+        self == .none
+    }
+
+    var suppressDependencyWarnings: Bool {
+        self != .all
+    }
+}
+
 // MARK: Native -> PB
 
 extension Sass_EmbeddedProtocol_Syntax {
