@@ -219,7 +219,7 @@ class TestCompilerErrors: DartSassTestCase {
         XCTAssertEqual(1, results1.messages.count)
 
         // warnings can be suppressed - from a file
-        let quietCompiler = try Compiler(suppressDependencyWarnings: true)
+        let quietCompiler = try Compiler(warningLevel: .noDependencyWarnings)
         compilersToShutdown.append(quietCompiler)
 
         let rootFile = try FileManager.default.createTempFile(filename: "root.scss", contents: "@import 'foo';")

@@ -122,9 +122,8 @@ public actor Compiler {
     /// - parameter verboseDeprecations: Control for deprecation warning messages.
     ///   If `false` then the compiler will send only a few deprecation warnings of the same type.
     ///   Default is `false` meaning repeated deprecation warnings _are_ suppressed.
-    /// - parameter suppressDependencyWarnings: Control for warning messages from Sass files
-    ///   loaded by importers other than the importer used to load the main Sass file.
-    ///   Default is `false` meaning such warnings _are not_ suppressed.
+    /// - parameter warningLevel: Control for warning messages from Sass files.  Default is `.all`
+    ///   meaning all warnings mentioned in Sass files are produced.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
@@ -133,7 +132,7 @@ public actor Compiler {
                 timeout: Int = 60,
                 messageStyle: CompilerMessageStyle = .plain,
                 verboseDeprecations: Bool = false,
-                suppressDependencyWarnings: Bool = false,
+                warningLevel: CompilerWarningLevel = .all,
                 importers: [ImportResolver] = [],
                 functions: SassFunctionMap = [:]) throws {
         let (url, args) = try DartSassEmbedded.getURLAndArgs()
@@ -143,7 +142,7 @@ public actor Compiler {
                   timeout: timeout,
                   messageStyle: messageStyle,
                   verboseDeprecations: verboseDeprecations,
-                  suppressDependencyWarnings: suppressDependencyWarnings,
+                  warningLevel: warningLevel,
                   importers: importers,
                   functions: functions)
     }
@@ -170,9 +169,8 @@ public actor Compiler {
     /// - parameter verboseDeprecations: Control for deprecation warning messages.
     ///   If `false` then the compiler will send only a few deprecation warnings of the same type.
     ///   Default is `false` meaning repeated deprecation warnings _are_ suppressed.
-    /// - parameter suppressDependencyWarnings: Control for warning messages from Sass files
-    ///   loaded by importers other than the importer used to load the main Sass file.
-    ///   Default is `false` meaning such warnings _are not_ suppressed.
+    /// - parameter warningLevel: Control for warning messages from Sass files.  Default is `.all`
+    ///   meaning all warnings mentioned in Sass files are produced.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
     ///   the source file's URL, used for all this compiler's compilations.
     /// - parameter functions: Sass functions available to all this compiler's compilations.
@@ -182,7 +180,7 @@ public actor Compiler {
                 timeout: Int = 60,
                 messageStyle: CompilerMessageStyle = .plain,
                 verboseDeprecations: Bool = false,
-                suppressDependencyWarnings: Bool = false,
+                warningLevel: CompilerWarningLevel = .all,
                 importers: [ImportResolver] = [],
                 functions: SassFunctionMap = [:]) {
         precondition(embeddedCompilerFileURL.isFileURL, "Not a file URL: \(embeddedCompilerFileURL)")
@@ -196,7 +194,7 @@ public actor Compiler {
                             globalFunctions: functions,
                             messageStyle: messageStyle,
                             verboseDeprecations: verboseDeprecations,
-                            suppressDependencyWarnings: suppressDependencyWarnings)
+                            warningLevel: warningLevel)
         stateWaitingQueue = ContinuationQueue()
         activeRequests = [:]
         quiesceContinuation = nil

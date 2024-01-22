@@ -224,5 +224,19 @@ public enum CompilerMessageStyle: Sendable {
     case terminalColored
 }
 
+/// A control over warnings and debug messages produced by the compiler
+public enum CompilerWarningLevel: Sendable {
+    /// All warnings and debug messages that can be generated are generated
+    case all
+
+    /// Warnings from Sass files loaded by importers other than the importer used to load the main
+    /// Sass file are suppressed.
+    case noDependencyWarnings
+
+    /// All warnings and debug messages are suppressed.  This may improve performance in certain
+    /// scenarios where many warning messages would otherwise be logged.
+    case none
+}
+
 // Until Foundation catches up / decides we're wrong...
 extension URL: @unchecked Sendable {}

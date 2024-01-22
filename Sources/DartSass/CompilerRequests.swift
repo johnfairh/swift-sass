@@ -205,9 +205,10 @@ final class CompilationRequest: ManagedCompilerRequest {
             msg.alertAscii = false
             msg.alertColor = settings.messageStyle.isColored
             msg.verbose = settings.verboseDeprecations
-            msg.quietDeps = settings.suppressDependencyWarnings
+            msg.quietDeps = settings.warningLevel.suppressDependencyWarnings
             msg.sourceMapIncludeSources = sourceMapStyle.embedSourceMap
             msg.charset = includeCharset
+            msg.silent = settings.warningLevel.isSilent
         }
         self.messages = []
         self.state = .normal
