@@ -124,7 +124,7 @@
     "name" : "deinit"
   },
   {
-    "context" : "init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
+    "context" : "init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:warningLevel:importers:functions:)",
     "name" : "embeddedCompilerFileURL"
   },
   {
@@ -236,7 +236,7 @@
     "name" : "sassIndex"
   },
   {
-    "context" : "init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
+    "context" : "init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:warningLevel:importers:functions:)",
     "name" : "sass"
   },
   {

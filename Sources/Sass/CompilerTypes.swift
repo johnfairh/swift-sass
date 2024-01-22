@@ -226,7 +226,7 @@ public enum CompilerMessageStyle: Sendable {
 
 /// A control over warnings and debug messages produced by the compiler
 public enum CompilerWarningLevel: Sendable {
-    /// All warnings and debug messages that can be generated are generated
+    /// All warnings and debug messages that can be generated are generated.
     case all
 
     /// Warnings from Sass files loaded by importers other than the importer used to load the main

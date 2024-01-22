@@ -45,14 +45,14 @@
     "name" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:includeCharset:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" : {
+  "dartsass\/types\/compiler.html?swift#initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions" : {
     "abstract" : "Use a program as the Sass embedded compiler.",
-    "name" : "init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
+    "name" : "init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:warningLevel:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#initeventloopgrouptimeoutmessagestyleverbosedeprecationssuppressdependencywarningsimportersfunctions" : {
+  "dartsass\/types\/compiler.html?swift#initeventloopgrouptimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions" : {
     "abstract" : "Use the bundled Dart Sass compiler as the Sass compiler.",
-    "name" : "init(eventLoopGroup:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)",
+    "name" : "init(eventLoopGroup:timeout:messageStyle:verboseDeprecations:warningLevel:importers:functions:)",
     "parent_name" : "Compiler"
   },
   "dartsass\/types\/compiler.html?swift#logger" : {
@@ -309,6 +309,25 @@
     "abstract" : "Use absolute URLs in the source map to refer to the original sources, but use a relative\nURL to refer to the source map from the CSS.",
     "name" : "sourcesAbsolute",
     "parent_name" : "URLStyle"
+  },
+  "sass\/types\/compilerwarninglevel.html?swift" : {
+    "abstract" : "A control over warnings and debug messages produced by the compiler",
+    "name" : "CompilerWarningLevel"
+  },
+  "sass\/types\/compilerwarninglevel.html?swift#all" : {
+    "abstract" : "All warnings and debug messages that can be generated are generated.",
+    "name" : "all",
+    "parent_name" : "CompilerWarningLevel"
+  },
+  "sass\/types\/compilerwarninglevel.html?swift#nodependencywarnings" : {
+    "abstract" : "Warnings from Sass files loaded by importers other than the importer used to load the main\nSass file are suppressed.",
+    "name" : "noDependencyWarnings",
+    "parent_name" : "CompilerWarningLevel"
+  },
+  "sass\/types\/compilerwarninglevel.html?swift#none1" : {
+    "abstract" : "All warnings and debug messages are suppressed.  This may improve performance in certain\nscenarios where many warning messages would otherwise be logged.",
+    "name" : "none",
+    "parent_name" : "CompilerWarningLevel"
   },
   "sass\/types\/cssstyle.html?swift" : {
     "abstract" : "How the Sass compiler should format the CSS it produces.",
