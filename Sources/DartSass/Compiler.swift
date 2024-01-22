@@ -104,7 +104,7 @@ public actor Compiler {
     /// Use the bundled Dart Sass compiler as the Sass compiler.
     ///
     /// The bundled Dart Sass compiler is built on macOS (11.6) or Ubuntu (20.04) Intel 64-bit.
-    /// If you are running on another operating system then use `init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:suppressDependencyWarnings:importers:functions:)`
+    /// If you are running on another operating system then use `init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:warningLevel:importers:functions:)`
     /// supplying the path of the correct Dart Sass compiler.
     ///
     /// Initialization continues asynchronously after the initializer completes; failures are reported
