@@ -738,6 +738,8 @@ actor CompilerChild: ChannelInboundHandler {
             self.inbound = inbound
             self.outbound = outbound
             try await callback()
+            self.inbound = nil
+            self.outbound = nil
         }
     }
 
