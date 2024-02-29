@@ -144,6 +144,9 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer {
             nonCanonicalScheme = i.noncanonicalURLSchemes
         case .filesystemImporter:
             fileImporterID = id
+        case .nodePackageImporter(let url):
+            precondition(url.isFileURL)
+            nodePackageImporter = .with { $0.entryPointDirectory = url.path }
         }
     }
 }

@@ -452,14 +452,14 @@ final class CompilationRequest: ManagedCompilerRequest {
 private extension ImportResolver {
     var importer: Importer? {
         switch self {
-        case .loadPath, .filesystemImporter: return nil
+        case .loadPath, .filesystemImporter, .nodePackageImporter: return nil
         case .importer(let i): return i
         }
     }
 
     var filesystemImporter: FilesystemImporter? {
         switch self {
-        case .loadPath, .importer: return nil
+        case .loadPath, .importer, .nodePackageImporter: return nil
         case .filesystemImporter(let f): return f
         }
     }
