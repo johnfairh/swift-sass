@@ -722,6 +722,19 @@ struct Sass_EmbeddedProtocol_InboundMessage {
         set {importer = .fileImporterID(newValue)}
       }
 
+      /// The [Node.js package importer], which is a built-in Package Importer
+      /// with an associated `entry_point_directory` that resolves `pkg:` URLs
+      /// using the standards and conventions of the Node ecosystem.
+      ///
+      /// [Node.js package importer]: https://github.com/sass/sass/tree/main/spec/modules.md#node-package-importer
+      var nodePackageImporter: Sass_EmbeddedProtocol_NodePackageImporter {
+        get {
+          if case .nodePackageImporter(let v)? = importer {return v}
+          return Sass_EmbeddedProtocol_NodePackageImporter()
+        }
+        set {importer = .nodePackageImporter(newValue)}
+      }
+
       /// The set of URL schemes that are considered *non-canonical* for this
       /// importer. This must be empty unless `importer.importer_id` is set.
       ///
@@ -753,6 +766,12 @@ struct Sass_EmbeddedProtocol_InboundMessage {
         /// generating this ID and ensuring that it's unique across all importers
         /// registered for this compilation.
         case fileImporterID(UInt32)
+        /// The [Node.js package importer], which is a built-in Package Importer
+        /// with an associated `entry_point_directory` that resolves `pkg:` URLs
+        /// using the standards and conventions of the Node ecosystem.
+        ///
+        /// [Node.js package importer]: https://github.com/sass/sass/tree/main/spec/modules.md#node-package-importer
+        case nodePackageImporter(Sass_EmbeddedProtocol_NodePackageImporter)
 
       #if !swift(>=4.1)
         static func ==(lhs: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer.OneOf_Importer, rhs: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer.OneOf_Importer) -> Bool {
@@ -770,6 +789,10 @@ struct Sass_EmbeddedProtocol_InboundMessage {
           }()
           case (.fileImporterID, .fileImporterID): return {
             guard case .fileImporterID(let l) = lhs, case .fileImporterID(let r) = rhs else { preconditionFailure() }
+            return l == r
+          }()
+          case (.nodePackageImporter, .nodePackageImporter): return {
+            guard case .nodePackageImporter(let l) = lhs, case .nodePackageImporter(let r) = rhs else { preconditionFailure() }
             return l == r
           }()
           default: return false
@@ -2579,6 +2602,27 @@ struct Sass_EmbeddedProtocol_Value {
   init() {}
 }
 
+/// The built-in Node.js Package Importer, which is a Package Importer that
+/// resolves using the standards and conventions of the Node.js ecosystem. It
+/// enables a `pkg:` URL scheme for usage with `@use` that directs an
+/// implementation to resolve a URL within a dependency. 
+struct Sass_EmbeddedProtocol_NodePackageImporter {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// The absolute path to associate with the Node Package Importer, with
+  /// semantics identical to the [entryPointDirectory option] in the JavaScript
+  /// API.
+  ///
+  /// [entryPointDirectory option]: https://sass-lang.com/documentation/js-api/classes/NodePackageImporter.html#constructor
+  var entryPointDirectory: String = String()
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
 #if swift(>=5.5) && canImport(_Concurrency)
 extension Sass_EmbeddedProtocol_OutputStyle: @unchecked Sendable {}
 extension Sass_EmbeddedProtocol_Syntax: @unchecked Sendable {}
@@ -2638,6 +2682,7 @@ extension Sass_EmbeddedProtocol_Value.Calculation: @unchecked Sendable {}
 extension Sass_EmbeddedProtocol_Value.Calculation.CalculationValue: @unchecked Sendable {}
 extension Sass_EmbeddedProtocol_Value.Calculation.CalculationValue.OneOf_Value: @unchecked Sendable {}
 extension Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation: @unchecked Sendable {}
+extension Sass_EmbeddedProtocol_NodePackageImporter: @unchecked Sendable {}
 #endif  // swift(>=5.5) && canImport(_Concurrency)
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -3066,6 +3111,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer: SwiftPro
     1: .same(proto: "path"),
     2: .standard(proto: "importer_id"),
     3: .standard(proto: "file_importer_id"),
+    5: .standard(proto: "node_package_importer"),
     4: .standard(proto: "non_canonical_scheme"),
   ]
 
@@ -3100,6 +3146,19 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer: SwiftPro
         }
       }()
       case 4: try { try decoder.decodeRepeatedStringField(value: &self.nonCanonicalScheme) }()
+      case 5: try {
+        var v: Sass_EmbeddedProtocol_NodePackageImporter?
+        var hadOneofValue = false
+        if let current = self.importer {
+          hadOneofValue = true
+          if case .nodePackageImporter(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.importer = .nodePackageImporter(v)
+        }
+      }()
       default: break
       }
     }
@@ -3123,11 +3182,14 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer: SwiftPro
       guard case .fileImporterID(let v)? = self.importer else { preconditionFailure() }
       try visitor.visitSingularUInt32Field(value: v, fieldNumber: 3)
     }()
-    case nil: break
+    default: break
     }
     if !self.nonCanonicalScheme.isEmpty {
       try visitor.visitRepeatedStringField(value: self.nonCanonicalScheme, fieldNumber: 4)
     }
+    try { if case .nodePackageImporter(let v)? = self.importer {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 5)
+    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -5341,6 +5403,38 @@ extension Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation: SwiftPro
       }
       if !storagesAreEqual {return false}
     }
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Sass_EmbeddedProtocol_NodePackageImporter: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".NodePackageImporter"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "entry_point_directory"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.entryPointDirectory) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.entryPointDirectory.isEmpty {
+      try visitor.visitSingularStringField(value: self.entryPointDirectory, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sass_EmbeddedProtocol_NodePackageImporter, rhs: Sass_EmbeddedProtocol_NodePackageImporter) -> Bool {
+    if lhs.entryPointDirectory != rhs.entryPointDirectory {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
