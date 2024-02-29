@@ -12,6 +12,7 @@ import Foundation
 //
 // Some further shenanigans here to make the xctest-in-Xcode version work.
 
+@_spi(SassCompilerProvider)
 public final class DartSassEmbeddedBundle {
     public static var bundle: Bundle? {
         #if SWIFT_PACKAGE
