@@ -13,6 +13,7 @@ import Foundation
 // This file doesn't take part in the Xcode build so shouldn't belong to any
 // target.
 
+@_spi(SassCompilerProvider)
 public final class DartSassEmbeddedBundle {
     public static var bundle: Bundle? {
         Bundle.module

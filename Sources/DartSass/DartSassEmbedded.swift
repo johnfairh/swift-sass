@@ -8,9 +8,9 @@
 import Foundation
 
 #if os(macOS)
-@_implementationOnly import DartSassEmbeddedMacOS
+@_spi(SassCompilerProvider) import DartSassEmbeddedMacOS
 #elseif os(Linux)
-@_implementationOnly import DartSassEmbeddedLinux
+@_spi(SassCompilerProvider) import DartSassEmbeddedLinux
 #else
 final class DartSassEmbeddedBundle {
     static var bundle: Bundle? { nil }
