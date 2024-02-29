@@ -175,4 +175,8 @@ public enum ImportResolver: Sendable {
     case importer(Importer)
     /// Call back through the `FilesystemImporter` to resolve the rule.
     case filesystemImporter(FilesystemImporter)
+    /// Enables the `pkg:` URL scheme to resolve imports using the Node.js ecosystem conventions.
+    /// The URL is the filesystem directory from which to search for `node_modules` directories.  See
+    /// [the Sass docs](https://sass-lang.com/documentation/js-api/classes/nodepackageimporter).
+    case nodePackageImporter(URL)
 }

@@ -474,4 +474,35 @@ class TestImporters: DartSassTestCase {
         XCTAssertEqual(fileURL, results.loadedURLs[1])
         XCTAssertEqual("a{b:true}", results.css)
     }
+
+    // MARK: Node package importer
+
+    func testNodePkgImporter() async throws {
+        let rootDirURL = try FileManager.default.createTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: rootDirURL) }
+
+        let pkgDirURL = rootDirURL.appendingPathComponent("node_modules")
+            .appendingPathComponent("test")
+        try FileManager.default.createDirectory(at: pkgDirURL, withIntermediateDirectories: true)
+        let packageJSONURL = pkgDirURL.appendingPathComponent("package.json")
+        try """
+        {
+          "exports": {
+            ".": {
+              "sass": "./scss/index.scss"
+            }
+          }
+        }
+        """.write(to: packageJSONURL)
+
+        let sassDirURL = pkgDirURL.appendingPathComponent("scss")
+        try FileManager.default.createDirectory(at: sassDirURL, withIntermediateDirectories: true)
+
+        let sassFileURL = sassDirURL.appendingPathComponent("index.scss")
+        try "a { b: true }".write(to: sassFileURL)
+
+        let compiler = try newCompiler(importers: [.nodePackageImporter(rootDirURL)])
+        let results = try await compiler.compile(string: "@use \"pkg:test\"", outputStyle: .compressed)
+        XCTAssertEqual("a{b:true}", results.css)
+    }
 }
