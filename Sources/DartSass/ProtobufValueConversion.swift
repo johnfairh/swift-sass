@@ -14,9 +14,9 @@
 // Some stuff to handle requirements introduced by 'argument list', basically
 // side-effects of access to the value types.
 
-final class SassValueMonitor {
-    typealias ArgListAccessFn = (UInt32) -> Void
-    var argListAccess: ArgListAccessFn
+final class SassValueMonitor: Sendable {
+    typealias ArgListAccessFn = @Sendable (UInt32) -> Void
+    let argListAccess: ArgListAccessFn
     init(_ argListAccess: @escaping ArgListAccessFn = { _ in }) {
         self.argListAccess = argListAccess
     }

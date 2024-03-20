@@ -50,7 +50,7 @@ struct Ratio {
 }
 
 /// A dimension supporting multiple compatible units.
-final class Dimension {
+final class Dimension: Sendable {
     let canonical: Unit.Name
     /// Compatible units and their conversion ratio to the the canonical unit
     let conversions: [Unit.Name : Ratio]

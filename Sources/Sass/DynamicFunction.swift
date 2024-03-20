@@ -28,19 +28,19 @@ struct Lock {
 /// can get handled properly.
 ///
 /// Bit thorny that refs here stay around forever but unclear what is safe.
-private struct DynamicFunctionRuntime {
+private final class DynamicFunctionRuntime: @unchecked Sendable {
     private let lock = Lock()
     private var idCounter = UInt32(2000)
     private var functions = [UInt32 : SassDynamicFunction]()
 
-    mutating func allocateID() -> UInt32 {
+    func allocateID() -> UInt32 {
         lock.locked {
             idCounter += 1
             return idCounter
         }
     }
 
-    mutating func register(_ fn: SassDynamicFunction) {
+    func register(_ fn: SassDynamicFunction) {
         lock.locked {
             functions[fn.id] = fn
         }
@@ -53,7 +53,7 @@ private struct DynamicFunctionRuntime {
     }
 }
 
-private var runtime = DynamicFunctionRuntime()
+private let runtime = DynamicFunctionRuntime()
 
 /// A dynamic Sass function.
 ///

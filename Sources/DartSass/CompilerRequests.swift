@@ -21,7 +21,7 @@ import Atomics
 // MARK: Request ID allocation
 
 enum RequestID {
-    private static var _next = ManagedAtomic<UInt32>(4000)
+    private nonisolated(unsafe) static var _next = ManagedAtomic<UInt32>(4000)
     fileprivate static var next: UInt32 {
         _next.loadThenWrappingIncrement(ordering: .relaxed)
     }
@@ -33,11 +33,11 @@ enum RequestID {
 
 // MARK: CompilerRequest
 
-typealias ReplyFn = (OutboundMessage) async -> Void // XXX name
+typealias ReplyFn = @Sendable (OutboundMessage) async -> Void // XXX name
 
 protocol CompilerRequest: AnyObject {
     /// Notify that the initial request has been sent.  Return any timeout handler.
-    func start(timeoutSeconds: Int, onTimeout: @escaping () async -> Void)
+    func start(timeoutSeconds: Int, onTimeout: @Sendable @escaping () async -> Void)
     /// Handle a compiler response for `requestID`
     func receive(message: InboundMessage, reply: @escaping ReplyFn) throws
     /// Abandon the request
@@ -102,7 +102,7 @@ extension ManagedCompilerRequest {
     }
 
     /// Notify that the initial compile-req has been sent.  Return any timeout handler.
-    func start(timeoutSeconds: Int, onTimeout: @escaping () async -> Void ) {
+    func start(timeoutSeconds: Int, onTimeout: @Sendable @escaping () async -> Void ) {
         guard timeoutSeconds >= 0 else {
             debug("send \(requestName), no timeout")
             return
@@ -157,7 +157,7 @@ extension ManagedCompilerRequest {
 
 // MARK: CompilationRequest
 
-final class CompilationRequest: ManagedCompilerRequest {
+final class CompilationRequest: @unchecked Sendable, ManagedCompilerRequest {
     // Protocol reqs
     fileprivate var timer: Task<Void, Never>?
     fileprivate var state: CompilerRequestState
@@ -226,7 +226,7 @@ final class CompilationRequest: ManagedCompilerRequest {
     private typealias OBM = Sass_EmbeddedProtocol_OutboundMessage
     private typealias IBM = Sass_EmbeddedProtocol_InboundMessage
 
-    private typealias CompilationReplyFn = (IBM) async -> Void
+    private typealias CompilationReplyFn = @Sendable (IBM) async -> Void
 
     /// Inbound messages.
     func receive(message: InboundMessage, reply: @escaping ReplyFn) throws {
@@ -401,7 +401,7 @@ final class CompilationRequest: ManagedCompilerRequest {
 
             // Set up to monitor accesses to any `SassArgumentList`s
             let accessedArgList = AccessedArgList()
-            func accessArgList(id: UInt32) {
+            @Sendable func accessArgList(id: UInt32) {
                 guard id != 0 else { return }
                 accessedArgList.IDs.insert(id)
             }
