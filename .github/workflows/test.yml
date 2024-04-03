@@ -28,11 +28,11 @@ jobs:
       - name: Run tests
         run: make test
 
-  macos11:
-    name: macOS 13 tests
-    runs-on: macos-13
+  macos:
+    name: macOS 14 tests
+    runs-on: macos-14
     env:
-      DEVELOPER_DIR: /Applications/Xcode_15.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_15.3.app/Contents/Developer
     steps:
       - uses: actions/checkout@v2
 
