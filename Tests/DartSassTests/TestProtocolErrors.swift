@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import Logging
 import NIO
 @testable import DartSass
 
@@ -23,9 +24,37 @@ class TestProtocolErrors: DartSassTestCase {
         })
         await compiler.waitForRunning()
 
+        final class TestLogHandler: LogHandler, @unchecked Sendable {
+            subscript(metadataKey _: String) -> Logging.Logger.Metadata.Value? {
+                get { nil }
+                set(newValue) {}
+            }
+            
+            var metadata: Logger.Metadata = .init()
+
+            var logLevel: Logger.Level = .debug
+
+            var messageList: [String] = []
+
+            func log(level: Logger.Level, message: Logger.Message, metadata: Logger.Metadata?, source: String, file: String, function: String, line: UInt) {
+                messageList.append(message.description)
+            }
+        }
+
+        let oldLogger = Compiler.logger
+        let handler = TestLogHandler()
+        defer { Compiler.logger = oldLogger }
+
+        Compiler.logger = Logger(label: "tmp", factory: { id in handler })
+
         await compiler.tstSend(message: msg)
 
-        await checkProtocolError(compiler, "108") // this is racy...
+        await compiler.waitForQuiescing()
+        await compiler.waitForRunning()
+
+        let maybeMsg = handler.messageList.first(where: { $0.hasPrefix("protocol_error") })
+        let protoMsg = try XCTUnwrap(maybeMsg, "Missing protocol_error message: \(handler.messageList)")
+        XCTAssertTrue(protoMsg.contains("108"), "Wrong protocol error: \(protoMsg))")
 
         try await checkCompilerWorking(compiler)
         await compiler.assertStartCount(2)
