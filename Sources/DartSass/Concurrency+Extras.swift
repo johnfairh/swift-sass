@@ -53,11 +53,11 @@ enum TestSuspendPoint {
     case childTermination
 }
 
-protocol TestSuspendHook {
+protocol TestSuspendHook: Sendable {
     func suspend(for point: TestSuspendPoint) async
 }
 
-var TestSuspend: (any TestSuspendHook)?
+nonisolated(unsafe) var TestSuspend: (any TestSuspendHook)?
 
 // MARK: weird things probably meaning I don't understand something
 

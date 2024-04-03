@@ -15,7 +15,7 @@ import NIOFoundationCompat
 
 /// A message we want to send to the Sass compiler.
 /// It has two parts: an ID and a protobuf object.
-struct OutboundMessage {
+struct OutboundMessage: Sendable {
     let compilationID: UInt32
     let sassInboundMessage: Sass_EmbeddedProtocol_InboundMessage // inbound from compiler's POV
 
@@ -43,7 +43,7 @@ struct OutboundMessage {
 
 /// A message we've decoded from the Sass compiler.
 /// It has two parts: an ID and a protobuf object.
-struct InboundMessage {
+struct InboundMessage: Sendable {
     let compilationID: UInt32
     let sassOutboundMessage: Sass_EmbeddedProtocol_OutboundMessage // outbound from compiler's POV
 

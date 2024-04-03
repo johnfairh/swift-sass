@@ -94,7 +94,7 @@ class TestResetShutdown: DartSassTestCase {
         let badCompiler = try await newBadCompiler(timeout: -1)
         await badCompiler.waitForRunning()
         await setSuspend(at: .childTermination)
-        await badCompiler.child.asyncChannel.outbound.finish()
+        await badCompiler.child.outbound.finish()
         do {
             let results = try await badCompiler.compile(string: "")
             XCTFail("Managed to compile: \(results)")

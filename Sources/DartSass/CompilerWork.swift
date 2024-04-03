@@ -80,8 +80,9 @@ extension Compiler {
 
     private func start<R: CompilerRequest>(request: R) {
         activeRequests[request.requestID] = request
+        let requestDebugPrefix = request.debugPrefix
         request.start(timeoutSeconds: settings.timeout) {
-            await self.handleError(ProtocolError("Timeout: \(request.debugPrefix) timed out after \(self.settings.timeout)s"))
+            await self.handleError(ProtocolError("Timeout: \(requestDebugPrefix) timed out after \(self.settings.timeout)s"))
         }
     }
 
@@ -110,7 +111,7 @@ extension Compiler {
     }
 
     /// Test hook
-    static var onStuckQuiesce: (() -> Void)? = nil
+    nonisolated(unsafe) static var onStuckQuiesce: (() -> Void)? = nil
 
     /// Nudge the quiesce process.
     private func kickQuiesce() {

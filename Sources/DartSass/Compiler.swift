@@ -16,6 +16,9 @@ import Logging
 // CompilerChild -- Child process, NIO reads and writes
 // CompilerRequest -- job state, many, managed by CompilerWork
 
+// XXX NIO bug?  Workaround until Swift 6?
+extension NIOPipeBootstrap: @unchecked Sendable {}
+
 /// A Sass compiler that uses Dart Sass as an embedded child process.
 ///
 /// The Dart Sass compiler is bundled with this package for macOS and Ubuntu 64-bit Linux.
@@ -210,8 +213,35 @@ public actor Compiler {
     }
 
     deinit {
-        precondition(activeRequests.isEmpty)// !hasActiveRequests) WTF Swift async-await in deinit is weird
+        // XXX need isolated-deinit or something
+        // precondition(activeRequests.isEmpty)
         precondition(state.isShutdown, "Compiler not shutdown: \(state)")
+    }
+
+    /// XXX Factored-out inner loop, hope that isolation-inheritance will make this work better in Swift 6...
+    private func runInstance(child: CompilerChild) async throws {
+        debug("Compiler is started, starting healthcheck")
+        setState(.checking(child))
+
+        // Kick off the child task to deal with compiler responses
+        async let messageLoopTask: Void = runMessageLoop()
+
+        let versions = try await sendVersionRequest(to: child)
+        try versions.check()
+        self.versions = versions
+
+        // Might already be quiescing here, race with msgloop task
+        if state.isChecking {
+            setState(.running(child))
+            await waitForStateChange()
+        }
+
+        await messageLoopTask
+        precondition(state.isQuiescing, "Expected quiescing, is \(state)")
+
+        debug("Quiescing work for \(Task.isCancelled ? "shutdown" : "restart")")
+        await quiesce()
+        debug("Quiesce complete, no outstanding compilations")
     }
 
     /// Run and maintain the Sass compiler.
@@ -239,31 +269,10 @@ public actor Compiler {
                                       errorHandler: { [unowned self] in await handleError($0) })
                 }.get()
 
-                try await child.setUpChannel(group: eventLoop)
-                await TestSuspend?.suspend(for: .endOfInitializing)
-
-                debug("Compiler is started, starting healthcheck")
-                setState(.checking(child))
-
-                // Kick off the child task to deal with compiler responses
-                async let messageLoopTask: Void = runMessageLoop()
-
-                let versions = try await sendVersionRequest(to: child)
-                try versions.check()
-                self.versions = versions
-
-                // Might already be quiescing here, race with msgloop task
-                if state.isChecking {
-                    setState(.running(child))
-                    await waitForStateChange()
+                try await child.run(group: eventLoop) {
+                    await TestSuspend?.suspend(for: .endOfInitializing)
+                    try await runInstance(child: child)
                 }
-
-                await messageLoopTask
-                precondition(state.isQuiescing, "Expected quiescing, is \(state)")
-
-                debug("Quiescing work for \(Task.isCancelled ? "shutdown" : "restart")")
-                await quiesce()
-                debug("Quiesce complete, no outstanding compilations")
             } catch is CancellationError {
                 // means we got cancelled waiting for the version query - go straight to shutdown.
             } catch {
@@ -430,7 +439,9 @@ public actor Compiler {
     ///
     /// Produces protocol and lifecycle error reporting at `Logger.Level.debug` log level for conditions
     /// that are also reported through errors thrown from some API.
-    public static var logger = Logger(label: "dart-sass")
+    /// 
+    /// XXX need to revisit writability of this
+    public nonisolated(unsafe) static var logger = Logger(label: "dart-sass")
 
     func debug(_ msg: @autoclosure () -> String) {
         Compiler.logger.debug(.init(stringLiteral: msg()))
@@ -650,10 +661,10 @@ actor CompilerChild: ChannelInboundHandler {
     /// The child process
     private let child: Exec.Child
     /// Message handling (ex. the work manager)
-    typealias WorkHandler = (InboundMessage, @escaping ReplyFn) async throws -> Void
+    typealias WorkHandler = @Sendable (InboundMessage, @escaping ReplyFn) async throws -> Void
     private let workHandler: WorkHandler
     /// Error handling
-    typealias ErrorHandler = (any Error) async -> Void
+    typealias ErrorHandler = @Sendable (any Error) async -> Void
     private let errorHandler: ErrorHandler
     /// Cancellation protocol
     private var stopping: Bool
@@ -666,7 +677,10 @@ actor CompilerChild: ChannelInboundHandler {
         asyncChannel!.channel
     }
 
-    private(set) var asyncChannel: NIOAsyncChannel<InboundMessage, OutboundMessage>!
+    /// This is such a mess...
+    private var asyncChannel: NIOAsyncChannel<InboundMessage, OutboundMessage>!
+    private var inbound: NIOAsyncChannelInboundStream<InboundMessage>!
+    private(set) var outbound: NIOAsyncChannelOutboundWriter<OutboundMessage>!
 
     /// Create a new Sass compiler process.
     ///
@@ -714,8 +728,8 @@ actor CompilerChild: ChannelInboundHandler {
         }
     }
 
-    /// Connect the unix child process to NIO
-    func setUpChannel(group: EventLoopGroup) async throws {
+    /// Connect the unix child process to NIO and run
+    func run(group: EventLoopGroup, callback: @Sendable () async throws -> Void ) async throws {
         asyncChannel = try await NIOPipeBootstrap(group: group)
             .takingOwnershipOfDescriptors(input: child.stdoutFD, output: child.stdinFD) { ch in
                 ProtocolWriter.addHandler(to: ch)
@@ -723,9 +737,18 @@ actor CompilerChild: ChannelInboundHandler {
                         ProtocolReader.addHandler(to: ch)
                     }
                     .flatMapThrowing {
-                        try NIOAsyncChannel(synchronouslyWrapping: ch)
+                        try NIOAsyncChannel(wrappingChannelSynchronously: ch)
                     }
             }
+
+        // XXX is this another needing-to-inherit-isolation?  Or a NIO bug?
+        try await asyncChannel.executeThenClose { inbound, outbound in
+            self.inbound = inbound
+            self.outbound = outbound
+            try await callback()
+            self.inbound = nil
+            self.outbound = nil
+        }
     }
 
     /// Send a message to the Sass compiler with error detection.
@@ -737,7 +760,7 @@ actor CompilerChild: ChannelInboundHandler {
         }
 
         do {
-            try await asyncChannel.outbound.write(message) // == writeAndFlush
+            try await outbound.write(message) // == writeAndFlush
         } catch {
             // tough to reliably hit this error.  if we kill the process while trying to write to
             // it we get this on Darwin maybe 20% of the time vs. the write working, leaving the
@@ -766,7 +789,7 @@ actor CompilerChild: ChannelInboundHandler {
     private func processMessages2() async {
         precondition(asyncChannel != nil)
         do {
-            for try await message in asyncChannel.inbound {
+            for try await message in inbound {
                 // only 'async' because of hop to Compiler actor - is non-blocking synchronous on client side
                 await receive(message: message)
             }
@@ -799,7 +822,7 @@ actor CompilerChild: ChannelInboundHandler {
 }
 
 /// Version response injection for testing
-protocol VersionsResponder {
+protocol VersionsResponder: Sendable {
     func provideVersions(msg: OutboundMessage) async -> InboundMessage?
 }
 

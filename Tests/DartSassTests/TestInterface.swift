@@ -133,8 +133,9 @@ class TestInterface: DartSassTestCase {
         let compiler = try newCompiler()
 
         let results = try await withThrowingTaskGroup(of: CompilerResults.self) { group in
+            let scssIn = self.scssIn
             for _ in 1...8 {
-                group.addTask { try await compiler.compile(string: self.scssIn) }
+                group.addTask { try await compiler.compile(string: scssIn) }
             }
 
             var collected = [CompilerResults]()

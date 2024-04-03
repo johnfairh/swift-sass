@@ -6,7 +6,7 @@
 //
 
 import Foundation
-@_implementationOnly import SourceMapper
+import SourceMapper
 
 /// The output from a successful compilation.
 public struct CompilerResults: Sendable {

@@ -7,6 +7,8 @@
 
 import Semver
 
+extension Semver: @unchecked Sendable {}
+
 /// The set of versions reported by the embedded Sass compiler.
 ///
 /// The only part we police right now is the protocol version, the rest is just informative.
