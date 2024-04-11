@@ -219,6 +219,7 @@ public actor Compiler {
     }
 
     /// XXX Factored-out inner loop, hope that isolation-inheritance will make this work better in Swift 6...
+    /// XXX should be fixed with [isolated self]
     private func runInstance(child: CompilerChild) async throws {
         debug("Compiler is started, starting healthcheck")
         setState(.checking(child))
@@ -741,14 +742,22 @@ actor CompilerChild: ChannelInboundHandler {
                     }
             }
 
-        // XXX is this another needing-to-inherit-isolation?  Or a NIO bug?
-        try await asyncChannel.executeThenClose { inbound, outbound in
-            self.inbound = inbound
-            self.outbound = outbound
-            try await callback()
+        try await asyncChannel.executeThenClose { @Sendable inbound, outbound in
+            try await runThunk(inbound: inbound, outbound: outbound, callback: callback)
+        }
+    }
+
+    /// XXX Waiting for [isolated self]
+    private func runThunk(inbound: NIOAsyncChannelInboundStream<InboundMessage>,
+                          outbound: NIOAsyncChannelOutboundWriter<OutboundMessage>,
+                          callback: @Sendable () async throws -> Void) async throws {
+        self.inbound = inbound
+        self.outbound = outbound
+        defer {
             self.inbound = nil
             self.outbound = nil
         }
+        try await callback()
     }
 
     /// Send a message to the Sass compiler with error detection.

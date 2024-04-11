@@ -1,3 +1,7 @@
+New swift-protbuf release:
+* `brew upgrade swift-protobuf`
+* `make protobuf`
+
 New protocol release:
 * Update `sass` to the new tag
 * `make protobuf`
