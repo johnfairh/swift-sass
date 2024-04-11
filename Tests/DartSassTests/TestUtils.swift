@@ -8,6 +8,7 @@
 import NIO
 import XCTest
 import Foundation
+import Logging
 @testable import DartSass
 
 class DartSassTestCase: XCTestCase {
@@ -21,7 +22,7 @@ class DartSassTestCase: XCTestCase {
     override func setUpWithError() throws {
         XCTAssertNil(eventLoopGroup)
         eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-        Compiler.logger.logLevel = .debug
+        LoggerBackend.setup()
     }
 
     override func tearDown() async throws {
@@ -309,5 +310,101 @@ actor TestSuspend: TestSuspendHook {
         if let cont = suspendedPoints.removeValue(forKey: point) {
             cont.resume()
         }
+    }
+}
+
+// MARK: Logging
+
+/// Still 'mostly baffled' by Swift-Log but getting closer
+enum LoggerBackend {
+    final class Record: @unchecked Sendable {
+        private let lock: Lock
+        private var active: Bool
+        private var buffer: [String]
+
+        init() {
+            lock = Lock()
+            active = false
+            buffer = []
+        }
+
+        func reset() {
+            lock.locked {
+                active = false
+                buffer = []
+            }
+        }
+
+        func startRecording() {
+            lock.locked {
+                active = true
+            }
+        }
+
+        func offer(_ line: String) {
+            lock.locked {
+                if active {
+                    buffer.append(line)
+                }
+            }
+        }
+
+        @discardableResult
+        func stopRecording() -> [String] {
+            lock.locked {
+                active = false
+                return buffer
+            }
+        }
+    }
+    static let record = Record()
+
+    struct Handler: LogHandler {
+        var stdoutHandler: StreamLogHandler
+
+        init(name: String) {
+            stdoutHandler = StreamLogHandler.standardOutput(label: name)
+        }
+
+        func log(level: Logger.Level,
+                 message: Logger.Message,
+                 metadata: Logger.Metadata?,
+                 source: String,
+                 file: String,
+                 function: String,
+                 line: UInt) {
+            record.offer(message.description)
+            stdoutHandler.log(level: level, message: message, metadata: metadata, source: source, file: file, function: function, line: line)
+        }
+
+        subscript(metadataKey metadataKey: String) -> Logging.Logger.Metadata.Value? {
+            get {
+                stdoutHandler[metadataKey: metadataKey]
+            }
+            set(newValue) {
+                stdoutHandler[metadataKey: metadataKey] = newValue
+            }
+        }
+
+        var metadata: Logging.Logger.Metadata {
+            get {
+                stdoutHandler.metadata
+            }
+            set {
+                stdoutHandler.metadata = newValue
+            }
+        }
+
+        var logLevel: Logging.Logger.Level = .debug
+    }
+
+    nonisolated(unsafe) static var initialized = false
+
+    static func setup() {
+        if !initialized {
+            LoggingSystem.bootstrap(Handler.init)
+            initialized = true
+        }
+        record.reset()
     }
 }

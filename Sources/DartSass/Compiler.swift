@@ -16,7 +16,7 @@ import Logging
 // CompilerChild -- Child process, NIO reads and writes
 // CompilerRequest -- job state, many, managed by CompilerWork
 
-// XXX NIO bug?  Workaround until Swift 6?
+/// XXX NIO bug?  Workaround until Swift 6? :nodoc:
 extension NIOPipeBootstrap: @unchecked Sendable {}
 
 /// A Sass compiler that uses Dart Sass as an embedded child process.
@@ -25,7 +25,11 @@ extension NIOPipeBootstrap: @unchecked Sendable {}
 /// For other platforms you need to supply this separately, see
 /// [the readme](https://github.com/johnfairh/swift-sass/blob/main/README.md).
 ///
-/// Some debug logging is available via `Compiler.logger`.
+/// Some debug logging is available via a [swift-log](https://github.com/apple/swift-log) `Logger`
+/// that produces goodpath protocol and compiler lifecycle tracing at `Logger.Level.debug` log level,
+/// approx 300 bytes per compile request, and protocol and lifecycle error reporting at
+/// `Logger.Level.debug` log level for conditions that are also reported through errors thrown from
+/// some API.
 ///
 /// You must shut down the compiler using `shutdownGracefully(...)` before the last reference
 /// to the object is released otherwise the program will exit.
@@ -431,18 +435,9 @@ public actor Compiler {
         }
     }
 
-    /// Logger for the module.
-    ///
-    /// A [swift-log](https://github.com/apple/swift-log) `Logger`.
-    ///
-    /// Produces goodpath protocol and compiler lifecycle tracing at `Logger.Level.debug` log level,
-    /// approx 300 bytes per compile request.
-    ///
-    /// Produces protocol and lifecycle error reporting at `Logger.Level.debug` log level for conditions
-    /// that are also reported through errors thrown from some API.
-    /// 
-    /// XXX need to revisit writability of this
-    public nonisolated(unsafe) static var logger = Logger(label: "dart-sass")
+    // MARK: Logger
+
+    nonisolated static let logger = Logger(label: "dart-sass")
 
     func debug(_ msg: @autoclosure () -> String) {
         Compiler.logger.debug(.init(stringLiteral: msg()))
