@@ -27,7 +27,7 @@ let package = Package(
     dependencies: [
       .package(
         url: "https://github.com/apple/swift-protobuf.git",
-        from: "1.14.0"),
+        from: "1.26.0"),
       .package(
         url: "https://github.com/apple/swift-nio.git",
         from: "2.60.0"),
