@@ -1,4 +1,4 @@
-New swift-protbuf release:
+New swift-protobuf release:
 * `brew upgrade swift-protobuf`
 * `make protobuf`
 

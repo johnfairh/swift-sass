@@ -536,37 +536,49 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     // methods supported on all messages.
 
     /// The input stylesheet to parse. Mandatory.
-    var input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input? = nil
+    var input: OneOf_Input? {
+      get {return _storage._input}
+      set {_uniqueStorage()._input = newValue}
+    }
 
     /// A stylesheet loaded from its contents.
     var string: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.StringInput {
       get {
-        if case .string(let v)? = input {return v}
+        if case .string(let v)? = _storage._input {return v}
         return Sass_EmbeddedProtocol_InboundMessage.CompileRequest.StringInput()
       }
-      set {input = .string(newValue)}
+      set {_uniqueStorage()._input = .string(newValue)}
     }
 
     /// A stylesheet loaded from the given path on the filesystem.
     var path: String {
       get {
-        if case .path(let v)? = input {return v}
+        if case .path(let v)? = _storage._input {return v}
         return String()
       }
-      set {input = .path(newValue)}
+      set {_uniqueStorage()._input = .path(newValue)}
     }
 
     /// How to format the CSS output.
-    var style: Sass_EmbeddedProtocol_OutputStyle = .expanded
+    var style: Sass_EmbeddedProtocol_OutputStyle {
+      get {return _storage._style}
+      set {_uniqueStorage()._style = newValue}
+    }
 
     /// Whether to generate a source map. Note that this will *not* add a source
     /// map comment to the stylesheet; that's up to the host or its users.
-    var sourceMap: Bool = false
+    var sourceMap: Bool {
+      get {return _storage._sourceMap}
+      set {_uniqueStorage()._sourceMap = newValue}
+    }
 
     /// Importers (including load paths on the filesystem) to use when resolving
     /// imports that can't be resolved relative to the file that contains it. Each
     /// importer is checked in order until one recognizes the imported URL.
-    var importers: [Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer] = []
+    var importers: [Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer] {
+      get {return _storage._importers}
+      set {_uniqueStorage()._importers = newValue}
+    }
 
     /// Signatures for custom global functions whose behavior is defined by the
     /// host.
@@ -578,33 +590,75 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     ///
     /// Compilers must ensure that pure-Sass functions take precedence over
     /// custom global functions.
-    var globalFunctions: [String] = []
+    var globalFunctions: [String] {
+      get {return _storage._globalFunctions}
+      set {_uniqueStorage()._globalFunctions = newValue}
+    }
 
     /// Whether to use terminal colors in the formatted message of errors and
     /// logs.
-    var alertColor: Bool = false
+    var alertColor: Bool {
+      get {return _storage._alertColor}
+      set {_uniqueStorage()._alertColor = newValue}
+    }
 
     /// Whether to encode the formatted message of errors and logs in ASCII.
-    var alertAscii: Bool = false
+    var alertAscii: Bool {
+      get {return _storage._alertAscii}
+      set {_uniqueStorage()._alertAscii = newValue}
+    }
 
     /// Whether to report all deprecation warnings or only the first few ones.
     /// If this is `false`, the compiler may choose not to send events for
     /// repeated deprecation warnings. If this is `true`, the compiler must emit
     /// an event for every deprecation warning it encounters.
-    var verbose: Bool = false
+    var verbose: Bool {
+      get {return _storage._verbose}
+      set {_uniqueStorage()._verbose = newValue}
+    }
 
     /// Whether to omit events for deprecation warnings coming from dependencies
     /// (files loaded from a different importer than the input).
-    var quietDeps: Bool = false
+    var quietDeps: Bool {
+      get {return _storage._quietDeps}
+      set {_uniqueStorage()._quietDeps = newValue}
+    }
 
     /// Whether to include sources in the generated sourcemap
-    var sourceMapIncludeSources: Bool = false
+    var sourceMapIncludeSources: Bool {
+      get {return _storage._sourceMapIncludeSources}
+      set {_uniqueStorage()._sourceMapIncludeSources = newValue}
+    }
 
     /// Whether to emit a `@charset`/BOM for non-ASCII stylesheets.
-    var charset: Bool = false
+    var charset: Bool {
+      get {return _storage._charset}
+      set {_uniqueStorage()._charset = newValue}
+    }
 
     /// Whether to silently suppresses all `LogEvent`s.
-    var silent: Bool = false
+    var silent: Bool {
+      get {return _storage._silent}
+      set {_uniqueStorage()._silent = newValue}
+    }
+
+    /// Deprecation IDs to treat as fatal.
+    var fatalDeprecation: [String] {
+      get {return _storage._fatalDeprecation}
+      set {_uniqueStorage()._fatalDeprecation = newValue}
+    }
+
+    /// Deprecation IDs to ignore.
+    var silenceDeprecation: [String] {
+      get {return _storage._silenceDeprecation}
+      set {_uniqueStorage()._silenceDeprecation = newValue}
+    }
+
+    /// Deprecation IDs to opt into early.
+    var futureDeprecation: [String] {
+      get {return _storage._futureDeprecation}
+      set {_uniqueStorage()._futureDeprecation = newValue}
+    }
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -805,6 +859,8 @@ struct Sass_EmbeddedProtocol_InboundMessage {
     }
 
     init() {}
+
+    fileprivate var _storage = _StorageClass.defaultInstance
   }
 
   /// A response indicating the result of canonicalizing an imported URL.
@@ -1476,11 +1532,22 @@ struct Sass_EmbeddedProtocol_OutboundMessage {
     /// specified and is likely to be inconsistent between implementations.
     var formatted: String = String()
 
+    /// The deprecation ID for this warning, if type is DEPRECATION_WARNING.
+    var deprecationType: String {
+      get {return _deprecationType ?? String()}
+      set {_deprecationType = newValue}
+    }
+    /// Returns true if `deprecationType` has been explicitly set.
+    var hasDeprecationType: Bool {return self._deprecationType != nil}
+    /// Clears the value of `deprecationType`. Subsequent reads from it will return its default value.
+    mutating func clearDeprecationType() {self._deprecationType = nil}
+
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
     init() {}
 
     fileprivate var _span: Sass_EmbeddedProtocol_SourceSpan? = nil
+    fileprivate var _deprecationType: String? = nil
   }
 
   /// A request for a custom importer to convert an imported URL to its canonical
@@ -2605,7 +2672,7 @@ struct Sass_EmbeddedProtocol_Value {
 /// The built-in Node.js Package Importer, which is a Package Importer that
 /// resolves using the standards and conventions of the Node.js ecosystem. It
 /// enables a `pkg:` URL scheme for usage with `@use` that directs an
-/// implementation to resolve a URL within a dependency. 
+/// implementation to resolve a URL within a dependency.
 struct Sass_EmbeddedProtocol_NodePackageImporter {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -2936,116 +3003,202 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     12: .standard(proto: "source_map_include_sources"),
     13: .same(proto: "charset"),
     14: .same(proto: "silent"),
+    15: .standard(proto: "fatal_deprecation"),
+    16: .standard(proto: "silence_deprecation"),
+    17: .standard(proto: "future_deprecation"),
   ]
 
+  fileprivate class _StorageClass {
+    var _input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input?
+    var _style: Sass_EmbeddedProtocol_OutputStyle = .expanded
+    var _sourceMap: Bool = false
+    var _importers: [Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer] = []
+    var _globalFunctions: [String] = []
+    var _alertColor: Bool = false
+    var _alertAscii: Bool = false
+    var _verbose: Bool = false
+    var _quietDeps: Bool = false
+    var _sourceMapIncludeSources: Bool = false
+    var _charset: Bool = false
+    var _silent: Bool = false
+    var _fatalDeprecation: [String] = []
+    var _silenceDeprecation: [String] = []
+    var _futureDeprecation: [String] = []
+
+    #if swift(>=5.10)
+      // This property is used as the initial default value for new instances of the type.
+      // The type itself is protecting the reference to its storage via CoW semantics.
+      // This will force a copy to be made of this reference when the first mutation occurs;
+      // hence, it is safe to mark this as `nonisolated(unsafe)`.
+      static nonisolated(unsafe) let defaultInstance = _StorageClass()
+    #else
+      static let defaultInstance = _StorageClass()
+    #endif
+
+    private init() {}
+
+    init(copying source: _StorageClass) {
+      _input = source._input
+      _style = source._style
+      _sourceMap = source._sourceMap
+      _importers = source._importers
+      _globalFunctions = source._globalFunctions
+      _alertColor = source._alertColor
+      _alertAscii = source._alertAscii
+      _verbose = source._verbose
+      _quietDeps = source._quietDeps
+      _sourceMapIncludeSources = source._sourceMapIncludeSources
+      _charset = source._charset
+      _silent = source._silent
+      _fatalDeprecation = source._fatalDeprecation
+      _silenceDeprecation = source._silenceDeprecation
+      _futureDeprecation = source._futureDeprecation
+    }
+  }
+
+  fileprivate mutating func _uniqueStorage() -> _StorageClass {
+    if !isKnownUniquelyReferenced(&_storage) {
+      _storage = _StorageClass(copying: _storage)
+    }
+    return _storage
+  }
+
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 2: try {
-        var v: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.StringInput?
-        var hadOneofValue = false
-        if let current = self.input {
-          hadOneofValue = true
-          if case .string(let m) = current {v = m}
+    _ = _uniqueStorage()
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      while let fieldNumber = try decoder.nextFieldNumber() {
+        // The use of inline closures is to circumvent an issue where the compiler
+        // allocates stack space for every case branch when no optimizations are
+        // enabled. https://github.com/apple/swift-protobuf/issues/1034
+        switch fieldNumber {
+        case 2: try {
+          var v: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.StringInput?
+          var hadOneofValue = false
+          if let current = _storage._input {
+            hadOneofValue = true
+            if case .string(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._input = .string(v)
+          }
+        }()
+        case 3: try {
+          var v: String?
+          try decoder.decodeSingularStringField(value: &v)
+          if let v = v {
+            if _storage._input != nil {try decoder.handleConflictingOneOf()}
+            _storage._input = .path(v)
+          }
+        }()
+        case 4: try { try decoder.decodeSingularEnumField(value: &_storage._style) }()
+        case 5: try { try decoder.decodeSingularBoolField(value: &_storage._sourceMap) }()
+        case 6: try { try decoder.decodeRepeatedMessageField(value: &_storage._importers) }()
+        case 7: try { try decoder.decodeRepeatedStringField(value: &_storage._globalFunctions) }()
+        case 8: try { try decoder.decodeSingularBoolField(value: &_storage._alertColor) }()
+        case 9: try { try decoder.decodeSingularBoolField(value: &_storage._alertAscii) }()
+        case 10: try { try decoder.decodeSingularBoolField(value: &_storage._verbose) }()
+        case 11: try { try decoder.decodeSingularBoolField(value: &_storage._quietDeps) }()
+        case 12: try { try decoder.decodeSingularBoolField(value: &_storage._sourceMapIncludeSources) }()
+        case 13: try { try decoder.decodeSingularBoolField(value: &_storage._charset) }()
+        case 14: try { try decoder.decodeSingularBoolField(value: &_storage._silent) }()
+        case 15: try { try decoder.decodeRepeatedStringField(value: &_storage._fatalDeprecation) }()
+        case 16: try { try decoder.decodeRepeatedStringField(value: &_storage._silenceDeprecation) }()
+        case 17: try { try decoder.decodeRepeatedStringField(value: &_storage._futureDeprecation) }()
+        default: break
         }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.input = .string(v)
-        }
-      }()
-      case 3: try {
-        var v: String?
-        try decoder.decodeSingularStringField(value: &v)
-        if let v = v {
-          if self.input != nil {try decoder.handleConflictingOneOf()}
-          self.input = .path(v)
-        }
-      }()
-      case 4: try { try decoder.decodeSingularEnumField(value: &self.style) }()
-      case 5: try { try decoder.decodeSingularBoolField(value: &self.sourceMap) }()
-      case 6: try { try decoder.decodeRepeatedMessageField(value: &self.importers) }()
-      case 7: try { try decoder.decodeRepeatedStringField(value: &self.globalFunctions) }()
-      case 8: try { try decoder.decodeSingularBoolField(value: &self.alertColor) }()
-      case 9: try { try decoder.decodeSingularBoolField(value: &self.alertAscii) }()
-      case 10: try { try decoder.decodeSingularBoolField(value: &self.verbose) }()
-      case 11: try { try decoder.decodeSingularBoolField(value: &self.quietDeps) }()
-      case 12: try { try decoder.decodeSingularBoolField(value: &self.sourceMapIncludeSources) }()
-      case 13: try { try decoder.decodeSingularBoolField(value: &self.charset) }()
-      case 14: try { try decoder.decodeSingularBoolField(value: &self.silent) }()
-      default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every if/case branch local when no optimizations
-    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
-    // https://github.com/apple/swift-protobuf/issues/1182
-    switch self.input {
-    case .string?: try {
-      guard case .string(let v)? = self.input else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-    }()
-    case .path?: try {
-      guard case .path(let v)? = self.input else { preconditionFailure() }
-      try visitor.visitSingularStringField(value: v, fieldNumber: 3)
-    }()
-    case nil: break
-    }
-    if self.style != .expanded {
-      try visitor.visitSingularEnumField(value: self.style, fieldNumber: 4)
-    }
-    if self.sourceMap != false {
-      try visitor.visitSingularBoolField(value: self.sourceMap, fieldNumber: 5)
-    }
-    if !self.importers.isEmpty {
-      try visitor.visitRepeatedMessageField(value: self.importers, fieldNumber: 6)
-    }
-    if !self.globalFunctions.isEmpty {
-      try visitor.visitRepeatedStringField(value: self.globalFunctions, fieldNumber: 7)
-    }
-    if self.alertColor != false {
-      try visitor.visitSingularBoolField(value: self.alertColor, fieldNumber: 8)
-    }
-    if self.alertAscii != false {
-      try visitor.visitSingularBoolField(value: self.alertAscii, fieldNumber: 9)
-    }
-    if self.verbose != false {
-      try visitor.visitSingularBoolField(value: self.verbose, fieldNumber: 10)
-    }
-    if self.quietDeps != false {
-      try visitor.visitSingularBoolField(value: self.quietDeps, fieldNumber: 11)
-    }
-    if self.sourceMapIncludeSources != false {
-      try visitor.visitSingularBoolField(value: self.sourceMapIncludeSources, fieldNumber: 12)
-    }
-    if self.charset != false {
-      try visitor.visitSingularBoolField(value: self.charset, fieldNumber: 13)
-    }
-    if self.silent != false {
-      try visitor.visitSingularBoolField(value: self.silent, fieldNumber: 14)
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every if/case branch local when no optimizations
+      // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+      // https://github.com/apple/swift-protobuf/issues/1182
+      switch _storage._input {
+      case .string?: try {
+        guard case .string(let v)? = _storage._input else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+      }()
+      case .path?: try {
+        guard case .path(let v)? = _storage._input else { preconditionFailure() }
+        try visitor.visitSingularStringField(value: v, fieldNumber: 3)
+      }()
+      case nil: break
+      }
+      if _storage._style != .expanded {
+        try visitor.visitSingularEnumField(value: _storage._style, fieldNumber: 4)
+      }
+      if _storage._sourceMap != false {
+        try visitor.visitSingularBoolField(value: _storage._sourceMap, fieldNumber: 5)
+      }
+      if !_storage._importers.isEmpty {
+        try visitor.visitRepeatedMessageField(value: _storage._importers, fieldNumber: 6)
+      }
+      if !_storage._globalFunctions.isEmpty {
+        try visitor.visitRepeatedStringField(value: _storage._globalFunctions, fieldNumber: 7)
+      }
+      if _storage._alertColor != false {
+        try visitor.visitSingularBoolField(value: _storage._alertColor, fieldNumber: 8)
+      }
+      if _storage._alertAscii != false {
+        try visitor.visitSingularBoolField(value: _storage._alertAscii, fieldNumber: 9)
+      }
+      if _storage._verbose != false {
+        try visitor.visitSingularBoolField(value: _storage._verbose, fieldNumber: 10)
+      }
+      if _storage._quietDeps != false {
+        try visitor.visitSingularBoolField(value: _storage._quietDeps, fieldNumber: 11)
+      }
+      if _storage._sourceMapIncludeSources != false {
+        try visitor.visitSingularBoolField(value: _storage._sourceMapIncludeSources, fieldNumber: 12)
+      }
+      if _storage._charset != false {
+        try visitor.visitSingularBoolField(value: _storage._charset, fieldNumber: 13)
+      }
+      if _storage._silent != false {
+        try visitor.visitSingularBoolField(value: _storage._silent, fieldNumber: 14)
+      }
+      if !_storage._fatalDeprecation.isEmpty {
+        try visitor.visitRepeatedStringField(value: _storage._fatalDeprecation, fieldNumber: 15)
+      }
+      if !_storage._silenceDeprecation.isEmpty {
+        try visitor.visitRepeatedStringField(value: _storage._silenceDeprecation, fieldNumber: 16)
+      }
+      if !_storage._futureDeprecation.isEmpty {
+        try visitor.visitRepeatedStringField(value: _storage._futureDeprecation, fieldNumber: 17)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_InboundMessage.CompileRequest, rhs: Sass_EmbeddedProtocol_InboundMessage.CompileRequest) -> Bool {
-    if lhs.input != rhs.input {return false}
-    if lhs.style != rhs.style {return false}
-    if lhs.sourceMap != rhs.sourceMap {return false}
-    if lhs.importers != rhs.importers {return false}
-    if lhs.globalFunctions != rhs.globalFunctions {return false}
-    if lhs.alertColor != rhs.alertColor {return false}
-    if lhs.alertAscii != rhs.alertAscii {return false}
-    if lhs.verbose != rhs.verbose {return false}
-    if lhs.quietDeps != rhs.quietDeps {return false}
-    if lhs.sourceMapIncludeSources != rhs.sourceMapIncludeSources {return false}
-    if lhs.charset != rhs.charset {return false}
-    if lhs.silent != rhs.silent {return false}
+    if lhs._storage !== rhs._storage {
+      let storagesAreEqual: Bool = withExtendedLifetime((lhs._storage, rhs._storage)) { (_args: (_StorageClass, _StorageClass)) in
+        let _storage = _args.0
+        let rhs_storage = _args.1
+        if _storage._input != rhs_storage._input {return false}
+        if _storage._style != rhs_storage._style {return false}
+        if _storage._sourceMap != rhs_storage._sourceMap {return false}
+        if _storage._importers != rhs_storage._importers {return false}
+        if _storage._globalFunctions != rhs_storage._globalFunctions {return false}
+        if _storage._alertColor != rhs_storage._alertColor {return false}
+        if _storage._alertAscii != rhs_storage._alertAscii {return false}
+        if _storage._verbose != rhs_storage._verbose {return false}
+        if _storage._quietDeps != rhs_storage._quietDeps {return false}
+        if _storage._sourceMapIncludeSources != rhs_storage._sourceMapIncludeSources {return false}
+        if _storage._charset != rhs_storage._charset {return false}
+        if _storage._silent != rhs_storage._silent {return false}
+        if _storage._fatalDeprecation != rhs_storage._fatalDeprecation {return false}
+        if _storage._silenceDeprecation != rhs_storage._silenceDeprecation {return false}
+        if _storage._futureDeprecation != rhs_storage._futureDeprecation {return false}
+        return true
+      }
+      if !storagesAreEqual {return false}
+    }
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -3939,6 +4092,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
     4: .same(proto: "span"),
     5: .standard(proto: "stack_trace"),
     6: .same(proto: "formatted"),
+    7: .standard(proto: "deprecation_type"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3952,6 +4106,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
       case 4: try { try decoder.decodeSingularMessageField(value: &self._span) }()
       case 5: try { try decoder.decodeSingularStringField(value: &self.stackTrace) }()
       case 6: try { try decoder.decodeSingularStringField(value: &self.formatted) }()
+      case 7: try { try decoder.decodeSingularStringField(value: &self._deprecationType) }()
       default: break
       }
     }
@@ -3977,6 +4132,9 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
     if !self.formatted.isEmpty {
       try visitor.visitSingularStringField(value: self.formatted, fieldNumber: 6)
     }
+    try { if let v = self._deprecationType {
+      try visitor.visitSingularStringField(value: v, fieldNumber: 7)
+    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -3986,6 +4144,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
     if lhs._span != rhs._span {return false}
     if lhs.stackTrace != rhs.stackTrace {return false}
     if lhs.formatted != rhs.formatted {return false}
+    if lhs._deprecationType != rhs._deprecationType {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
