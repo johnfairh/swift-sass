@@ -116,9 +116,6 @@ custom_defs:
            - compilerPackageVersion
            - reinit()
            - shutdownGracefully()
-      - name: Logging
-        children:
-          - logger
 
   - name: SassValue
     topics:
