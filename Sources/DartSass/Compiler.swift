@@ -110,8 +110,8 @@ public actor Compiler {
 
     /// Use the bundled Dart Sass compiler as the Sass compiler.
     ///
-    /// The bundled Dart Sass compiler is built on macOS (11.6) or Ubuntu (20.04) Intel 64-bit.
-    /// If you are running on another operating system then use `init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:warningLevel:importers:functions:)`
+    /// The bundled Dart Sass compiler is built on latest macOS (14) or Ubuntu (20.04).
+    /// If you are running on another operating system then use `init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:deprecationControl:warningLevel:importers:functions:)`
     /// supplying the path of the correct Dart Sass compiler.
     ///
     /// Initialization continues asynchronously after the initializer completes; failures are reported
@@ -129,6 +129,8 @@ public actor Compiler {
     /// - parameter verboseDeprecations: Control for deprecation warning messages.
     ///   If `false` then the compiler will send only a few deprecation warnings of the same type.
     ///   Default is `false` meaning repeated deprecation warnings _are_ suppressed.
+    /// - parameter deprecationControl: Fine-grained control over how each deprecated feature
+    ///   is handled.  Default is to issue a warning when any deprecated feature is used.
     /// - parameter warningLevel: Control for warning messages from Sass files.  Default is `.all`
     ///   meaning all warnings mentioned in Sass files are produced.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
@@ -139,6 +141,7 @@ public actor Compiler {
                 timeout: Int = 60,
                 messageStyle: CompilerMessageStyle = .plain,
                 verboseDeprecations: Bool = false,
+                deprecationControl: DeprecationControl = DeprecationControl(),
                 warningLevel: CompilerWarningLevel = .all,
                 importers: [ImportResolver] = [],
                 functions: SassFunctionMap = [:]) throws {
@@ -149,6 +152,7 @@ public actor Compiler {
                   timeout: timeout,
                   messageStyle: messageStyle,
                   verboseDeprecations: verboseDeprecations,
+                  deprecationControl: deprecationControl,
                   warningLevel: warningLevel,
                   importers: importers,
                   functions: functions)
@@ -176,6 +180,8 @@ public actor Compiler {
     /// - parameter verboseDeprecations: Control for deprecation warning messages.
     ///   If `false` then the compiler will send only a few deprecation warnings of the same type.
     ///   Default is `false` meaning repeated deprecation warnings _are_ suppressed.
+    /// - parameter deprecationControl: Fine-grained control over how each deprecated feature
+    ///   is handled.  Default is to issue a warning when any deprecated feature is used.
     /// - parameter warningLevel: Control for warning messages from Sass files.  Default is `.all`
     ///   meaning all warnings mentioned in Sass files are produced.
     /// - parameter importers: Rules for resolving `@import` that cannot be satisfied relative to
@@ -187,6 +193,7 @@ public actor Compiler {
                 timeout: Int = 60,
                 messageStyle: CompilerMessageStyle = .plain,
                 verboseDeprecations: Bool = false,
+                deprecationControl: DeprecationControl = DeprecationControl(),
                 warningLevel: CompilerWarningLevel = .all,
                 importers: [ImportResolver] = [],
                 functions: SassFunctionMap = [:]) {
@@ -201,6 +208,7 @@ public actor Compiler {
                             globalFunctions: functions,
                             messageStyle: messageStyle,
                             verboseDeprecations: verboseDeprecations,
+                            deprecationControl: deprecationControl,
                             warningLevel: warningLevel)
         stateWaitingQueue = ContinuationQueue()
         activeRequests = [:]

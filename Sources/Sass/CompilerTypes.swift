@@ -200,17 +200,22 @@ public struct CompilerMessage: CustomStringConvertible, Sendable {
     /// The stack trace through the compiler input stylesheets that led to the message.
     public let stackTrace: String?
 
+    /// A compiler-specific identifier for the message.  For Dart Sass this holds the deprecation ID
+    /// for deprecation warning messages.
+    public let messageID: String?
+
     /// A rich multi-line user-readable description of this error, containing the message, span,
     /// and stacktrace.  This is provided by the underlying Sass compiler, format controlled using
     /// `CompilerMessageStyle`.
     public let description: String
 
     /// :nodoc:
-    public init(kind: Kind, message: String, span: Span?, stackTrace: String?, description: String) {
+    public init(kind: Kind, message: String, span: Span?, stackTrace: String?, messageID: String?, description: String) {
         self.kind = kind
         self.message = message
         self.span = span
         self.stackTrace = stackTrace
+        self.messageID = messageID
         self.description = description
     }
 }
@@ -237,6 +242,3 @@ public enum CompilerWarningLevel: Sendable {
     /// scenarios where many warning messages would otherwise be logged.
     case none
 }
-
-// Until Foundation catches up / decides we're wrong...
-extension URL: @unchecked Sendable {}

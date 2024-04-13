@@ -61,10 +61,6 @@ nonisolated(unsafe) var TestSuspend: (any TestSuspendHook)?
 
 // MARK: weird things probably meaning I don't understand something
 
-func preconditionFailure(_ msg: String) -> Never {
-    Swift.preconditionFailure(msg)
-}
-
 func precondition(_ cond: Bool, _ msg: String = "") {
     Swift.precondition(cond, msg)
 }

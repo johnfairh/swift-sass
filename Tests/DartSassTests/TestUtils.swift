@@ -48,6 +48,12 @@ class DartSassTestCase: XCTestCase {
         return c
     }
 
+    func newCompiler(deprecationControl: DeprecationControl) throws -> Compiler {
+        let c = try Compiler(eventLoopGroup: eventLoopGroup, deprecationControl: deprecationControl)
+        compilersToShutdown.append(c)
+        return c
+    }
+
     func newBadCompiler(timeout: Int = 1) async throws -> Compiler {
         let c = Compiler(eventLoopGroup: eventLoopGroup,
                          embeddedCompilerFileURL: URL(fileURLWithPath: "/usr/bin/tail"),

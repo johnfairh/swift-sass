@@ -5,7 +5,7 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import Semver
+internal import Semver
 
 /// The set of versions reported by the embedded Sass compiler.
 ///

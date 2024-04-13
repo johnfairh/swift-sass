@@ -1,4 +1,4 @@
-// swift-tools-version:5.7
+// swift-tools-version:5.10
 
 import PackageDescription
 
@@ -63,7 +63,11 @@ let package = Package(
           .product(name: "Atomics", package: "swift-atomics"),
           .product(name: "Logging", package: "swift-log"),
           .product(name: "Semver", package: "Semver.swift"),
-        ]),
+        ],
+        swiftSettings: [
+          .enableExperimentalFeature("AccessLevelOnImport")
+        ]
+      ),
       .target(
         name: "DartSassEmbeddedMacOS",
         exclude: excluded,

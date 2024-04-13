@@ -188,4 +188,58 @@ class TestInterface: DartSassTestCase {
         let utf8 = try await compiler.compile(string: #"a { color: "😀"} "#, includeCharset: true)
         XCTAssertTrue(utf8.css.starts(with: #"@charset "UTF-8""#))
     }
+
+    /// Deprecation control
+    func testDeprecationControl() async throws {
+        let deprecatedScss = """
+        @function mangle($num) {
+          @return $num / 1;
+        }
+
+        .a {
+          height: mangle(100);
+        }
+        """
+
+        // Deprecation
+        let compiler1 = try newCompiler()
+        let results1 = try await compiler1.compile(string: deprecatedScss)
+        XCTAssertEqual(1, results1.messages.count)
+        let msg = try XCTUnwrap(results1.messages.first)
+
+        XCTAssertEqual(msg.kind, CompilerMessage.Kind.deprecation)
+        let msgID = try XCTUnwrap(msg.messageID)
+        XCTAssertEqual(msgID, Deprecation.ID.slashDiv.rawValue)
+        XCTAssertEqual(Deprecation(msgID), .id(.slashDiv))
+
+        // Silence
+        let compiler2 = try newCompiler(deprecationControl: DeprecationControl(silenced: [.id(.slashDiv)]))
+        let results2 = try await compiler2.compile(string: deprecatedScss)
+        XCTAssertEqual(0, results2.messages.count)
+
+        // Fatal
+        do {
+            let compiler3 = try newCompiler(deprecationControl: DeprecationControl(fatal: [.id(.slashDiv)]))
+            let results3 = try await compiler3.compile(string: deprecatedScss)
+            XCTFail("Unexpected success: \(results3)")
+        } catch let error as CompilerError {
+            XCTAssertEqual(0, error.messages.count)
+            XCTAssertTrue(error.message.contains("Using / for division"))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    /// Deprecation control - type round-trip
+    func testDeprecationStringRoundTrip() {
+        func check(_ string: String, _ deprecation: Deprecation) {
+            let dep = Deprecation(string)
+            XCTAssertEqual(deprecation, dep)
+            let str = dep.description
+            XCTAssertEqual(string, str)
+        }
+
+        check("moz-document", .id(.mozDocument))
+        check("weird", .custom("weird"))
+    }
 }

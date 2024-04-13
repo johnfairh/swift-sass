@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/johnfairh/Semver.swift.git",
       "state" : {
-        "revision" : "b74414f07d2af7ee71421a7d80e2ca39d7da0a1b",
-        "version" : "1.2.3"
+        "revision" : "0a6e2fe061ecb840c9bf80b6427e70ac039239fa",
+        "version" : "1.2.4"
       }
     },
     {

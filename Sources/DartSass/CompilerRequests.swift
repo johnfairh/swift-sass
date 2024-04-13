@@ -206,6 +206,9 @@ final class CompilationRequest: @unchecked Sendable, ManagedCompilerRequest {
             msg.alertColor = settings.messageStyle.isColored
             msg.verbose = settings.verboseDeprecations
             msg.quietDeps = settings.warningLevel.suppressDependencyWarnings
+            msg.silenceDeprecation = settings.deprecationControl.silenced.asStrings
+            msg.fatalDeprecation = settings.deprecationControl.fatal.asStrings
+            msg.futureDeprecation = settings.deprecationControl.future.asStrings
             msg.sourceMapIncludeSources = sourceMapStyle.embedSourceMap
             msg.charset = includeCharset
             msg.silent = settings.warningLevel.isSilent
