@@ -44,6 +44,8 @@ custom_groups:
           - SourceMapStyle
           - CompilerMessageStyle
           - CompilerWarningLevel
+          - Deprecation
+          - DeprecationControl
       - name: Outputs
         children:
           - CompilerResults
@@ -102,8 +104,8 @@ custom_defs:
     topics:
       - name: Initializers
         children:
-          - init(eventLoopGroup:timeout:messageStyle:verboseDeprecations:warningLevel:importers:functions:)
-          - init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:warningLevel:importers:functions:)
+          - init(eventLoopGroup:timeout:messageStyle:verboseDeprecations:deprecationControl:warningLevel:importers:functions:)
+          - init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:deprecationControl:warningLevel:importers:functions:)
       - name: Compilation
         children:
           - compile(string:syntax:url:importer:outputStyle:sourceMapStyle:includeCharset:importers:functions:)

@@ -56,6 +56,7 @@
 		02A1A97A25B70A8B0045E28F /* Versions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A97925B70A8B0045E28F /* Versions.swift */; };
 		02A1A99125B774420045E28F /* Semver in Frameworks */ = {isa = PBXBuildFile; productRef = 02A1A99025B774420045E28F /* Semver */; };
 		02A1A9A125B99C650045E28F /* TestVersions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1A99525B99C560045E28F /* TestVersions.swift */; };
+		02A1D66B2BC8379A00B07523 /* Deprecation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A1D66A2BC8379A00B07523 /* Deprecation.swift */; };
 		02A346E9257AAE3D00A14905 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 02A346E8257AAE3D00A14905 /* Logging */; };
 		02A3BC0125800D0600BBF99E /* CompilerWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0025800D0600BBF99E /* CompilerWork.swift */; };
 		02A3BC0F2585314200BBF99E /* ssassc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A3BC0E2585314200BBF99E /* ssassc.swift */; };
@@ -172,6 +173,7 @@
 		02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerRequests.swift; sourceTree = "<group>"; };
 		02A1A97925B70A8B0045E28F /* Versions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Versions.swift; sourceTree = "<group>"; };
 		02A1A99525B99C560045E28F /* TestVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestVersions.swift; sourceTree = "<group>"; };
+		02A1D66A2BC8379A00B07523 /* Deprecation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deprecation.swift; sourceTree = "<group>"; };
 		02A3BC0025800D0600BBF99E /* CompilerWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerWork.swift; sourceTree = "<group>"; };
 		02A3BC0C2585314200BBF99E /* Cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Cli; sourceTree = BUILT_PRODUCTS_DIR; };
 		02A3BC0E2585314200BBF99E /* ssassc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ssassc.swift; path = ../SassCli/ssassc.swift; sourceTree = "<group>"; };
@@ -381,6 +383,7 @@
 			children = (
 				026E4D38260E103E00E916BF /* Importers.swift */,
 				OBJ_10 /* Compiler.swift */,
+				02A1D66A2BC8379A00B07523 /* Deprecation.swift */,
 				02A3BC0025800D0600BBF99E /* CompilerWork.swift */,
 				02A1A96E25B5AAEA0045E28F /* CompilerRequests.swift */,
 				02A1A97925B70A8B0045E28F /* Versions.swift */,
@@ -634,6 +637,7 @@
 				0289BB3A2568471D0004544A /* ProtobufConversion.swift in Sources */,
 				02A1A96F25B5AAEA0045E28F /* CompilerRequests.swift in Sources */,
 				02A3BC0125800D0600BBF99E /* CompilerWork.swift in Sources */,
+				02A1D66B2BC8379A00B07523 /* Deprecation.swift in Sources */,
 				025C624F255D2C9300AEA420 /* BinaryProtocol.swift in Sources */,
 				OBJ_119 /* Compiler.swift in Sources */,
 				OBJ_120 /* embedded_sass.pb.swift in Sources */,
@@ -1228,7 +1232,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode";
+				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode -enable-experimental-feature AccessLevelOnImport";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
@@ -1253,7 +1257,7 @@
 					"SWIFT_PACKAGE=1",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode";
+				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode -enable-experimental-feature AccessLevelOnImport";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";

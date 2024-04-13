@@ -78,6 +78,7 @@ extension CompilerMessage {
                      message: protobuf.message,
                      span: protobuf.hasSpan ? .init(protobuf.span) : nil,
                      stackTrace: protobuf.stackTrace.nonEmptyString,
+                     messageID: protobuf.deprecationType.nonEmptyString,
                      description: protobuf.formatted)
     }
 }
