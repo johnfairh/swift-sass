@@ -43,6 +43,9 @@ let package = Package(
       .package(
         url: "https://github.com/johnfairh/SourceMapper.git",
         from: "2.0.0"),
+      .package(
+        url: "https://github.com/swift-server/swift-service-lifecycle.git",
+        from: "2.5.0"),
     ],
     targets: [
       .target(
@@ -76,12 +79,30 @@ let package = Package(
         name: "DartSassEmbeddedLinux",
         exclude: excluded,
         resources: [.copy(arch)]),
+      .target(
+        name: "DartSassService",
+        dependencies: [
+          .target(name: "DartSass"),
+          .product(name: "ServiceLifecycle", package: "swift-service-lifecycle")
+        ],
+        swiftSettings: [
+          .enableExperimentalFeature("AccessLevelOnImport")
+        ]
+      ),
       .testTarget(
         name: "DartSassTests",
         dependencies: ["DartSass"]),
       .testTarget(
         name: "SassTests",
         dependencies: ["Sass"]),
+      .testTarget(
+        name: "DartSassServiceTests",
+        dependencies: [
+        .target(name: "DartSassService"),
+        .product(name: "ServiceLifecycleTestKit",
+                 package: "swift-service-lifecycle")
+        ]
+      ),
       .executableTarget(
         name: "SassCli",
         dependencies: ["DartSass"]),

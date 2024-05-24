@@ -1,0 +1,10 @@
+Set up to provide a wrapper service that integrates with shutdown.
+
+1) Xcode build doesn't work because of a swift-async-algorithms bug
+   to do with its usage of SwiftCollections that is fixed but not
+   released
+
+2) Test seems to work on CLI, need to step through visually and
+   confirm it's doing the right things
+
+3) Docs / Docs-integration and usage description pending
