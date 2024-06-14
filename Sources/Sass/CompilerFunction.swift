@@ -12,7 +12,7 @@
 ///
 /// Right now there is no way to explicitly request they be executed; all you can do with this
 /// type is validate that it appears when you expect it to and pass it back to the compiler when needed.
-public final class SassCompilerFunction: SassValue {
+public final class SassCompilerFunction: SassValue, @unchecked Sendable {
     // MARK: Properties
 
     /// The function ID.  Opaque to users, meaningful to Sass implementations.

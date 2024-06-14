@@ -362,7 +362,7 @@ struct ColorValue: CustomStringConvertible {
 ///
 /// - note: Parameter values follow web standards rather the Apple SDK standards,
 ///   so for example 'red' is modelled as an integer in 0...255.
-public final class SassColor: SassValue {
+public final class SassColor: SassValue, @unchecked Sendable {
     private var colorValue: ColorValue
 
     private init(_ value: ColorValue) {

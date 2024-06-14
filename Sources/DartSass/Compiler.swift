@@ -16,9 +16,6 @@ import Logging
 // CompilerChild -- Child process, NIO reads and writes
 // CompilerRequest -- job state, many, managed by CompilerWork
 
-/// XXX NIO bug?  Workaround until Swift 6? :nodoc:
-extension NIOPipeBootstrap: @unchecked Sendable {}
-
 /// A Sass compiler that uses Dart Sass as an embedded child process.
 ///
 /// The Dart Sass compiler is bundled with this package for macOS and Ubuntu 64-bit Linux.

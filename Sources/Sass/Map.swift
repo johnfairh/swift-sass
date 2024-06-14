@@ -12,7 +12,7 @@
 ///
 /// When a map is viewed as a Sass list then the list is of two-element lists, one
 /// for each key-value pair in the map.  The pairs are in no particular order.
-public final class SassMap: SassValue {
+public final class SassMap: SassValue, @unchecked Sendable {
     // MARK: Initializers
 
     /// Create a `SassMap` from an existing `Dictionary`.

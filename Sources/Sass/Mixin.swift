@@ -8,7 +8,7 @@
 /// A Sass mixin.
 ///
 /// Values representing mixins can only be created by the compiler.  See [the Sass docs](https://sass-lang.com/documentation/values/mixins/).
-public final class SassMixin: SassValue {
+public final class SassMixin: SassValue, @unchecked Sendable {
     // MARK: Properties
 
     /// The mixin ID.  Opaque to users, meaningful to Sass implementations.
