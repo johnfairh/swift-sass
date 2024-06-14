@@ -11,7 +11,7 @@
 ///
 /// You cannot create instances of this type: use `SassConstants.true` and `SassConstants.false`
 /// instead.
-public final class SassBool: SassValue {
+public final class SassBool: SassValue, @unchecked Sendable {
     // MARK: Properties
 
     /// The value of the boolean.
@@ -61,7 +61,7 @@ extension SassValue {
 /// The Sass `null` value.
 ///
 /// You cannot create instances of this type: use `SassConstants.null` instead.
-public final class SassNull: SassValue {
+public final class SassNull: SassValue, @unchecked Sendable {
     // MARK: Properties
 
     public override var isTruthy: Bool { false }

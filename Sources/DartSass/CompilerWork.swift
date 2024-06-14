@@ -68,16 +68,35 @@ extension Compiler {
         return request.versionReq
     }
 
+    // Horrid nonsense to jump from a nonisolated context into the actor,
+    // stymied by being unable to control closure isolation and some lifetimes.
+    //
+    // Why is `CompilerRequest` not sendable?  Does `sending` help here with the
+    // result?
+    //
+    // Need to look at rewriting this really when all the Swift stuff is landed.
+
+    private struct DoneBox<R>: @unchecked Sendable {
+        let req: any CompilerRequest
+        let res: Result<R, any Error>
+    }
+
     private func makeDone<R>(_ continuation: Continuation<R>) ->
         (any CompilerRequest, Result<R, any Error>) -> Void {
-            { req, res in
+            nonisolated func f(req: any CompilerRequest, res: Result<R, any Error>) {
+                let box = DoneBox<R>(req: req, res: res)
                 Task {
-                    if self.activeRequests.removeValue(forKey: req.requestID) != nil {
-                        continuation.resume(with: res)
-                        self.kickQuiesce()
-                    }
+                    await doDone(req: box.req, res: box.res, continuation: continuation)
                 }
             }
+            return f
+    }
+
+    private func doDone<R>(req: sending any CompilerRequest, res: Result<R, any Error>, continuation: Continuation<R>) async {
+        if activeRequests.removeValue(forKey: req.requestID) != nil {
+            continuation.resume(with: res)
+            kickQuiesce()
+        }
     }
 
     private func start<R: CompilerRequest>(request: R) {

@@ -21,7 +21,7 @@
 ///
 /// `SassString` conforms to `Sequence` via `SassValue`.  This sequence is a singleton sequence
 /// containing the string value, not a sequence of scalars.
-public final class SassString: SassValue {
+public final class SassString: SassValue, @unchecked Sendable {
     // MARK: Initializers
 
     /// Initialize a new string.  You should quote strings unless there's a good reason not to.

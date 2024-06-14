@@ -17,7 +17,7 @@
 /// The API here allows you to construct `SassCalculation`s representing `calc()`-type expressions
 /// including invalid ones such as `calc(20px, 30px)` as though you were writing a stylesheet.  The
 /// validity is checked -- and the overall expression simplified -- by the compiler when it receives the value.
-public final class SassCalculation: SassValue {
+public final class SassCalculation: SassValue, @unchecked Sendable {
     // MARK: Types
 
     /// The kind of the `SassCalculation` expression

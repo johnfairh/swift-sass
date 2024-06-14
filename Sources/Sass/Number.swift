@@ -183,7 +183,7 @@ extension Int {
 /// Because of units, `SassNumber` is not `Comparable` --- there is no ordering relation
 /// possible between "5 cm" and "12 kHz".  It is `Equatable` though respecting unit conversion
 /// so that "1 cm" == "10 mm".
-public final class SassNumber: SassValue {
+public final class SassNumber: SassValue, @unchecked Sendable {
     private let sassDouble: SassDouble
     private let units: UnitQuotient
 

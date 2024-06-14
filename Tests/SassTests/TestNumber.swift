@@ -25,7 +25,7 @@ extension Sass.Unit {
     }
 }
 
-extension Ratio : Equatable {
+extension Ratio : @retroactive Equatable {
     public static func == (lhs: Ratio, rhs: Ratio) -> Bool {
         SassDouble.areEqual(lhs.apply(1), rhs.apply(1))
     }

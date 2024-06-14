@@ -14,7 +14,7 @@
 ///   function.  Be careful in other scenarios: the keyword argument part of the type is excluded
 ///   from equality and listification, meaning it is easy to accidentally lose that part of the type
 ///   when passing instances through generic `SassValue` code.
-public final class SassArgumentList: SassList {
+public final class SassArgumentList: SassList, @unchecked Sendable {
     // MARK: Initializers
 
     /// Initialize a new argument list with the contents of a Swift sequence.

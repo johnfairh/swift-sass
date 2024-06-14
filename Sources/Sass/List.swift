@@ -10,7 +10,7 @@
 /// Sass lists have a separator and may be surrounded with brackets.
 /// All Sass values can be treated as lists so much list-like behavior is available via
 /// `SassValue`.  `SassList` is mostly useful for constructing your own multi-element lists.
-public class SassList: SassValue {
+public class SassList: SassValue, @unchecked Sendable {
     // MARK: Types
     /// The list-separator character.
     public enum Separator: String, Equatable, Sendable {

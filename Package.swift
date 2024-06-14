@@ -1,4 +1,4 @@
-// swift-tools-version:5.10
+// swift-tools-version:6.0
 
 import PackageDescription
 
@@ -14,7 +14,7 @@ let excluded = architectures.filter { $0 != arch }
 let package = Package(
     name: "swift-sass",
     platforms: [
-      .macOS("13.0"),
+      .macOS("14.0"),
     ],
     products: [
       .library(

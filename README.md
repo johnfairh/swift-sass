@@ -137,13 +137,14 @@ In recent years it has fallen behind the specification and reference
 implementations, and was
 [deprecated in 2020](https://sass-lang.com/blog/libsass-is-deprecated).
 However, work is underway to revive the project and it may be that LibSass 4
-emerges as an alternative Sass implementation with the same level of language
-support as Dart Sass.  As of spring 2023 this revival effort is on hold: I'm
-not holding my breath.
+or [libsass-ng](https://github.com/mgreter/libsass-ng/) emerges as an
+alternative Sass implementation with the same level of language support as
+Dart Sass.  As of summer 2024 this revival effort is showing signs of life but
+I'm still not holding my breath.
 
 See the experimental [libsass4 branch](https://github.com/johnfairh/swift-sass/tree/libsass4)
 for the current state of development: if LibSass itself manages to get to a
-relased V4 then this `swift-sass` package will support it as an alternative
+release then this `swift-sass` package will support it as an alternative
 integration.
 
 ## Contributions
