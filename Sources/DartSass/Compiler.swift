@@ -69,7 +69,7 @@ public actor Compiler {
     private(set) var state: State
 
     /// Jobs waiting on compiler state change.
-    private var stateWaitingQueue: ContinuationQueue
+    private let stateWaitingQueue: ContinuationQueue
 
     /// Change the compiler state and resume anyone waiting.
     private func setState(_ state: State, fn: String = #function) {
