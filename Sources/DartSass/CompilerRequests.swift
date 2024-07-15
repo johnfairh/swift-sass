@@ -35,25 +35,25 @@ enum RequestID {
 
 typealias ReplyFn = @Sendable (OutboundMessage) async -> Void // XXX name
 
-protocol CompilerRequest: AnyObject {
+protocol CompilerRequest: Actor {
     /// Notify that the initial request has been sent.  Return any timeout handler.
     func start(timeoutSeconds: Int, onTimeout: @Sendable @escaping () async -> Void)
     /// Handle a compiler response for `requestID`
-    func receive(message: InboundMessage, reply: @escaping ReplyFn) throws
+    func receive(message: InboundMessage, reply: @escaping ReplyFn) async throws
     /// Abandon the request
-    func cancel(with error: any Error)
+    func cancel(with error: any Error) async
 
-    var requestID: UInt32 { get }
-    var debugPrefix: String { get }
-    var requestName: String { get }
+    nonisolated var requestID: UInt32 { get }
+    nonisolated var debugPrefix: String { get }
+    nonisolated var requestName: String { get }
 
-    associatedtype ResultType
-    var clientDone: (Self, Result<ResultType, any Error>) -> Void { get }
+    associatedtype ResultType: Sendable
+    var clientDone: (Self, Result<ResultType, any Error>) async -> Void { get }
 }
 
 extension CompilerRequest {
     /// Log helper
-    func debug(_ message: String) {
+    nonisolated func debug(_ message: String) {
         Compiler.logger.debug("\(debugPrefix): \(message)")
     }
 }
@@ -79,11 +79,10 @@ private enum CompilerRequestState {
 private protocol ManagedCompilerRequest: CompilerRequest {
     var timer: Task<Void, Never>? { get set }
     var state: CompilerRequestState { get set }
-    var stateLock: Lock { get }
 }
 
 extension ManagedCompilerRequest {
-    func sendDone(_ result: Result<ResultType, any Error>) {
+    func sendDone(_ result: Result<ResultType, any Error>) async {
         precondition(!state.isInClient)
         timer?.cancel()
         switch result {
@@ -98,7 +97,7 @@ extension ManagedCompilerRequest {
                 debug("complete: protocol error")
             }
         }
-        clientDone(self, result)
+        await clientDone(self, result)
     }
 
     /// Notify that the initial compile-req has been sent.  Return any timeout handler.
@@ -120,61 +119,56 @@ extension ManagedCompilerRequest {
 
     /// Abandon the job with a given error - because it never gets a chance to start or as a result
     /// of a timeout -> reset, or because of a protocol error on another job.
-    func cancel(with error: any Error) {
+    func cancel(with error: any Error) async {
         timer?.cancel()
-        stateLock.locked {
-            if !state.isInClient {
-                sendDone(.failure(error))
-            } else {
-                debug("waiting to cancel while hostfn/importer runs")
-                state = .client_error(error)
-            }
+
+        if !state.isInClient {
+            await sendDone(.failure(error))
+        } else {
+            debug("waiting to cancel while hostfn/importer runs")
+            state = .client_error(error)
         }
     }
 
     /// Wrapper to match the 'stopped' version
     func clientStarting() {
-        stateLock.locked {
-            precondition(!state.isInClient)
-            state = .client
-        }
+        precondition(!state.isInClient)
+        state = .client
     }
 
     /// Deferred cancellation at the end of client activity
-    func clientStopped() {
-        stateLock.locked {
-            let oldState = state
-            state = .normal
+    func clientStopped() async {
+        let oldState = state
+        state = .normal
 
-            precondition(oldState.isInClient)
-            if case let .client_error(error) = oldState {
-                debug("hostfn/importer done, cancelling")
-                sendDone(.failure(error))
-            }
+        precondition(oldState.isInClient)
+        if case let .client_error(error) = oldState {
+            debug("hostfn/importer done, cancelling")
+            await sendDone(.failure(error))
         }
     }
 }
 
 // MARK: CompilationRequest
 
-final class CompilationRequest: @unchecked Sendable, ManagedCompilerRequest {
+actor CompilationRequest: ManagedCompilerRequest {
     // Protocol reqs
     fileprivate var timer: Task<Void, Never>?
     fileprivate var state: CompilerRequestState
     fileprivate let stateLock: Lock
-    let clientDone: (CompilationRequest, Result<CompilerResults, any Error>) -> Void
+    let clientDone: (CompilationRequest, Result<CompilerResults, any Error>) async -> Void
 
     // Debug
-    var debugPrefix: String { "CompID=\(requestID)" }
-    var requestName: String { "Compile-Req" }
+    nonisolated var debugPrefix: String { "CompID=\(requestID)" }
+    nonisolated var requestName: String { "Compile-Req" }
 
     // Compilation-specific
-    let compileReq: OutboundMessage
+    nonisolated let compileReq: OutboundMessage
     private let importers: [ImportResolver]
     private let functions: SassFunctionMap
     private var messages: [CompilerMessage]
 
-    var requestID: UInt32 {
+    nonisolated var requestID: UInt32 {
         compileReq.compilationID
     }
 
@@ -187,7 +181,7 @@ final class CompilationRequest: @unchecked Sendable, ManagedCompilerRequest {
          importers: [ImportResolver],
          stringImporter: ImportResolver?,
          functionsMap: [SassFunctionSignature : (String, SassFunction)],
-         done: @escaping (CompilationRequest, Result<CompilerResults, any Error>) -> Void) {
+         done: @escaping (CompilationRequest, Result<CompilerResults, any Error>) async -> Void) {
         var firstFreeImporterID = CompilationRequest.baseImporterID
         if let stringImporter = stringImporter {
             self.importers = [stringImporter] + importers
@@ -232,14 +226,14 @@ final class CompilationRequest: @unchecked Sendable, ManagedCompilerRequest {
     private typealias CompilationReplyFn = @Sendable (IBM) async -> Void
 
     /// Inbound messages.
-    func receive(message: InboundMessage, reply: @escaping ReplyFn) throws {
+    func receive(message: InboundMessage, reply: @escaping ReplyFn) async throws {
         let compilationReply: CompilationReplyFn = {
             let outboundMsg = OutboundMessage(message.compilationID, $0)
             await reply(outboundMsg)
         }
         switch message.sassOutboundMessage.message {
         case .compileResponse(let rsp):
-            try receive(compileResponse: rsp)
+            try await receive(compileResponse: rsp)
 
         case .canonicalizeRequest(let req):
             try receive(canonicalizeRequest: req, reply: compilationReply)
@@ -262,13 +256,13 @@ final class CompilationRequest: @unchecked Sendable, ManagedCompilerRequest {
     }
 
     /// Inbound `CompileResponse` handler
-    private func receive(compileResponse: OBM.CompileResponse) throws {
+    private func receive(compileResponse: OBM.CompileResponse) async throws {
         let loadedURLs = compileResponse.loadedUrls.compactMap { URL(string: $0) }
         switch compileResponse.result {
         case .success(let s):
-            sendDone(.success(CompilerResults(s, messages: messages, loadedURLs: loadedURLs)))
+            await sendDone(.success(CompilerResults(s, messages: messages, loadedURLs: loadedURLs)))
         case .failure(let f):
-            sendDone(.failure(CompilerError(f, messages: messages, loadedURLs: loadedURLs)))
+            await sendDone(.failure(CompilerError(f, messages: messages, loadedURLs: loadedURLs)))
         case nil:
             throw ProtocolError("Malformed Compile-Rsp, missing `result`: \(compileResponse)")
         }
@@ -321,7 +315,7 @@ final class CompilationRequest: @unchecked Sendable, ManagedCompilerRequest {
             }
 
             await reply(.with { $0.message = .canonicalizeResponse(rsp) })
-            self.clientStopped()
+            await self.clientStopped()
         }
     }
 
@@ -355,7 +349,7 @@ final class CompilationRequest: @unchecked Sendable, ManagedCompilerRequest {
             }
 
             await reply(.with { $0.message = .importResponse(rsp) })
-            self.clientStopped()
+            await self.clientStopped()
         }
     }
 
@@ -383,7 +377,7 @@ final class CompilationRequest: @unchecked Sendable, ManagedCompilerRequest {
             }
 
             await reply(.with { $0.message = .fileImportResponse(rsp) })
-            self.clientStopped()
+            await self.clientStopped()
         }
     }
 
@@ -429,7 +423,7 @@ final class CompilationRequest: @unchecked Sendable, ManagedCompilerRequest {
 
                 rsp.accessedArgumentLists = Array(accessedArgList.IDs)
                 await reply(.with { $0.message = .functionCallResponse(rsp) })
-                self.clientStopped()
+                await self.clientStopped()
             }
         }
 
@@ -470,25 +464,25 @@ private extension ImportResolver {
 
 // MARK: VersionRequest
 
-final class VersionRequest: ManagedCompilerRequest {
+actor VersionRequest: ManagedCompilerRequest {
     // Protocol reqs
     fileprivate var timer: Task<Void, Never>?
     fileprivate var state: CompilerRequestState
     fileprivate var stateLock: Lock
-    let clientDone: (VersionRequest, Result<Versions, any Error>) -> Void
+    let clientDone: (VersionRequest, Result<Versions, any Error>) async -> Void
 
     // Version-specific
-    let versionReq: OutboundMessage
+    nonisolated let versionReq: OutboundMessage
 
     // Debug
-    var debugPrefix: String { "VerID=\(requestID)" }
-    var requestName: String { "Version-Req" }
+    nonisolated var debugPrefix: String { "VerID=\(requestID)" }
+    nonisolated var requestName: String { "Version-Req" }
 
-    var requestID: UInt32 {
+    nonisolated var requestID: UInt32 {
         versionReq.versionRequest.id
     }
 
-    init(done: @escaping (VersionRequest, Result<Versions, any Error>) -> Void) {
+    init(done: @escaping (VersionRequest, Result<Versions, any Error>) async -> Void) {
         self.state = .normal
         self.timer = nil
         self.stateLock = Lock()
@@ -497,10 +491,10 @@ final class VersionRequest: ManagedCompilerRequest {
     }
 
     /// Inbound messages.
-    func receive(message: InboundMessage, reply: @escaping ReplyFn) throws {
+    func receive(message: InboundMessage, reply: @escaping ReplyFn) async throws {
         guard case .versionResponse(let vers) = message.sassOutboundMessage.message else {
             throw ProtocolError("Unexpected response to Version-Req: \(message)")
         }
-        sendDone(.success(Versions(vers)))
+        await sendDone(.success(Versions(vers)))
     }
 }

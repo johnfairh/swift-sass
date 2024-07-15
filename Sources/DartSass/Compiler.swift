@@ -476,13 +476,13 @@ public actor Compiler {
         try await withCheckedThrowingContinuation { continuation in
             Task {
                 let child = try await waitUntilReadyToCompile(continuation: continuation)
-                let msg = startCompilation(input: .path(fileURL.path),
-                                           outputStyle: outputStyle,
-                                           sourceMapStyle: sourceMapStyle,
-                                           includeCharset: includeCharset,
-                                           importers: .init(importers),
-                                           functions: functions,
-                                           continuation: continuation)
+                let msg = await startCompilation(input: .path(fileURL.path),
+                                                 outputStyle: outputStyle,
+                                                 sourceMapStyle: sourceMapStyle,
+                                                 includeCharset: includeCharset,
+                                                 importers: .init(importers),
+                                                 functions: functions,
+                                                 continuation: continuation)
                 await child.send(message: msg)
             }
         }
@@ -520,7 +520,7 @@ public actor Compiler {
         try await withCheckedThrowingContinuation { continuation in
             Task {
                 let child = try await waitUntilReadyToCompile(continuation: continuation)
-                let msg = startCompilation(
+                let msg = await startCompilation(
                     input: .string(.with { m in
                         m.source = string
                         m.syntax = .init(syntax)
@@ -588,7 +588,7 @@ public actor Compiler {
                     continuation.resume(throwing: CancellationError())
                     return
                 }
-                let msg = startVersionRequest(continuation: continuation)
+                let msg = await startVersionRequest(continuation: continuation)
                 if let versionsResponder {
                     if let rsp = await versionsResponder.provideVersions(msg: msg) {
                         await child.receive(message: rsp)
@@ -647,7 +647,7 @@ public actor Compiler {
 
     private func stopAndCancelWork(with error: any Error) async {
         await state.child?.stop()
-        cancelAllActive(with: error)
+        await cancelAllActive(with: error)
     }
 }
 

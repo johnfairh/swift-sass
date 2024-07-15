@@ -44,7 +44,7 @@ extension Compiler {
                           importers: [ImportResolver],
                           stringImporter: ImportResolver? = nil,
                           functions: SassFunctionMap,
-                          continuation: Continuation<CompilerResults>) -> OutboundMessage {
+                          continuation: Continuation<CompilerResults>) async -> OutboundMessage {
         let compilationRequest = CompilationRequest(
             input: input,
             outputStyle: outputStyle,
@@ -56,53 +56,35 @@ extension Compiler {
             functionsMap: settings.globalFunctions.overridden(with: functions),
             done: makeDone(continuation))
 
-        start(request: compilationRequest)
+        await start(request: compilationRequest)
 
         return compilationRequest.compileReq
     }
 
     /// Create and start tracking  version request
-    func startVersionRequest(continuation: Continuation<Versions>) -> OutboundMessage {
+    func startVersionRequest(continuation: Continuation<Versions>) async -> OutboundMessage {
         let request = VersionRequest(done: makeDone(continuation))
-        start(request: request)
+        await start(request: request)
         return request.versionReq
     }
 
-    // Horrid nonsense to jump from a nonisolated context into the actor,
-    // stymied by being unable to control closure isolation and some lifetimes.
-    //
-    // Why is `CompilerRequest` not sendable?  Does `sending` help here with the
-    // result?
-    //
-    // Need to look at rewriting this really when all the Swift stuff is landed.
-
-    private struct DoneBox<R>: @unchecked Sendable {
-        let req: any CompilerRequest
-        let res: Result<R, any Error>
+    private func makeDone<R>(_ continuation: Continuation<R>) -> @Sendable (any CompilerRequest, Result<R, any Error>) async -> Void {
+        { req, res in
+            await self.doDone(req: req, res: res, continuation: continuation)
+        }
     }
 
-    private func makeDone<R>(_ continuation: Continuation<R>) ->
-        (any CompilerRequest, Result<R, any Error>) -> Void {
-            nonisolated func f(req: any CompilerRequest, res: Result<R, any Error>) {
-                let box = DoneBox<R>(req: req, res: res)
-                Task {
-                    await doDone(req: box.req, res: box.res, continuation: continuation)
-                }
-            }
-            return f
-    }
-
-    private func doDone<R>(req: sending any CompilerRequest, res: Result<R, any Error>, continuation: Continuation<R>) async {
+    private func doDone<R>(req: sending any CompilerRequest, res: sending Result<R, any Error>, continuation: Continuation<R>) async {
         if activeRequests.removeValue(forKey: req.requestID) != nil {
             continuation.resume(with: res)
             kickQuiesce()
         }
     }
 
-    private func start<R: CompilerRequest>(request: R) {
+    private func start<R: CompilerRequest>(request: R) async {
         activeRequests[request.requestID] = request
         let requestDebugPrefix = request.debugPrefix
-        request.start(timeoutSeconds: settings.timeout) {
+        await request.start(timeoutSeconds: settings.timeout) {
             await self.handleError(ProtocolError("Timeout: \(requestDebugPrefix) timed out after \(self.settings.timeout)s"))
         }
     }
@@ -116,9 +98,9 @@ extension Compiler {
     /// Try to cancel any active jobs.  This means stop waiting for the Sass compiler to respond,
     /// it has been taken care of elsewhere, but don't preempty any client completions.
     /// ie: after this routine, there may still be active jobs: see `quiesce()`.
-    func cancelAllActive(with error: Error) {
-        activeRequests.values.forEach {
-            $0.cancel(with: error)
+    func cancelAllActive(with error: Error) async {
+        for req in activeRequests.values {
+            await req.cancel(with: error)
         }
     }
 
@@ -150,20 +132,20 @@ extension Compiler {
     // MARK: Message Dispatch
 
     /// Handle an inbound message from the Sass compiler.
-    func receive(message: InboundMessage, reply: @escaping ReplyFn) throws {
+    func receive(message: InboundMessage, reply: @escaping ReplyFn) async throws {
         if let requestID = message.requestID {
             guard let compilation = activeRequests[requestID] else {
                 throw ProtocolError("Received message for unknown ReqID=\(requestID): \(message)")
             }
-            try compilation.receive(message: message, reply: reply)
+            try await compilation.receive(message: message, reply: reply)
         } else {
-            try receiveGlobal(message: message)
+            try await receiveGlobal(message: message)
         }
     }
 
     /// Global message handler
     /// ie. messages not associated with a compilation ID.
-    private func receiveGlobal(message: InboundMessage) throws {
+    private func receiveGlobal(message: InboundMessage) async throws {
         switch message.sassOutboundMessage.message {
         case .error(let error):
             throw ProtocolError("Sass compiler signalled a protocol error, type=\(error.type), ID=\(error.id): \(error.message)")
