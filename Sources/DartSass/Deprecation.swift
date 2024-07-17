@@ -5,6 +5,8 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
+internal import Semver
+
 /// A `Deprecation` refers to a specific feature of the Sass compiler that is deprecated or planned to
 /// become deprecated.  By default, using a deprecated feature  causes a warning -- that is, a `CompilerMessage` with
 /// type `CompilerMessage.Kind.deprecation`.  In some future release of the compiler,
@@ -56,10 +58,16 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         /// [user-authored](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#user_authored)
         case userAuthored = "user-authored"
     }
+    // currently known: 16
 
     /// A specific Sass deprecation whose ID has not been included in the `ID` enumeration for some reason.
     /// This is a workaround for development mistakes - ideally you won't need to use it!
     case custom(String)
+
+    /// A version number for the Sass compiler meaning "every deprecation known to this level of the compiler".
+    /// This may not be supported for all facets of `DeprecationControl` -- the Dart Sass compiler supports
+    /// it only for `fatal` deprecations.
+    case version(String)
 
     // MARK: Serialization
 
@@ -67,6 +75,8 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
     public init(_ string: String) {
         if let id = ID(rawValue: string) {
             self = .id(id)
+        } else if let semver = try? Semver(string: string) {
+            self = .version(semver.toString())
         } else {
             self = .custom(string)
         }
@@ -77,7 +87,7 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
     /// Should round-trip with `init(_:)`.
     public var description: String {
         switch self {
-        case .custom(let str): str
+        case .custom(let str), .version(let str): str
         case .id(let id): id.rawValue
         }
     }

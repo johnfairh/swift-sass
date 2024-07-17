@@ -228,6 +228,8 @@ class TestInterface: DartSassTestCase {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+
+        // XXX add a test for by-version when the build works again...
     }
 
     /// Deprecation control - type round-trip
@@ -241,5 +243,6 @@ class TestInterface: DartSassTestCase {
 
         check("moz-document", .id(.mozDocument))
         check("weird", .custom("weird"))
+        check("1.2.3", .version("1.2.3"))
     }
 }

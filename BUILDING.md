@@ -6,6 +6,7 @@ New protocol release:
 * Update `sass` to the new tag
 * `make protobuf`
 * Update `Versions.minProtocolVersion`
+* `make deprecations` and check `Deprecations.swift`
 * Update README 'Requirements'
 
 New `dart_sass` release:
