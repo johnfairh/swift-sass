@@ -299,10 +299,11 @@ actor CompilationRequest: ManagedCompilerRequest {
         Task.detached {
             var rsp = IBM.CanonicalizeResponse.with { $0.id = req.id }
             do {
-                let canonURL = try await importer.canonicalize(ruleURL: req.url,
-                                                               fromImport: req.fromImport,
-                                                               containingURL: URL(string: req.containingURL))
-                if let canonURL = canonURL {
+                let context = ImporterContext(fromImport: req.fromImport,
+                                              containingURL: URL(string: req.containingURL))
+                let canonURL = try await importer.canonicalize(ruleURL: req.url, context: context)
+                rsp.containingURLUnused = context.containingURLUnused
+                if let canonURL {
                     rsp.url = canonURL.absoluteString
                     self.debug("Tx Canon-Rsp-Success ReqID=\(req.id)")
                 } else {
@@ -362,9 +363,11 @@ actor CompilationRequest: ManagedCompilerRequest {
         Task.detached {
             var rsp = IBM.FileImportResponse.with { $0.id = req.id }
             do {
-                if let urlPath = try await importer.resolve(ruleURL: req.url,
-                                                            fromImport: req.fromImport,
-                                                            containingURL: URL(string: req.containingURL)) {
+                let context = ImporterContext(fromImport: req.fromImport,
+                                              containingURL: URL(string: req.containingURL))
+                let urlPath = try await importer.resolve(ruleURL: req.url, context: context)
+                rsp.containingURLUnused = context.containingURLUnused
+                if let urlPath {
                     rsp.fileURL = urlPath.absoluteString
                     self.debug("Tx FileImport-Rsp-Success ReqID=\(req.id)")
                 } else {
@@ -383,11 +386,19 @@ actor CompilationRequest: ManagedCompilerRequest {
 
     // MARK: Functions
 
-    /// Trust me I'm a doctor.
     private final class AccessedArgList: @unchecked Sendable {
-        var IDs: Set<UInt32>
+        private let lock: Lock
+        private(set) var IDs: Set<UInt32>
+
         init() {
-            self.IDs = []
+            lock = Lock()
+            IDs = []
+        }
+
+        func insert(id: UInt32) {
+            lock.locked {
+                IDs.insert(id)
+            }
         }
     }
 
@@ -400,7 +411,7 @@ actor CompilationRequest: ManagedCompilerRequest {
             let accessedArgList = AccessedArgList()
             @Sendable func accessArgList(id: UInt32) {
                 guard id != 0 else { return }
-                accessedArgList.IDs.insert(id)
+                accessedArgList.insert(id: id)
             }
 
             let args = try SassValueMonitor.with(accessArgList) {

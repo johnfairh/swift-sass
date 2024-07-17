@@ -17,6 +17,7 @@ struct Lock {
         dsem = DispatchSemaphore(value: 1)
     }
 
+    @discardableResult
     func locked<T>(_ call: () throws -> T) rethrows -> T {
         dsem.wait()
         defer { dsem.signal() }

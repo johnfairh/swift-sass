@@ -59,6 +59,7 @@ custom_groups:
         children:
           - DartSass.Importer
           - DartSass.ImporterResults
+          - DartSass.ImporterContext
           - DartSass.FilesystemImporter
           - DartSass.ImportResolver
 

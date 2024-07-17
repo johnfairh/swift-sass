@@ -642,7 +642,7 @@ struct Sass_EmbeddedProtocol_InboundMessage {
       set {_uniqueStorage()._silent = newValue}
     }
 
-    /// Deprecation IDs to treat as fatal.
+    /// Deprecation IDs or versions to treat as fatal.
     var fatalDeprecation: [String] {
       get {return _storage._fatalDeprecation}
       set {_uniqueStorage()._fatalDeprecation = newValue}
@@ -903,6 +903,15 @@ struct Sass_EmbeddedProtocol_InboundMessage {
       set {result = .error(newValue)}
     }
 
+    /// Whether `containing_url` in `CanonicalizeRequest` is unused.
+    ///
+    /// The compiler can cache the `CanonicalizeResponse` if the `containing_url`
+    /// is unused.
+    ///
+    /// The default value is `false`, thus when the value is not set by the host,
+    /// the `CanonicalizeResponse` will not be cached by the compiler.
+    var containingURLUnused: Bool = false
+
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
     /// The result of canonicalization. If this is unset, it indicates that the
@@ -1091,6 +1100,15 @@ struct Sass_EmbeddedProtocol_InboundMessage {
       }
       set {result = .error(newValue)}
     }
+
+    /// Whether `containing_url` in `FileImportRequest` is unused.
+    ///
+    /// The compiler can cache the `FileImportResponse` if the `containing_url`
+    /// is unused.
+    ///
+    /// The default value is `false`, thus when the value is not set by the host,
+    /// the `FileImportResponse` will not be cached by the compiler.
+    var containingURLUnused: Bool = false
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -3360,6 +3378,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse: SwiftProtob
     1: .same(proto: "id"),
     2: .same(proto: "url"),
     3: .same(proto: "error"),
+    4: .standard(proto: "containing_url_unused"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3385,6 +3404,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse: SwiftProtob
           self.result = .error(v)
         }
       }()
+      case 4: try { try decoder.decodeSingularBoolField(value: &self.containingURLUnused) }()
       default: break
       }
     }
@@ -3409,12 +3429,16 @@ extension Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse: SwiftProtob
     }()
     case nil: break
     }
+    if self.containingURLUnused != false {
+      try visitor.visitSingularBoolField(value: self.containingURLUnused, fieldNumber: 4)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse, rhs: Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse) -> Bool {
     if lhs.id != rhs.id {return false}
     if lhs.result != rhs.result {return false}
+    if lhs.containingURLUnused != rhs.containingURLUnused {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -3545,6 +3569,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.FileImportResponse: SwiftProtobuf
     1: .same(proto: "id"),
     2: .standard(proto: "file_url"),
     3: .same(proto: "error"),
+    4: .standard(proto: "containing_url_unused"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -3570,6 +3595,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.FileImportResponse: SwiftProtobuf
           self.result = .error(v)
         }
       }()
+      case 4: try { try decoder.decodeSingularBoolField(value: &self.containingURLUnused) }()
       default: break
       }
     }
@@ -3594,12 +3620,16 @@ extension Sass_EmbeddedProtocol_InboundMessage.FileImportResponse: SwiftProtobuf
     }()
     case nil: break
     }
+    if self.containingURLUnused != false {
+      try visitor.visitSingularBoolField(value: self.containingURLUnused, fieldNumber: 4)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_InboundMessage.FileImportResponse, rhs: Sass_EmbeddedProtocol_InboundMessage.FileImportResponse) -> Bool {
     if lhs.id != rhs.id {return false}
     if lhs.result != rhs.result {return false}
+    if lhs.containingURLUnused != rhs.containingURLUnused {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
