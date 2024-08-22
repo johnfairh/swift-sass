@@ -160,7 +160,7 @@ final class HangingAsyncImporter: Importer {
     init() {
     }
 
-    func canonicalize(ruleURL: String, fromImport: Bool, containingURL: URL?) async throws -> URL? {
+    func canonicalize(ruleURL: String, context: DartSass.ImporterContext) async throws -> URL? {
         URL(string: "custom://\(ruleURL)")
     }
 
