@@ -185,6 +185,38 @@
   <li>
     
 
+  <a class="j2-nav-item" href="../../dartsass/types/deprecation1.html?swift">Deprecation</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../dartsass/types/deprecation1/id3.html?swift">ID</a>
+
+
+
+  </li>
+  
+</ul>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../dartsass/types/deprecationcontrol1.html?swift">DeprecationControl</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
   <a class="j2-nav-item" href="../../sass/types/compilerresults.html?swift">CompilerResults</a>
 
 
@@ -295,6 +327,15 @@
     
 
   <a class="j2-nav-item" href="../../dartsass/types/importerresults.html?swift">ImporterResults</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../dartsass/types/importercontext.html?swift">ImporterContext</a>
 
 
 
@@ -661,7 +702,7 @@ with index directories, file extensions, and actually loading the stylesheet.</p
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L149-L168">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L176-L193">Show on GitHub</a>
           </nav>
           
           
@@ -679,16 +720,16 @@ with index directories, file extensions, and actually loading the stylesheet.</p
   
   
   
-    <section id="resolveruleurlfromimportcontainingurl" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20resolve(ruleURL%3A%20String,%20fromImport%3A%20Bool,%20containingURL%3A%20URL%3F)%20async%20-%3E%20URL%3F" class="dashAnchor j2-item-dash-anchor" data-item-id="resolveruleurlfromimportcontainingurl"></a>
-    <h4 class="visually-hidden">func resolve(ruleURL: String, fromImport: Bool, containingURL: URL?) async -&gt; URL?</h4>
+    <section id="resolveruleurlcontext" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20resolve(ruleURL%3A%20String,%20context%3A%20ImporterContext)%20async%20-%3E%20URL%3F" class="dashAnchor j2-item-dash-anchor" data-item-id="resolveruleurlcontext"></a>
+    <h4 class="visually-hidden">func resolve(ruleURL: String, context: ImporterContext) async -&gt; URL?</h4>
     
     
-    <a class="j2-item-title" href="#_resolveruleurlfromimportcontainingurl" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_resolveruleurlfromimportcontainingurl"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>resolve<span class="j2-item-secondary">(</span>ruleURL<span class="j2-item-secondary">: String, </span>fromImport<span class="j2-item-secondary">: Bool, </span>containingURL<span class="j2-item-secondary">: URL?) async -&gt; URL?</span></span>
+    <a class="j2-item-title" href="#_resolveruleurlcontext" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_resolveruleurlcontext"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>resolve<span class="j2-item-secondary">(</span>ruleURL<span class="j2-item-secondary">: String, </span>context<span class="j2-item-secondary">: ImporterContext) async -&gt; URL?</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_resolveruleurlfromimportcontainingurl">
+    <div class="collapse  j2-item-popopen-wrapper" id="_resolveruleurlcontext">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -712,8 +753,7 @@ with index directories, file extensions, and actually loading the stylesheet.</p
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">func resolve(ruleURL: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>, fromImport: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a>, containingURL: <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?)
-    async throws -&gt; <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?</code></pre>
+    <pre><code class="language-swift">func resolve(ruleURL: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>, context: <a href="../../dartsass/types/importercontext.html?swift">ImporterContext</a>) async throws -&gt; <a href="https://developer.apple.com/documentation/foundation/url?language=swift">URL</a>?</code></pre>
   </div>
 
 
@@ -731,18 +771,12 @@ a stylesheet.</p></td>
       </tr>
       
       <tr>
-        <td><code>fromImport</code></td>
-        <td><p>Whether this request comes from an <code>@import</code> rule.
-See <a href="https://sass-lang.com/documentation/at-rules/import#import-only-files">import-only files</a>.
-You are free to ignore this flag: the Sass compiler understands it and will choose an import-only file when appropriate.
-For example, if your custom directory contains <code>test.scss</code> and <code>test.import.scss</code> then you can return
-<code>file://your/custom/path/test</code> and the compiler will pull in the right file.</p></td>
-      </tr>
-      
-      <tr>
-        <td><code>containingURL</code></td>
-        <td><p>The canonical URL of the source file that contains the load being resolved.
-Can be <code>nil</code> if the source file does not have a canonical URL.</p></td>
+        <td><code>context</code></td>
+        <td><p>Some details about the import to help resolve it.
+You are free to ignore the <code>fromImport</code> field here: the Sass compiler understands it and will choose
+an import-only file when appropriate.  For example, if your custom directory contains <code>test.scss</code> and
+<code>test.import.scss</code> then you can return <code>file://your/custom/path/test</code> and the compiler
+will pull in the right file.</p></td>
       </tr>
       
     </tbody>
@@ -765,7 +799,7 @@ import request: the compiler will try the next importer.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L167">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L192">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -788,12 +822,12 @@ import request: the compiler will try the next importer.</p>
         <nav aria-label="paging" class="j2-pagination pb-3 pt-2">
   <div id="pagination-prev" class="flex-fill">
   
-    <a class="j2-swift" href="../../dartsass/types/importerresults.html?swift" aria-keyshortcuts="p">
-  <span aria-hidden="true">&laquo; </span>ImporterResults
+    <a class="j2-swift" href="../../dartsass/types/importercontext.html?swift" aria-keyshortcuts="p">
+  <span aria-hidden="true">&laquo; </span>ImporterContext
 </a>
 
-    <a class="j2-objc j2-secondary" href="../../dartsass/types/importerresults.html?swift" aria-keyshortcuts="p">
-  <span aria-hidden="true">&laquo; </span>ImporterResults
+    <a class="j2-objc j2-secondary" href="../../dartsass/types/importercontext.html?swift" aria-keyshortcuts="p">
+  <span aria-hidden="true">&laquo; </span>ImporterContext
 </a>
 
   
@@ -860,7 +894,7 @@ import request: the compiler will try the next importer.</p>
   <div class="col j2-footer small pt-2">
     <p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external noopener">Bebop v1.10.1</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external noopener">Bebop v1.11.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

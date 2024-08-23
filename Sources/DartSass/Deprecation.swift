@@ -8,20 +8,33 @@
 internal import Semver
 
 /// A `Deprecation` refers to a specific feature of the Sass compiler that is deprecated or planned to
-/// become deprecated.  By default, using a deprecated feature  causes a warning -- that is, a `CompilerMessage` with
+/// become deprecated.
+///
+/// By default, using a deprecated feature  causes a warning -- that is, a `CompilerMessage` with
 /// type `CompilerMessage.Kind.deprecation`.  In some future release of the compiler,
 /// use of the deprecated feature will cause an error instead.
 ///
-/// You can customize a Sass `Compiler`'s treatment of deprecated behaviours using a `DeprecationControl`.
-/// Each individual deprecation can be ignored or promoted to an error.  You can also opt in  to *future* deprecations --
-/// features that do not currently cause a deprecation warning but are planned to do so in an upcoming release
-/// of Dart Sass.
+/// You can customize a Sass `Compiler`'s treatment of deprecated behaviours using a `DeprecationControl`
+/// to create the compiler instance.  Each individual deprecation can be ignored or promoted to an error.  You can also
+/// opt in  to *future* deprecations -- features that do not currently cause a deprecation warning but are planned to do
+/// so in an upcoming release of Dart Sass.
 public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
     // MARK: Kinds
 
     /// A specific Sass deprecation.  See [the Sass docs](https://sass-lang.com/documentation/js-api/interfaces/deprecations/)
     /// for a description of what each of these means.
     case id(ID)
+
+    /// A specific Sass deprecation whose ID has not been included in the `ID` enumeration for some reason.
+    /// This is a workaround for development mistakes / release schedules  - ideally you won't need to use it!
+    case custom(String)
+
+    /// A version number for the Sass compiler meaning "every deprecation known to this level of the compiler".
+    /// This may not be supported for all facets of `DeprecationControl` -- the Dart Sass compiler supports
+    /// it only for `fatal` deprecations.
+    case version(String)
+
+    // MARK: Deprecation IDs
 
     /// The set of known deprecation IDs.  See [the Sass docs](https://sass-lang.com/documentation/js-api/interfaces/deprecations/).
     public enum ID: String, Sendable {
@@ -59,15 +72,6 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         case userAuthored = "user-authored"
     }
     // currently known: 16
-
-    /// A specific Sass deprecation whose ID has not been included in the `ID` enumeration for some reason.
-    /// This is a workaround for development mistakes - ideally you won't need to use it!
-    case custom(String)
-
-    /// A version number for the Sass compiler meaning "every deprecation known to this level of the compiler".
-    /// This may not be supported for all facets of `DeprecationControl` -- the Dart Sass compiler supports
-    /// it only for `fatal` deprecations.
-    case version(String)
 
     // MARK: Serialization
 

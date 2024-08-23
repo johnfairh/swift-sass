@@ -45,19 +45,14 @@
     "name" : "compile(string:syntax:url:importer:outputStyle:sourceMapStyle:includeCharset:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions" : {
+  "dartsass\/types\/compiler.html?swift#initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationsdeprecationcontrolwarninglevelimportersfunctions" : {
     "abstract" : "Use a program as the Sass embedded compiler.",
-    "name" : "init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:warningLevel:importers:functions:)",
+    "name" : "init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:deprecationControl:warningLevel:importers:functions:)",
     "parent_name" : "Compiler"
   },
-  "dartsass\/types\/compiler.html?swift#initeventloopgrouptimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions" : {
+  "dartsass\/types\/compiler.html?swift#initeventloopgrouptimeoutmessagestyleverbosedeprecationsdeprecationcontrolwarninglevelimportersfunctions" : {
     "abstract" : "Use the bundled Dart Sass compiler as the Sass compiler.",
-    "name" : "init(eventLoopGroup:timeout:messageStyle:verboseDeprecations:warningLevel:importers:functions:)",
-    "parent_name" : "Compiler"
-  },
-  "dartsass\/types\/compiler.html?swift#logger" : {
-    "abstract" : "Logger for the module.",
-    "name" : "logger",
+    "name" : "init(eventLoopGroup:timeout:messageStyle:verboseDeprecations:deprecationControl:warningLevel:importers:functions:)",
     "parent_name" : "Compiler"
   },
   "dartsass\/types\/compiler.html?swift#reinit" : {
@@ -70,22 +65,160 @@
     "name" : "shutdownGracefully()",
     "parent_name" : "Compiler"
   },
+  "dartsass\/types\/deprecation1.html?swift" : {
+    "abstract" : "A Deprecation refers to a specific feature of the Sass compiler that is deprecated or planned to\nbecome deprecated.",
+    "name" : "Deprecation"
+  },
+  "dartsass\/types\/deprecation1.html?swift#custom_" : {
+    "abstract" : "A specific Sass deprecation whose ID has not been included in the ID enumeration for some reason.\nThis is a workaround for development mistakes \/ release schedules  - ideally you won’t need to use it!",
+    "name" : "custom(_:)",
+    "parent_name" : "Deprecation"
+  },
+  "dartsass\/types\/deprecation1.html?swift#description25" : {
+    "abstract" : "A string representing the deprecation.",
+    "name" : "description",
+    "parent_name" : "Deprecation"
+  },
+  "dartsass\/types\/deprecation1.html?swift#id_" : {
+    "abstract" : "A specific Sass deprecation.  See the Sass docs\nfor a description of what each of these means.",
+    "name" : "id(_:)",
+    "parent_name" : "Deprecation"
+  },
+  "dartsass\/types\/deprecation1.html?swift#init_13" : {
+    "abstract" : "Create a Deprecation from a string, guessing at the type from its format.",
+    "name" : "init(_:)",
+    "parent_name" : "Deprecation"
+  },
+  "dartsass\/types\/deprecation1.html?swift#version_" : {
+    "abstract" : "A version number for the Sass compiler meaning “every deprecation known to this level of the compiler”.\nThis may not be supported for all facets of DeprecationControl – the Dart Sass compiler supports\nit only for fatal deprecations.",
+    "name" : "version(_:)",
+    "parent_name" : "Deprecation"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift" : {
+    "abstract" : "The set of known deprecation IDs.  See the Sass docs.",
+    "name" : "ID",
+    "parent_name" : "Deprecation"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#abspercent" : {
+    "abstract" : "abs-percent",
+    "name" : "absPercent",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#boguscombinators" : {
+    "abstract" : "bogus-combinators",
+    "name" : "bogusCombinators",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#callstring" : {
+    "abstract" : "call-string",
+    "name" : "callString",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#colormodulecompat" : {
+    "abstract" : "color-module-compat",
+    "name" : "colorModuleCompat",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#duplicatevarflags" : {
+    "abstract" : "duplicate-var-flags",
+    "name" : "duplicateVarFlags",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#elseif" : {
+    "abstract" : "elseif",
+    "name" : "elseif",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#fsimportercwd" : {
+    "abstract" : "fs-importer-cwd",
+    "name" : "fsImporterCwd",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#functionunits" : {
+    "abstract" : "function-units",
+    "name" : "functionUnits",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#import" : {
+    "abstract" : "import",
+    "name" : "import",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#mozdocument" : {
+    "abstract" : "moz-document",
+    "name" : "mozDocument",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#newglobal" : {
+    "abstract" : "new-global",
+    "name" : "newGlobal",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#nullalpha" : {
+    "abstract" : "null-alpha",
+    "name" : "nullAlpha",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#relativecanonical" : {
+    "abstract" : "relative-canonical",
+    "name" : "relativeCanonical",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#slashdiv" : {
+    "abstract" : "slash-div",
+    "name" : "slashDiv",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#strictunary" : {
+    "abstract" : "strict-unary",
+    "name" : "strictUnary",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#userauthored" : {
+    "abstract" : "user-authored",
+    "name" : "userAuthored",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecationcontrol1.html?swift" : {
+    "abstract" : "A Compiler’s deprecation settings.",
+    "name" : "DeprecationControl"
+  },
+  "dartsass\/types\/deprecationcontrol1.html?swift#fatal" : {
+    "abstract" : "The set of deprecations to be treated as compiler errors.",
+    "name" : "fatal",
+    "parent_name" : "DeprecationControl"
+  },
+  "dartsass\/types\/deprecationcontrol1.html?swift#future" : {
+    "abstract" : "The set of future deprecations to be opted-in early.",
+    "name" : "future",
+    "parent_name" : "DeprecationControl"
+  },
+  "dartsass\/types\/deprecationcontrol1.html?swift#initfatalsilencedfuture" : {
+    "abstract" : "Create a new DeprecationControl.",
+    "name" : "init(fatal:silenced:future:)",
+    "parent_name" : "DeprecationControl"
+  },
+  "dartsass\/types\/deprecationcontrol1.html?swift#silenced" : {
+    "abstract" : "The set of deprecations to be ignored.",
+    "name" : "silenced",
+    "parent_name" : "DeprecationControl"
+  },
   "dartsass\/types\/filesystemimporter1.html?swift" : {
     "abstract" : "Methods required to implement a filesystem-redirecting stylesheet importer.",
     "name" : "FilesystemImporter"
   },
-  "dartsass\/types\/filesystemimporter1.html?swift#resolveruleurlfromimportcontainingurl" : {
+  "dartsass\/types\/filesystemimporter1.html?swift#resolveruleurlcontext" : {
     "abstract" : "Resolve an imported URL to a filesystem location.",
-    "name" : "resolve(ruleURL:fromImport:containingURL:)",
+    "name" : "resolve(ruleURL:context:)",
     "parent_name" : "FilesystemImporter"
   },
   "dartsass\/types\/importer4.html?swift" : {
     "abstract" : "Methods required to implement a stylesheet importer.",
     "name" : "Importer"
   },
-  "dartsass\/types\/importer4.html?swift#canonicalizeruleurlfromimportcontainingurl" : {
+  "dartsass\/types\/importer4.html?swift#canonicalizeruleurlcontext" : {
     "abstract" : "Convert an imported URL to its canonical format.",
-    "name" : "canonicalize(ruleURL:fromImport:containingURL:)",
+    "name" : "canonicalize(ruleURL:context:)",
     "parent_name" : "Importer"
   },
   "dartsass\/types\/importer4.html?swift#loadcanonicalurl" : {
@@ -97,6 +230,20 @@
     "abstract" : "The noncanonical URL schemes for this importer.",
     "name" : "noncanonicalURLSchemes",
     "parent_name" : "Importer"
+  },
+  "dartsass\/types\/importercontext.html?swift" : {
+    "abstract" : "Context for resolving an import \/ use \/ forward rule.",
+    "name" : "ImporterContext"
+  },
+  "dartsass\/types\/importercontext.html?swift#containingurl" : {
+    "abstract" : "The canonical URL of the source file that contains the load being resolved.\nSet when the source file has a URL and the import request’sruleURL is either relative or, in\nthe case of Importers, has a scheme returned by Importer.noncanonicalURLSchemes.",
+    "name" : "containingURL",
+    "parent_name" : "ImporterContext"
+  },
+  "dartsass\/types\/importercontext.html?swift#fromimport" : {
+    "abstract" : "Whether this request comes from an @import rule.\nSee import-only files.",
+    "name" : "fromImport",
+    "parent_name" : "ImporterContext"
   },
   "dartsass\/types\/importerresults.html?swift" : {
     "abstract" : "The results of loading a stylesheet through an importer.",
@@ -141,11 +288,16 @@
     "name" : "loadPath(_:)",
     "parent_name" : "ImportResolver"
   },
+  "dartsass\/types\/importresolver1.html?swift#nodepackageimporter_" : {
+    "abstract" : "Enables the pkg: URL scheme to resolve imports using the Node.js ecosystem conventions.\nThe URL is the filesystem directory from which to search for node_modules directories.  See\nthe Sass docs.",
+    "name" : "nodePackageImporter(_:)",
+    "parent_name" : "ImportResolver"
+  },
   "dartsass\/types\/lifecycleerror.html?swift" : {
     "abstract" : "Thrown on detecting a usage error of the Compiler API, for example trying to use it after shutdown.",
     "name" : "LifecycleError"
   },
-  "dartsass\/types\/lifecycleerror.html?swift#description26" : {
+  "dartsass\/types\/lifecycleerror.html?swift#description27" : {
     "abstract" : "Text explaining the lifecycle error.",
     "name" : "description",
     "parent_name" : "LifecycleError"
@@ -154,7 +306,7 @@
     "abstract" : "Thrown on detecting an error communicating with the Sass embedded compiler: for example a badly\nformed or out-of-sequence message.",
     "name" : "ProtocolError"
   },
-  "dartsass\/types\/protocolerror.html?swift#description25" : {
+  "dartsass\/types\/protocolerror.html?swift#description26" : {
     "abstract" : "Text explaining the protocol error.",
     "name" : "description",
     "parent_name" : "ProtocolError"
@@ -210,6 +362,11 @@
   "sass\/types\/compilermessage.html?swift#message1" : {
     "abstract" : "The text of the message.",
     "name" : "message",
+    "parent_name" : "CompilerMessage"
+  },
+  "sass\/types\/compilermessage.html?swift#messageid" : {
+    "abstract" : "A compiler-specific identifier for the message.  For Dart Sass this holds the deprecation ID\nfor deprecation warning messages.",
+    "name" : "messageID",
     "parent_name" : "CompilerMessage"
   },
   "sass\/types\/compilermessage.html?swift#span2" : {

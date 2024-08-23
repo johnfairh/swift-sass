@@ -11,7 +11,9 @@ jobs:
     name: Linux SPM unit tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Swift version
         id: swift-version
@@ -31,10 +33,13 @@ jobs:
   macos:
     name: macOS 14 tests
     runs-on: macos-14
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_16.0.app/Contents/Developer
     steps:
-      - uses: actions/checkout@v2
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.0-beta'
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Cache dependencies
         uses: actions/cache@v2

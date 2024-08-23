@@ -180,6 +180,38 @@
   <li>
     
 
+  <a class="j2-nav-item" href="dartsass/types/deprecation1.html?swift">Deprecation</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="dartsass/types/deprecation1/id3.html?swift">ID</a>
+
+
+
+  </li>
+  
+</ul>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="dartsass/types/deprecationcontrol1.html?swift">DeprecationControl</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
   <a class="j2-nav-item" href="sass/types/compilerresults.html?swift">CompilerResults</a>
 
 
@@ -290,6 +322,15 @@
     
 
   <a class="j2-nav-item" href="dartsass/types/importerresults.html?swift">ImporterResults</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="dartsass/types/importercontext.html?swift">ImporterContext</a>
 
 
 
@@ -670,7 +711,7 @@ don’t need this to include the contents of a filesystem directory: see instead
 <a href="dartsass/types/importresolver1.html?swift#loadpath_"><code>ImportResolver.loadPath(_:)</code></a>.</p>
 <p>You could use this to present network resources or dynamically constructed content.</p>
 <p>An import has two steps: canonicalization and loading.</p>
-<p><a href="dartsass/types/importer4.html?swift#canonicalizeruleurlfromimportcontainingurl"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
+<p><a href="dartsass/types/importer4.html?swift#canonicalizeruleurlcontext"><code>Importer.canonicalize(...)</code></a> is always called first with whatever URL
 text the user has written in their rule.  The routine interprets that and returns a <em>canonical</em>
 URL that is absolute with a scheme.</p>
 <p>The compiler most likely implements a cache based on canonical URLs.  If the compiler
@@ -743,7 +784,7 @@ throw an error indicating that the import is ambiguous.</p>
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L94-L136">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L125-L163">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -810,7 +851,74 @@ throw an error indicating that the import is ambiguous.</p>
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L11-L36">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L12-L37">Show on GitHub</a></span>
+            
+          </nav>
+        </div>
+      </div>
+    </div>
+    
+  </section>
+  
+  
+  
+  
+    <section id="importercontext" class="j2-item j2-swift j2-always">
+    <a name="//apple_ref/cpp/Class/class%20ImporterContext" class="dashAnchor j2-item-dash-anchor" data-item-id="importercontext"></a>
+    <h4 class="visually-hidden">class ImporterContext</h4>
+    
+    
+    <a class="j2-item-title" href="#_importercontext" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_importercontext"><code>
+        <span class="j2-swift j2-always"><span class="j2-item-secondary">class </span>ImporterContext</span>
+        
+      </code></a>
+    <div class="collapse  j2-item-popopen-wrapper" id="_importercontext">
+      <div class="j2-item-popopen">
+        <div class="j2-item-popopen-pointer" role="none presentation"></div>
+        <div class="j2-item-popopen-body">
+          
+            <div class="clearfix">
+              
+  
+
+
+              
+
+
+<p>Context for resolving an import / use / forward rule.</p>
+
+
+
+
+            </div>
+            <h5>Declaration</h5>
+            <div class="j2-item-declaration">
+              
+  <div class="j2-swift j2-always">
+    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
+    <pre><code class="language-swift">public final class ImporterContext: <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
+  </div>
+
+
+
+            </div>
+            
+
+
+
+          
+
+          <nav class="j2-item-nav" aria-label="item details">
+            
+            <span class="j2-item-nav-item">
+            
+              <span class="j2-swift j2-always"><a href="dartsass/types/importercontext.html?swift">Show members</a></span>
+            
+            
+            </span>
+            
+            
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L40-L67">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -878,7 +986,7 @@ with index directories, file extensions, and actually loading the stylesheet.</p
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L149-L168">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L176-L193">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -945,7 +1053,7 @@ with index directories, file extensions, and actually loading the stylesheet.</p
             </span>
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L171-L178">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Importers.swift#L196-L207">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1029,7 +1137,7 @@ with index directories, file extensions, and actually loading the stylesheet.</p
   <div class="col j2-footer small pt-2">
     <p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external noopener">Bebop v1.10.1</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external noopener">Bebop v1.11.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>
