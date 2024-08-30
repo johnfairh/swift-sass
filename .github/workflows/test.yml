@@ -18,14 +18,14 @@ jobs:
       - name: Swift version
         id: swift-version
         run: |
-          echo "::set-output name=version::$(swift --version)"
+          echo "SWIFT_VERSION=$(swift --version|head -1|cut -d' ' -f3)" >> $GITHUB_ENV
         shell: bash
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: .build
-          key: ${{ runner.os }}-spm5-${{ steps.swift-version.outputs.version }}-${{ hashFiles('Package.resolved', 'Makefile') }}
+          key: ${{ runner.os }}-spm6-${{ env.SWIFT_VERSION }}-${{ hashFiles('Package.resolved', 'Makefile') }}
 
       - name: Run tests
         run: make test
@@ -42,7 +42,7 @@ jobs:
           persist-credentials: false
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: .build
           key: ${{ runner.os }}-spm5-${{ hashFiles('Package.resolved', 'Makefile') }}
