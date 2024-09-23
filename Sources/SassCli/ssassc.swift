@@ -9,7 +9,9 @@
 // doesn't add any value over using dart-sass!
 
 import DartSass
-import Foundation
+
+// Linux `stderr` etc. not updated for Swift 6
+@preconcurrency import Foundation
 
 func compileWithDartSass(input: URL) async throws -> CompilerResults {
     let compiler = try DartSass.Compiler(messageStyle: .terminalColored)

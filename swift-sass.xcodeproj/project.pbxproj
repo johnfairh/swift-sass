@@ -176,7 +176,7 @@
 		02A1D66A2BC8379A00B07523 /* Deprecation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deprecation.swift; sourceTree = "<group>"; };
 		02A3BC0025800D0600BBF99E /* CompilerWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerWork.swift; sourceTree = "<group>"; };
 		02A3BC0C2585314200BBF99E /* Cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Cli; sourceTree = BUILT_PRODUCTS_DIR; };
-		02A3BC0E2585314200BBF99E /* ssassc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ssassc.swift; path = ../SassCli/ssassc.swift; sourceTree = "<group>"; };
+		02A3BC0E2585314200BBF99E /* ssassc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ssassc.swift; sourceTree = "<group>"; };
 		02CEF36E270F569A007DBDB7 /* Calculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculation.swift; sourceTree = "<group>"; };
 		02CEF370270F5806007DBDB7 /* TestCalculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCalculation.swift; sourceTree = "<group>"; };
 		02CEF372271455B6007DBDB7 /* ProtobufValueConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtobufValueConversion.swift; sourceTree = "<group>"; };
@@ -315,7 +315,7 @@
 				02A3BC0E2585314200BBF99E /* ssassc.swift */,
 			);
 			name = Cli;
-			path = Sources/Cli;
+			path = Sources/SassCli;
 			sourceTree = "<group>";
 		};
 		OBJ_105 /* Products */ = {
