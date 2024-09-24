@@ -323,7 +323,8 @@ actor CompilationRequest: ManagedCompilerRequest {
     /// Inbound `ImportRequest` handler
     private func receive(importRequest req: OBM.ImportRequest, reply: @escaping CompilationReplyFn) throws {
         let importer = try getImporter(importerID: req.importerID, keyPath: \.importer)
-        guard let url = URL(string: req.url) else {
+        // Swift 6 Linux `URL` is broken and accepts junk including empty string...
+        guard let url = URL(string: req.url), !url.absoluteString.isEmpty else {
             throw ProtocolError("Malformed import URL: \(req.url)")
         }
 
