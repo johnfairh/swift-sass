@@ -119,6 +119,11 @@
     "name" : "colorModuleCompat",
     "parent_name" : "ID"
   },
+  "dartsass\/types\/deprecation1\/id3.html?swift#cssfunctionmixin" : {
+    "abstract" : "css-function-mixin",
+    "name" : "cssFunctionMixin",
+    "parent_name" : "ID"
+  },
   "dartsass\/types\/deprecation1\/id3.html?swift#duplicatevarflags" : {
     "abstract" : "duplicate-var-flags",
     "name" : "duplicateVarFlags",
@@ -127,6 +132,11 @@
   "dartsass\/types\/deprecation1\/id3.html?swift#elseif" : {
     "abstract" : "elseif",
     "name" : "elseif",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#featureexists" : {
+    "abstract" : "feature-exists",
+    "name" : "featureExists",
     "parent_name" : "ID"
   },
   "dartsass\/types\/deprecation1\/id3.html?swift#fsimportercwd" : {
@@ -142,6 +152,11 @@
   "dartsass\/types\/deprecation1\/id3.html?swift#import" : {
     "abstract" : "import",
     "name" : "import",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#mixeddecls" : {
+    "abstract" : "mixed-decls",
+    "name" : "mixedDecls",
     "parent_name" : "ID"
   },
   "dartsass\/types\/deprecation1\/id3.html?swift#mozdocument" : {

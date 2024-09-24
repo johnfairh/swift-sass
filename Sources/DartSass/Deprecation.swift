@@ -45,9 +45,9 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         /// [call-string](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#call_string)
         case callString = "call-string"
         /// [color-module-compat](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#color_module_compat)
-        case cssFunctionMixin = "css-function-mixin"
-        /// [css-function-mixin](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#css_function_mixin)
         case colorModuleCompat = "color-module-compat"
+        /// [css-function-mixin](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#css_function_mixin)
+        case cssFunctionMixin = "css-function-mixin"
         /// [duplicate-var-flags](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#duplicate_var_flags)
         case duplicateVarFlags = "duplicate-var-flags"
         /// [elseif](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#elseif)
