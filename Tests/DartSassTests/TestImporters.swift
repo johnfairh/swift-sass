@@ -123,7 +123,7 @@ class TestImporters: DartSassTestCase {
         var claimRequest: Bool = true
         var unclaimedRequestCount = 0
 
-        func canonicalize(ruleURL: String, fromImport: Bool, containingURL: URL?) async throws -> URL? {
+        func canonicalize(ruleURL: String, context: DartSass.ImporterContext) async throws -> URL? {
             if let failNextCanon = failNextCanon {
                 failedCanonCount += 1
                 throw Error(message: failNextCanon)
@@ -253,10 +253,10 @@ class TestImporters: DartSassTestCase {
                 XCTAssertTrue(wasInvoked)
             }
 
-            func canonicalize(ruleURL: String, fromImport: Bool, containingURL: URL?) async throws -> URL? {
+            func canonicalize(ruleURL: String, context: ImporterContext) async throws -> URL? {
                 XCTAssertFalse(wasInvoked)
                 wasInvoked = true
-                XCTAssertEqual(expectFromImport, fromImport)
+                XCTAssertEqual(expectFromImport, context.fromImport)
                 return URL(string: "test://\(ruleURL)")
             }
 
@@ -310,10 +310,13 @@ class TestImporters: DartSassTestCase {
                 expectContainingURL = containingURL
             }
 
-            func canonicalize(ruleURL: String, fromImport: Bool, containingURL: URL?) async throws -> URL? {
+            func canonicalize(ruleURL: String, context: ImporterContext) async throws -> URL? {
                 XCTAssertFalse(wasInvoked)
                 wasInvoked = true
-                XCTAssertEqual(expectContainingURL, containingURL)
+                // Swift 6 Linux nil URLs are not equal to nil...
+                if let expectContainingURL, let contextContainingURL = context.containingURL {
+                    XCTAssertEqual(expectContainingURL, contextContainingURL)
+                }
                 return URL(string: "test://\(ruleURL)")
             }
 
@@ -362,10 +365,13 @@ class TestImporters: DartSassTestCase {
             expectImport = false
         }
 
-        func resolve(ruleURL: String, fromImport: Bool, containingURL: URL?) async throws -> URL? {
+        func resolve(ruleURL: String, context: DartSass.ImporterContext) async throws -> URL? {
             resolveCount += 1
-            XCTAssertEqual(expectImport, fromImport, ruleURL)
-            XCTAssertEqual(expectContainingURL, containingURL, ruleURL)
+            XCTAssertEqual(expectImport, context.fromImport, ruleURL)
+            // WTF Swift 6 Linux "nil != Optional()" smh
+            if let expectContainingURL, let contextContainingURL = context.containingURL {
+                XCTAssertEqual(expectContainingURL, contextContainingURL, ruleURL)
+            }
             guard !nextUnknown else {
                 nextUnknown = false
                 return nil

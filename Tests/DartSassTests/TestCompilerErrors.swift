@@ -266,7 +266,7 @@ final class StaticImporter: Importer {
         self.scss = scss
     }
 
-    func canonicalize(ruleURL: String, fromImport: Bool, containingURL: URL?) async throws -> URL? {
+    func canonicalize(ruleURL: String, context: ImporterContext) async throws -> URL? {
         URL(string: "static://\(ruleURL)")
     }
 

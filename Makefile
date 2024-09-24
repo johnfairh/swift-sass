@@ -9,10 +9,10 @@ test:
 	swift test --enable-code-coverage
 
 test_linux:
-	docker run -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:5.10 swift test
+	docker run -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:6.0 swift test
 
 shell_linux:
-	docker run -it -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:5.10 /bin/bash
+	docker run -it -v `pwd`:`pwd` -w `pwd` --name swift-sass --rm swift:6.0 /bin/bash
 
 # Regenerate the protocol buffer structures.
 # Only needed when the embedded-protocol submodule is changed.
@@ -32,3 +32,7 @@ dart_sass:
 	curl -L ${dart_sass_release_url}-macos-arm64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedMacOS/arm64
 	curl -L ${dart_sass_release_url}-linux-x64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedLinux/x64
 	curl -L ${dart_sass_release_url}-linux-arm64.tar.gz | tar -xzv -C Sources/DartSassEmbeddedLinux/arm64
+
+deprecations:
+	@grep '^[a-z]\S.*:' sass/spec/deprecations.yaml | sed 's/://' | sort -n
+	@grep '^[a-z]\S.*:' sass/spec/deprecations.yaml | wc -l

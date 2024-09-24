@@ -175,6 +175,38 @@
   <li>
     
 
+  <a class="j2-nav-item" href="dartsass/types/deprecation1.html?swift">Deprecation</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="dartsass/types/deprecation1/id3.html?swift">ID</a>
+
+
+
+  </li>
+  
+</ul>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="dartsass/types/deprecationcontrol1.html?swift">DeprecationControl</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
   <a class="j2-nav-item" href="sass/types/compilerresults.html?swift">CompilerResults</a>
 
 
@@ -285,6 +317,15 @@
     
 
   <a class="j2-nav-item" href="dartsass/types/importerresults.html?swift">ImporterResults</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="dartsass/types/importercontext.html?swift">ImporterContext</a>
 
 
 
@@ -681,8 +722,7 @@ only mutability is to do with caching of derived properties.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public class SassValue: <a href="https://developer.apple.com/documentation/swift/hashable?language=swift">Hashable</a>, <a href="https://developer.apple.com/documentation/swift/sequence?language=swift">Sequence</a>, <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a>, @unchecked
-    <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
+    <pre><code class="language-swift">public class SassValue: <a href="https://developer.apple.com/documentation/swift/hashable?language=swift">Hashable</a>, <a href="https://developer.apple.com/documentation/swift/sequence?language=swift">Sequence</a>, <a href="https://developer.apple.com/documentation/swift/customstringconvertible?language=swift">CustomStringConvertible</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -761,7 +801,7 @@ containing the string value, not a sequence of scalars.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassString: <a href="sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public final class SassString: <a href="sass/types/sassvalue10.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -840,7 +880,7 @@ so that “1 cm” == “10 mm”.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassNumber: <a href="sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public final class SassNumber: <a href="sass/types/sassvalue10.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -913,7 +953,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassColor: <a href="sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public final class SassColor: <a href="sass/types/sassvalue10.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1049,7 +1089,7 @@ All Sass values can be treated as lists so much list-like behavior is available 
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public class SassList: <a href="sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public class SassList: <a href="sass/types/sassvalue10.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1124,7 +1164,7 @@ when passing instances through generic <a href="sass/types/sassvalue10.html?swif
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassArgumentList: <a href="sass/types/sasslist.html?swift">SassList</a></code></pre>
+    <pre><code class="language-swift">public final class SassArgumentList: <a href="sass/types/sasslist.html?swift">SassList</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1194,7 +1234,7 @@ for each key-value pair in the map.  The pairs are in no particular order.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassMap: <a href="sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public final class SassMap: <a href="sass/types/sassvalue10.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1268,7 +1308,7 @@ validity is checked – and the overall expression simplified – by the compile
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassCalculation: <a href="sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public final class SassCalculation: <a href="sass/types/sassvalue10.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1335,7 +1375,7 @@ validity is checked – and the overall expression simplified – by the compile
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassMixin: <a href="sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public final class SassMixin: <a href="sass/types/sassvalue10.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1417,7 +1457,7 @@ type is validate that it appears when you expect it to and pass it back to the c
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassCompilerFunction: <a href="sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public final class SassCompilerFunction: <a href="sass/types/sassvalue10.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1486,7 +1526,7 @@ starting compilation.  Instead they are returned as <a href="sass/types/sassvalu
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassDynamicFunction: <a href="sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public final class SassDynamicFunction: <a href="sass/types/sassvalue10.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1632,7 +1672,7 @@ starting compilation.  Instead they are returned as <a href="sass/types/sassvalu
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassNull: <a href="sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public final class SassNull: <a href="sass/types/sassvalue10.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1700,7 +1740,7 @@ instead.</p>
               
   <div class="j2-swift j2-always">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassBool: <a href="sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public final class SassBool: <a href="sass/types/sassvalue10.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -1821,7 +1861,7 @@ instead.</p>
   <div class="col j2-footer small pt-2">
     <p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external noopener">Bebop v1.10.1</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external noopener">Bebop v1.11.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

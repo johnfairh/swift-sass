@@ -180,6 +180,38 @@
   <li>
     
 
+  <a class="j2-nav-item" href="../../dartsass/types/deprecation1.html?swift">Deprecation</a>
+
+
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../dartsass/types/deprecation1/id3.html?swift">ID</a>
+
+
+
+  </li>
+  
+</ul>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../dartsass/types/deprecationcontrol1.html?swift">DeprecationControl</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
   <a class="j2-nav-item" href="../../sass/types/compilerresults.html?swift">CompilerResults</a>
 
 
@@ -290,6 +322,15 @@
     
 
   <a class="j2-nav-item" href="../../dartsass/types/importerresults.html?swift">ImporterResults</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../dartsass/types/importercontext.html?swift">ImporterContext</a>
 
 
 
@@ -646,7 +687,11 @@
 <p>The Dart Sass compiler is bundled with this package for macOS and Ubuntu 64-bit Linux.
 For other platforms you need to supply this separately, see
 <a href="../../index.html">the readme</a>.</p>
-<p>Some debug logging is available via <a href="../../dartsass/types/compiler.html?swift#logger"><code>Compiler.logger</code></a>.</p>
+<p>Some debug logging is available via a <a href="https://github.com/apple/swift-log">swift-log</a> <a href="https://apple.github.io/swift-log/docs/current/Logging/Structs/Logger.html">Logger</a>
+that produces goodpath protocol and compiler lifecycle tracing at <a href="https://apple.github.io/swift-log/docs/current/Logging/Structs/Logger/Level.html#/s:7Logging6LoggerV5LevelO5debugyA2EmF">Logger.Level.debug</a> log level,
+approx 300 bytes per compile request, and protocol and lifecycle error reporting at
+<a href="https://apple.github.io/swift-log/docs/current/Logging/Structs/Logger/Level.html#/s:7Logging6LoggerV5LevelO5debugyA2EmF">Logger.Level.debug</a> log level for conditions that are also reported through errors thrown from
+some API.</p>
 <p>You must shut down the compiler using <a href="../../dartsass/types/compiler.html?swift#shutdowngracefully"><code>shutdownGracefully(...)</code></a> before the last reference
 to the object is released otherwise the program will exit.</p>
 <h2 class="j2-anchor j2-heading heading" id="custom-importer-resolution">
@@ -672,7 +717,7 @@ per-compilation list, in order within each list.</li>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L38-L640">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L42-L652">Show on GitHub</a>
           </nav>
           
           
@@ -695,16 +740,16 @@ per-compilation list, in order within each list.</li>
   
   
   
-    <section id="initeventloopgrouptimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Constructor/init(eventLoopGroup%3A%20any%20EventLoopGroup,%20timeout%3A%20Int,%20messageStyle%3A%20CompilerMessageStyle,%20verboseDeprecations%3A%20Bool,%20warningLevel%3A%20CompilerWarningLevel,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassFunctionMap)" class="dashAnchor j2-item-dash-anchor" data-item-id="initeventloopgrouptimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions"></a>
-    <h4 class="visually-hidden">init(eventLoopGroup: any EventLoopGroup, timeout: Int, messageStyle: CompilerMessageStyle, verboseDeprecations: Bool, warningLevel: CompilerWarningLevel, importers: [ImportResolver], functions: SassFunctionMap)</h4>
+    <section id="initeventloopgrouptimeoutmessagestyleverbosedeprecationsdeprecationcontrolwarninglevelimportersfunctions" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Constructor/init(eventLoopGroup%3A%20any%20EventLoopGroup,%20timeout%3A%20Int,%20messageStyle%3A%20CompilerMessageStyle,%20verboseDeprecations%3A%20Bool,%20deprecationControl%3A%20DeprecationControl,%20warningLevel%3A%20CompilerWarningLevel,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassFunctionMap)" class="dashAnchor j2-item-dash-anchor" data-item-id="initeventloopgrouptimeoutmessagestyleverbosedeprecationsdeprecationcontrolwarninglevelimportersfunctions"></a>
+    <h4 class="visually-hidden">init(eventLoopGroup: any EventLoopGroup, timeout: Int, messageStyle: CompilerMessageStyle, verboseDeprecations: Bool, deprecationControl: DeprecationControl, warningLevel: CompilerWarningLevel, importers: [ImportResolver], functions: SassFunctionMap)</h4>
     
     
-    <a class="j2-item-title" href="#_initeventloopgrouptimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_initeventloopgrouptimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions"><code>
-        <span class="j2-swift">init<span class="j2-item-secondary">(</span>eventLoopGroup<span class="j2-item-secondary">: any EventLoopGroup, </span>timeout<span class="j2-item-secondary">: Int, </span>messageStyle<span class="j2-item-secondary">: CompilerMessageStyle, </span>verboseDeprecations<span class="j2-item-secondary">: Bool, </span>warningLevel<span class="j2-item-secondary">: CompilerWarningLevel, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassFunctionMap)</span></span>
+    <a class="j2-item-title" href="#_initeventloopgrouptimeoutmessagestyleverbosedeprecationsdeprecationcontrolwarninglevelimportersfunctions" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_initeventloopgrouptimeoutmessagestyleverbosedeprecationsdeprecationcontrolwarninglevelimportersfunctions"><code>
+        <span class="j2-swift">init<span class="j2-item-secondary">(</span>eventLoopGroup<span class="j2-item-secondary">: any EventLoopGroup, </span>timeout<span class="j2-item-secondary">: Int, </span>messageStyle<span class="j2-item-secondary">: CompilerMessageStyle, </span>verboseDeprecations<span class="j2-item-secondary">: Bool, </span>deprecationControl<span class="j2-item-secondary">: DeprecationControl, </span>warningLevel<span class="j2-item-secondary">: CompilerWarningLevel, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassFunctionMap)</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_initeventloopgrouptimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions">
+    <div class="collapse  j2-item-popopen-wrapper" id="_initeventloopgrouptimeoutmessagestyleverbosedeprecationsdeprecationcontrolwarninglevelimportersfunctions">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -718,8 +763,8 @@ per-compilation list, in order within each list.</li>
 
 
 <p>Use the bundled Dart Sass compiler as the Sass compiler.</p>
-<p>The bundled Dart Sass compiler is built on macOS (11.6) or Ubuntu (20.04) Intel 64-bit.
-If you are running on another operating system then use <a href="../../dartsass/types/compiler.html?swift#initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions"><code>init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:warningLevel:importers:functions:)</code></a>
+<p>The bundled Dart Sass compiler is built on latest macOS (14) or Ubuntu (20.04).
+If you are running on another operating system then use <a href="../../dartsass/types/compiler.html?swift#initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationsdeprecationcontrolwarninglevelimportersfunctions"><code>init(eventLoopGroup:embeddedCompilerFileURL:embeddedCompilerFileArguments:timeout:messageStyle:verboseDeprecations:deprecationControl:warningLevel:importers:functions:)</code></a>
 supplying the path of the correct Dart Sass compiler.</p>
 <p>Initialization continues asynchronously after the initializer completes; failures are reported
 when the compiler is next used.</p>
@@ -739,6 +784,7 @@ go out of scope.</p>
     timeout: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> = 60,
     messageStyle: <a href="../../sass/types/compilermessagestyle.html?swift">CompilerMessageStyle</a> = .plain,
     verboseDeprecations: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
+    deprecationControl: <a href="../../dartsass/types/deprecationcontrol1.html?swift">DeprecationControl</a> = <a href="../../dartsass/types/deprecationcontrol1.html?swift">DeprecationControl</a>(),
     warningLevel: <a href="../../sass/types/compilerwarninglevel.html?swift">CompilerWarningLevel</a> = .all,
     importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassfunctionmap">SassFunctionMap</a> = [:]) throws</code></pre>
@@ -778,6 +824,12 @@ Default is <code>false</code> meaning repeated deprecation warnings <em>are</em>
       </tr>
       
       <tr>
+        <td><code>deprecationControl</code></td>
+        <td><p>Fine-grained control over how each deprecated feature
+is handled.  Default is to issue a warning when any deprecated feature is used.</p></td>
+      </tr>
+      
+      <tr>
         <td><code>warningLevel</code></td>
         <td><p>Control for warning messages from Sass files.  Default is <code>.all</code>
 meaning all warnings mentioned in Sass files are produced.</p></td>
@@ -808,7 +860,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L131-L148">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L137-L156">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -820,16 +872,16 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
   
   
   
-    <section id="initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Constructor/init(eventLoopGroup%3A%20any%20EventLoopGroup,%20embeddedCompilerFileURL%3A%20URL,%20embeddedCompilerFileArguments%3A%20%5BString%5D,%20timeout%3A%20Int,%20messageStyle%3A%20CompilerMessageStyle,%20verboseDeprecations%3A%20Bool,%20warningLevel%3A%20CompilerWarningLevel,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassFunctionMap)" class="dashAnchor j2-item-dash-anchor" data-item-id="initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions"></a>
-    <h4 class="visually-hidden">init(eventLoopGroup: any EventLoopGroup, embeddedCompilerFileURL: URL, embeddedCompilerFileArguments: [String], timeout: Int, messageStyle: CompilerMessageStyle, verboseDeprecations: Bool, warningLevel: CompilerWarningLevel, importers: [ImportResolver], functions: SassFunctionMap)</h4>
+    <section id="initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationsdeprecationcontrolwarninglevelimportersfunctions" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Constructor/init(eventLoopGroup%3A%20any%20EventLoopGroup,%20embeddedCompilerFileURL%3A%20URL,%20embeddedCompilerFileArguments%3A%20%5BString%5D,%20timeout%3A%20Int,%20messageStyle%3A%20CompilerMessageStyle,%20verboseDeprecations%3A%20Bool,%20deprecationControl%3A%20DeprecationControl,%20warningLevel%3A%20CompilerWarningLevel,%20importers%3A%20%5BImportResolver%5D,%20functions%3A%20SassFunctionMap)" class="dashAnchor j2-item-dash-anchor" data-item-id="initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationsdeprecationcontrolwarninglevelimportersfunctions"></a>
+    <h4 class="visually-hidden">init(eventLoopGroup: any EventLoopGroup, embeddedCompilerFileURL: URL, embeddedCompilerFileArguments: [String], timeout: Int, messageStyle: CompilerMessageStyle, verboseDeprecations: Bool, deprecationControl: DeprecationControl, warningLevel: CompilerWarningLevel, importers: [ImportResolver], functions: SassFunctionMap)</h4>
     
     
-    <a class="j2-item-title" href="#_initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions"><code>
-        <span class="j2-swift">init<span class="j2-item-secondary">(</span>eventLoopGroup<span class="j2-item-secondary">: any EventLoopGroup, </span>embeddedCompilerFileURL<span class="j2-item-secondary">: URL, </span>embeddedCompilerFileArguments<span class="j2-item-secondary">: [String], </span>timeout<span class="j2-item-secondary">: Int, </span>messageStyle<span class="j2-item-secondary">: CompilerMessageStyle, </span>verboseDeprecations<span class="j2-item-secondary">: Bool, </span>warningLevel<span class="j2-item-secondary">: CompilerWarningLevel, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassFunctionMap)</span></span>
+    <a class="j2-item-title" href="#_initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationsdeprecationcontrolwarninglevelimportersfunctions" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationsdeprecationcontrolwarninglevelimportersfunctions"><code>
+        <span class="j2-swift">init<span class="j2-item-secondary">(</span>eventLoopGroup<span class="j2-item-secondary">: any EventLoopGroup, </span>embeddedCompilerFileURL<span class="j2-item-secondary">: URL, </span>embeddedCompilerFileArguments<span class="j2-item-secondary">: [String], </span>timeout<span class="j2-item-secondary">: Int, </span>messageStyle<span class="j2-item-secondary">: CompilerMessageStyle, </span>verboseDeprecations<span class="j2-item-secondary">: Bool, </span>deprecationControl<span class="j2-item-secondary">: DeprecationControl, </span>warningLevel<span class="j2-item-secondary">: CompilerWarningLevel, </span>importers<span class="j2-item-secondary">: [ImportResolver], </span>functions<span class="j2-item-secondary">: SassFunctionMap)</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationswarninglevelimportersfunctions">
+    <div class="collapse  j2-item-popopen-wrapper" id="_initeventloopgroupembeddedcompilerfileurlembeddedcompilerfileargumentstimeoutmessagestyleverbosedeprecationsdeprecationcontrolwarninglevelimportersfunctions">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -863,6 +915,7 @@ go out of scope.</p>
     timeout: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> = 60,
     messageStyle: <a href="../../sass/types/compilermessagestyle.html?swift">CompilerMessageStyle</a> = .plain,
     verboseDeprecations: <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a> = false,
+    deprecationControl: <a href="../../dartsass/types/deprecationcontrol1.html?swift">DeprecationControl</a> = <a href="../../dartsass/types/deprecationcontrol1.html?swift">DeprecationControl</a>(),
     warningLevel: <a href="../../sass/types/compilerwarninglevel.html?swift">CompilerWarningLevel</a> = .all,
     importers: [<a href="../../dartsass/types/importresolver1.html?swift">ImportResolver</a>] = [],
     functions: <a href="../../custom-functions.html?swift#sassfunctionmap">SassFunctionMap</a> = [:])</code></pre>
@@ -915,6 +968,12 @@ Default is <code>false</code> meaning repeated deprecation warnings <em>are</em>
       </tr>
       
       <tr>
+        <td><code>deprecationControl</code></td>
+        <td><p>Fine-grained control over how each deprecated feature
+is handled.  Default is to issue a warning when any deprecated feature is used.</p></td>
+      </tr>
+      
+      <tr>
         <td><code>warningLevel</code></td>
         <td><p>Control for warning messages from Sass files.  Default is <code>.all</code>
 meaning all warnings mentioned in Sass files are produced.</p></td>
@@ -942,7 +1001,7 @@ the source file’s URL, used for all this compiler’s compilations.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L177-L205">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L187-L217">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1088,7 +1147,7 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L499-L532">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L511-L544">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1202,7 +1261,7 @@ Some other kind of error if something goes wrong  with the compiler infrastructu
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L458-L477">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L470-L489">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1276,7 +1335,7 @@ means that the compiler is broken or shutdown.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L372-L385">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L391-L404">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1336,7 +1395,7 @@ means that the compiler is broken or shutdown.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L388-L392">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L407-L411">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1397,7 +1456,7 @@ means that the compiler is broken or shutdown.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L396-L400">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L415-L419">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1459,7 +1518,7 @@ Probably in <a href="https://semver.org/spec/v2.0.0.html">semver</a> format.
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L405-L409">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L424-L428">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1526,7 +1585,7 @@ has already been called.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L308-L332">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L327-L351">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1588,83 +1647,7 @@ from this state: to do more compilation you will need a new instance.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L340-L354">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-</section>
-
-  
-  <section class="j2-swift">
-  
-  <a name="//apple_ref/cpp/Section/Logging" class="dashAnchor"></a>
-  <h3 class="j2-anchor" id="tpc-logging">
-    <span data-anchor-id="tpc-logging">Logging</span>
-  </h3>
-  
-  
-  
-  
-  
-    <section id="logger" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Variable/static%20var%20logger%3A%20Logger" class="dashAnchor j2-item-dash-anchor" data-item-id="logger"></a>
-    <h4 class="visually-hidden">static var logger: Logger</h4>
-    
-    
-    <a class="j2-item-title" href="#_logger" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_logger"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">static var </span>logger<span class="j2-item-secondary">: Logger</span></span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_logger">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>Logger for the module.</p>
-<p>A <a href="https://github.com/apple/swift-log">swift-log</a> <a href="https://apple.github.io/swift-log/docs/current/Logging/Structs/Logger.html">Logger</a>.</p>
-<p>Produces goodpath protocol and compiler lifecycle tracing at <a href="https://apple.github.io/swift-log/docs/current/Logging/Structs/Logger/Level.html#/s:7Logging6LoggerV5LevelO5debugyA2EmF">Logger.Level.debug</a> log level,
-approx 300 bytes per compile request.</p>
-<p>Produces protocol and lifecycle error reporting at <a href="https://apple.github.io/swift-log/docs/current/Logging/Structs/Logger/Level.html#/s:7Logging6LoggerV5LevelO5debugyA2EmF">Logger.Level.debug</a> log level for conditions
-that are also reported through errors thrown from some API.</p>
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public static var logger: <a href="https://apple.github.io/swift-log/docs/current/Logging/Structs/Logger.html">Logger</a></code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L433">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/DartSass/Compiler.swift#L359-L373">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1734,8 +1717,6 @@ that are also reported through errors thrown from some API.</p>
         
         <li><a href="#tpc-lifecycle">Lifecycle</a></li>
         
-        <li><a href="#tpc-logging">Logging</a></li>
-        
       </ul>
     </nav>
     </div>
@@ -1767,7 +1748,7 @@ that are also reported through errors thrown from some API.</p>
   <div class="col j2-footer small pt-2">
     <p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external noopener">Bebop v1.10.1</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external noopener">Bebop v1.11.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

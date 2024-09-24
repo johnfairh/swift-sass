@@ -173,7 +173,7 @@ class TestProtocolErrors: DartSassTestCase {
         let importer = HangingAsyncImporter()
 
         struct DummyFilesystemImporter: FilesystemImporter {
-            func resolve(ruleURL: String, fromImport: Bool, containingURL: URL?) async throws -> URL? {
+            func resolve(ruleURL: String, context: DartSass.ImporterContext) async throws -> URL? {
                 nil
             }
         }
