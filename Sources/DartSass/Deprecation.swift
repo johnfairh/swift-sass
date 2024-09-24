@@ -45,6 +45,8 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         /// [call-string](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#call_string)
         case callString = "call-string"
         /// [color-module-compat](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#color_module_compat)
+        case cssFunctionMixin = "css-function-mixin"
+        /// [css-function-mixin](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#css_function_mixin)
         case colorModuleCompat = "color-module-compat"
         /// [duplicate-var-flags](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#duplicate_var_flags)
         case duplicateVarFlags = "duplicate-var-flags"
@@ -52,10 +54,14 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         case elseif = "elseif"
         /// [fs-importer-cwd](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#fs_importer_cwd)
         case fsImporterCwd = "fs-importer-cwd"
+        /// [feature-exists](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#feature_exists)
+        case featureExists = "feature-exists"
         /// [function-units](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#function_units)
         case functionUnits = "function-units"
         /// [import](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#import)
         case `import` = "import"
+        /// [mixed-decls](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#mixed_decls)
+        case mixedDecls = "mixed-decls"
         /// [moz-document](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#moz_document)
         case mozDocument = "moz-document"
         /// [new-global](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#new_global)
@@ -71,7 +77,7 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         /// [user-authored](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#user_authored)
         case userAuthored = "user-authored"
     }
-    // currently known: 16
+    // currently known: 18 + userAuthored
 
     // MARK: Serialization
 
