@@ -1,3 +1,19 @@
+# 3.0.0-pre1
+
+* Require Swift 6 / Xcode 16 - already committed to actors and too much work to
+  maintain support for earlier language versions.  Various interface changes
+  around Sendability.
+
+* Bundle the 1.80.0 `dart-sass` binaries.
+
+* Add `CompilerWarningLevel` for more control over compiler warnings.
+
+* Support the Node Package Importer via `ImportResolver.nodePackageImporter`.
+
+* Support the Sass Deprecations API via `DeprecationControl`.
+
+* Rearrange how `URL`s are passed to `Importer`s with `ImporterContext`.
+
 # 2.0.0
 
 Changes relative to 1.7.0:
