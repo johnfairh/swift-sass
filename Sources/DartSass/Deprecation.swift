@@ -44,6 +44,10 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         case bogusCombinators = "bogus-combinators"
         /// [call-string](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#call_string)
         case callString = "call-string"
+        /// [color-4-api](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#color_4_api)
+        case color4Api = "color-4-api"
+        /// [color-functions](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#color_functions)
+        case colorFunctions = "color-functions"
         /// [color-module-compat](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#color_module_compat)
         case colorModuleCompat = "color-module-compat"
         /// [css-function-mixin](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#css_function_mixin)
@@ -52,12 +56,14 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         case duplicateVarFlags = "duplicate-var-flags"
         /// [elseif](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#elseif)
         case elseif = "elseif"
-        /// [fs-importer-cwd](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#fs_importer_cwd)
-        case fsImporterCwd = "fs-importer-cwd"
         /// [feature-exists](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#feature_exists)
         case featureExists = "feature-exists"
+        /// [fs-importer-cwd](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#fs_importer_cwd)
+        case fsImporterCwd = "fs-importer-cwd"
         /// [function-units](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#function_units)
         case functionUnits = "function-units"
+        /// [global-builtin](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#global_builtin)
+        case globalBuiltin = "global-builtin"
         /// [import](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#import)
         case `import` = "import"
         /// [mixed-decls](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#mixed_decls)
@@ -77,7 +83,7 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         /// [user-authored](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#user_authored)
         case userAuthored = "user-authored"
     }
-    // currently known: 18 + userAuthored
+    // currently known: 21 + userAuthored
 
     // MARK: Serialization
 
