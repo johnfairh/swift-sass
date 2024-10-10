@@ -1,10 +1,33 @@
+# 3.0.0
+
+Changes relative to 2.0.0:
+
+* Require Swift 6 / Xcode 16 - already committed to actors and too much work to
+  maintain support for earlier language versions.  Various interface changes
+  around Sendability.
+
+* Bundle the 1.79.4 `dart-sass` binaries.
+
+* Add `CompilerWarningLevel` for more control over compiler warnings.
+
+* Support the Node Package Importer via `ImportResolver.nodePackageImporter`.
+
+* Support the Sass Deprecations API via `DeprecationControl`.
+
+* Rearrange how `URL`s are passed to `Importer`s with `ImporterContext`.
+
+* Update `SassColor` to support CSS Color Module Level 4 functionality.  The
+  Swift API here does not offer any helpers for manipulating these new color
+  spaces - perhaps an addition in future, but I am conflicted about whether
+  this package is the right place for this deep function.
+
 # 3.0.0-pre1
 
 * Require Swift 6 / Xcode 16 - already committed to actors and too much work to
   maintain support for earlier language versions.  Various interface changes
   around Sendability.
 
-* Bundle the 1.80.0 `dart-sass` binaries.
+* Bundle the 1.79.3 `dart-sass` binaries.
 
 * Add `CompilerWarningLevel` for more control over compiler warnings.
 
