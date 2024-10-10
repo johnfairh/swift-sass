@@ -46,8 +46,9 @@ private func checkPercentage(_ val: Double, channel: String) throws -> Double {
 
 /// A Sass color value.
 ///
-/// Supports the bare features of CSS Color 4 but does not offer anything particularly profound
-/// for working with such values.
+/// Supports the bare features of CSS Color Module Level 4 by supporting a wide range of color spaces,
+/// but does not offer anything particularly profound for working with such values such as converting between
+/// them or mixing colours or policing channel values outside of the legacy spaces.
 ///
 /// - note: Parameter values follow web standards rather the Apple SDK standards,
 ///   so for example 'red' is modelled as an integer in 0...255.
@@ -55,7 +56,7 @@ public final class SassColor: SassValue, @unchecked Sendable {
     // MARK: Spaces
 
     /// Known color spaces
-    public enum Space: String {
+    public enum Space: String, Sendable {
         /// Legacy RGB space
         case rgb
         /// Legacy HSL space

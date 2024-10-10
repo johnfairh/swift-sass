@@ -107,7 +107,7 @@ Package dependency:
 ```swift
 .package(name: "swift-sass",
          url: "https://github.com/johnfairh/swift-sass.git",
-         from: "2.0.0")
+         from: "3.0.0")
 ```
 
 Target dependency:
@@ -144,8 +144,7 @@ I'm still not holding my breath.
 
 See the experimental [libsass4 branch](https://github.com/johnfairh/swift-sass/tree/libsass4)
 for the current state of development: if LibSass itself manages to get to a
-release then this `swift-sass` package will support it as an alternative
-integration.
+release then this package will support it as an alternative integration.
 
 ## Contributions
 

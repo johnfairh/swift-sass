@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../../css/fw2020.css">
     
     
-   <title>SassColor - Swift Sass v3.0.0-pre1</title>
+   <title>SassColor - Swift Sass v3.0.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./../../" data-doc-path="sass/types/sasscolor.html" data-assets-path="../../">
@@ -31,7 +31,7 @@
     
     <a href="../../index.html">
     
-    Swift Sass v3.0.0-pre1</a>
+    Swift Sass v3.0.0</a>
   </div>
   
   <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
@@ -448,6 +448,20 @@
 
 
 
+  <ul class="j2-nav-sublist">
+  
+  <li>
+    
+
+  <a class="j2-nav-item" href="../../sass/types/sasscolor/space.html?swift">Space</a>
+
+
+
+  </li>
+  
+</ul>
+
+
 
   </li>
   
@@ -684,8 +698,9 @@
 
 
 <p>A Sass color value.</p>
-<p>Color values are originally defined using either the RGB-A, HSL-A, or HWB-A color
-model, but can be accessed as any: conversions are performed and cached internally.</p>
+<p>Supports the bare features of CSS Color Module Level 4 by supporting a wide range of color spaces,
+but does not offer anything particularly profound for working with such values such as converting between
+them or mixing colours or policing channel values outside of the legacy spaces.</p>
 <div class="j2-callout j2-callout-note aside aside-note">
 <div class="j2-callout-title aside-title" role="heading" aria-level="6">note</div>
 <p>Parameter values follow web standards rather the Apple SDK standards,
@@ -702,7 +717,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L365-L489">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L55-L191">Show on GitHub</a>
           </nav>
           
           
@@ -716,11 +731,212 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
   
   <section class="j2-swift">
   
+  <a name="//apple_ref/cpp/Section/Spaces" class="dashAnchor"></a>
+  <h3 class="j2-anchor" id="tpc-spaces">
+    <span data-anchor-id="tpc-spaces">Spaces</span>
+  </h3>
+  
+  
+  
+  
+  
+    <section id="space" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/enum/enum%20Space" class="dashAnchor j2-item-dash-anchor" data-item-id="space"></a>
+    <h4 class="visually-hidden">enum Space</h4>
+    
+    
+    <a class="j2-item-title" href="#_space" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_space"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">enum </span>Space</span>
+        
+      </code></a>
+    <div class="collapse  j2-item-popopen-wrapper" id="_space">
+      <div class="j2-item-popopen">
+        <div class="j2-item-popopen-pointer" role="none presentation"></div>
+        <div class="j2-item-popopen-body">
+          
+            <div class="clearfix">
+              
+  
+
+
+              
+
+
+<p>Known color spaces</p>
+
+
+
+
+            </div>
+            <h5>Declaration</h5>
+            <div class="j2-item-declaration">
+              
+  <div class="j2-swift">
+    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
+    <pre><code class="language-swift">public enum Space: <a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
+  </div>
+
+
+
+            </div>
+            
+
+
+
+          
+
+          <nav class="j2-item-nav" aria-label="item details">
+            
+            <span class="j2-item-nav-item">
+            
+              <span class="j2-swift"><a href="../../sass/types/sasscolor/space.html?swift">Show members</a></span>
+            
+            
+            </span>
+            
+            
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L59-L90">Show on GitHub</a></span>
+            
+          </nav>
+        </div>
+      </div>
+    </div>
+    
+  </section>
+  
+  
+  
+  
+    <section id="space1" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20space%3A%20Space" class="dashAnchor j2-item-dash-anchor" data-item-id="space1"></a>
+    <h4 class="visually-hidden">var space: Space</h4>
+    
+    
+    <a class="j2-item-title" href="#_space1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_space1"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">var </span>space<span class="j2-item-secondary">: Space</span></span>
+        
+      </code></a>
+    <div class="collapse  j2-item-popopen-wrapper" id="_space1">
+      <div class="j2-item-popopen">
+        <div class="j2-item-popopen-pointer" role="none presentation"></div>
+        <div class="j2-item-popopen-body">
+          
+            <div class="clearfix">
+              
+  
+
+
+              
+
+
+<p>The color space this color is defined in</p>
+
+
+
+
+            </div>
+            <h5>Declaration</h5>
+            <div class="j2-item-declaration">
+              
+  <div class="j2-swift">
+    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
+    <pre><code class="language-swift">public let space: <a href="../../sass/types/sasscolor/space.html?swift">Space</a></code></pre>
+  </div>
+
+
+
+            </div>
+            
+
+
+
+          
+
+          <nav class="j2-item-nav" aria-label="item details">
+            
+            
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L92">Show on GitHub</a></span>
+            
+          </nav>
+        </div>
+      </div>
+    </div>
+    
+  </section>
+  
+  
+</section>
+
+  
+  <section class="j2-swift">
+  
   <a name="//apple_ref/cpp/Section/Initializers" class="dashAnchor"></a>
   <h3 class="j2-anchor" id="tpc-initializers">
     <span data-anchor-id="tpc-initializers">Initializers</span>
   </h3>
   
+  
+  
+  
+  
+    <section id="initspace___alpha" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Constructor/init(space%3A%20Space,%20Double%3F,%20Double%3F,%20Double%3F,%20alpha%3A%20Double%3F)" class="dashAnchor j2-item-dash-anchor" data-item-id="initspace___alpha"></a>
+    <h4 class="visually-hidden">init(space: Space, Double?, Double?, Double?, alpha: Double?)</h4>
+    
+    
+    <a class="j2-item-title" href="#_initspace___alpha" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_initspace___alpha"><code>
+        <span class="j2-swift">init<span class="j2-item-secondary">(</span>space<span class="j2-item-secondary">: Space, Double?, Double?, Double?, </span>alpha<span class="j2-item-secondary">: Double?)</span></span>
+        
+      </code></a>
+    <div class="collapse  j2-item-popopen-wrapper" id="_initspace___alpha">
+      <div class="j2-item-popopen">
+        <div class="j2-item-popopen-pointer" role="none presentation"></div>
+        <div class="j2-item-popopen-body">
+          
+            <div class="clearfix">
+              
+  
+
+
+              
+
+
+<p>Create a <a href="../../sass/types/sasscolor.html?swift"><code>SassColor</code></a> from base parameters.</p>
+<p>This is unchecked for channel ranges.</p>
+
+
+
+            </div>
+            <h5>Declaration</h5>
+            <div class="j2-item-declaration">
+              
+  <div class="j2-swift">
+    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
+    <pre><code class="language-swift">public init(
+    space: <a href="../../sass/types/sasscolor/space.html?swift">Space</a>, _ channel1: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>?, _ channel2: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>?, _ channel3: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>?,
+    alpha: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>?)</code></pre>
+  </div>
+
+
+
+            </div>
+            
+
+
+
+          
+
+          <nav class="j2-item-nav" aria-label="item details">
+            
+            
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L99-L105">Show on GitHub</a></span>
+            
+          </nav>
+        </div>
+      </div>
+    </div>
+    
+  </section>
   
   
   
@@ -758,7 +974,8 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public init(red: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a>, green: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a>, blue: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a>, alpha: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a> = 1.0) throws</code></pre>
+    <pre><code class="language-swift">public convenience init(red: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a>, green: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a>, blue: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a>, alpha: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a> = 1.0)
+    throws</code></pre>
   </div>
 
 
@@ -803,7 +1020,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L380-L382">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L113-L119">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -848,7 +1065,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public init(
+    <pre><code class="language-swift">public convenience init(
     hue: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>, saturation: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>, lightness: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>, alpha: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a> = 1.0)
     throws</code></pre>
   </div>
@@ -895,7 +1112,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L390-L392">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L127-L133">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -940,7 +1157,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public init(
+    <pre><code class="language-swift">public convenience init(
     hue: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>, whiteness: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>, blackness: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>, alpha: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a> = 1.0)
     throws</code></pre>
   </div>
@@ -987,7 +1204,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L400-L402">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L141-L147">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1011,16 +1228,16 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
   
   
   
-    <section id="red1" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20red%3A%20Int" class="dashAnchor j2-item-dash-anchor" data-item-id="red1"></a>
-    <h4 class="visually-hidden">var red: Int</h4>
+    <section id="channel1" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20channel1%3A%20Double%3F" class="dashAnchor j2-item-dash-anchor" data-item-id="channel1"></a>
+    <h4 class="visually-hidden">var channel1: Double?</h4>
     
     
-    <a class="j2-item-title" href="#_red1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_red1"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">var </span>red<span class="j2-item-secondary">: Int</span></span>
+    <a class="j2-item-title" href="#_channel1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_channel1"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">var </span>channel1<span class="j2-item-secondary">: Double?</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_red1">
+    <div class="collapse  j2-item-popopen-wrapper" id="_channel1">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -1033,7 +1250,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
               
 
 
-<p>The red channel, between 0 and 255.</p>
+<p>The first channel’s value, or <code>nil</code> if missing</p>
 
 
 
@@ -1044,7 +1261,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var red: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> { get }</code></pre>
+    <pre><code class="language-swift">public let channel1: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>?</code></pre>
   </div>
 
 
@@ -1059,7 +1276,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L407">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L152">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1071,16 +1288,16 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
   
   
   
-    <section id="green1" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20green%3A%20Int" class="dashAnchor j2-item-dash-anchor" data-item-id="green1"></a>
-    <h4 class="visually-hidden">var green: Int</h4>
+    <section id="channel2" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20channel2%3A%20Double%3F" class="dashAnchor j2-item-dash-anchor" data-item-id="channel2"></a>
+    <h4 class="visually-hidden">var channel2: Double?</h4>
     
     
-    <a class="j2-item-title" href="#_green1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_green1"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">var </span>green<span class="j2-item-secondary">: Int</span></span>
+    <a class="j2-item-title" href="#_channel2" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_channel2"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">var </span>channel2<span class="j2-item-secondary">: Double?</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_green1">
+    <div class="collapse  j2-item-popopen-wrapper" id="_channel2">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -1093,7 +1310,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
               
 
 
-<p>The green channel, between 0 and 255.</p>
+<p>The second channel’s value, or <code>nil</code> if missing</p>
 
 
 
@@ -1104,7 +1321,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var green: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> { get }</code></pre>
+    <pre><code class="language-swift">public let channel2: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>?</code></pre>
   </div>
 
 
@@ -1119,7 +1336,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L409">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L154">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1131,16 +1348,16 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
   
   
   
-    <section id="blue1" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20blue%3A%20Int" class="dashAnchor j2-item-dash-anchor" data-item-id="blue1"></a>
-    <h4 class="visually-hidden">var blue: Int</h4>
+    <section id="channel3" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20channel3%3A%20Double%3F" class="dashAnchor j2-item-dash-anchor" data-item-id="channel3"></a>
+    <h4 class="visually-hidden">var channel3: Double?</h4>
     
     
-    <a class="j2-item-title" href="#_blue1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_blue1"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">var </span>blue<span class="j2-item-secondary">: Int</span></span>
+    <a class="j2-item-title" href="#_channel3" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_channel3"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">var </span>channel3<span class="j2-item-secondary">: Double?</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_blue1">
+    <div class="collapse  j2-item-popopen-wrapper" id="_channel3">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -1153,7 +1370,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
               
 
 
-<p>The blue channel, between 0 and 255.</p>
+<p>The third channel’s value, or <code>nil</code> if missing</p>
 
 
 
@@ -1164,7 +1381,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var blue: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a> { get }</code></pre>
+    <pre><code class="language-swift">public let channel3: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>?</code></pre>
   </div>
 
 
@@ -1179,7 +1396,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L411">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L156">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1191,16 +1408,16 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
   
   
   
-    <section id="hue4" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20hue%3A%20Double" class="dashAnchor j2-item-dash-anchor" data-item-id="hue4"></a>
-    <h4 class="visually-hidden">var hue: Double</h4>
+    <section id="alpha" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20alpha%3A%20Double%3F" class="dashAnchor j2-item-dash-anchor" data-item-id="alpha"></a>
+    <h4 class="visually-hidden">var alpha: Double?</h4>
     
     
-    <a class="j2-item-title" href="#_hue4" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_hue4"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">var </span>hue<span class="j2-item-secondary">: Double</span></span>
+    <a class="j2-item-title" href="#_alpha" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_alpha"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">var </span>alpha<span class="j2-item-secondary">: Double?</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_hue4">
+    <div class="collapse  j2-item-popopen-wrapper" id="_alpha">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -1213,7 +1430,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
               
 
 
-<p>The HSL or HWB hue channel, between 0 and 360.</p>
+<p>The alpha channel’s value, or <code>nil</code> if missing</p>
 
 
 
@@ -1224,7 +1441,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var hue: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a> { get }</code></pre>
+    <pre><code class="language-swift">public let alpha: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>?</code></pre>
   </div>
 
 
@@ -1239,627 +1456,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L413">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="saturation1" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20saturation%3A%20Double" class="dashAnchor j2-item-dash-anchor" data-item-id="saturation1"></a>
-    <h4 class="visually-hidden">var saturation: Double</h4>
-    
-    
-    <a class="j2-item-title" href="#_saturation1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_saturation1"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">var </span>saturation<span class="j2-item-secondary">: Double</span></span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_saturation1">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>The HSL saturation channel, between 0 and 100.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var saturation: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a> { get }</code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L415">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="lightness1" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20lightness%3A%20Double" class="dashAnchor j2-item-dash-anchor" data-item-id="lightness1"></a>
-    <h4 class="visually-hidden">var lightness: Double</h4>
-    
-    
-    <a class="j2-item-title" href="#_lightness1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_lightness1"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">var </span>lightness<span class="j2-item-secondary">: Double</span></span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_lightness1">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>The HSL lightness channel, between 0 and 100.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var lightness: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a> { get }</code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L417">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="whiteness1" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20whiteness%3A%20Double" class="dashAnchor j2-item-dash-anchor" data-item-id="whiteness1"></a>
-    <h4 class="visually-hidden">var whiteness: Double</h4>
-    
-    
-    <a class="j2-item-title" href="#_whiteness1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_whiteness1"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">var </span>whiteness<span class="j2-item-secondary">: Double</span></span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_whiteness1">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>The HWB whiteness channel, between 0 and 100.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var whiteness: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a> { get }</code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L419">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="blackness1" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20blackness%3A%20Double" class="dashAnchor j2-item-dash-anchor" data-item-id="blackness1"></a>
-    <h4 class="visually-hidden">var blackness: Double</h4>
-    
-    
-    <a class="j2-item-title" href="#_blackness1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_blackness1"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">var </span>blackness<span class="j2-item-secondary">: Double</span></span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_blackness1">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>The HWB blackness channel, between 0 and 100.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var blackness: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a> { get }</code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L421">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="alpha1" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20alpha%3A%20Double" class="dashAnchor j2-item-dash-anchor" data-item-id="alpha1"></a>
-    <h4 class="visually-hidden">var alpha: Double</h4>
-    
-    
-    <a class="j2-item-title" href="#_alpha1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_alpha1"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">var </span>alpha<span class="j2-item-secondary">: Double</span></span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_alpha1">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>The alpha channel between 0 and 1.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var alpha: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a> { get }</code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L423">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-</section>
-
-  
-  <section class="j2-swift">
-  
-  <a name="//apple_ref/cpp/Section/Channel%20Modification" class="dashAnchor"></a>
-  <h3 class="j2-anchor" id="tpc-channel-modification">
-    <span data-anchor-id="tpc-channel-modification">Channel Modification</span>
-  </h3>
-  
-  
-  
-  
-  
-    <section id="changeredgreenbluealpha" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20change(red%3A%20Int%3F,%20green%3A%20Int%3F,%20blue%3A%20Int%3F,%20alpha%3A%20Double%3F)%20-%3E%20SassColor" class="dashAnchor j2-item-dash-anchor" data-item-id="changeredgreenbluealpha"></a>
-    <h4 class="visually-hidden">func change(red: Int?, green: Int?, blue: Int?, alpha: Double?) -&gt; SassColor</h4>
-    
-    
-    <a class="j2-item-title" href="#_changeredgreenbluealpha" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_changeredgreenbluealpha"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>change<span class="j2-item-secondary">(</span>red<span class="j2-item-secondary">: Int?, </span>green<span class="j2-item-secondary">: Int?, </span>blue<span class="j2-item-secondary">: Int?, </span>alpha<span class="j2-item-secondary">: Double?) -&gt; SassColor</span></span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_changeredgreenbluealpha">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>Create a new <a href="../../sass/types/sasscolor.html?swift"><code>SassColor</code></a> by changing some of the RGB-A channels of this color.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public func change(
-    red: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a>? = nil, green: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a>? = nil, blue: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a>? = nil, alpha: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>? = nil
-) throws -&gt; <a href="../../sass/types/sasscolor.html?swift">SassColor</a></code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L428-L435">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="changehuesaturationlightnessalpha" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20change(hue%3A%20Double%3F,%20saturation%3A%20Double%3F,%20lightness%3A%20Double%3F,%20alpha%3A%20Double%3F)%20-%3E%20SassColor" class="dashAnchor j2-item-dash-anchor" data-item-id="changehuesaturationlightnessalpha"></a>
-    <h4 class="visually-hidden">func change(hue: Double?, saturation: Double?, lightness: Double?, alpha: Double?) -&gt; SassColor</h4>
-    
-    
-    <a class="j2-item-title" href="#_changehuesaturationlightnessalpha" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_changehuesaturationlightnessalpha"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>change<span class="j2-item-secondary">(</span>hue<span class="j2-item-secondary">: Double?, </span>saturation<span class="j2-item-secondary">: Double?, </span>lightness<span class="j2-item-secondary">: Double?, </span>alpha<span class="j2-item-secondary">: Double?) -&gt; SassColor</span></span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_changehuesaturationlightnessalpha">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>Create a new <a href="../../sass/types/sasscolor.html?swift"><code>SassColor</code></a> by changing some of the HSL-A channels of this color.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public func change(
-    hue: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>? = nil, saturation: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>? = nil, lightness: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>? = nil,
-    alpha: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>? = nil
-) throws -&gt; <a href="../../sass/types/sasscolor.html?swift">SassColor</a></code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L438-L445">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="changehuewhitenessblacknessalpha" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20change(hue%3A%20Double%3F,%20whiteness%3A%20Double%3F,%20blackness%3A%20Double%3F,%20alpha%3A%20Double%3F)%20-%3E%20SassColor" class="dashAnchor j2-item-dash-anchor" data-item-id="changehuewhitenessblacknessalpha"></a>
-    <h4 class="visually-hidden">func change(hue: Double?, whiteness: Double?, blackness: Double?, alpha: Double?) -&gt; SassColor</h4>
-    
-    
-    <a class="j2-item-title" href="#_changehuewhitenessblacknessalpha" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_changehuewhitenessblacknessalpha"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>change<span class="j2-item-secondary">(</span>hue<span class="j2-item-secondary">: Double?, </span>whiteness<span class="j2-item-secondary">: Double?, </span>blackness<span class="j2-item-secondary">: Double?, </span>alpha<span class="j2-item-secondary">: Double?) -&gt; SassColor</span></span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_changehuewhitenessblacknessalpha">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>Create a new <a href="../../sass/types/sasscolor.html?swift"><code>SassColor</code></a> by changing some of the HWB-A channels of this color.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public func change(
-    hue: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>? = nil, whiteness: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>? = nil, blackness: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>? = nil,
-    alpha: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>? = nil
-) throws -&gt; <a href="../../sass/types/sasscolor.html?swift">SassColor</a></code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L448-L455">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="changehue1" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20change(hue%3A%20Double)%20-%3E%20SassColor" class="dashAnchor j2-item-dash-anchor" data-item-id="changehue1"></a>
-    <h4 class="visually-hidden">func change(hue: Double) -&gt; SassColor</h4>
-    
-    
-    <a class="j2-item-title" href="#_changehue1" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_changehue1"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>change<span class="j2-item-secondary">(</span>hue<span class="j2-item-secondary">: Double) -&gt; SassColor</span></span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_changehue1">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>Create a new <a href="../../sass/types/sasscolor.html?swift"><code>SassColor</code></a> by changing only the <a href="../../sass/types/sasscolor.html?swift#hue4"><code>hue</code></a> channel of this color.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public func change(hue: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>) throws -&gt; <a href="../../sass/types/sasscolor.html?swift">SassColor</a></code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L458-L460">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-  
-  
-    <section id="changealpha" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20change(alpha%3A%20Double)%20-%3E%20SassColor" class="dashAnchor j2-item-dash-anchor" data-item-id="changealpha"></a>
-    <h4 class="visually-hidden">func change(alpha: Double) -&gt; SassColor</h4>
-    
-    
-    <a class="j2-item-title" href="#_changealpha" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_changealpha"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>change<span class="j2-item-secondary">(</span>alpha<span class="j2-item-secondary">: Double) -&gt; SassColor</span></span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_changealpha">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>Create a new <a href="../../sass/types/sasscolor.html?swift"><code>SassColor</code></a> by changing only the alpha channel of this color.</p>
-
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public func change(alpha: <a href="https://developer.apple.com/documentation/swift/double?language=swift">Double</a>) throws -&gt; <a href="../../sass/types/sasscolor.html?swift">SassColor</a></code></pre>
-  </div>
-
-
-
-            </div>
-            
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L463-L465">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L158">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1905,7 +1502,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
               
 
 
-<p>Colors are compared in their RGB-A forms, using  only 10 DP for the alpha.</p>
+<p>Colors in different spaces are incomparable; otherwise compared fieldwise using only 10DP  for channels.</p>
 
 
 
@@ -1931,7 +1528,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L470-L473">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L163-L170">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1991,7 +1588,7 @@ so for example ‘red’ is modelled as an integer in 0…255.</p>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L476-L479">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L173-L180">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -2052,7 +1649,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L482-L484">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L183-L185">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -2064,16 +1661,16 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   
   
   
-    <section id="description7" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20description%3A%20String" class="dashAnchor j2-item-dash-anchor" data-item-id="description7"></a>
+    <section id="description3" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20description%3A%20String" class="dashAnchor j2-item-dash-anchor" data-item-id="description3"></a>
     <h4 class="visually-hidden">var description: String</h4>
     
     
-    <a class="j2-item-title" href="#_description7" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description7"><code>
+    <a class="j2-item-title" href="#_description3" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description3"><code>
         <span class="j2-swift"><span class="j2-item-secondary">var </span>description<span class="j2-item-secondary">: String</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_description7">
+    <div class="collapse  j2-item-popopen-wrapper" id="_description3">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -2112,7 +1709,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L486-L488">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Color.swift#L187-L190">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -2148,12 +1745,12 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   </div>
   <div id="pagination-next" class="flex-fill text-end">
   
-    <a class="j2-swift" href="../../sass/types/sassconstants.html?swift" aria-keyshortcuts="n">
-  SassConstants<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-swift" href="../../sass/types/sasscolor/space.html?swift" aria-keyshortcuts="n">
+  Space<span aria-hidden="true"> &raquo;</span>
 </a>
 
-    <a class="j2-objc j2-secondary" href="../../sass/types/sassconstants.html?swift" aria-keyshortcuts="n">
-  SassConstants<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-objc j2-secondary" href="../../sass/types/sasscolor/space.html?swift" aria-keyshortcuts="n">
+  Space<span aria-hidden="true"> &raquo;</span>
 </a>
 
   
@@ -2176,11 +1773,11 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
         
         <li><a href="#">Declaration</a></li>
         
+        <li><a href="#tpc-spaces">Spaces</a></li>
+        
         <li><a href="#tpc-initializers">Initializers</a></li>
         
         <li><a href="#tpc-properties">Properties</a></li>
-        
-        <li><a href="#tpc-channel-modification">Channel Modification</a></li>
         
         <li><a href="#tpc-misc">Misc</a></li>
         
@@ -2215,7 +1812,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   <div class="col j2-footer small pt-2">
     <p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external noopener">Bebop v1.11.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external noopener">Bebop v1.12.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>
