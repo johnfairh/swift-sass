@@ -92,6 +92,8 @@ public enum SassFunctionError: Error, CustomStringConvertible {
     case missingUnit(SassNumber, String)
     /// A color channel value was not in the expected range.
     case channelNotInRange(String, Double, String)
+    /// A color space name was not recognized.
+    case badColorSpace(String)
 
     /// A human-readable description of the error.
     public var description: String {
@@ -118,6 +120,8 @@ public enum SassFunctionError: Error, CustomStringConvertible {
             return "\(number) did not have single expected unit '\(unit)'."
         case let .channelNotInRange(channel, number, rangeDescription):
             return "Value \(number) not in range \(rangeDescription) for color channel \(channel)."
+        case let .badColorSpace(space):
+            return "Color Space '\(space)' is not known."
         }
     }
 }
