@@ -82,6 +82,12 @@ struct SassDouble: Hashable, Comparable {
         hashEquivalent(lhs) == hashEquivalent(rhs)
     }
 
+    static func areEqualWithNil(_ lhs: Double?, _ rhs: Double?) -> Bool {
+        guard lhs != rhs else { return true }
+        guard let lhs, let rhs else { return false }
+        return areEqual(lhs, rhs)
+    }
+
     static func isStrictlyLessThan(_ lhs: Double, _ rhs: Double) -> Bool {
         guard !areEqual(lhs, rhs) else {
             return false

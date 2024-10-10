@@ -203,19 +203,16 @@ class TestFunctions: DartSassTestCase {
         let rgb = try SassColor(red: 20, green: 40, blue: 60, alpha: 0.0)
         let rgbVal = Sass_EmbeddedProtocol_Value(rgb)
         let backRgb = try rgbVal.asSassValue().asColor()
-        XCTAssertEqual(.rgb, backRgb.preferredFormat)
         XCTAssertEqual(rgb, backRgb)
 
         let hsl = try SassColor(hue: 40, saturation: 66, lightness: 22, alpha: 1.0)
         let hslVal = Sass_EmbeddedProtocol_Value(hsl)
         let backHsl = try hslVal.asSassValue().asColor()
-        XCTAssertEqual(.hsl, backHsl.preferredFormat)
         XCTAssertEqual(hsl, backHsl)
 
         let hwb = try SassColor(hue: 40, whiteness: 66, blackness: 22, alpha: 1.0)
         let hwbVal = Sass_EmbeddedProtocol_Value(hwb)
         let backHwb = try hwbVal.asSassValue().asColor()
-        XCTAssertEqual(.hwb, backHwb.preferredFormat)
         XCTAssertEqual(hwb, backHwb)
     }
 

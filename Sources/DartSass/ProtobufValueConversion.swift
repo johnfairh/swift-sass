@@ -114,23 +114,8 @@ extension Sass_EmbeddedProtocol_Value {
         case .number(let n):
             return try SassNumber(n)
 
-        case .rgbColor(let c):
-            return try SassColor(red: Int(c.red),
-                                 green: Int(c.green),
-                                 blue: Int(c.blue),
-                                 alpha: c.alpha)
-
-        case .hslColor(let c):
-            return try SassColor(hue: c.hue,
-                                 saturation: c.saturation,
-                                 lightness: c.lightness,
-                                 alpha: c.alpha)
-
-        case .hwbColor(let c):
-            return try SassColor(hue: c.hue,
-                                 whiteness: c.whiteness,
-                                 blackness: c.blackness,
-                                 alpha: c.alpha)
+        case .color(let c):
+            return try SassColor(space: c.space, c.channel1, c.channel2, c.channel3, alpha: c.alpha)
 
         case .list(let l):
             return try SassList(l.contents.map { try $0.asSassValue() },
@@ -261,29 +246,14 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
     }
 
     func visit(color: SassColor) throws -> OneOf_Value {
-        switch color.preferredFormat {
-        case .rgb:
-            return .rgbColor(.with {
-                $0.red = UInt32(color.red)
-                $0.green = UInt32(color.green)
-                $0.blue = UInt32(color.blue)
-                $0.alpha = color.alpha
-            })
-        case .hsl:
-            return .hslColor(.with {
-                $0.hue = color.hue
-                $0.saturation = color.saturation
-                $0.lightness = color.lightness
-                $0.alpha = color.alpha
-            })
-        case .hwb:
-            return .hwbColor(.with {
-                $0.hue = color.hue
-                $0.whiteness = color.whiteness
-                $0.blackness = color.blackness
-                $0.alpha = color.alpha
-            })
-        }
+
+        return .color(.with {
+            $0.space = color.space.rawValue
+            $0.channel1 = color.channel1 ?? 0 // XXX pending upstream proto change
+            $0.channel2 = color.channel2 ?? 0
+            $0.channel3 = color.channel3 ?? 0
+            $0.alpha = color.alpha ?? 0
+        })
     }
 
     func visit(list: SassList) throws -> OneOf_Value {
