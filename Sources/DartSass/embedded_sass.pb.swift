@@ -2212,21 +2212,66 @@ struct Sass_EmbeddedProtocol_Value {
     /// The name of a known color space.
     var space: String = String()
 
-    /// The value of the first channel associated with `space`.
-    var channel1: Double = 0
+    /// The value of the first channel associated with `space`. A [missing]
+    /// channel is represented by an unset value.
+    ///
+    /// [missing]: types/color.md#missing-components
+    var channel1: Double {
+      get {return _channel1 ?? 0}
+      set {_channel1 = newValue}
+    }
+    /// Returns true if `channel1` has been explicitly set.
+    var hasChannel1: Bool {return self._channel1 != nil}
+    /// Clears the value of `channel1`. Subsequent reads from it will return its default value.
+    mutating func clearChannel1() {self._channel1 = nil}
 
-    /// The value of the second channel associated with `space`.
-    var channel2: Double = 0
+    /// The value of the second channel associated with `space`. A [missing]
+    /// channel is represented by an unset value.
+    ///
+    /// [missing]: types/color.md#missing-components
+    var channel2: Double {
+      get {return _channel2 ?? 0}
+      set {_channel2 = newValue}
+    }
+    /// Returns true if `channel2` has been explicitly set.
+    var hasChannel2: Bool {return self._channel2 != nil}
+    /// Clears the value of `channel2`. Subsequent reads from it will return its default value.
+    mutating func clearChannel2() {self._channel2 = nil}
 
-    /// The value of the third channel associated with `space`.
-    var channel3: Double = 0
+    /// The value of the third channel associated with `space`. A [missing]
+    /// channel is represented by an unset value.
+    ///
+    /// [missing]: types/color.md#missing-components
+    var channel3: Double {
+      get {return _channel3 ?? 0}
+      set {_channel3 = newValue}
+    }
+    /// Returns true if `channel3` has been explicitly set.
+    var hasChannel3: Bool {return self._channel3 != nil}
+    /// Clears the value of `channel3`. Subsequent reads from it will return its default value.
+    mutating func clearChannel3() {self._channel3 = nil}
 
     /// The color's alpha channel. Mandatory. Must be between 0 and 1, inclusive.
-    var alpha: Double = 0
+    /// A [missing] channel is represented by an unset value.
+    ///
+    /// [missing]: types/color.md#missing-components
+    var alpha: Double {
+      get {return _alpha ?? 0}
+      set {_alpha = newValue}
+    }
+    /// Returns true if `alpha` has been explicitly set.
+    var hasAlpha: Bool {return self._alpha != nil}
+    /// Clears the value of `alpha`. Subsequent reads from it will return its default value.
+    mutating func clearAlpha() {self._alpha = nil}
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
     init() {}
+
+    fileprivate var _channel1: Double? = nil
+    fileprivate var _channel2: Double? = nil
+    fileprivate var _channel3: Double? = nil
+    fileprivate var _alpha: Double? = nil
   }
 
   /// A SassScript list value.
@@ -4806,40 +4851,44 @@ extension Sass_EmbeddedProtocol_Value.Color: SwiftProtobuf.Message, SwiftProtobu
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularStringField(value: &self.space) }()
-      case 2: try { try decoder.decodeSingularDoubleField(value: &self.channel1) }()
-      case 3: try { try decoder.decodeSingularDoubleField(value: &self.channel2) }()
-      case 4: try { try decoder.decodeSingularDoubleField(value: &self.channel3) }()
-      case 5: try { try decoder.decodeSingularDoubleField(value: &self.alpha) }()
+      case 2: try { try decoder.decodeSingularDoubleField(value: &self._channel1) }()
+      case 3: try { try decoder.decodeSingularDoubleField(value: &self._channel2) }()
+      case 4: try { try decoder.decodeSingularDoubleField(value: &self._channel3) }()
+      case 5: try { try decoder.decodeSingularDoubleField(value: &self._alpha) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if !self.space.isEmpty {
       try visitor.visitSingularStringField(value: self.space, fieldNumber: 1)
     }
-    if self.channel1 != 0 {
-      try visitor.visitSingularDoubleField(value: self.channel1, fieldNumber: 2)
-    }
-    if self.channel2 != 0 {
-      try visitor.visitSingularDoubleField(value: self.channel2, fieldNumber: 3)
-    }
-    if self.channel3 != 0 {
-      try visitor.visitSingularDoubleField(value: self.channel3, fieldNumber: 4)
-    }
-    if self.alpha != 0 {
-      try visitor.visitSingularDoubleField(value: self.alpha, fieldNumber: 5)
-    }
+    try { if let v = self._channel1 {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 2)
+    } }()
+    try { if let v = self._channel2 {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 3)
+    } }()
+    try { if let v = self._channel3 {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 4)
+    } }()
+    try { if let v = self._alpha {
+      try visitor.visitSingularDoubleField(value: v, fieldNumber: 5)
+    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_Value.Color, rhs: Sass_EmbeddedProtocol_Value.Color) -> Bool {
     if lhs.space != rhs.space {return false}
-    if lhs.channel1 != rhs.channel1 {return false}
-    if lhs.channel2 != rhs.channel2 {return false}
-    if lhs.channel3 != rhs.channel3 {return false}
-    if lhs.alpha != rhs.alpha {return false}
+    if lhs._channel1 != rhs._channel1 {return false}
+    if lhs._channel2 != rhs._channel2 {return false}
+    if lhs._channel3 != rhs._channel3 {return false}
+    if lhs._alpha != rhs._alpha {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

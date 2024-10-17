@@ -115,7 +115,11 @@ extension Sass_EmbeddedProtocol_Value {
             return try SassNumber(n)
 
         case .color(let c):
-            return try SassColor(space: c.space, c.channel1, c.channel2, c.channel3, alpha: c.alpha)
+            let c1 = c.hasChannel1 ? c.channel1 : nil
+            let c2 = c.hasChannel2 ? c.channel2 : nil
+            let c3 = c.hasChannel3 ? c.channel3 : nil
+            let a = c.hasAlpha ? c.alpha : nil
+            return try SassColor(space: c.space, c1, c2, c3, alpha: a)
 
         case .list(let l):
             return try SassList(l.contents.map { try $0.asSassValue() },
@@ -249,10 +253,10 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
 
         return .color(.with {
             $0.space = color.space.rawValue
-            $0.channel1 = color.channel1 ?? 0 // XXX pending upstream proto change
-            $0.channel2 = color.channel2 ?? 0
-            $0.channel3 = color.channel3 ?? 0
-            $0.alpha = color.alpha ?? 0
+            if let c = color.channel1 { $0.channel1 = c }
+            if let c = color.channel2 { $0.channel2 = c }
+            if let c = color.channel3 { $0.channel3 = c }
+            if let a = color.alpha { $0.alpha = a }
         })
     }
 
