@@ -66,6 +66,8 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         case globalBuiltin = "global-builtin"
         /// [import](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#import)
         case `import` = "import"
+        /// [legacy-js-api](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#legacy_js_api)
+        case legacyJSApi = "legacy-js-api"
         /// [mixed-decls](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#mixed_decls)
         case mixedDecls = "mixed-decls"
         /// [moz-document](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#moz_document)
@@ -83,7 +85,7 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         /// [user-authored](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#user_authored)
         case userAuthored = "user-authored"
     }
-    // currently known: 21 + userAuthored
+    // currently known: 22 + userAuthored
 
     // MARK: Serialization
 

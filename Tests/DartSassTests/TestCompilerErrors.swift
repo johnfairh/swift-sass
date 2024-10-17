@@ -109,10 +109,11 @@ class TestCompilerErrors: DartSassTestCase {
     // Compiler warnings - no span
 
     let warnsomeSass = """
+    @use 'sass:list'
     $known-prefixes: webkit, moz, ms, o
     @mixin prefix($property, $value, $prefixes)
       @each $prefix in $prefixes
-        @if not index($known-prefixes, $prefix)
+        @if not list.index($known-prefixes, $prefix)
           @warn "Unknown prefix #{$prefix}."
 
         -#{$prefix}-#{$property}: $value
@@ -125,8 +126,8 @@ class TestCompilerErrors: DartSassTestCase {
 
     let warningMessage = """
     WARNING: Unknown prefix wekbit.
-        - 5:7   prefix()
-        - 12:3  root stylesheet
+        - 6:7   prefix()
+        - 13:3  root stylesheet
 
     """
 
@@ -215,21 +216,21 @@ class TestCompilerErrors: DartSassTestCase {
         // warnings normally reported
         let importer = StaticImporter(scss: "$_: 1/2")
         let loudCompiler = try newCompiler(importers: [.importer(importer)])
-        let results1 = try await loudCompiler.compile(string: "@import 'foo';")
+        let results1 = try await loudCompiler.compile(string: "@use 'foo';")
         XCTAssertEqual(1, results1.messages.count)
 
         // warnings can be suppressed - from a file
         let quietCompiler = try Compiler(warningLevel: .noDependencyWarnings)
         compilersToShutdown.append(quietCompiler)
 
-        let rootFile = try FileManager.default.createTempFile(filename: "root.scss", contents: "@import 'foo';")
+        let rootFile = try FileManager.default.createTempFile(filename: "root.scss", contents: "@use 'foo';")
 
         let results2 = try await quietCompiler.compile(fileURL: rootFile,
                                                        importers: [.importer(importer)])
         XCTAssertEqual(0, results2.messages.count)
 
         // warnings can be suppressed - from a string
-        let results3 = try await quietCompiler.compile(string: "@import 'imported';",
+        let results3 = try await quietCompiler.compile(string: "@use 'imported';",
                                                        url: URL(string: "custom://main.scss")!,
                                                        importers: [.importer(importer)])
         XCTAssertEqual(0, results3.messages.count)
@@ -247,14 +248,14 @@ class TestCompilerErrors: DartSassTestCase {
                                             $_: 1/8;
                                             """)
         let normalCompiler = try newCompiler(importers: [.importer(importer)])
-        let results1 = try await normalCompiler.compile(string: "@import 'foo';")
+        let results1 = try await normalCompiler.compile(string: "@use 'foo';")
         XCTAssertEqual(6, results1.messages.count)
 
         let verboseCompiler = try Compiler(verboseDeprecations: true,
                                            importers: [.importer(importer)])
         compilersToShutdown.append(verboseCompiler)
 
-        let results2 = try await verboseCompiler.compile(string: "@import 'foo';")
+        let results2 = try await verboseCompiler.compile(string: "@use 'foo';")
         XCTAssertEqual(7, results2.messages.count)
     }
 }
