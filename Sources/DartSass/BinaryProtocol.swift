@@ -70,8 +70,8 @@ final class ProtocolWriter: MessageToByteEncoder {
     }
 
     /// Add a channel handler matching the protocol writer.
-    static func addHandler(to channel: Channel) -> EventLoopFuture<Void> {
-        channel.pipeline.addHandler(MessageToByteHandler(ProtocolWriter()))
+    static func addHandlerSync(to channel: Channel) throws {
+        try channel.pipeline.syncOperations.addHandler(MessageToByteHandler(ProtocolWriter()))
     }
 }
 
@@ -142,9 +142,8 @@ final class ProtocolReader: ByteToMessageDecoder {
         .needMoreData
     }
 
-    /// Add a channel handler matching the protocol reader.
-    static func addHandler(to channel: Channel) -> EventLoopFuture<Void> {
-        channel.pipeline.addHandler(ByteToMessageHandler(ProtocolReader()))
+    static func addHandlerSync(to channel: Channel) throws {
+        try channel.pipeline.syncOperations.addHandler(ByteToMessageHandler(ProtocolReader()))
     }
 }
 

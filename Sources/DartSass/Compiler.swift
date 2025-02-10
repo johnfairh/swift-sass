@@ -730,16 +730,14 @@ actor CompilerChild: ChannelInboundHandler {
     }
 
     /// Connect the unix child process to NIO and run
-    func run(group: EventLoopGroup, callback: @Sendable () async throws -> Void ) async throws {
+    func run(group: EventLoop, callback: @Sendable () async throws -> Void ) async throws {
         asyncChannel = try await NIOPipeBootstrap(group: group)
             .takingOwnershipOfDescriptors(input: child.stdoutFD, output: child.stdinFD) { ch in
-                ProtocolWriter.addHandler(to: ch)
-                    .flatMap {
-                        ProtocolReader.addHandler(to: ch)
-                    }
-                    .flatMapThrowing {
-                        try NIOAsyncChannel(wrappingChannelSynchronously: ch)
-                    }
+                group.makeCompletedFuture {
+                    try ProtocolWriter.addHandlerSync(to: ch)
+                    try ProtocolReader.addHandlerSync(to: ch)
+                    return try NIOAsyncChannel<InboundMessage, OutboundMessage>(wrappingChannelSynchronously: ch)
+                }
             }
 
         try await asyncChannel.executeThenClose { @Sendable inbound, outbound in
