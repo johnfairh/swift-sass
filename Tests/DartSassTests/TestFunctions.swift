@@ -387,7 +387,8 @@ class TestFunctions: DartSassTestCase {
             let r = try await compiler.compile(string: scss("kwIgnoringFn"))
             XCTFail("Managed to compile: \(r)")
         } catch let error as CompilerError {
-            XCTAssertTrue(error.description.contains("No arguments named"))
+            print(error.description)
+            XCTAssertTrue(error.description.contains("No parameters named"))
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
