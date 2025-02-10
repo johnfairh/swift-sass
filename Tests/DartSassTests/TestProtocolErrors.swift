@@ -80,7 +80,7 @@ class TestProtocolErrors: DartSassTestCase {
         bytes.writeVarint(12)
         bytes.writeVarint(UInt64(UInt32.max) + 8)
         let pipeline = await compiler.child.channel.pipeline
-        pipeline.fireChannelRead(NIOAny(bytes))
+        pipeline.fireChannelRead(bytes)
 
         try await Task.sleep(for: .seconds(0.1))
         await compiler.assertStartCount(2)
