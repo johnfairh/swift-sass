@@ -2322,72 +2322,36 @@ struct Sass_EmbeddedProtocol_NodePackageImporter: Sendable {
 fileprivate let _protobuf_package = "sass.embedded_protocol"
 
 extension Sass_EmbeddedProtocol_OutputStyle: SwiftProtobuf._ProtoNameProviding {
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    0: .same(proto: "EXPANDED"),
-    1: .same(proto: "COMPRESSED"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0EXPANDED\0\u{1}COMPRESSED\0")
 }
 
 extension Sass_EmbeddedProtocol_Syntax: SwiftProtobuf._ProtoNameProviding {
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    0: .same(proto: "SCSS"),
-    1: .same(proto: "INDENTED"),
-    2: .same(proto: "CSS"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0SCSS\0\u{1}INDENTED\0\u{1}CSS\0")
 }
 
 extension Sass_EmbeddedProtocol_LogEventType: SwiftProtobuf._ProtoNameProviding {
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    0: .same(proto: "WARNING"),
-    1: .same(proto: "DEPRECATION_WARNING"),
-    2: .same(proto: "DEBUG"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0WARNING\0\u{1}DEPRECATION_WARNING\0\u{1}DEBUG\0")
 }
 
 extension Sass_EmbeddedProtocol_ProtocolErrorType: SwiftProtobuf._ProtoNameProviding {
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    0: .same(proto: "PARSE"),
-    1: .same(proto: "PARAMS"),
-    2: .same(proto: "INTERNAL"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0PARSE\0\u{1}PARAMS\0\u{1}INTERNAL\0")
 }
 
 extension Sass_EmbeddedProtocol_ListSeparator: SwiftProtobuf._ProtoNameProviding {
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    0: .same(proto: "COMMA"),
-    1: .same(proto: "SPACE"),
-    2: .same(proto: "SLASH"),
-    3: .same(proto: "UNDECIDED"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0COMMA\0\u{1}SPACE\0\u{1}SLASH\0\u{1}UNDECIDED\0")
 }
 
 extension Sass_EmbeddedProtocol_SingletonValue: SwiftProtobuf._ProtoNameProviding {
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    0: .same(proto: "TRUE"),
-    1: .same(proto: "FALSE"),
-    2: .same(proto: "NULL"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0TRUE\0\u{1}FALSE\0\u{1}NULL\0")
 }
 
 extension Sass_EmbeddedProtocol_CalculationOperator: SwiftProtobuf._ProtoNameProviding {
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    0: .same(proto: "PLUS"),
-    1: .same(proto: "MINUS"),
-    2: .same(proto: "TIMES"),
-    3: .same(proto: "DIVIDE"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0PLUS\0\u{1}MINUS\0\u{1}TIMES\0\u{1}DIVIDE\0")
 }
 
 extension Sass_EmbeddedProtocol_InboundMessage: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".InboundMessage"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    2: .standard(proto: "compile_request"),
-    3: .standard(proto: "canonicalize_response"),
-    4: .standard(proto: "import_response"),
-    5: .standard(proto: "file_import_response"),
-    6: .standard(proto: "function_call_response"),
-    7: .standard(proto: "version_request"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{4}\u{2}compile_request\0\u{3}canonicalize_response\0\u{3}import_response\0\u{3}file_import_response\0\u{3}function_call_response\0\u{3}version_request\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -2522,9 +2486,7 @@ extension Sass_EmbeddedProtocol_InboundMessage: SwiftProtobuf.Message, SwiftProt
 
 extension Sass_EmbeddedProtocol_InboundMessage.VersionRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_InboundMessage.protoMessageName + ".VersionRequest"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -2554,24 +2516,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.VersionRequest: SwiftProtobuf.Mes
 
 extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_InboundMessage.protoMessageName + ".CompileRequest"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    2: .same(proto: "string"),
-    3: .same(proto: "path"),
-    4: .same(proto: "style"),
-    5: .standard(proto: "source_map"),
-    6: .same(proto: "importers"),
-    7: .standard(proto: "global_functions"),
-    8: .standard(proto: "alert_color"),
-    9: .standard(proto: "alert_ascii"),
-    10: .same(proto: "verbose"),
-    11: .standard(proto: "quiet_deps"),
-    12: .standard(proto: "source_map_include_sources"),
-    13: .same(proto: "charset"),
-    14: .same(proto: "silent"),
-    15: .standard(proto: "fatal_deprecation"),
-    16: .standard(proto: "silence_deprecation"),
-    17: .standard(proto: "future_deprecation"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\u{2}string\0\u{1}path\0\u{1}style\0\u{3}source_map\0\u{1}importers\0\u{3}global_functions\0\u{3}alert_color\0\u{3}alert_ascii\0\u{1}verbose\0\u{3}quiet_deps\0\u{3}source_map_include_sources\0\u{1}charset\0\u{1}silent\0\u{3}fatal_deprecation\0\u{3}silence_deprecation\0\u{3}future_deprecation\0\u{c}\u{1}\u{1}")
 
   fileprivate class _StorageClass {
     var _input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input?
@@ -2590,15 +2535,11 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     var _silenceDeprecation: [String] = []
     var _futureDeprecation: [String] = []
 
-    #if swift(>=5.10)
       // This property is used as the initial default value for new instances of the type.
       // The type itself is protecting the reference to its storage via CoW semantics.
       // This will force a copy to be made of this reference when the first mutation occurs;
       // hence, it is safe to mark this as `nonisolated(unsafe)`.
       static nonisolated(unsafe) let defaultInstance = _StorageClass()
-    #else
-      static let defaultInstance = _StorageClass()
-    #endif
 
     private init() {}
 
@@ -2771,12 +2712,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
 
 extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.StringInput: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_InboundMessage.CompileRequest.protoMessageName + ".StringInput"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "source"),
-    2: .same(proto: "url"),
-    3: .same(proto: "syntax"),
-    4: .same(proto: "importer"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}source\0\u{1}url\0\u{1}syntax\0\u{1}importer\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -2825,13 +2761,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.StringInput: Swift
 
 extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_InboundMessage.CompileRequest.protoMessageName + ".Importer"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "path"),
-    2: .standard(proto: "importer_id"),
-    3: .standard(proto: "file_importer_id"),
-    5: .standard(proto: "node_package_importer"),
-    4: .standard(proto: "non_canonical_scheme"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}path\0\u{3}importer_id\0\u{3}file_importer_id\0\u{3}non_canonical_scheme\0\u{3}node_package_importer\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -2921,12 +2851,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest.Importer: SwiftPro
 
 extension Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_InboundMessage.protoMessageName + ".CanonicalizeResponse"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-    2: .same(proto: "url"),
-    3: .same(proto: "error"),
-    4: .standard(proto: "containing_url_unused"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}url\0\u{1}error\0\u{3}containing_url_unused\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -2993,11 +2918,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CanonicalizeResponse: SwiftProtob
 
 extension Sass_EmbeddedProtocol_InboundMessage.ImportResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_InboundMessage.protoMessageName + ".ImportResponse"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-    2: .same(proto: "success"),
-    3: .same(proto: "error"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}success\0\u{1}error\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3064,11 +2985,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.ImportResponse: SwiftProtobuf.Mes
 
 extension Sass_EmbeddedProtocol_InboundMessage.ImportResponse.ImportSuccess: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_InboundMessage.ImportResponse.protoMessageName + ".ImportSuccess"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "contents"),
-    2: .same(proto: "syntax"),
-    3: .standard(proto: "source_map_url"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}contents\0\u{1}syntax\0\u{3}source_map_url\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3112,12 +3029,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.ImportResponse.ImportSuccess: Swi
 
 extension Sass_EmbeddedProtocol_InboundMessage.FileImportResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_InboundMessage.protoMessageName + ".FileImportResponse"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-    2: .standard(proto: "file_url"),
-    3: .same(proto: "error"),
-    4: .standard(proto: "containing_url_unused"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{3}file_url\0\u{1}error\0\u{3}containing_url_unused\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3184,12 +3096,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.FileImportResponse: SwiftProtobuf
 
 extension Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_InboundMessage.protoMessageName + ".FunctionCallResponse"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-    2: .same(proto: "success"),
-    3: .same(proto: "error"),
-    4: .standard(proto: "accessed_argument_lists"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}success\0\u{1}error\0\u{3}accessed_argument_lists\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3261,16 +3168,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.FunctionCallResponse: SwiftProtob
 
 extension Sass_EmbeddedProtocol_OutboundMessage: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".OutboundMessage"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "error"),
-    2: .standard(proto: "compile_response"),
-    3: .standard(proto: "log_event"),
-    4: .standard(proto: "canonicalize_request"),
-    5: .standard(proto: "import_request"),
-    6: .standard(proto: "file_import_request"),
-    7: .standard(proto: "function_call_request"),
-    8: .standard(proto: "version_response"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}error\0\u{3}compile_response\0\u{3}log_event\0\u{3}canonicalize_request\0\u{3}import_request\0\u{3}file_import_request\0\u{3}function_call_request\0\u{3}version_response\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3439,13 +3337,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage: SwiftProtobuf.Message, SwiftPro
 
 extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".VersionResponse"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    5: .same(proto: "id"),
-    1: .standard(proto: "protocol_version"),
-    2: .standard(proto: "compiler_version"),
-    3: .standard(proto: "implementation_version"),
-    4: .standard(proto: "implementation_name"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}protocol_version\0\u{3}compiler_version\0\u{3}implementation_version\0\u{3}implementation_name\0\u{1}id\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3495,11 +3387,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.VersionResponse: SwiftProtobuf.M
 
 extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".CompileResponse"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    2: .same(proto: "success"),
-    3: .same(proto: "failure"),
-    4: .standard(proto: "loaded_urls"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\u{2}success\0\u{1}failure\0\u{3}loaded_urls\0\u{c}\u{1}\u{1}")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3571,10 +3459,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse: SwiftProtobuf.M
 
 extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.protoMessageName + ".CompileSuccess"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "css"),
-    2: .standard(proto: "source_map"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}css\0\u{3}source_map\0\u{c}\u{3}\u{1}")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3609,12 +3494,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileSuccess: 
 
 extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.protoMessageName + ".CompileFailure"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "message"),
-    2: .same(proto: "span"),
-    3: .standard(proto: "stack_trace"),
-    4: .same(proto: "formatted"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}message\0\u{1}span\0\u{3}stack_trace\0\u{1}formatted\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3663,14 +3543,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CompileResponse.CompileFailure: 
 
 extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".LogEvent"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    2: .same(proto: "type"),
-    3: .same(proto: "message"),
-    4: .same(proto: "span"),
-    5: .standard(proto: "stack_trace"),
-    6: .same(proto: "formatted"),
-    7: .standard(proto: "deprecation_type"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\u{2}type\0\u{1}message\0\u{1}span\0\u{3}stack_trace\0\u{1}formatted\0\u{3}deprecation_type\0\u{c}\u{1}\u{1}")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3729,13 +3602,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.LogEvent: SwiftProtobuf.Message,
 
 extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".CanonicalizeRequest"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-    3: .standard(proto: "importer_id"),
-    4: .same(proto: "url"),
-    5: .standard(proto: "from_import"),
-    6: .standard(proto: "containing_url"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{4}\u{2}importer_id\0\u{1}url\0\u{3}from_import\0\u{3}containing_url\0\u{c}\u{2}\u{1}")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3789,11 +3656,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.CanonicalizeRequest: SwiftProtob
 
 extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".ImportRequest"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-    3: .standard(proto: "importer_id"),
-    4: .same(proto: "url"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{4}\u{2}importer_id\0\u{1}url\0\u{c}\u{2}\u{1}")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3833,13 +3696,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.ImportRequest: SwiftProtobuf.Mes
 
 extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".FileImportRequest"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-    3: .standard(proto: "importer_id"),
-    4: .same(proto: "url"),
-    5: .standard(proto: "from_import"),
-    6: .standard(proto: "containing_url"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{4}\u{2}importer_id\0\u{1}url\0\u{3}from_import\0\u{3}containing_url\0\u{c}\u{2}\u{1}")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3893,12 +3750,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FileImportRequest: SwiftProtobuf
 
 extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_OutboundMessage.protoMessageName + ".FunctionCallRequest"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-    3: .same(proto: "name"),
-    4: .standard(proto: "function_id"),
-    5: .same(proto: "arguments"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{2}\u{2}name\0\u{3}function_id\0\u{1}arguments\0\u{c}\u{2}\u{1}")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3965,11 +3817,7 @@ extension Sass_EmbeddedProtocol_OutboundMessage.FunctionCallRequest: SwiftProtob
 
 extension Sass_EmbeddedProtocol_ProtocolError: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".ProtocolError"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "type"),
-    2: .same(proto: "id"),
-    3: .same(proto: "message"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}type\0\u{1}id\0\u{1}message\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4009,13 +3857,7 @@ extension Sass_EmbeddedProtocol_ProtocolError: SwiftProtobuf.Message, SwiftProto
 
 extension Sass_EmbeddedProtocol_SourceSpan: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".SourceSpan"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "text"),
-    2: .same(proto: "start"),
-    3: .same(proto: "end"),
-    4: .same(proto: "url"),
-    5: .same(proto: "context"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}text\0\u{1}start\0\u{1}end\0\u{1}url\0\u{1}context\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4069,11 +3911,7 @@ extension Sass_EmbeddedProtocol_SourceSpan: SwiftProtobuf.Message, SwiftProtobuf
 
 extension Sass_EmbeddedProtocol_SourceSpan.SourceLocation: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_SourceSpan.protoMessageName + ".SourceLocation"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "offset"),
-    2: .same(proto: "line"),
-    3: .same(proto: "column"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}offset\0\u{1}line\0\u{1}column\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4113,19 +3951,7 @@ extension Sass_EmbeddedProtocol_SourceSpan.SourceLocation: SwiftProtobuf.Message
 
 extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".Value"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "string"),
-    2: .same(proto: "number"),
-    5: .same(proto: "list"),
-    6: .same(proto: "map"),
-    7: .same(proto: "singleton"),
-    8: .standard(proto: "compiler_function"),
-    9: .standard(proto: "host_function"),
-    10: .standard(proto: "argument_list"),
-    12: .same(proto: "calculation"),
-    13: .standard(proto: "compiler_mixin"),
-    14: .same(proto: "color"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}string\0\u{1}number\0\u{2}\u{3}list\0\u{1}map\0\u{1}singleton\0\u{3}compiler_function\0\u{3}host_function\0\u{3}argument_list\0\u{2}\u{2}calculation\0\u{3}compiler_mixin\0\u{1}color\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4340,10 +4166,7 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
 
 extension Sass_EmbeddedProtocol_Value.StringMessage: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".String"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "text"),
-    2: .same(proto: "quoted"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}text\0\u{1}quoted\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4378,11 +4201,7 @@ extension Sass_EmbeddedProtocol_Value.StringMessage: SwiftProtobuf.Message, Swif
 
 extension Sass_EmbeddedProtocol_Value.Number: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".Number"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "value"),
-    2: .same(proto: "numerators"),
-    3: .same(proto: "denominators"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}value\0\u{1}numerators\0\u{1}denominators\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4422,13 +4241,7 @@ extension Sass_EmbeddedProtocol_Value.Number: SwiftProtobuf.Message, SwiftProtob
 
 extension Sass_EmbeddedProtocol_Value.Color: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".Color"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "space"),
-    2: .same(proto: "channel1"),
-    3: .same(proto: "channel2"),
-    4: .same(proto: "channel3"),
-    5: .same(proto: "alpha"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}space\0\u{1}channel1\0\u{1}channel2\0\u{1}channel3\0\u{1}alpha\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4482,11 +4295,7 @@ extension Sass_EmbeddedProtocol_Value.Color: SwiftProtobuf.Message, SwiftProtobu
 
 extension Sass_EmbeddedProtocol_Value.List: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".List"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "separator"),
-    2: .standard(proto: "has_brackets"),
-    3: .same(proto: "contents"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}separator\0\u{3}has_brackets\0\u{1}contents\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4526,9 +4335,7 @@ extension Sass_EmbeddedProtocol_Value.List: SwiftProtobuf.Message, SwiftProtobuf
 
 extension Sass_EmbeddedProtocol_Value.Map: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".Map"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "entries"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}entries\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4558,10 +4365,7 @@ extension Sass_EmbeddedProtocol_Value.Map: SwiftProtobuf.Message, SwiftProtobuf.
 
 extension Sass_EmbeddedProtocol_Value.Map.Entry: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_Value.Map.protoMessageName + ".Entry"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "key"),
-    2: .same(proto: "value"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}key\0\u{1}value\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4600,9 +4404,7 @@ extension Sass_EmbeddedProtocol_Value.Map.Entry: SwiftProtobuf.Message, SwiftPro
 
 extension Sass_EmbeddedProtocol_Value.CompilerFunction: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".CompilerFunction"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4632,10 +4434,7 @@ extension Sass_EmbeddedProtocol_Value.CompilerFunction: SwiftProtobuf.Message, S
 
 extension Sass_EmbeddedProtocol_Value.HostFunction: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".HostFunction"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-    2: .same(proto: "signature"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}signature\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4670,9 +4469,7 @@ extension Sass_EmbeddedProtocol_Value.HostFunction: SwiftProtobuf.Message, Swift
 
 extension Sass_EmbeddedProtocol_Value.CompilerMixin: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".CompilerMixin"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4702,12 +4499,7 @@ extension Sass_EmbeddedProtocol_Value.CompilerMixin: SwiftProtobuf.Message, Swif
 
 extension Sass_EmbeddedProtocol_Value.ArgumentList: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".ArgumentList"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-    2: .same(proto: "separator"),
-    3: .same(proto: "contents"),
-    4: .same(proto: "keywords"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}separator\0\u{1}contents\0\u{1}keywords\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4752,10 +4544,7 @@ extension Sass_EmbeddedProtocol_Value.ArgumentList: SwiftProtobuf.Message, Swift
 
 extension Sass_EmbeddedProtocol_Value.Calculation: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".Calculation"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "name"),
-    2: .same(proto: "arguments"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}name\0\u{1}arguments\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4790,26 +4579,16 @@ extension Sass_EmbeddedProtocol_Value.Calculation: SwiftProtobuf.Message, SwiftP
 
 extension Sass_EmbeddedProtocol_Value.Calculation.CalculationValue: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_Value.Calculation.protoMessageName + ".CalculationValue"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "number"),
-    2: .same(proto: "string"),
-    3: .same(proto: "interpolation"),
-    4: .same(proto: "operation"),
-    5: .same(proto: "calculation"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}number\0\u{1}string\0\u{1}interpolation\0\u{1}operation\0\u{1}calculation\0")
 
   fileprivate class _StorageClass {
     var _value: Sass_EmbeddedProtocol_Value.Calculation.CalculationValue.OneOf_Value?
 
-    #if swift(>=5.10)
       // This property is used as the initial default value for new instances of the type.
       // The type itself is protecting the reference to its storage via CoW semantics.
       // This will force a copy to be made of this reference when the first mutation occurs;
       // hence, it is safe to mark this as `nonisolated(unsafe)`.
       static nonisolated(unsafe) let defaultInstance = _StorageClass()
-    #else
-      static let defaultInstance = _StorageClass()
-    #endif
 
     private init() {}
 
@@ -4944,26 +4723,18 @@ extension Sass_EmbeddedProtocol_Value.Calculation.CalculationValue: SwiftProtobu
 
 extension Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_Value.Calculation.protoMessageName + ".CalculationOperation"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "operator"),
-    2: .same(proto: "left"),
-    3: .same(proto: "right"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}operator\0\u{1}left\0\u{1}right\0")
 
   fileprivate class _StorageClass {
     var _operator: Sass_EmbeddedProtocol_CalculationOperator = .plus
     var _left: Sass_EmbeddedProtocol_Value.Calculation.CalculationValue? = nil
     var _right: Sass_EmbeddedProtocol_Value.Calculation.CalculationValue? = nil
 
-    #if swift(>=5.10)
       // This property is used as the initial default value for new instances of the type.
       // The type itself is protecting the reference to its storage via CoW semantics.
       // This will force a copy to be made of this reference when the first mutation occurs;
       // hence, it is safe to mark this as `nonisolated(unsafe)`.
       static nonisolated(unsafe) let defaultInstance = _StorageClass()
-    #else
-      static let defaultInstance = _StorageClass()
-    #endif
 
     private init() {}
 
@@ -5036,9 +4807,7 @@ extension Sass_EmbeddedProtocol_Value.Calculation.CalculationOperation: SwiftPro
 
 extension Sass_EmbeddedProtocol_NodePackageImporter: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".NodePackageImporter"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "entry_point_directory"),
-  ]
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}entry_point_directory\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
