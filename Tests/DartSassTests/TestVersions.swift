@@ -44,7 +44,7 @@ class TestVersions: DartSassTestCase {
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .appendingPathComponent("VERSION_DART_SASS")
-        return try String(contentsOf: url).trimmingCharacters(in: .newlines)
+        return try String(contentsOf: url, encoding: .ascii).trimmingCharacters(in: .newlines)
     }
 
     func testVersionReport() async throws {
