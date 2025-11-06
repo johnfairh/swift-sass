@@ -13,7 +13,7 @@ New `dart_sass` release:
 * Update README Sass badge
 * `make dart_sass`
 * Figure corresponding sass/sass release, update that tag
-* `make deprecations` and check `Deprecations.swift`
+* `./deprecations.rb` and paste into `Deprecations.swift`
 
 New `swift-sass` release:
 * `swift package update` & Xcode -> File -> Swift Packages -> Update...
