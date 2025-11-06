@@ -129,6 +129,11 @@
     "name" : "colorModuleCompat",
     "parent_name" : "ID"
   },
+  "dartsass\/types\/deprecation1\/id3.html?swift#compilestringrelativeurl" : {
+    "abstract" : "compile-string-relative-url",
+    "name" : "compileStringRelativeUrl",
+    "parent_name" : "ID"
+  },
   "dartsass\/types\/deprecation1\/id3.html?swift#cssfunctionmixin" : {
     "abstract" : "css-function-mixin",
     "name" : "cssFunctionMixin",
@@ -169,6 +174,16 @@
     "name" : "import",
     "parent_name" : "ID"
   },
+  "dartsass\/types\/deprecation1\/id3.html?swift#legacyjsapi" : {
+    "abstract" : "legacy-js-api",
+    "name" : "legacyJsApi",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#misplacedrest" : {
+    "abstract" : "misplaced-rest",
+    "name" : "misplacedRest",
+    "parent_name" : "ID"
+  },
   "dartsass\/types\/deprecation1\/id3.html?swift#mixeddecls" : {
     "abstract" : "mixed-decls",
     "name" : "mixedDecls",
@@ -204,9 +219,19 @@
     "name" : "strictUnary",
     "parent_name" : "ID"
   },
+  "dartsass\/types\/deprecation1\/id3.html?swift#typefunction" : {
+    "abstract" : "type-function",
+    "name" : "typeFunction",
+    "parent_name" : "ID"
+  },
   "dartsass\/types\/deprecation1\/id3.html?swift#userauthored" : {
     "abstract" : "user-authored",
     "name" : "userAuthored",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id3.html?swift#withprivate" : {
+    "abstract" : "with-private",
+    "name" : "withPrivate",
     "parent_name" : "ID"
   },
   "dartsass\/types\/deprecationcontrol1.html?swift" : {

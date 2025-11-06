@@ -1,3 +1,7 @@
+# 3.2.0
+
+* Bundle the 1.93.3 `dart-sass` binaries
+
 # 3.1.0
 
 * Bundle the 1.83.4 `dart-sass` binaries

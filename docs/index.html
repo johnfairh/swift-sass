@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/fw2020.css">
     
     
-   <title>Swift Sass v3.0.0</title>
+   <title>Swift Sass v3.2.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./" data-doc-path="index.html" data-assets-path="">
@@ -31,7 +31,7 @@
     
     <a href="index.html">
     
-    Swift Sass v3.0.0</a>
+    Swift Sass v3.2.0</a>
   </div>
   
   <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
@@ -667,7 +667,7 @@ Distributed under the MIT license, see LICENSE.
 <p><img src="https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg" alt="Platforms" />
 <a href="https://codecov.io/gh/johnfairh/swift-sass"><img src="https://codecov.io/gh/johnfairh/swift-sass/branch/main/graph/badge.svg?token=0NAP6IA9EB" alt="codecov" /></a>
 <img src="https://github.com/johnfairh/swift-sass/workflows/Tests/badge.svg" alt="Tests" />
-<img src="https://img.shields.io/badge/sass-1.79.4-purple" alt="Sass" /></p>
+<img src="https://img.shields.io/badge/sass-1.93.3-purple" alt="Sass" /></p>
 <h1 class="j2-anchor j2-heading heading" id="swift-sass">
 <span data-anchor-id="swift-sass">
 Swift Sass
@@ -703,14 +703,14 @@ this package is to provide custom implementations of <code>@use</code> rules to 
 content, and custom functions to provide application-specific behavior:</p>
 <pre><code class="language-swift">
 struct ExtrasImporter: Importer {
-  func canonicalize(importURL: String) async throws -&gt; URL? {
-    guard importURL == &quot;extras&quot; else {
+    func canonicalize(ruleURL: String, context: ImporterContext) async throws -&gt; URL? {
+      guard ruleURL == &quot;extras&quot; else {
       return nil
     }
     return URL(string: &quot;custom://extras&quot;)
   }
 
-  func load(canonicalURL: URL) async throws -&gt; ImporterResults {
+  func load(canonicalURL: URL) async throws -&gt; ImporterResults? {
     ImporterResults(my_extras_stylesheet)
   }
 }
@@ -757,7 +757,7 @@ Requirements
 <li>Swift 6.0</li>
 <li>macOS 14+ (tested on macOS 14.x x64)</li>
 <li>Linux (tested on Ubuntu latest x64)</li>
-<li>Embedded Sass Protocol version 3.0.0</li>
+<li>Embedded Sass Protocol version 3.2.0</li>
 </ul>
 <h2 class="j2-anchor j2-heading heading" id="installation">
 <span data-anchor-id="installation">
@@ -767,7 +767,7 @@ Installation
 <p>Package dependency:</p>
 <pre><code class="language-swift">.package(name: &quot;swift-sass&quot;,
          url: &quot;https://github.com/johnfairh/swift-sass.git&quot;,
-         from: &quot;2.0.0&quot;)
+         from: &quot;3.2.0&quot;)
 </code></pre>
 <p>Target dependency:</p>
 <pre><code class="language-swift">.product(name: &quot;DartSass&quot;, package: &quot;swift-sass&quot;),
@@ -795,8 +795,8 @@ implementations, and was
 However, work is underway to revive the project and it may be that LibSass 4
 or <a href="https://github.com/mgreter/libsass-ng/">libsass-ng</a> emerges as an
 alternative Sass implementation with the same level of language support as
-Dart Sass.  As of summer 2024 this revival effort is showing signs of life but
-I’m still not holding my breath.</p>
+Dart Sass.  As of autumn 2025 this revival effort is not showing any signs of
+life.</p>
 <p>See the experimental <a href="https://github.com/johnfairh/swift-sass/tree/libsass4">libsass4 branch</a>
 for the current state of development: if LibSass itself manages to get to a
 release then this package will support it as an alternative integration.</p>
