@@ -7,7 +7,7 @@ Distributed under the MIT license, see LICENSE.
 ![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg)
 [![codecov](https://codecov.io/gh/johnfairh/swift-sass/branch/main/graph/badge.svg?token=0NAP6IA9EB)](https://codecov.io/gh/johnfairh/swift-sass)
 ![Tests](https://github.com/johnfairh/swift-sass/workflows/Tests/badge.svg)
-![Sass](https://img.shields.io/badge/sass-1.87.0-purple)
+![Sass](https://img.shields.io/badge/sass-1.93.3-purple)
 
 # Swift Sass
 
@@ -139,8 +139,8 @@ implementations, and was
 However, work is underway to revive the project and it may be that LibSass 4
 or [libsass-ng](https://github.com/mgreter/libsass-ng/) emerges as an
 alternative Sass implementation with the same level of language support as
-Dart Sass.  As of summer 2024 this revival effort is showing signs of life but
-I'm still not holding my breath.
+Dart Sass.  As of autumn 2025 this revival effort is not showing any signs of
+life.
 
 See the experimental [libsass4 branch](https://github.com/johnfairh/swift-sass/tree/libsass4)
 for the current state of development: if LibSass itself manages to get to a
