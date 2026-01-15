@@ -169,6 +169,11 @@
     "name" : "globalBuiltin",
     "parent_name" : "ID"
   },
+  "dartsass\/types\/deprecation1\/id3.html?swift#iffunction" : {
+    "abstract" : "if-function",
+    "name" : "ifFunction",
+    "parent_name" : "ID"
+  },
   "dartsass\/types\/deprecation1\/id3.html?swift#import" : {
     "abstract" : "import",
     "name" : "import",
@@ -839,6 +844,11 @@
   "sass\/types\/sasscolor\/space.html?swift#displayp3" : {
     "abstract" : "The display-p3 color space",
     "name" : "displayP3",
+    "parent_name" : "Space"
+  },
+  "sass\/types\/sasscolor\/space.html?swift#displayp3linear" : {
+    "abstract" : "The display-p3-linear color space",
+    "name" : "displayP3Linear",
     "parent_name" : "Space"
   },
   "sass\/types\/sasscolor\/space.html?swift#hsl" : {
