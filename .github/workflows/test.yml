@@ -33,12 +33,12 @@ jobs:
         run: swift test
 
   macos:
-    name: macOS 15 tests
-    runs-on: macos-15
+    name: macOS 16 tests
+    runs-on: macos-16
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '26.1.0-beta'
+          xcode-version: '26.2'
       - uses: actions/checkout@v4
         with:
           persist-credentials: false

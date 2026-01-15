@@ -6,27 +6,27 @@
 //
 
 import Foundation
-import XCTest
+import Testing
 import SourceMapper
 @testable import Sass
 
 /// CompilerResults URL mangling -- all running against dummy css.
 /// passed through unchanged here without looking at / touching mappings at all
-class TestCompilerResults: XCTestCase {
+struct TestCompilerResults {
     let dummyCSS = "Some CSS\n"
     func checkCss(_ css: String, sourceMapURL: String) throws {
-        XCTAssertTrue(css.starts(with: dummyCSS))
-        let matches = try XCTUnwrap(css.re_match(#"^/\*# sourceMappingURL=(.*) \*/$"#, options: .m))
-        XCTAssertEqual(sourceMapURL, matches[1])
+        #expect(css.starts(with: dummyCSS))
+        let matches = try #require(css.re_match(#"^/\*# sourceMappingURL=(.*) \*/$"#, options: .m))
+        #expect(sourceMapURL == matches[1])
     }
 
     func checkSourceMap(_ mapStr: String, file: String? = nil, sourceRoot: String? = nil, sources: [String] = []) throws {
         let map = try SourceMap(mapStr)
         if let file = file {
-            XCTAssertEqual(file, map.file)
+            #expect(file == map.file)
         }
-        XCTAssertEqual(sourceRoot, map.sourceRoot)
-        XCTAssertEqual(sources, map.sources.map(\.url))
+        #expect(sourceRoot == map.sourceRoot)
+        #expect(sources == map.sources.map(\.url))
     }
 
     func makeCompilerResults(sources: [String] = []) -> CompilerResults {
@@ -37,32 +37,45 @@ class TestCompilerResults: XCTestCase {
 
     // MARK: Path xforms
 
-    func testSourceMapURL() throws {
+    @Test(
+        arguments: [
+            CompilerResults.URLStyle.allAbsolute,
+            .relative,
+            .relativeSourceRoot("../sources"),
+            .sourcesAbsolute
+        ]
+    )
+    func testSourceMapURL(style: CompilerResults.URLStyle) throws {
         let cssURL = URL(fileURLWithPath: "out.css")
         let mapURL = URL(fileURLWithPath: "out.css.map")
 
-        let styles: [CompilerResults.URLStyle] = [.allAbsolute, .relative, .relativeSourceRoot("../sources"), .sourcesAbsolute]
-        try styles.forEach { style in
-            let results = try makeCompilerResults()
-                .withFileLocations(cssFileURL: cssURL,
-                                   sourceMapFileURL: mapURL,
-                                   style: style)
+        let results = try makeCompilerResults()
+            .withFileLocations(cssFileURL: cssURL,
+                               sourceMapFileURL: mapURL,
+                               style: style)
 
-            let expectedMapURL: String
+        let expectedMapURL: String
 
-            switch style {
-            case .allAbsolute:
-                expectedMapURL = mapURL.absoluteString
-            case .relative, .relativeSourceRoot(_), .sourcesAbsolute:
-                expectedMapURL = mapURL.lastPathComponent
-            }
-
-            try checkSourceMap(try XCTUnwrap(results.sourceMap), file: "out.css", sourceRoot: style.sourceRoot)
-            try checkCss(results.css, sourceMapURL: expectedMapURL)
+        switch style {
+        case .allAbsolute:
+            expectedMapURL = mapURL.absoluteString
+        case .relative, .relativeSourceRoot(_), .sourcesAbsolute:
+            expectedMapURL = mapURL.lastPathComponent
         }
+
+        try checkSourceMap(try #require(results.sourceMap), file: "out.css", sourceRoot: style.sourceRoot)
+        try checkCss(results.css, sourceMapURL: expectedMapURL)
     }
 
-    func testSourcesURLs() throws {
+    @Test(
+        arguments: [
+            CompilerResults.URLStyle.allAbsolute,
+            .relative,
+            .relativeSourceRoot("../sources"),
+            .sourcesAbsolute
+        ]
+    )
+    func testSourcesURLs(style: CompilerResults.URLStyle) throws {
         let sources = [
             "file:///a/b/c.scss",
             "file:///a/d/e.scss",
@@ -70,37 +83,35 @@ class TestCompilerResults: XCTestCase {
             "custom://bar.scss"
         ]
 
-        let styles: [CompilerResults.URLStyle] = [.allAbsolute, .relative, .relativeSourceRoot("../sources"), .sourcesAbsolute]
-        try styles.forEach { style in
-            let results = try makeCompilerResults(sources: sources)
-                .withFileLocations(cssFileURL: URL(fileURLWithPath: "/a/b/q.css"),
-                                   sourceMapFileURL: URL(fileURLWithPath: "/a/b/q.css.map"),
-                                   style: style)
+        let results = try makeCompilerResults(sources: sources)
+            .withFileLocations(cssFileURL: URL(fileURLWithPath: "/a/b/q.css"),
+                               sourceMapFileURL: URL(fileURLWithPath: "/a/b/q.css.map"),
+                               style: style)
 
-            var expectedSources = sources
-            switch style {
-            case .relative, .relativeSourceRoot(_):
-                expectedSources[0] = "c.scss"
-                expectedSources[1] = "../d/e.scss"
-            case .allAbsolute, .sourcesAbsolute:
-                break
-            }
-            try checkSourceMap(try XCTUnwrap(results.sourceMap), sourceRoot: style.sourceRoot, sources: expectedSources)
+        var expectedSources = sources
+        switch style {
+        case .relative, .relativeSourceRoot(_):
+            expectedSources[0] = "c.scss"
+            expectedSources[1] = "../d/e.scss"
+        case .allAbsolute, .sourcesAbsolute:
+            break
         }
+        try checkSourceMap(try #require(results.sourceMap), sourceRoot: style.sourceRoot, sources: expectedSources)
     }
 
     // MARK: Corners
 
+    @Test
     func testNoSourceMap() throws {
         let results = CompilerResults(css: dummyCSS, sourceMap: nil, messages: [], loadedURLs: [])
         do {
             let updated = try results.withFileLocations(cssFileURL: URL(fileURLWithPath: "out.css"),
                                                         sourceMapFileURL: URL(fileURLWithPath: "out.css.map"))
-            XCTFail("Worked: \(updated))")
+            Issue.record("Worked: \(updated)")
         } catch let error as CompilerResults.NoSourceMapError {
             print(error)
         } catch {
-            XCTFail("Wrong error: \(error)")
+            Issue.record("Wrong error: \(error)")
         }
     }
 
@@ -109,19 +120,20 @@ class TestCompilerResults: XCTestCase {
     func checkRelativePath(_ from: String, _ to: String, _ expected: String) {
         let fromURL = URL(fileURLWithPath: from)
         let toURL = URL(fileURLWithPath: to)
-        XCTAssertEqual(expected, toURL.asRelativeURL(from: fromURL))
+        #expect(expected == toURL.asRelativeURL(from: fromURL))
     }
 
+    @Test
     func testRelativePaths() throws {
         checkRelativePath("/a", "/b", "b")
         checkRelativePath("/a/b", "/a/c", "c")
         checkRelativePath("/a/b", "/b/c", "../b/c")
         checkRelativePath("/a/b/c", "/a/b/d/e", "d/e")
 
-        let netURL = try XCTUnwrap(URL(string: "http://foo.com/bar/baz"))
+        let netURL = try #require(URL(string: "http://foo.com/bar/baz"))
         let fileURL = URL(fileURLWithPath: "/a/b/c")
-        XCTAssertEqual(netURL.absoluteString, netURL.asRelativeURL(from: fileURL))
-        XCTAssertEqual(fileURL.absoluteString, fileURL.asRelativeURL(from: netURL))
+        #expect(netURL.absoluteString == netURL.asRelativeURL(from: fileURL))
+        #expect(fileURL.absoluteString == fileURL.asRelativeURL(from: netURL))
     }
 }
 
@@ -195,3 +207,4 @@ extension CompilerResults.URLStyle {
         }
     }
 }
+
