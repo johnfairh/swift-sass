@@ -40,7 +40,7 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
     public enum ID: String, Sendable {
         //
         // START GENERATED CODE BY deprecations.rb from sass spec
-        // Generated from sass version: HEAD detached at 600e82b
+        // Generated from sass version: HEAD detached at 6772c45
         //
         /// [abs-percent](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#abs_percent)
         case absPercent = "abs-percent"
@@ -70,6 +70,8 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         case functionUnits = "function-units"
         /// [global-builtin](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#global_builtin)
         case globalBuiltin = "global-builtin"
+        /// [if-function](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#if_function)
+        case ifFunction = "if-function"
         /// [import](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#import)
         case `import` = "import"
         /// [legacy-js-api](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#legacy_js_api)
