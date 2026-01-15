@@ -5,49 +5,54 @@
 //  Licensed under MIT (https://github.com/johnfairh/swift-sass/blob/main/LICENSE
 //
 
-import XCTest
+import Testing
 @testable import Sass
 
 /// Calculations
-class TestCalculation: XCTestCase {
+struct TestCalculation {
 
     // Not actually a lot here!
 
+    @Test
     func testCreation() {
         let calc = SassCalculation(calc: .number(22, unit: "px"))
-        XCTAssertEqual(calc.kind, .calc)
-        XCTAssertEqual(1, calc.arguments.count)
-        XCTAssertEqual("calc(22px)", calc.sassDescription)
-        XCTAssertEqual("Calculation(calc(22px))", calc.description)
+        #expect(calc.kind == .calc)
+        #expect(1 == calc.arguments.count)
+        #expect("calc(22px)" == calc.sassDescription)
+        #expect("Calculation(calc(22px))" == calc.description)
     }
 
+    @Test
     func testPrecedence() {
         let lhs: SassCalculation.Value = .operation(.number(2), .times, .number(3))
         let rhs: SassCalculation.Value = .operation(.number(4), .plus, .number(5))
         let calc = SassCalculation(calc: .operation(lhs, .dividedBy, rhs))
-        XCTAssertEqual("calc(2 * 3 / (4 + 5))", calc.sassDescription)
+        #expect("calc(2 * 3 / (4 + 5))" == calc.sassDescription)
     }
 
+    @Test
     func testUnusualTerms() {
         let calc = SassCalculation(calc: .calculation(SassCalculation(calc: .operation(.string("$fred"), .minus, .interpolation("$barney")))))
-        XCTAssertEqual("calc(calc($fred - #{$barney}))", calc.sassDescription)
+        #expect("calc(calc($fred - #{$barney}))" == calc.sassDescription)
     }
 
+    @Test
     func testIdentity() throws {
         let calc1 = SassCalculation(kind: .max, arguments: [.string("$fred"), .string("$barney")])
         let calc2 = SassCalculation(kind: .min, arguments: [.string("$fred"), .string("$barney")])
 
-        XCTAssertNotEqual(calc1, calc2)
+        #expect(calc1 != calc2)
         let value: SassValue = calc1
-        XCTAssertNoThrow(try value.asCalculation())
+        do { _ = try value.asCalculation() } catch { Issue.record("asCalculation threw unexpectedly: \(error)") }
         let str = SassString("Not a calculation")
-        XCTAssertThrowsError(try str.asCalculation())
+        #expect(throws: Error.self) { _ = try str.asCalculation() }
 
         let calc3 = SassCalculation(kind: .min, arguments: [.string("$fred"), .string("$barney")])
-        XCTAssertEqual(calc2, calc3)
+        #expect(calc2 == calc3)
 
         let dict = [calc2 : true]
-        XCTAssertTrue(try XCTUnwrap(dict[calc3]))
-        XCTAssertNil(dict[calc1])
+        let unwrapped = try #require(dict[calc3] as Bool?)
+        #expect(unwrapped)
+        #expect(dict[calc1] == nil)
     }
 }

@@ -95,7 +95,7 @@ interface is entirely Swift 5.5 async-await.
 ## Requirements
 
 * Swift 6.0
-* macOS 14+ (tested on macOS 14.x x64)
+* macOS 14+ (tested on macOS 16.x arm)
 * Linux (tested on Ubuntu latest x64)
 * Embedded Sass Protocol version 3.2.0
 

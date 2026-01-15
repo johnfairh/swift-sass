@@ -45,7 +45,7 @@ public struct CompilerResults: Sendable {
     /// then you need to use one of the `.relative` options to avoid `file:` URLs that won't
     /// make sense to clients.
     ///
-    public enum URLStyle {
+    public enum URLStyle: Sendable {
         /// Use absolute (`file:` for filesystem files) URLs everywhere.
         case allAbsolute
 
