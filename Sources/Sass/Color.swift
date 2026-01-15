@@ -69,6 +69,8 @@ public final class SassColor: SassValue, @unchecked Sendable {
         case srgbLinear = "srgb-linear"
         /// The [display-p3 color space](https://www.w3.org/TR/css-color-4/#predefined-display-p3)
         case displayP3 = "display-p3"
+        /// The [display-p3-linear color space](https://drafts.csswg.org/css-color/#predefined-display-p3-linear)
+        case displayP3Linear = "display-p3-linear"
         /// The [a98-rgb color space](https://www.w3.org/TR/css-color-4/#predefined-a98-rgb)
         case a98Rgb = "a98-rgb"
         /// The [prophoto-rgb color space](https://www.w3.org/TR/css-color-4/#predefined-prophoto-rgb)
