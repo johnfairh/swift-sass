@@ -141,7 +141,8 @@ extension FileManager {
 extension URL {
     public func withCurrentDirectory<T>(code: () async throws -> T) async throws -> T {
         try await FileManager.preservingCurrentDirectory {
-            FileManager.default.changeCurrentDirectoryPath(path)
+            let rc = FileManager.default.changeCurrentDirectoryPath(path)
+            precondition(rc)
             return try await code()
         }
     }
