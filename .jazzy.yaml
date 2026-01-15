@@ -19,8 +19,8 @@ modules:
   - Sass
   - DartSass
 docset_module_name: swift-sass
-title: Swift Sass v3.2.0
-module_version: 3.2.0
+title: Swift Sass v3.3.0
+module_version: 3.3.0
 merge_modules: true
 custom_abstracts: SourceDocs/*md
 topic_style: source-order-defs
