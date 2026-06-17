@@ -193,7 +193,7 @@ class TestResetShutdown: DartSassTestCase {
                     continuation.resume()
                 }
                 Task {
-                    try await compiler.reinit()
+                    try! await compiler.reinit()
                 }
             }
         }

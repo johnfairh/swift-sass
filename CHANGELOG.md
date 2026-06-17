@@ -1,3 +1,9 @@
+# 3.3.0
+
+* Bundle the 1.97.2 `dart-sass` binaries
+* Fix a missing `Sendable` on `CompilerResults.URLStyle`
+* Add color space "display-p3-linear"
+
 # 3.2.0
 
 * Bundle the 1.93.3 `dart-sass` binaries

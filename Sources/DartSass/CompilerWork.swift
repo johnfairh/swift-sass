@@ -68,7 +68,7 @@ extension Compiler {
         return request.versionReq
     }
 
-    private func makeDone<R>(_ continuation: Continuation<R>) -> @Sendable (any CompilerRequest, Result<R, any Error>) async -> Void {
+    private func makeDone<R>(_ continuation: Continuation<R>) -> @Sendable (any CompilerRequest, sending Result<R, any Error>) async -> Void {
         { req, res in
             await self.doDone(req: req, res: res, continuation: continuation)
         }

@@ -275,8 +275,8 @@ public actor Compiler {
                 let child = try await initThread.runIfActive(eventLoop: eventLoop) {
                     try CompilerChild(fileURL: self.embeddedCompilerFileURL,
                                       arguments: self.embeddedCompilerFileArgs,
-                                      workHandler: { [unowned self] in try await receive(message: $0, reply: $1) },
-                                      errorHandler: { [unowned self] in await handleError($0) })
+                                      workHandler: { [unowned self = self] in try await receive(message: $0, reply: $1) },
+                                      errorHandler: { [unowned self = self] in await handleError($0) })
                 }.get()
 
                 try await child.run(group: eventLoop) {
@@ -474,7 +474,7 @@ public actor Compiler {
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) async throws -> CompilerResults {
         try await withCheckedThrowingContinuation { continuation in
-            Task {
+            _ = Task {
                 let child = try await waitUntilReadyToCompile(continuation: continuation)
                 let msg = await startCompilation(input: .path(fileURL.path),
                                                  outputStyle: outputStyle,
@@ -518,7 +518,7 @@ public actor Compiler {
                         importers: [ImportResolver] = [],
                         functions: SassFunctionMap = [:]) async throws -> CompilerResults {
         try await withCheckedThrowingContinuation { continuation in
-            Task {
+            _ = Task {
                 let child = try await waitUntilReadyToCompile(continuation: continuation)
                 let msg = await startCompilation(
                     input: .string(.with { m in
