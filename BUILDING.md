@@ -20,6 +20,6 @@ New `swift-sass` release:
 * `.jazzy.yaml` - two places
 * Update README 'Installation'
 * Rebuild docs
-* Update changelog
+* Update CHANGELOG
 * Commit and tag
 * Github release

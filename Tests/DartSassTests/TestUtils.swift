@@ -373,15 +373,9 @@ enum LoggerBackend {
             stdoutHandler = StreamLogHandler.standardOutput(label: name)
         }
 
-        func log(level: Logger.Level,
-                 message: Logger.Message,
-                 metadata: Logger.Metadata?,
-                 source: String,
-                 file: String,
-                 function: String,
-                 line: UInt) {
-            record.offer(message.description)
-            stdoutHandler.log(level: level, message: message, metadata: metadata, source: source, file: file, function: function, line: line)
+        func log(event: LogEvent) {
+            record.offer(event.message.description)
+            stdoutHandler.log(event: event)
         }
 
         subscript(metadataKey metadataKey: String) -> Logging.Logger.Metadata.Value? {

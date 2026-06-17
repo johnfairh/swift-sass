@@ -156,7 +156,7 @@ actor CompilationRequest: ManagedCompilerRequest {
     fileprivate var timer: Task<Void, Never>?
     fileprivate var state: CompilerRequestState
     fileprivate let stateLock: Lock
-    let clientDone: (CompilationRequest, Result<CompilerResults, any Error>) async -> Void
+    let clientDone: (CompilationRequest, sending Result<CompilerResults, any Error>) async -> Void
 
     // Debug
     nonisolated var debugPrefix: String { "CompID=\(requestID)" }
@@ -181,7 +181,7 @@ actor CompilationRequest: ManagedCompilerRequest {
          importers: [ImportResolver],
          stringImporter: ImportResolver?,
          functionsMap: [SassFunctionSignature : (String, SassFunction)],
-         done: @escaping (CompilationRequest, Result<CompilerResults, any Error>) async -> Void) {
+         done: @escaping (CompilationRequest, sending Result<CompilerResults, any Error>) async -> Void) {
         var firstFreeImporterID = CompilationRequest.baseImporterID
         if let stringImporter = stringImporter {
             self.importers = [stringImporter] + importers
@@ -481,7 +481,7 @@ actor VersionRequest: ManagedCompilerRequest {
     fileprivate var timer: Task<Void, Never>?
     fileprivate var state: CompilerRequestState
     fileprivate var stateLock: Lock
-    let clientDone: (VersionRequest, Result<Versions, any Error>) async -> Void
+    let clientDone: (VersionRequest, sending Result<Versions, any Error>) async -> Void
 
     // Version-specific
     nonisolated let versionReq: OutboundMessage
@@ -494,7 +494,7 @@ actor VersionRequest: ManagedCompilerRequest {
         versionReq.versionRequest.id
     }
 
-    init(done: @escaping (VersionRequest, Result<Versions, any Error>) async -> Void) {
+    init(done: @escaping (VersionRequest, sending Result<Versions, any Error>) async -> Void) {
         self.state = .normal
         self.timer = nil
         self.stateLock = Lock()
