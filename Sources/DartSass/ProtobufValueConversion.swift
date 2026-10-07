@@ -167,6 +167,9 @@ extension Sass_EmbeddedProtocol_Value {
         case .compilerMixin(let c):
             return SassMixin(id: Int(c.id))
 
+        case .compilerModule(let c):
+            return SassModule(id: Int(c.id))
+
         case nil:
             throw ProtocolError("Missing SassValue type.")
         }
@@ -322,6 +325,12 @@ extension Sass_EmbeddedProtocol_Value: SassValueVisitor {
     func visit(mixin: SassMixin) throws -> OneOf_Value {
         .compilerMixin(.with {
             $0.id = UInt32(mixin.id)
+        })
+    }
+
+    func visit(module: SassModule) throws -> OneOf_Value {
+        .compilerModule(.with {
+            $0.id = UInt32(module.id)
         })
     }
 

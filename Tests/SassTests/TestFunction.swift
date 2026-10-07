@@ -9,7 +9,7 @@ import Testing
 @_spi(SassCompilerProvider) import Sass
 
 /// Compiler & dynamic functions, data-structure tests
-/// And mixins too because they are so silly
+/// And mixins & modules too because they are so silly - should maybe invent a 'SassOpaqueValue' thing with phantom types
 struct TestFunction {
     @Test
     func testCompilerFunction() {
@@ -59,6 +59,26 @@ struct TestFunction {
         #expect(m1 != m2)
 
         let m3 = SassMixin(id: 204)
+        #expect(m1 == m3)
+
+        let dict = [m1 as SassValue: true]
+        #expect(dict[m3] == true)
+        #expect(dict[m2] == nil)
+    }
+
+    @Test
+    func testModule() {
+        let m1 = SassModule(id: 204)
+        #expect(m1 == m1)
+        #expect(204 == m1.id)
+
+        do { _ = try m1.asModule() } catch { Issue.record("asModule threw unexpectedly: \(error)") }
+        #expect(throws: Error.self) { _ = try SassConstants.true.asModule() }
+
+        let m2 = SassModule(id: 205)
+        #expect(m1 != m2)
+
+        let m3 = SassModule(id: 204)
         #expect(m1 == m3)
 
         let dict = [m1 as SassValue: true]

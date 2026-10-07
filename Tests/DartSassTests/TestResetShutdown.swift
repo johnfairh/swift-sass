@@ -107,6 +107,7 @@ class TestResetShutdown: DartSassTestCase {
     // Test the 'compiler will not restart' corner
     func testUnrestartableCompiler() async throws {
         #if os(Linux)
+        // Just hangs utterly from 6.4 - hopefully fixed by rewrites / swift-subprocess
         throw XCTSkip("Hangs on 6.4")
         #endif
         let tmpDir = try FileManager.default.createTemporaryDirectory()
