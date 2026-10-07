@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../../css/fw2020.css">
     
     
-   <title>SassMap - Swift Sass v3.3.0</title>
+   <title>SassMap - Swift Sass v3.4.0</title>
     
   </head>
   <body class="j2-swift " data-root-path="./../../" data-doc-path="sass/types/sassmap.html" data-assets-path="../../">
@@ -31,7 +31,7 @@
     
     <a href="../../index.html">
     
-    Swift Sass v3.3.0</a>
+    Swift Sass v3.4.0</a>
   </div>
   
   <span class="navbar-text j2-coverage fw-slightly-bold small d-none d-lg-inline-block me-2">(100% documented)</span>
@@ -188,7 +188,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../dartsass/types/deprecation1/id3.html?swift">ID</a>
+  <a class="j2-nav-item" href="../../dartsass/types/deprecation1/id4.html?swift">ID</a>
 
 
 
@@ -418,7 +418,7 @@
   <li>
     
 
-  <a class="j2-nav-item" href="../../sass/types/sassvalue10.html?swift">SassValue</a>
+  <a class="j2-nav-item" href="../../sass/types/sassvalue11.html?swift">SassValue</a>
 
 
 
@@ -568,6 +568,15 @@
   <li>
     
 
+  <a class="j2-nav-item" href="../../sass/types/sassmodule.html?swift">SassModule</a>
+
+
+
+  </li>
+  
+  <li>
+    
+
   <a class="j2-nav-item" href="../../sass/types/sasscompilerfunction.html?swift">SassCompilerFunction</a>
 
 
@@ -682,7 +691,7 @@
             
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassMap: <a href="../../sass/types/sassvalue10.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
+    <pre><code class="language-swift">public final class SassMap: <a href="../../sass/types/sassvalue11.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -699,7 +708,7 @@
 
 <p>A Sass map value.</p>
 <p>Sass maps are <a href="https://developer.apple.com/documentation/swift/dictionary?language=swift" class="j2-swift"><code>Dictionary</code></a><a href="https://developer.apple.com/documentation/swift/dictionary?language=objc" class="j2-objc j2-secondary"><code>Dictionary</code></a>-like collections.  The keys can be any kind of
-<a href="../../sass/types/sassvalue10.html?swift"><code>SassValue</code></a>.</p>
+<a href="../../sass/types/sassvalue11.html?swift"><code>SassValue</code></a>.</p>
 <p>When a map is viewed as a Sass list then the list is of two-element lists, one
 for each key-value pair in the map.  The pairs are in no particular order.</p>
 
@@ -769,7 +778,7 @@ for each key-value pair in the map.  The pairs are in no particular order.</p>
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public init(_ dictionary: [<a href="../../sass/types/sassvalue10.html?swift">SassValue</a>: <a href="../../sass/types/sassvalue10.html?swift">SassValue</a>])</code></pre>
+    <pre><code class="language-swift">public init(_ dictionary: [<a href="../../sass/types/sassvalue11.html?swift">SassValue</a>: <a href="../../sass/types/sassvalue11.html?swift">SassValue</a>])</code></pre>
   </div>
 
 
@@ -818,7 +827,7 @@ for each key-value pair in the map.  The pairs are in no particular order.</p>
               
 
 
-<p>Create a  <a href="../../sass/types/sassmap.html?swift"><code>SassMap</code></a> from a sequence of (<a href="../../sass/types/sassvalue10.html?swift"><code>SassValue</code></a>, <a href="../../sass/types/sassvalue10.html?swift"><code>SassValue</code></a>) pairs.</p>
+<p>Create a  <a href="../../sass/types/sassmap.html?swift"><code>SassMap</code></a> from a sequence of (<a href="../../sass/types/sassvalue11.html?swift"><code>SassValue</code></a>, <a href="../../sass/types/sassvalue11.html?swift"><code>SassValue</code></a>) pairs.</p>
 <p>The program terminates if the keys are not unique.</p>
 
 
@@ -830,7 +839,7 @@ for each key-value pair in the map.  The pairs are in no particular order.</p>
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
     <pre><code class="language-swift">public init&lt;S&gt;(uniqueKeysWithValues keysAndValues: S)
-where S: <a href="https://developer.apple.com/documentation/swift/sequence?language=swift">Sequence</a>, S.Element == (<a href="../../sass/types/sassvalue10.html?swift">SassValue</a>, <a href="../../sass/types/sassvalue10.html?swift">SassValue</a>)</code></pre>
+where S: <a href="https://developer.apple.com/documentation/swift/sequence?language=swift">Sequence</a>, S.Element == (<a href="../../sass/types/sassvalue11.html?swift">SassValue</a>, <a href="../../sass/types/sassvalue11.html?swift">SassValue</a>)</code></pre>
   </div>
 
 
@@ -902,7 +911,7 @@ where S: <a href="https://developer.apple.com/documentation/swift/sequence?langu
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public let dictionary: [<a href="../../sass/types/sassvalue10.html?swift">SassValue</a>: <a href="../../sass/types/sassvalue10.html?swift">SassValue</a>]</code></pre>
+    <pre><code class="language-swift">public let dictionary: [<a href="../../sass/types/sassvalue11.html?swift">SassValue</a>: <a href="../../sass/types/sassvalue11.html?swift">SassValue</a>]</code></pre>
   </div>
 
 
@@ -1094,7 +1103,7 @@ where S: <a href="https://developer.apple.com/documentation/swift/sequence?langu
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public subscript(key: <a href="../../sass/types/sassvalue10.html?swift">SassValue</a>) -&gt; <a href="../../sass/types/sassvalue10.html?swift">SassValue</a>? { get }</code></pre>
+    <pre><code class="language-swift">public subscript(key: <a href="../../sass/types/sassvalue11.html?swift">SassValue</a>) -&gt; <a href="../../sass/types/sassvalue11.html?swift">SassValue</a>? { get }</code></pre>
   </div>
 
 
@@ -1158,7 +1167,7 @@ this map.  To access the map via its keys use <a href="../../sass/types/sassmap.
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public override func valueAt(sassIndex: <a href="../../sass/types/sassvalue10.html?swift">SassValue</a>) throws -&gt; <a href="../../sass/types/sassvalue10.html?swift">SassValue</a></code></pre>
+    <pre><code class="language-swift">public override func valueAt(sassIndex: <a href="../../sass/types/sassvalue11.html?swift">SassValue</a>) throws -&gt; <a href="../../sass/types/sassvalue11.html?swift">SassValue</a></code></pre>
   </div>
 
 
@@ -1340,7 +1349,7 @@ this map.  To access the map via its keys use <a href="../../sass/types/sassmap.
 
 
 <p>An iterator for contents of the map.  Each element of the iteration is a <a href="../../sass/types/sasslist.html?swift"><code>SassList</code></a>
-containing the key and value <a href="../../sass/types/sassvalue10.html?swift"><code>SassValue</code></a>s for one entry in the map.</p>
+containing the key and value <a href="../../sass/types/sassvalue11.html?swift"><code>SassValue</code></a>s for one entry in the map.</p>
 
 
 
@@ -1351,7 +1360,7 @@ containing the key and value <a href="../../sass/types/sassvalue10.html?swift"><
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public override func makeIterator() -&gt; <a href="https://developer.apple.com/documentation/swift/anyiterator?language=swift">AnyIterator</a>&lt;<a href="../../sass/types/sassvalue10.html?swift">SassValue</a>&gt;</code></pre>
+    <pre><code class="language-swift">public override func makeIterator() -&gt; <a href="https://developer.apple.com/documentation/swift/anyiterator?language=swift">AnyIterator</a>&lt;<a href="../../sass/types/sassvalue11.html?swift">SassValue</a>&gt;</code></pre>
   </div>
 
 
@@ -1590,7 +1599,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   <div class="col j2-footer small pt-2">
     <p>Distributed under the MIT license.  Maintained by <a href="mailto:johnfairh@gmail.com">John Fairhurst</a>.</p>
     
-    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external noopener">Bebop v1.12.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫</a>.</p>
+    <p>Generated by <a class="link" href="https://github.com/johnfairh/Bebop" target="_blank" rel="external noopener">Bebop v1.13.0</a> using the FW2020 theme, based on technology from <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫</a>.</p>
     
   </div>
 </footer>

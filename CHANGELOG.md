@@ -1,3 +1,9 @@
+# 3.4.0
+
+* Build with Swift 6.4
+* Bundle the 1.105.1 `dart-sass` binaries
+* Add `SassModule` to support Sass module meta-programming
+
 # 3.3.0
 
 * Bundle the 1.97.2 `dart-sass` binaries

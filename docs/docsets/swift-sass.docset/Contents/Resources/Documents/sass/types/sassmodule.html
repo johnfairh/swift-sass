@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="../../css/fw2020.css">
     
     
-   <title>SassArgumentList - Swift Sass v3.4.0</title>
+   <title>SassModule - Swift Sass v3.4.0</title>
     
   </head>
-  <body class="j2-swift " data-root-path="./../../" data-doc-path="sass/types/sassargumentlist.html" data-assets-path="../../">
+  <body class="j2-swift " data-root-path="./../../" data-doc-path="sass/types/sassmodule.html" data-assets-path="../../">
 
   <!-- messages for search -->
   <div hidden>
@@ -99,7 +99,7 @@
       
         
         
-          <li class="breadcrumb-item" aria-current="page">Sass.SassArgumentList</li>
+          <li class="breadcrumb-item" aria-current="page">Sass.SassModule</li>
         
       
     </ol>
@@ -499,8 +499,8 @@
   
   <li>
     
-  <a class="j2-nav-item active" href="#" aria-current="page">SassArgumentList</a>
 
+  <a class="j2-nav-item" href="../../sass/types/sassargumentlist.html?swift">SassArgumentList</a>
 
 
 
@@ -567,8 +567,8 @@
   
   <li>
     
+  <a class="j2-nav-item active" href="#" aria-current="page">SassModule</a>
 
-  <a class="j2-nav-item" href="../../sass/types/sassmodule.html?swift">SassModule</a>
 
 
 
@@ -680,7 +680,7 @@
             <h1 class="j2-anchor">
               
               
-              <span>SassArgumentList</span>
+              <span>SassModule</span>
               
             </h1>
           </header>
@@ -691,7 +691,7 @@
             
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public final class SassArgumentList: <a href="../../sass/types/sasslist.html?swift">SassList</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
+    <pre><code class="language-swift">public final class SassModule: <a href="../../sass/types/sassvalue11.html?swift">SassValue</a>, <a href="https://developer.apple.com/documentation/swift/sendable?language=swift">Sendable</a></code></pre>
   </div>
 
 
@@ -706,16 +706,8 @@
             
 
 
-<p>A Sass value representing a <code>$arg...</code> function argument list.</p>
-<p>This type is a <a href="../../sass/types/sasslist.html?swift"><code>SassList</code></a> holding positional arguments with an addition set of
-named keyword arguments.  See <a href="https://sass-lang.com/documentation/at-rules/mixin#taking-arbitrary-arguments">the Sass docs</a>.</p>
-<div class="j2-callout j2-callout-warning aside aside-warning">
-<div class="j2-callout-title aside-title" role="heading" aria-level="6">warning</div>
-<p>You’ll typically use this type to access arguments passed in this way to a custom Sass
-function.  Be careful in other scenarios: the keyword argument part of the type is excluded
-from equality and listification, meaning it is easy to accidentally lose that part of the type
-when passing instances through generic <a href="../../sass/types/sassvalue11.html?swift"><code>SassValue</code></a> code.</p>
-</div>
+<p>A Sass module.</p>
+<p>Values representing modles can only be created by the compiler.  See <a href="https://sass-lang.com/documentation/values/modules/">the Sass docs</a>.</p>
 
 
 
@@ -727,7 +719,7 @@ when passing instances through generic <a href="../../sass/types/sassvalue11.htm
           
           
           <nav aria-label="item details" class="j2-main-item-nav">
-            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/ArgumentList.swift#L17-L67">Show on GitHub</a>
+            <a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Module.swift#L11-L45">Show on GitHub</a>
           </nav>
           
           
@@ -741,25 +733,25 @@ when passing instances through generic <a href="../../sass/types/sassvalue11.htm
   
   <section class="j2-swift">
   
-  <a name="//apple_ref/cpp/Section/Initializers" class="dashAnchor"></a>
-  <h3 class="j2-anchor" id="tpc-initializers">
-    <span data-anchor-id="tpc-initializers">Initializers</span>
+  <a name="//apple_ref/cpp/Section/Properties" class="dashAnchor"></a>
+  <h3 class="j2-anchor" id="tpc-properties">
+    <span data-anchor-id="tpc-properties">Properties</span>
   </h3>
   
   
   
   
   
-    <section id="init_keywordskeywordsobserverseparator" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Constructor/init%3CC%3E(C,%20keywords%3A%20%5BString%20%3A%20SassValue%5D,%20keywordsObserver%3A%20()%20-%3E%20Void,%20separator%3A%20Separator)" class="dashAnchor j2-item-dash-anchor" data-item-id="init_keywordskeywordsobserverseparator"></a>
-    <h4 class="visually-hidden">init&lt;C&gt;(C, keywords: [String : SassValue], keywordsObserver: () -&gt; Void, separator: Separator)</h4>
+    <section id="id3" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20id%3A%20Int" class="dashAnchor j2-item-dash-anchor" data-item-id="id3"></a>
+    <h4 class="visually-hidden">var id: Int</h4>
     
     
-    <a class="j2-item-title" href="#_init_keywordskeywordsobserverseparator" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_init_keywordskeywordsobserverseparator"><code>
-        <span class="j2-swift">init<span class="j2-item-secondary">&lt;C&gt;(C, </span>keywords<span class="j2-item-secondary">: [String : SassValue], </span>keywordsObserver<span class="j2-item-secondary">: () -&gt; Void, </span>separator<span class="j2-item-secondary">: Separator)</span></span>
+    <a class="j2-item-title" href="#_id3" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_id3"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">var </span>id<span class="j2-item-secondary">: Int</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_init_keywordskeywordsobserverseparator">
+    <div class="collapse  j2-item-popopen-wrapper" id="_id3">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -772,7 +764,7 @@ when passing instances through generic <a href="../../sass/types/sassvalue11.htm
               
 
 
-<p>Initialize a new argument list with the contents of a Swift sequence.</p>
+<p>The modle ID.  Opaque to users, meaningful to Sass implementations.</p>
 
 
 
@@ -783,115 +775,7 @@ when passing instances through generic <a href="../../sass/types/sassvalue11.htm
               
   <div class="j2-swift">
     <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public init&lt;C&gt;(
-    _ positional: C,
-    keywords: [<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>: <a href="../../sass/types/sassvalue11.html?swift">SassValue</a>] = [:],
-    keywordsObserver: @escaping () -&gt; <a href="https://developer.apple.com/documentation/swift/void?language=swift">Void</a> = {},
-    separator: Separator = .space) where C: <a href="https://developer.apple.com/documentation/swift/sequence?language=swift">Sequence</a>, C.Element == <a href="../../sass/types/sassvalue11.html?swift">SassValue</a></code></pre>
-  </div>
-
-
-
-            </div>
-            
-  <h5>Parameters</h5>
-  <table class="j2-param-table">
-    <tbody>
-      
-      <tr>
-        <td><code>positional</code></td>
-        <td><p>The <a href="https://developer.apple.com/documentation/swift/sequence?language=swift" class="j2-swift"><code>Sequence</code></a><a href="https://developer.apple.com/documentation/swift/sequence?language=objc" class="j2-objc j2-secondary"><code>Sequence</code></a> whose contents should make up the positional
-arguments of the argument list.</p></td>
-      </tr>
-      
-      <tr>
-        <td><code>keywords</code></td>
-        <td><p>The keywords and values to make the keyword arguments of the
-argument list.  Default is no keyword arguments.</p></td>
-      </tr>
-      
-      <tr>
-        <td><code>keywordsObserver</code></td>
-        <td><p>A callback to be invoked when the keywords are accessed.
-Used by compiler implementations.  Default is an observer that does nothing.</p></td>
-      </tr>
-      
-      <tr>
-        <td><code>separator</code></td>
-        <td><p>The separator character to use in any CSS generated from the list.
-If <code>sequence</code> contains more than one element then an <code>.undecided</code> separator is promoted
-to <code>.space</code>.</p></td>
-      </tr>
-      
-    </tbody>
-  </table>
-
-
-
-
-          
-
-          <nav class="j2-item-nav" aria-label="item details">
-            
-            
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/ArgumentList.swift#L31-L38">Show on GitHub</a></span>
-            
-          </nav>
-        </div>
-      </div>
-    </div>
-    
-  </section>
-  
-  
-</section>
-
-  
-  <section class="j2-swift">
-  
-  <a name="//apple_ref/cpp/Section/Keyword%20arguments" class="dashAnchor"></a>
-  <h3 class="j2-anchor" id="tpc-keyword-arguments">
-    <span data-anchor-id="tpc-keyword-arguments">Keyword arguments</span>
-  </h3>
-  
-  
-  
-  
-  
-    <section id="keywords" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20keywords%3A%20%5BString%20%3A%20SassValue%5D" class="dashAnchor j2-item-dash-anchor" data-item-id="keywords"></a>
-    <h4 class="visually-hidden">var keywords: [String : SassValue]</h4>
-    
-    
-    <a class="j2-item-title" href="#_keywords" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_keywords"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">var </span>keywords<span class="j2-item-secondary">: [String : SassValue]</span></span>
-        
-      </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_keywords">
-      <div class="j2-item-popopen">
-        <div class="j2-item-popopen-pointer" role="none presentation"></div>
-        <div class="j2-item-popopen-body">
-          
-            <div class="clearfix">
-              
-  
-
-
-              
-
-
-<p>The argument list’s keyword arguments.</p>
-<p>Any keywords observer is notified on every access to this property.</p>
-
-
-
-            </div>
-            <h5>Declaration</h5>
-            <div class="j2-item-declaration">
-              
-  <div class="j2-swift">
-    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
-    <pre><code class="language-swift">public var keywords: [<a href="https://developer.apple.com/documentation/swift/string?language=swift">String</a>: <a href="../../sass/types/sassvalue11.html?swift">SassValue</a>] { get }</code></pre>
+    <pre><code class="language-swift">public let id: <a href="https://developer.apple.com/documentation/swift/int?language=swift">Int</a></code></pre>
   </div>
 
 
@@ -906,7 +790,7 @@ to <code>.space</code>.</p></td>
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/ArgumentList.swift#L48-L51">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Module.swift#L15">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -930,16 +814,16 @@ to <code>.space</code>.</p></td>
   
   
   
-    <section id="acceptvisitor" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Method/func%20accept%3CV,%20R%3E(visitor%3A%20V)%20-%3E%20R" class="dashAnchor j2-item-dash-anchor" data-item-id="acceptvisitor"></a>
-    <h4 class="visually-hidden">func accept&lt;V, R&gt;(visitor: V) -&gt; R</h4>
+    <section id="sassmodule-sassmodule" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Function/static%20func%20==(lhs%3A%20SassModule,%20rhs%3A%20SassModule)%20-%3E%20Bool" class="dashAnchor j2-item-dash-anchor" data-item-id="sassmodule-sassmodule"></a>
+    <h4 class="visually-hidden">static func ==(lhs: SassModule, rhs: SassModule) -&gt; Bool</h4>
     
     
-    <a class="j2-item-title" href="#_acceptvisitor" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_acceptvisitor"><code>
-        <span class="j2-swift"><span class="j2-item-secondary">func </span>accept<span class="j2-item-secondary">&lt;V, R&gt;(</span>visitor<span class="j2-item-secondary">: V) -&gt; R</span></span>
+    <a class="j2-item-title" href="#_sassmodule-sassmodule" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_sassmodule-sassmodule"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">static func </span>==<span class="j2-item-secondary">(</span>lhs<span class="j2-item-secondary">: SassModule, </span>rhs<span class="j2-item-secondary">: SassModule) -&gt; Bool</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_acceptvisitor">
+    <div class="collapse  j2-item-popopen-wrapper" id="_sassmodule-sassmodule">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -952,7 +836,128 @@ to <code>.space</code>.</p></td>
               
 
 
-<p>Call the corresponding method of <code>visitor</code> against this object.</p>
+<p>Modiles are equal if they have the same ID and apply to the same compilation.
+We only test the first part of that so watch out.</p>
+
+
+
+
+            </div>
+            <h5>Declaration</h5>
+            <div class="j2-item-declaration">
+              
+  <div class="j2-swift">
+    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
+    <pre><code class="language-swift">public static func == (lhs: <a href="../../sass/types/sassmodule.html?swift">SassModule</a>, rhs: <a href="../../sass/types/sassmodule.html?swift">SassModule</a>) -&gt; <a href="https://developer.apple.com/documentation/swift/bool?language=swift">Bool</a></code></pre>
+  </div>
+
+
+
+            </div>
+            
+
+
+
+          
+
+          <nav class="j2-item-nav" aria-label="item details">
+            
+            
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Module.swift#L28-L30">Show on GitHub</a></span>
+            
+          </nav>
+        </div>
+      </div>
+    </div>
+    
+  </section>
+  
+  
+  
+  
+    <section id="hashinto8" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20hash(into%3A%20inout%20Hasher)" class="dashAnchor j2-item-dash-anchor" data-item-id="hashinto8"></a>
+    <h4 class="visually-hidden">func hash(into: inout Hasher)</h4>
+    
+    
+    <a class="j2-item-title" href="#_hashinto8" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_hashinto8"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>hash<span class="j2-item-secondary">(</span>into<span class="j2-item-secondary">: inout Hasher)</span></span>
+        
+      </code></a>
+    <div class="collapse  j2-item-popopen-wrapper" id="_hashinto8">
+      <div class="j2-item-popopen">
+        <div class="j2-item-popopen-pointer" role="none presentation"></div>
+        <div class="j2-item-popopen-body">
+          
+            <div class="clearfix">
+              
+  
+
+
+              
+
+
+<p>Hash the module</p>
+
+
+
+
+            </div>
+            <h5>Declaration</h5>
+            <div class="j2-item-declaration">
+              
+  <div class="j2-swift">
+    <div class="j2-callout-title" role="heading" aria-level="6">Swift</div>
+    <pre><code class="language-swift">public override func hash(into hasher: inout <a href="https://developer.apple.com/documentation/swift/hasher?language=swift">Hasher</a>)</code></pre>
+  </div>
+
+
+
+            </div>
+            
+
+
+
+          
+
+          <nav class="j2-item-nav" aria-label="item details">
+            
+            
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Module.swift#L33-L35">Show on GitHub</a></span>
+            
+          </nav>
+        </div>
+      </div>
+    </div>
+    
+  </section>
+  
+  
+  
+  
+    <section id="acceptvisitor10" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Method/func%20accept%3CV,%20R%3E(visitor%3A%20V)%20-%3E%20R" class="dashAnchor j2-item-dash-anchor" data-item-id="acceptvisitor10"></a>
+    <h4 class="visually-hidden">func accept&lt;V, R&gt;(visitor: V) -&gt; R</h4>
+    
+    
+    <a class="j2-item-title" href="#_acceptvisitor10" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_acceptvisitor10"><code>
+        <span class="j2-swift"><span class="j2-item-secondary">func </span>accept<span class="j2-item-secondary">&lt;V, R&gt;(</span>visitor<span class="j2-item-secondary">: V) -&gt; R</span></span>
+        
+      </code></a>
+    <div class="collapse  j2-item-popopen-wrapper" id="_acceptvisitor10">
+      <div class="j2-item-popopen">
+        <div class="j2-item-popopen-pointer" role="none presentation"></div>
+        <div class="j2-item-popopen-body">
+          
+            <div class="clearfix">
+              
+  
+
+
+              
+
+
+<p>Take part in the <a href="../../sass/types/sassvaluevisitor.html?swift"><code>SassValueVisitor</code></a> protocol.</p>
 
 
 
@@ -979,7 +984,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/ArgumentList.swift#L55-L57">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Module.swift#L38-L40">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -991,16 +996,16 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   
   
   
-    <section id="description" class="j2-item j2-swift">
-    <a name="//apple_ref/cpp/Property/var%20description%3A%20String" class="dashAnchor j2-item-dash-anchor" data-item-id="description"></a>
+    <section id="description16" class="j2-item j2-swift">
+    <a name="//apple_ref/cpp/Property/var%20description%3A%20String" class="dashAnchor j2-item-dash-anchor" data-item-id="description16"></a>
     <h4 class="visually-hidden">var description: String</h4>
     
     
-    <a class="j2-item-title" href="#_description" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description"><code>
+    <a class="j2-item-title" href="#_description16" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="_description16"><code>
         <span class="j2-swift"><span class="j2-item-secondary">var </span>description<span class="j2-item-secondary">: String</span></span>
         
       </code></a>
-    <div class="collapse  j2-item-popopen-wrapper" id="_description">
+    <div class="collapse  j2-item-popopen-wrapper" id="_description16">
       <div class="j2-item-popopen">
         <div class="j2-item-popopen-pointer" role="none presentation"></div>
         <div class="j2-item-popopen-body">
@@ -1039,7 +1044,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
           <nav class="j2-item-nav" aria-label="item details">
             
             
-            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/ArgumentList.swift#L60-L66">Show on GitHub</a></span>
+            <span class="j2-item-nav-item"><a href="https://github.com/johnfairh/swift-sass/blob/main/Sources/Sass/Module.swift#L42-L44">Show on GitHub</a></span>
             
           </nav>
         </div>
@@ -1062,12 +1067,12 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
         <nav aria-label="paging" class="j2-pagination pb-3 pt-2">
   <div id="pagination-prev" class="flex-fill">
   
-    <a class="j2-swift" href="../../sass/types/sasslist/separator.html?swift" aria-keyshortcuts="p">
-  <span aria-hidden="true">&laquo; </span>Separator
+    <a class="j2-swift" href="../../sass/types/sassmixin.html?swift" aria-keyshortcuts="p">
+  <span aria-hidden="true">&laquo; </span>SassMixin
 </a>
 
-    <a class="j2-objc j2-secondary" href="../../sass/types/sasslist/separator.html?swift" aria-keyshortcuts="p">
-  <span aria-hidden="true">&laquo; </span>Separator
+    <a class="j2-objc j2-secondary" href="../../sass/types/sassmixin.html?swift" aria-keyshortcuts="p">
+  <span aria-hidden="true">&laquo; </span>SassMixin
 </a>
 
   
@@ -1075,12 +1080,12 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
   </div>
   <div id="pagination-next" class="flex-fill text-end">
   
-    <a class="j2-swift" href="../../sass/types/sassmap.html?swift" aria-keyshortcuts="n">
-  SassMap<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-swift" href="../../sass/types/sasscompilerfunction.html?swift" aria-keyshortcuts="n">
+  SassCompilerFunction<span aria-hidden="true"> &raquo;</span>
 </a>
 
-    <a class="j2-objc j2-secondary" href="../../sass/types/sassmap.html?swift" aria-keyshortcuts="n">
-  SassMap<span aria-hidden="true"> &raquo;</span>
+    <a class="j2-objc j2-secondary" href="../../sass/types/sasscompilerfunction.html?swift" aria-keyshortcuts="n">
+  SassCompilerFunction<span aria-hidden="true"> &raquo;</span>
 </a>
 
   
@@ -1103,9 +1108,7 @@ where V: <a href="../../sass/types/sassvaluevisitor.html?swift">SassValueVisitor
         
         <li><a href="#">Declaration</a></li>
         
-        <li><a href="#tpc-initializers">Initializers</a></li>
-        
-        <li><a href="#tpc-keyword-arguments">Keyword arguments</a></li>
+        <li><a href="#tpc-properties">Properties</a></li>
         
         <li><a href="#tpc-misc">Misc</a></li>
         

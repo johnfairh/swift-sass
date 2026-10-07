@@ -19,8 +19,8 @@ modules:
   - Sass
   - DartSass
 docset_module_name: swift-sass
-title: Swift Sass v3.3.0
-module_version: 3.3.0
+title: Swift Sass v3.4.0
+module_version: 3.4.0
 merge_modules: true
 custom_abstracts: SourceDocs/*md
 topic_style: source-order-defs
@@ -83,6 +83,7 @@ custom_groups:
           - SassMap
           - SassCalculation
           - SassMixin
+          - SassModule
       - name: Function object types
         children:
           - SassCompilerFunction
