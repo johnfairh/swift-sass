@@ -504,4 +504,32 @@ class TestFunctions: DartSassTestCase {
         let results = try await compiler.compile(string: scss, outputStyle: .compressed)
         XCTAssertEqual("a{b:1}", results.css)
     }
+
+    /// Module - does it actually work...
+    func testModuleFunction() async throws {
+        let functions: SassFunctionMap = [
+            "returnModule($module)" : { args in
+                XCTAssertEqual(1, args.count)
+                let al = try args[0].asModule()
+                return al
+            }
+        ]
+
+        let scss = """
+        @use 'sass:meta';
+
+        @function get-value() {
+          $module: meta.load('sass:meta');
+          $mod-rt: returnModule($module);
+          @return 1;
+        }
+        a {
+          b: get-value();
+        }
+        """
+
+        let compiler = try newCompiler(functions: functions)
+        let results = try await compiler.compile(string: scss, outputStyle: .compressed)
+        XCTAssertEqual("a{b:1}", results.css)
+    }
 }

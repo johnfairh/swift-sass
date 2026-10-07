@@ -1814,6 +1814,14 @@ struct Sass_EmbeddedProtocol_Value: Sendable {
     set {value = .color(newValue)}
   }
 
+  var compilerModule: Sass_EmbeddedProtocol_Value.CompilerModule {
+    get {
+      if case .compilerModule(let v)? = value {return v}
+      return Sass_EmbeddedProtocol_Value.CompilerModule()
+    }
+    set {value = .compilerModule(newValue)}
+  }
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   /// The value itself. Mandatory.
@@ -1832,6 +1840,7 @@ struct Sass_EmbeddedProtocol_Value: Sendable {
     case calculation(Sass_EmbeddedProtocol_Value.Calculation)
     case compilerMixin(Sass_EmbeddedProtocol_Value.CompilerMixin)
     case color(Sass_EmbeddedProtocol_Value.Color)
+    case compilerModule(Sass_EmbeddedProtocol_Value.CompilerModule)
 
   }
 
@@ -2084,6 +2093,25 @@ struct Sass_EmbeddedProtocol_Value: Sendable {
 
     /// A unique ID for this mixin. The compiler is responsible for generating
     /// this ID and ensuring it's unique across all mixins passed to the host
+    /// for this compilation. Mandatory.
+    var id: UInt32 = 0
+
+    var unknownFields = SwiftProtobuf.UnknownStorage()
+
+    init() {}
+  }
+
+  /// A first-class module loaded by the compiler. New `CompilerModule`s may only
+  /// be created by the compiler, but the host may pass `CompilerModule`s back to
+  /// the compiler as long as their IDs match IDs of modules received by the host
+  /// during that same compilation.
+  struct CompilerModule: Sendable {
+    // SwiftProtobuf.Message conformance is added in an extension below. See the
+    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+    // methods supported on all messages.
+
+    /// A unique ID for this module. The compiler is responsible for generating
+    /// this ID and ensuring it's unique across all modules passed to the host
     /// for this compilation. Mandatory.
     var id: UInt32 = 0
 
@@ -3951,7 +3979,7 @@ extension Sass_EmbeddedProtocol_SourceSpan.SourceLocation: SwiftProtobuf.Message
 
 extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".Value"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}string\0\u{1}number\0\u{2}\u{3}list\0\u{1}map\0\u{1}singleton\0\u{3}compiler_function\0\u{3}host_function\0\u{3}argument_list\0\u{2}\u{2}calculation\0\u{3}compiler_mixin\0\u{1}color\0")
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}string\0\u{1}number\0\u{2}\u{3}list\0\u{1}map\0\u{1}singleton\0\u{3}compiler_function\0\u{3}host_function\0\u{3}argument_list\0\u{2}\u{2}calculation\0\u{3}compiler_mixin\0\u{1}color\0\u{3}compiler_module\0")
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -4097,6 +4125,19 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
           self.value = .color(v)
         }
       }()
+      case 15: try {
+        var v: Sass_EmbeddedProtocol_Value.CompilerModule?
+        var hadOneofValue = false
+        if let current = self.value {
+          hadOneofValue = true
+          if case .compilerModule(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .compilerModule(v)
+        }
+      }()
       default: break
       }
     }
@@ -4151,6 +4192,10 @@ extension Sass_EmbeddedProtocol_Value: SwiftProtobuf.Message, SwiftProtobuf._Mes
     case .color?: try {
       guard case .color(let v)? = self.value else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 14)
+    }()
+    case .compilerModule?: try {
+      guard case .compilerModule(let v)? = self.value else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 15)
     }()
     case nil: break
     }
@@ -4491,6 +4536,36 @@ extension Sass_EmbeddedProtocol_Value.CompilerMixin: SwiftProtobuf.Message, Swif
   }
 
   static func ==(lhs: Sass_EmbeddedProtocol_Value.CompilerMixin, rhs: Sass_EmbeddedProtocol_Value.CompilerMixin) -> Bool {
+    if lhs.id != rhs.id {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Sass_EmbeddedProtocol_Value.CompilerModule: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = Sass_EmbeddedProtocol_Value.protoMessageName + ".CompilerModule"
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0")
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularUInt32Field(value: &self.id) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.id != 0 {
+      try visitor.visitSingularUInt32Field(value: self.id, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Sass_EmbeddedProtocol_Value.CompilerModule, rhs: Sass_EmbeddedProtocol_Value.CompilerModule) -> Bool {
     if lhs.id != rhs.id {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true

@@ -40,10 +40,12 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
     public enum ID: String, Sendable {
         //
         // START GENERATED CODE BY deprecations.rb from sass spec
-        // Generated from sass version: HEAD detached at 6772c45
+        // Generated from sass version: HEAD detached at 57c81dd
         //
         /// [abs-percent](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#abs_percent)
         case absPercent = "abs-percent"
+        /// [adjacent-compounds](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#adjacent_compounds)
+        case adjacentCompounds = "adjacent-compounds"
         /// [bogus-combinators](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#bogus_combinators)
         case bogusCombinators = "bogus-combinators"
         /// [call-string](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#call_string)
@@ -66,6 +68,8 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         case featureExists = "feature-exists"
         /// [fs-importer-cwd](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#fs_importer_cwd)
         case fsImporterCwd = "fs-importer-cwd"
+        /// [function-name](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#function_name)
+        case functionName = "function-name"
         /// [function-units](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#function_units)
         case functionUnits = "function-units"
         /// [global-builtin](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#global_builtin)

@@ -128,6 +128,8 @@ public class SassValue: Hashable, Sequence, CustomStringConvertible, @unchecked 
             return lcalc == rcalc
         case let (lmix, rmix) as (SassMixin, SassMixin):
             return lmix == rmix
+        case let (lmod, rmod) as (SassModule, SassModule):
+            return lmod == rmod
         default:
             return false
         }
@@ -175,4 +177,6 @@ public protocol SassValueVisitor {
     func visit(calculation: SassCalculation) throws -> ReturnType
     /// The operation for `SassMixin`.
     func visit(mixin: SassMixin) throws -> ReturnType
+    /// The operation for `SassModule`.
+    func visit(module: SassModule) throws -> ReturnType
 }

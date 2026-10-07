@@ -21,7 +21,7 @@ extension Versions {
 /// Tests for version checking
 class TestVersions: DartSassTestCase {
     func testCreation() {
-        let vers = Versions(protocolVersionString: "3.1.1")
+        let vers = Versions(protocolVersionString: "3.3.1")
         XCTAssertEqual("3", vers.protocolVersion.major)
         XCTAssertEqual("1", vers.protocolVersion.patch)
         XCTAssertNoThrow(try vers.check())
