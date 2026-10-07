@@ -136,15 +136,6 @@ the [VERSION_DART_SASS](VERSION_DART_SASS) file.
 In recent years it has fallen behind the specification and reference
 implementations, and was
 [deprecated in 2020](https://sass-lang.com/blog/libsass-is-deprecated).
-However, work is underway to revive the project and it may be that LibSass 4
-or [libsass-ng](https://github.com/mgreter/libsass-ng/) emerges as an
-alternative Sass implementation with the same level of language support as
-Dart Sass.  As of autumn 2025 this revival effort is not showing any signs of
-life.
-
-See the experimental [libsass4 branch](https://github.com/johnfairh/swift-sass/tree/libsass4)
-for the current state of development: if LibSass itself manages to get to a
-release then this package will support it as an alternative integration.
 
 ## Contributions
 
