@@ -106,6 +106,9 @@ class TestResetShutdown: DartSassTestCase {
 
     // Test the 'compiler will not restart' corner
     func testUnrestartableCompiler() async throws {
+        #if os(Linux)
+        throw XCTSkip("Hangs on 6.4")
+        #endif
         let tmpDir = try FileManager.default.createTemporaryDirectory()
         let realHeadURL = URL(fileURLWithPath: "/usr/bin/tail")
         let tmpHeadURL = tmpDir.appendingPathComponent("tail")
