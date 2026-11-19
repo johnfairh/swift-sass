@@ -229,7 +229,15 @@ class TestInterface: DartSassTestCase {
             XCTFail("Unexpected error: \(error)")
         }
 
-        // XXX add a test for by-version when the build works again...
+        // FatalExcept
+        do {
+            let compiler4 = try newCompiler(deprecationControl: DeprecationControl(fatalExcept: [.id(.slashDiv)]))
+            let results4 = try await compiler4.compile(string: deprecatedScss)
+            XCTFail("Unexpected success: \(results4)")
+        } catch _ as ProtocolError {
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
     }
 
     /// Deprecation control - type round-trip

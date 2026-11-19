@@ -9,7 +9,7 @@ on:
 jobs:
   linux:
     name: Linux SPM unit tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     container:
       image: swift:6.4
     steps:
@@ -23,12 +23,6 @@ jobs:
           echo "SWIFT_VERSION=$(swift --version|head -1|cut -d' ' -f3)" >> $GITHUB_ENV
         shell: bash
 
-      - name: Cache dependencies
-        uses: actions/cache@v5
-        with:
-          path: .build
-          key: ${{ runner.os }}-spm6-${{ env.SWIFT_VERSION }}-${{ hashFiles('Package.resolved', 'Makefile') }}
-
       - name: Run tests
         run: swift test
 
@@ -38,16 +32,10 @@ jobs:
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '27.0'
+          xcode-version: '27.2'
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-
-      - name: Cache dependencies
-        uses: actions/cache@v5
-        with:
-          path: .build
-          key: ${{ runner.os }}-spm5-${{ hashFiles('Package.resolved', 'Makefile') }}
 
       - name: SPM tests
         run: make test

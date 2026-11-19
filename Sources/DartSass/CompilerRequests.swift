@@ -203,6 +203,7 @@ actor CompilationRequest: ManagedCompilerRequest {
             msg.silenceDeprecation = settings.deprecationControl.silenced.asStrings
             msg.fatalDeprecation = settings.deprecationControl.fatal.asStrings
             msg.futureDeprecation = settings.deprecationControl.future.asStrings
+            msg.fatalDeprecationExcept = settings.deprecationControl.fatalExcept.asStrings
             msg.sourceMapIncludeSources = sourceMapStyle.embedSourceMap
             msg.charset = includeCharset
             msg.silent = settings.warningLevel.isSilent

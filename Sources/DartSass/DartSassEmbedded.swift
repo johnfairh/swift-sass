@@ -23,15 +23,17 @@ enum DartSassEmbedded {
         let programName = getenv("DART_SASS_EMBEDDED_NAME").flatMap { String(cString: $0) } ?? "sass"
         guard let bundle = DartSassEmbeddedBundle.bundle,
               let topDir = bundle.resourceURL?.resolvingSymlinksInPath(),
-              case let contents = try FileManager.default.contentsOfDirectory(at: topDir, includingPropertiesForKeys: nil),
-              let arch = contents.first?.lastPathComponent,
-              let url = bundle.url(forResource: programName,
-                                    withExtension: nil,
-                                    subdirectory: "\(arch)/dart-sass") else {
-            throw LifecycleError("No `\(programName)` is available for the current platform.")
-
-            // This archdir stuff is a mess - struggling with SPM not being able to rename stuff, or something
-            // to let us collapse the file structure.
+              case let contents = try FileManager.default.contentsOfDirectory(at: topDir, includingPropertiesForKeys: nil) else {
+            throw LifecycleError("Can't locate bundled dart-sass.")
+        }
+        // SPM in 2027 has started producing Info.plist files that confuse everyone
+        guard let arch = contents.map(\.lastPathComponent).filter({ $0 != "Info.plist" }).first else {
+            throw LifecycleError("Bundled dart-sass folder is empty: \(topDir)")
+        }
+        guard let url = bundle.url(forResource: programName,
+                                   withExtension: nil,
+                                   subdirectory: "\(arch)/dart-sass") else {
+            throw LifecycleError("No `\(programName)` is available for the current platform, expected in `\(topDir)` and then `\(arch)/dart-sass`, contents are [\(contents)].")
         }
         return (url, ["--embedded"])
     }

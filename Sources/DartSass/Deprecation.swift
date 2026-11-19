@@ -30,8 +30,8 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
     case custom(String)
 
     /// A version number for the Sass compiler meaning "every deprecation known to this level of the compiler".
-    /// This may not be supported for all facets of `DeprecationControl` -- the Dart Sass compiler supports
-    /// it only for `fatal` deprecations.
+    ///
+    /// Superseded by ``Deprecation.ID.deprecationVersion`` which is more widely supported.
     case version(String)
 
     // MARK: Deprecation IDs
@@ -40,7 +40,7 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
     public enum ID: String, Sendable {
         //
         // START GENERATED CODE BY deprecations.rb from sass spec
-        // Generated from sass version: HEAD detached at 57c81dd
+        // Generated from sass version: HEAD detached at embedded-protocol-3.4.0
         //
         /// [abs-percent](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#abs_percent)
         case absPercent = "abs-percent"
@@ -60,6 +60,8 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
         case compileStringRelativeUrl = "compile-string-relative-url"
         /// [css-function-mixin](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#css_function_mixin)
         case cssFunctionMixin = "css-function-mixin"
+        /// [deprecation-version](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#deprecation_version)
+        case deprecationVersion = "deprecation-version"
         /// [duplicate-var-flags](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#duplicate_var_flags)
         case duplicateVarFlags = "duplicate-var-flags"
         /// [elseif](https://sass-lang.com/documentation/js-api/interfaces/deprecations/#elseif)
@@ -140,18 +142,27 @@ public struct DeprecationControl: Sendable {
     public let silenced: Set<Deprecation>
     /// The set of future deprecations to be opted-in early.
     public let future: Set<Deprecation>
+    /// The set of deprecations to be ignored even when included in ``fatal``.
+    /// This is useful if you include a version number in ``fatal`` but want to then disable a
+    /// subset of the specific deprecations enforced by that version.
+    public let fatalExcept: Set<Deprecation>
 
     /// Create a new `DeprecationControl`.
     ///
     /// Making mistakes with these -- for example passing an unknown deprecation string,
     /// or putting the same deprecation in multiple places in confusing ways -- is reported
     /// through warnings from the Sass compiler when you compile a stylesheet.
+    ///
+    /// It's an error to set a ``fatalExcept`` missing from ``fatal`` and this prevents
+    /// the compiler from starting.
     public init(fatal: any Sequence<Deprecation> = [],
                 silenced: any Sequence<Deprecation> = [],
-                future: any Sequence<Deprecation> = []) {
+                future: any Sequence<Deprecation> = [],
+                fatalExcept: any Sequence<Deprecation> = []) {
         self.fatal = Set(fatal)
         self.silenced = Set(silenced)
         self.future = Set(future)
+        self.fatalExcept = Set(fatalExcept)
     }
 }
 
