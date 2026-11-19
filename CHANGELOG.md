@@ -1,3 +1,9 @@
+# 3.5.0
+
+* Bundle the 1.108.2 `dart-sass` binaries
+* Fix an intermittent compiler startup failure with Swift 6.4
+* Add `DeprecationControl.fatalExcept`
+
 # 3.4.0
 
 * Build with Swift 6.4
