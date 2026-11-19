@@ -30,8 +30,8 @@ public enum Deprecation: Hashable, Sendable, CustomStringConvertible {
     case custom(String)
 
     /// A version number for the Sass compiler meaning "every deprecation known to this level of the compiler".
-    /// This may not be supported for all facets of `DeprecationControl` -- the Dart Sass compiler supports
-    /// it only for `fatal` deprecations.
+    ///
+    /// Superseded by ``Deprecation.ID.deprecationVersion`` which is more widely supported.
     case version(String)
 
     // MARK: Deprecation IDs
@@ -142,18 +142,27 @@ public struct DeprecationControl: Sendable {
     public let silenced: Set<Deprecation>
     /// The set of future deprecations to be opted-in early.
     public let future: Set<Deprecation>
+    /// The set of deprecations to be ignored even when included in ``fatal``.
+    /// This is useful if you include a version number in ``fatal`` but want to then disable a
+    /// subset of the specific deprecations enforced by that version.
+    public let fatalExcept: Set<Deprecation>
 
     /// Create a new `DeprecationControl`.
     ///
     /// Making mistakes with these -- for example passing an unknown deprecation string,
     /// or putting the same deprecation in multiple places in confusing ways -- is reported
     /// through warnings from the Sass compiler when you compile a stylesheet.
+    ///
+    /// It's an error to set a ``fatalExcept`` missing from ``fatal`` and this prevents
+    /// the compiler from starting.
     public init(fatal: any Sequence<Deprecation> = [],
                 silenced: any Sequence<Deprecation> = [],
-                future: any Sequence<Deprecation> = []) {
+                future: any Sequence<Deprecation> = [],
+                fatalExcept: any Sequence<Deprecation> = []) {
         self.fatal = Set(fatal)
         self.silenced = Set(silenced)
         self.future = Set(future)
+        self.fatalExcept = Set(fatalExcept)
     }
 }
 
