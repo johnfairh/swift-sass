@@ -584,6 +584,17 @@ struct Sass_EmbeddedProtocol_InboundMessage: Sendable {
       set {_uniqueStorage()._futureDeprecation = newValue}
     }
 
+    /// Deprecation IDs to treat as normal deprecations, even if they appear in
+    /// `fatal_deprecation`.
+    ///
+    /// The compiler must throw an error if a deprecation appears here and not in
+    /// `fatal_deprecation` (including deprecations marked fatal via version
+    /// number).
+    var fatalDeprecationExcept: [String] {
+      get {return _storage._fatalDeprecationExcept}
+      set {_uniqueStorage()._fatalDeprecationExcept = newValue}
+    }
+
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
     /// The input stylesheet to parse. Mandatory.
@@ -2544,7 +2555,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.VersionRequest: SwiftProtobuf.Mes
 
 extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = Sass_EmbeddedProtocol_InboundMessage.protoMessageName + ".CompileRequest"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\u{2}string\0\u{1}path\0\u{1}style\0\u{3}source_map\0\u{1}importers\0\u{3}global_functions\0\u{3}alert_color\0\u{3}alert_ascii\0\u{1}verbose\0\u{3}quiet_deps\0\u{3}source_map_include_sources\0\u{1}charset\0\u{1}silent\0\u{3}fatal_deprecation\0\u{3}silence_deprecation\0\u{3}future_deprecation\0\u{c}\u{1}\u{1}")
+  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\u{2}string\0\u{1}path\0\u{1}style\0\u{3}source_map\0\u{1}importers\0\u{3}global_functions\0\u{3}alert_color\0\u{3}alert_ascii\0\u{1}verbose\0\u{3}quiet_deps\0\u{3}source_map_include_sources\0\u{1}charset\0\u{1}silent\0\u{3}fatal_deprecation\0\u{3}silence_deprecation\0\u{3}future_deprecation\0\u{3}fatal_deprecation_except\0\u{c}\u{1}\u{1}")
 
   fileprivate class _StorageClass {
     var _input: Sass_EmbeddedProtocol_InboundMessage.CompileRequest.OneOf_Input?
@@ -2562,6 +2573,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
     var _fatalDeprecation: [String] = []
     var _silenceDeprecation: [String] = []
     var _futureDeprecation: [String] = []
+    var _fatalDeprecationExcept: [String] = []
 
       // This property is used as the initial default value for new instances of the type.
       // The type itself is protecting the reference to its storage via CoW semantics.
@@ -2587,6 +2599,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
       _fatalDeprecation = source._fatalDeprecation
       _silenceDeprecation = source._silenceDeprecation
       _futureDeprecation = source._futureDeprecation
+      _fatalDeprecationExcept = source._fatalDeprecationExcept
     }
   }
 
@@ -2640,6 +2653,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
         case 15: try { try decoder.decodeRepeatedStringField(value: &_storage._fatalDeprecation) }()
         case 16: try { try decoder.decodeRepeatedStringField(value: &_storage._silenceDeprecation) }()
         case 17: try { try decoder.decodeRepeatedStringField(value: &_storage._futureDeprecation) }()
+        case 18: try { try decoder.decodeRepeatedStringField(value: &_storage._fatalDeprecationExcept) }()
         default: break
         }
       }
@@ -2705,6 +2719,9 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
       if !_storage._futureDeprecation.isEmpty {
         try visitor.visitRepeatedStringField(value: _storage._futureDeprecation, fieldNumber: 17)
       }
+      if !_storage._fatalDeprecationExcept.isEmpty {
+        try visitor.visitRepeatedStringField(value: _storage._fatalDeprecationExcept, fieldNumber: 18)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -2729,6 +2746,7 @@ extension Sass_EmbeddedProtocol_InboundMessage.CompileRequest: SwiftProtobuf.Mes
         if _storage._fatalDeprecation != rhs_storage._fatalDeprecation {return false}
         if _storage._silenceDeprecation != rhs_storage._silenceDeprecation {return false}
         if _storage._futureDeprecation != rhs_storage._futureDeprecation {return false}
+        if _storage._fatalDeprecationExcept != rhs_storage._fatalDeprecationExcept {return false}
         return true
       }
       if !storagesAreEqual {return false}
