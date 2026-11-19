@@ -128,10 +128,6 @@
     "name" : "embeddedCompilerFileURL"
   },
   {
-    "context" : "version(_:)",
-    "name" : "fatal"
-  },
-  {
     "context" : "resolve(ruleURL:context:)",
     "name" : "file:\/\/your\/custom\/path\/test"
   },

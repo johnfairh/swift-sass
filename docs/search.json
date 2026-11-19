@@ -90,7 +90,7 @@
     "parent_name" : "Deprecation"
   },
   "dartsass\/types\/deprecation1.html?swift#version_" : {
-    "abstract" : "A version number for the Sass compiler meaning “every deprecation known to this level of the compiler”.\nThis may not be supported for all facets of DeprecationControl – the Dart Sass compiler supports\nit only for fatal deprecations.",
+    "abstract" : "A version number for the Sass compiler meaning “every deprecation known to this level of the compiler”.",
     "name" : "version(_:)",
     "parent_name" : "Deprecation"
   },
@@ -142,6 +142,11 @@
   "dartsass\/types\/deprecation1\/id4.html?swift#cssfunctionmixin" : {
     "abstract" : "css-function-mixin",
     "name" : "cssFunctionMixin",
+    "parent_name" : "ID"
+  },
+  "dartsass\/types\/deprecation1\/id4.html?swift#deprecationversion" : {
+    "abstract" : "deprecation-version",
+    "name" : "deprecationVersion",
     "parent_name" : "ID"
   },
   "dartsass\/types\/deprecation1\/id4.html?swift#duplicatevarflags" : {
@@ -258,14 +263,19 @@
     "name" : "fatal",
     "parent_name" : "DeprecationControl"
   },
+  "dartsass\/types\/deprecationcontrol1.html?swift#fatalexcept" : {
+    "abstract" : "The set of deprecations to be ignored even when included in fatal.\nThis is useful if you include a version number in fatal but want to then disable a\nsubset of the specific deprecations enforced by that version.",
+    "name" : "fatalExcept",
+    "parent_name" : "DeprecationControl"
+  },
   "dartsass\/types\/deprecationcontrol1.html?swift#future" : {
     "abstract" : "The set of future deprecations to be opted-in early.",
     "name" : "future",
     "parent_name" : "DeprecationControl"
   },
-  "dartsass\/types\/deprecationcontrol1.html?swift#initfatalsilencedfuture" : {
+  "dartsass\/types\/deprecationcontrol1.html?swift#initfatalsilencedfuturefatalexcept" : {
     "abstract" : "Create a new DeprecationControl.",
-    "name" : "init(fatal:silenced:future:)",
+    "name" : "init(fatal:silenced:future:fatalExcept:)",
     "parent_name" : "DeprecationControl"
   },
   "dartsass\/types\/deprecationcontrol1.html?swift#silenced" : {
