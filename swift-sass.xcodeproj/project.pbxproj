@@ -18,6 +18,7 @@
 		02440A1C2576679E008F0862 /* DynamicFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1B2576679E008F0862 /* DynamicFunction.swift */; };
 		02440A1F2576B24B008F0862 /* ValueConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02440A1E2576B24B008F0862 /* ValueConvertible.swift */; };
 		02440A2A257957B5008F0862 /* NIOFoundationCompat in Frameworks */ = {isa = PBXBuildFile; productRef = 02440A29257957B5008F0862 /* NIOFoundationCompat */; };
+		024A286C30AF0AED0050F55C /* arm64 in Resources */ = {isa = PBXBuildFile; fileRef = 024A286B30AF0A720050F55C /* arm64 */; };
 		02512B5E25A8755B00CB8833 /* DartSassEmbedded.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02512B5D25A8755B00CB8833 /* DartSassEmbedded.swift */; };
 		025A4A152AE28F8B002E84EB /* Mixin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025A4A142AE28F8B002E84EB /* Mixin.swift */; };
 		025C624F255D2C9300AEA420 /* BinaryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025C624E255D2C9300AEA420 /* BinaryProtocol.swift */; };
@@ -46,7 +47,6 @@
 		0289BB40256BDE460004544A /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB3F256BDE460004544A /* String.swift */; };
 		0289BB4A256BEE760004544A /* TestString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0289BB49256BEE760004544A /* TestString.swift */; };
 		02903F3325A73C1C0049106E /* DartSassEmbeddedMacOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02903F3225A73C1C0049106E /* DartSassEmbeddedMacOS.swift */; };
-		02903F3825A73D5A0049106E /* x64 in Resources */ = {isa = PBXBuildFile; fileRef = 02903F3725A73D5A0049106E /* x64 */; };
 		02903F3C25A73DE90049106E /* DartSassEmbeddedMacOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02903F2425A73AA20049106E /* DartSassEmbeddedMacOS.framework */; };
 		02903F3D25A73DE90049106E /* DartSassEmbeddedMacOS.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 02903F2425A73AA20049106E /* DartSassEmbeddedMacOS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0291E7C8256000A400F6BE14 /* TestInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0291E7C7256000A400F6BE14 /* TestInterface.swift */; };
@@ -137,6 +137,7 @@
 		02440A1825765C0C008F0862 /* TestFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFunction.swift; sourceTree = "<group>"; };
 		02440A1B2576679E008F0862 /* DynamicFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicFunction.swift; sourceTree = "<group>"; };
 		02440A1E2576B24B008F0862 /* ValueConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueConvertible.swift; sourceTree = "<group>"; };
+		024A286B30AF0A720050F55C /* arm64 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = arm64; sourceTree = "<group>"; };
 		02512B5925A7418B00CB8833 /* DartSassEmbeddedLinux.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DartSassEmbeddedLinux.swift; sourceTree = "<group>"; };
 		02512B5D25A8755B00CB8833 /* DartSassEmbedded.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DartSassEmbedded.swift; sourceTree = "<group>"; };
 		025A4A142AE28F8B002E84EB /* Mixin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mixin.swift; sourceTree = "<group>"; };
@@ -306,6 +307,7 @@
 			isa = PBXGroup;
 			children = (
 				02903F3725A73D5A0049106E /* x64 */,
+				024A286B30AF0A720050F55C /* arm64 */,
 				02903F3225A73C1C0049106E /* DartSassEmbeddedMacOS.swift */,
 			);
 			name = DartSassEmbeddedMacOS;
@@ -581,7 +583,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				02903F3825A73D5A0049106E /* x64 in Resources */,
+				024A286C30AF0AED0050F55C /* arm64 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -903,6 +905,10 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Sources/DartSassEmbeddedMacOS/arm64/dart-sass/src",
+				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = DartSassEmbeddedMacOS;
@@ -972,6 +978,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Sources/DartSassEmbeddedMacOS/arm64/dart-sass/src",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
