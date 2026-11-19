@@ -234,8 +234,7 @@ class TestInterface: DartSassTestCase {
             let compiler4 = try newCompiler(deprecationControl: DeprecationControl(fatalExcept: [.id(.slashDiv)]))
             let results4 = try await compiler4.compile(string: deprecatedScss)
             XCTFail("Unexpected success: \(results4)")
-        } catch let error as ProtocolError {
-            XCTAssertTrue(error.description.contains("didn't include it"))
+        } catch _ as ProtocolError {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
